@@ -15,7 +15,7 @@
 <meta property="og:description" content="用 Hexo 搭建了个人 blogHexo 基本操作 安装   npm install -g hexo-cli  初始化hexo   hexo init  当前目录必须是空的   新建文章   hexo new [layout] name  layout 可以是 post, page, draft 之一  分别保存至 source&#x2F;_posts, source, source&#x2F;_drafts 中">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-11-29T15:49:41.000Z">
-<meta property="article:modified_time" content="2020-11-29T17:13:17.508Z">
+<meta property="article:modified_time" content="2020-11-29T17:24:56.572Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="hexo">
 <meta name="twitter:card" content="summary">
@@ -117,13 +117,21 @@
 <h2 id="React-入门"><a href="#React-入门" class="headerlink" title="React 入门"></a>React 入门</h2><h3 id="复习-JavaScript"><a href="#复习-JavaScript" class="headerlink" title="复习 JavaScript"></a>复习 JavaScript</h3><ul>
 <li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/A_re-introduction_to_JavaScript">很好的文章</a></li>
 </ul>
-<h2 id="Vue-和-React-路由模块的区别"><a href="#Vue-和-React-路由模块的区别" class="headerlink" title="Vue 和 React 路由模块的区别"></a>Vue 和 React 路由模块的区别</h2><h3 id="Vue-路由"><a href="#Vue-路由" class="headerlink" title="Vue 路由"></a>Vue 路由</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">new Router(&#123;</span><br><span class="line">    route</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="Vue-和-React-路由模块的区别"><a href="#Vue-和-React-路由模块的区别" class="headerlink" title="Vue 和 React 路由模块的区别"></a>Vue 和 React 路由模块的区别</h2><h3 id="Vue-路由"><a href="#Vue-路由" class="headerlink" title="Vue 路由"></a>Vue 路由</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Router(&#123;</span><br><span class="line">    mode: <span class="string">&#x27;history&#x27;</span>,</span><br><span class="line">    routes: [</span><br><span class="line">    &#123;</span><br><span class="line">        path: <span class="string">&#x27;/inspect&#x27;</span>,</span><br><span class="line">        component: Layout,</span><br><span class="line">        redirect: <span class="string">&#x27;/inspect/table1&#x27;</span>,</span><br><span class="line">        name: <span class="string">&#x27;报表&#x27;</span>,</span><br><span class="line">        meta: &#123; <span class="attr">title</span>: <span class="string">&#x27;报表&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;,</span><br><span class="line">        children: [</span><br><span class="line">        &#123;</span><br><span class="line">            path: <span class="string">&#x27;table1&#x27;</span>,</span><br><span class="line">            name: <span class="string">&#x27;Table&#x27;</span>,</span><br><span class="line">            component: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;@/views/table/index&#x27;</span>),</span><br><span class="line">            meta: &#123; <span class="attr">title</span>: <span class="string">&#x27;Table&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
 
+<h2 id="Vue-深入-——-MVVM-框架"><a href="#Vue-深入-——-MVVM-框架" class="headerlink" title="Vue 深入 —— MVVM 框架"></a>Vue 深入 —— MVVM 框架</h2><ul>
+<li><p>Observer 数据劫持</p>
+</li>
+<li><p>Dep/Watcher 发布订阅</p>
+</li>
+<li><p>Compiler 解析 <code>&#123;&#123; &#125;&#125;</code>, 创建watcher, 求解表达式</p>
+</li>
+</ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://cocat.top/2020/11/29/daily/" data-id="cki3du6al00000gn81h7l3v6f" class="article-share-link">Share</a>
+      <a data-url="http://cocat.top/2020/11/29/daily/" data-id="cki3e932c0000z3nhg516fpct" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li></ul>
