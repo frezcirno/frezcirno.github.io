@@ -10,15 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Config git
-        run: git config --global user.name frezcirno && git config --global user.email 2277861660@qq.com
-      - name: Checkout submodules
-        shell: bash
-        run: |
-          # From https://github.com/actions/checkout/issues/116#issuecomment-583221947
-          git config --global url."https://github.com/".insteadOf "git@github.com:"
-          git submodule sync --recursive
-          git -c "http.extraheader=Authorization: basic ${{secrets.GITHUB_ACCESS_TOKEN}}" -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: 'recursive'
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
