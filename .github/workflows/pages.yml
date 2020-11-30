@@ -12,6 +12,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Checkout submodules
         uses: textbook/git-checkout-submodule-action@master
+        with:
+          remote: true
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
