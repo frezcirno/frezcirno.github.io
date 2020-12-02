@@ -149,6 +149,167 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="cn">
+    <link itemprop="mainEntityOfPage" href="http://cocat.top/2020/12/02/daily/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="what do you learn today?">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/12/02/daily/" class="post-title-link" itemprop="url">每日记录</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-12-02 09:14:54 / Modified: 18:32:35" itemprop="dateCreated datePublished" datetime="2020-12-02T09:14:54+08:00">2020-12-02</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li><p>React</p>
+<ul>
+<li>children属性: 子元素构成的数组</li>
+</ul>
+</li>
+<li><p>React-redux</p>
+<ul>
+<li><p>引入: <code>import &#123;...&#125; from &#39;react-redux&#39;</code></p>
+</li>
+<li><p><code>Store</code></p>
+<ul>
+<li><p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
+</li>
+<li><p><code>createStore(reducer, initState)</code></p>
+<ul>
+<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
+</li>
+<li><p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component </p>
+</li>
+<li><p><code>connect(mapStateToProps)(Component)</code></p>
+<ul>
+<li><p>map current states to <code>Component</code>‘s props</p>
+</li>
+<li><p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
+</li>
+<li><p>一般和<Provider>结合起来用</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>React-Router</p>
+<ul>
+<li><p>引入: <code>import &#123;&#125; from &#39;react-router-dom&#39;</code></p>
+</li>
+<li><p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
+<ul>
+<li><p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
+</li>
+<li><p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
+</li>
+<li><p>参数化匹配</p>
+<ul>
+<li><p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
+</li>
+<li><p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
+<ul>
+<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
+</ul>
+</li>
+<li><p>嵌套使用: </p>
+  <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = useRouteMatch(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    &lt;Route path=&#123;<span class="string">`<span class="subst">$&#123;path&#125;</span>/next`</span>&#125;&gt;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>Vue-Router</p>
+<ul>
+<li><p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
+</li>
+<li><p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
+</li>
+<li><p><code>Router</code>: 在这里定义全局路由表</p>
+</li>
+</ul>
+</li>
+<li><p>Ubuntu 安装 rpm 包</p>
+<ul>
+<li><p>sudo apt install alien</p>
+</li>
+<li><p>sudo alien packagename.rpm</p>
+</li>
+<li><p>sudo apt install ./packagename.deb</p>
+</li>
+<li><p>一步到位: sudo alien -i packagename.rpm</p>
+</li>
+</ul>
+</li>
+<li><p>Oracle 的连接方式</p>
+<ul>
+<li><p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
+</li>
+<li><p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
+<ul>
+<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
+</ul>
+</li>
+<li><p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD &#x3D;</span><br><span class="line">    (DESCRIPTION &#x3D;</span><br><span class="line">        (ADDRESS &#x3D;</span><br><span class="line">            (PROTOCOL &#x3D; TCP) </span><br><span class="line">            (PORT &#x3D; 1521)</span><br><span class="line">            (HOST &#x3D; LITTLECOMPUTER.ACME.ORG) &#x2F;&#x2F; 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA &#x3D; (SID &#x3D; MYSID)) &#x2F;&#x2F; 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD &#x3D;</span><br><span class="line">    (DESCRIPTION &#x3D;</span><br><span class="line">        (ADDRESS &#x3D;</span><br><span class="line">            (PROTOCOL &#x3D; TCP) </span><br><span class="line">            (PORT &#x3D; 1521)</span><br><span class="line">            (HOST &#x3D; BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA &#x3D; (SERVICE_NAME &#x3D; MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="cn">
     <link itemprop="mainEntityOfPage" href="http://cocat.top/2020/12/01/daily/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -172,10 +333,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-12-01 10:23:15 / Modified: 23:58:28" itemprop="dateCreated datePublished" datetime="2020-12-01T10:23:15+08:00">2020-12-01</time>
+              <time title="Created: 2020-12-01 10:23:15" itemprop="dateCreated datePublished" datetime="2020-12-01T10:23:15+08:00">2020-12-01</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-12-02 18:32:35" itemprop="dateModified" datetime="2020-12-02T18:32:35+08:00">2020-12-02</time>
+              </span>
 
           
 
@@ -440,7 +607,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-12-01 23:58:28" itemprop="dateModified" datetime="2020-12-01T23:58:28+08:00">2020-12-01</time>
+                <time title="Modified: 2020-12-02 18:32:35" itemprop="dateModified" datetime="2020-12-02T18:32:35+08:00">2020-12-02</time>
               </span>
 
           
@@ -560,7 +727,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-12-01 23:58:28" itemprop="dateModified" datetime="2020-12-01T23:58:28+08:00">2020-12-01</time>
+                <time title="Modified: 2020-12-02 18:32:35" itemprop="dateModified" datetime="2020-12-02T18:32:35+08:00">2020-12-02</time>
               </span>
 
           
@@ -693,12 +860,12 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
