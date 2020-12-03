@@ -149,6 +149,117 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="cn">
+    <link itemprop="mainEntityOfPage" href="http://cocat.top/2020/12/03/daily/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="what do you learn today?">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/12/03/daily/" class="post-title-link" itemprop="url">每日记录</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-12-03 12:52:43 / Modified: 16:24:44" itemprop="dateCreated datePublished" datetime="2020-12-03T12:52:43+08:00">2020-12-03</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Oracle-数据库"><a href="#Oracle-数据库" class="headerlink" title="Oracle 数据库"></a>Oracle 数据库</h1><h1 id="秘书问题"><a href="#秘书问题" class="headerlink" title="秘书问题"></a>秘书问题</h1><ul>
+<li><p>又称相亲问题、止步问题、见好就收问题、苏丹的嫁妆问题、挑剔的求婚者问题等</p>
+</li>
+<li><p>要聘请一名秘书，有 n 个应聘者。每次面试一人，面试后就要及时决定是否聘他，如果当时决定不聘他，他便不会回来。面试后总能清楚了解应聘者的合适程度，并能和之前的每个人做比较。问什么样的策略，才使最佳人选被选中的概率最大。 </p>
+</li>
+<li><p>答案:</p>
+  <details>
+  <summary>展开</summary>
+
+<ul>
+<li><p>这个问题的最优解是一个停止规则。在这个规则里，面试官会拒绝头 r - 1 个应聘者（令他们中的最佳人选为 应聘者 M），然后选出第一个比 M 好的应聘者。可见最优策略包含于这个系列的策略中。（如果M在所有n个应聘者中也是最好的一个，那么这个策略将选不出任何人选）对于任意的截断值 r，最佳人选被选中的概率是： </p>
+<p>  $${\displaystyle {\begin{aligned}P(r)&amp;=\sum _{i=1}^{n}P\left({\text{applicant }}i{\text{ is selected}}\cap {\text{applicant }}i{\text{ is the best}}\right)\&amp;=\sum _{i=1}^{n}P\left({\text{applicant }}i{\text{ is selected}}|{\text{applicant }}i{\text{ is the best}}\right)\cdot P\left({\text{applicant }}i{\text{ is the best}}\right)\&amp;=\left[\sum _{i=1}^{r-1}0+\sum _{i=r}^{n}P\left(\left.{\begin{array}{l}{\text{the best of the first }}i-1{\text{ applicants}}\{\text{is in the first }}r-1{\text{ applicants}}\end{array}}\right|{\text{applicant }}i{\text{ is the best}}\right)\right]\cdot {\frac {1}{n}}\&amp;=\left[\sum _{i=r}^{n}{\frac {r-1}{i-1}}\right]\cdot {\frac {1}{n}}\quad =\quad {\frac {r-1}{n}}\sum _{i=r}^{n}{\frac {1}{i-1}}.\end{aligned}}}$$</p>
+</li>
+<li><p>当n趋近于无穷大时</p>
+<p>  $${\displaystyle P(x)=x\int _{x}^{1}{\frac {1}{t}},dt=-x\ln(x).}$$</p>
+</li>
+<li><p>求出最优的x值为</p>
+<p>  $$\frac {1}{e}$$</p>
+</details>
+
+
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="Nginx-配置"><a href="#Nginx-配置" class="headerlink" title="Nginx 配置"></a>Nginx 配置</h1><ul>
+<li><p>root: 表示去哪个目录下寻找对应url的文件, 实际上是添加前缀</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location &#x2F;aaaa&#x2F; &#123;</span><br><span class="line">    root &#x2F;home&#x2F;tom&#x2F;www&#x2F;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>请求: http://(hostname)<span style="background-color: yellow;">/aaaa/</span>hello.txt</p>
+</li>
+<li><p>返回: <span style="background-color: #cdffd8;">/home/tom/www</span><span style="background-color: yellow;">/aaaa/</span>hello.txt</p>
+</li>
+</ul>
+</li>
+<li><p>alias: 表示把匹配成功的路径<strong>替换</strong>成alias</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location &#x2F;aaaa&#x2F; &#123;</span><br><span class="line">    alias &#x2F;home&#x2F;tom&#x2F;www&#x2F;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>请求: http://(hostname)<span style="background-color: yellow;">/aaaa/</span>hello.txt </p>
+</li>
+<li><p>返回: <span style="background-color: #cdffd8;">/home/tom/www/</span>hello.txt</p>
+</li>
+</ul>
+</li>
+<li><p>PS: Nginx会自动将两个连续的斜杠替换成一个</p>
+</li>
+</ul>
+<h1 id="Flask-嵌套路由配置"><a href="#Flask-嵌套路由配置" class="headerlink" title="Flask 嵌套路由配置"></a>Flask 嵌套路由配置</h1><ul>
+<li><p>使用<code>register_blueprint</code>时的<code>url_prefix</code>参数</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># create app, blueprints, etc.</span></span><br><span class="line">app.register_blueprint(myblueprint, url_prefix=<span class="string">&#x27;/somepath&#x27;</span>)</span><br><span class="line"><span class="comment"># ...</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="cn">
     <link itemprop="mainEntityOfPage" href="http://cocat.top/2020/12/02/daily/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -172,10 +283,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-12-02 09:14:54 / Modified: 18:32:35" itemprop="dateCreated datePublished" datetime="2020-12-02T09:14:54+08:00">2020-12-02</time>
+              <time title="Created: 2020-12-02 09:14:54" itemprop="dateCreated datePublished" datetime="2020-12-02T09:14:54+08:00">2020-12-02</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-12-03 16:24:44" itemprop="dateModified" datetime="2020-12-03T16:24:44+08:00">2020-12-03</time>
+              </span>
 
           
 
@@ -341,7 +458,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-12-02 18:32:35" itemprop="dateModified" datetime="2020-12-02T18:32:35+08:00">2020-12-02</time>
+                <time title="Modified: 2020-12-03 16:24:44" itemprop="dateModified" datetime="2020-12-03T16:24:44+08:00">2020-12-03</time>
               </span>
 
           
@@ -607,7 +724,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-12-02 18:32:35" itemprop="dateModified" datetime="2020-12-02T18:32:35+08:00">2020-12-02</time>
+                <time title="Modified: 2020-12-03 16:24:44" itemprop="dateModified" datetime="2020-12-03T16:24:44+08:00">2020-12-03</time>
               </span>
 
           
@@ -727,7 +844,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-12-02 18:32:35" itemprop="dateModified" datetime="2020-12-02T18:32:35+08:00">2020-12-02</time>
+                <time title="Modified: 2020-12-03 16:24:44" itemprop="dateModified" datetime="2020-12-03T16:24:44+08:00">2020-12-03</time>
               </span>
 
           
@@ -860,12 +977,12 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
