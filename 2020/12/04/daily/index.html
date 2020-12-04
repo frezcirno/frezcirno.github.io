@@ -20,20 +20,22 @@
     var CONFIG = {"hostname":"cocat.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":true,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="用 Hexo 搭建了个人 blogHexo 基本操作 安装   npm install -g hexo-cli  初始化hexo   hexo init  当前目录必须是空的   新建文章   hexo new [layout] name  layout 可以是 post, page, draft 之一  分别保存至 source&#x2F;_posts, source, source&#x2F;_drafts 中">
+  <meta name="description" content="Java 包(Package), Jar和模块(Module)的区别 包 (Package)  是Java源文件的集合, 包含Class&#x2F;Interface&#x2F;Annotation的定义  与文件系统中的目录对应  主要目的是防止命名冲突    Jar (Java Archive File)  是编译后的Java代码(.class)的压缩包  实际上是一个zip格式文件  对Jar的操作用jar命令">
 <meta property="og:type" content="article">
 <meta property="og:title" content="每日记录">
-<meta property="og:url" content="http://cocat.top/2020/11/29/daily/index.html">
+<meta property="og:url" content="http://cocat.top/2020/12/04/daily/index.html">
 <meta property="og:site_name" content="frezcirno&#39;s blog">
-<meta property="og:description" content="用 Hexo 搭建了个人 blogHexo 基本操作 安装   npm install -g hexo-cli  初始化hexo   hexo init  当前目录必须是空的   新建文章   hexo new [layout] name  layout 可以是 post, page, draft 之一  分别保存至 source&#x2F;_posts, source, source&#x2F;_drafts 中">
+<meta property="og:description" content="Java 包(Package), Jar和模块(Module)的区别 包 (Package)  是Java源文件的集合, 包含Class&#x2F;Interface&#x2F;Annotation的定义  与文件系统中的目录对应  主要目的是防止命名冲突    Jar (Java Archive File)  是编译后的Java代码(.class)的压缩包  实际上是一个zip格式文件  对Jar的操作用jar命令">
 <meta property="og:locale">
-<meta property="article:published_time" content="2020-11-29T15:49:41.000Z">
+<meta property="og:image" content="http://cocat.top/2020/12/04/daily/images/module.jpg">
+<meta property="article:published_time" content="2020-12-04T02:17:02.000Z">
 <meta property="article:modified_time" content="2020-12-04T03:34:06.279Z">
 <meta property="article:author" content="frezcirno">
-<meta property="article:tag" content="hexo">
+<meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://cocat.top/2020/12/04/daily/images/module.jpg">
 
-<link rel="canonical" href="http://cocat.top/2020/11/29/daily/">
+<link rel="canonical" href="http://cocat.top/2020/12/04/daily/">
 
 
 <script id="page-configurations">
@@ -152,7 +154,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="cn">
-    <link itemprop="mainEntityOfPage" href="http://cocat.top/2020/11/29/daily/">
+    <link itemprop="mainEntityOfPage" href="http://cocat.top/2020/12/04/daily/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -174,16 +176,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2020-11-29 23:49:41" itemprop="dateCreated datePublished" datetime="2020-11-29T23:49:41+08:00">2020-11-29</time>
+              <time title="Created: 2020-12-04 10:17:02 / Modified: 11:34:06" itemprop="dateCreated datePublished" datetime="2020-12-04T10:17:02+08:00">2020-12-04</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-12-04 11:34:06" itemprop="dateModified" datetime="2020-12-04T11:34:06+08:00">2020-12-04</time>
-              </span>
 
           
 
@@ -196,42 +192,72 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="用-Hexo-搭建了个人-blog"><a href="#用-Hexo-搭建了个人-blog" class="headerlink" title="用 Hexo 搭建了个人 blog"></a>用 Hexo 搭建了个人 blog</h1><h2 id="Hexo-基本操作"><a href="#Hexo-基本操作" class="headerlink" title="Hexo 基本操作"></a>Hexo 基本操作</h2><ul>
-<li><p>安装</p>
-<p>  <code>npm install -g hexo-cli</code></p>
-</li>
-<li><p>初始化hexo</p>
-<p>  <code>hexo init</code></p>
+        <h1 id="Java-包-Package-Jar和模块-Module-的区别"><a href="#Java-包-Package-Jar和模块-Module-的区别" class="headerlink" title="Java 包(Package), Jar和模块(Module)的区别"></a>Java 包(Package), Jar和模块(Module)的区别</h1><ul>
+<li><p>包 (Package)</p>
 <ul>
-<li>当前目录必须是空的</li>
+<li><p>是Java源文件的集合, 包含Class/Interface/Annotation的定义</p>
+</li>
+<li><p>与文件系统中的目录对应</p>
+</li>
+<li><p>主要目的是<em>防止命名冲突</em></p>
+</li>
 </ul>
 </li>
-<li><p>新建文章</p>
-<p>  <code>hexo new [layout] name</code></p>
+<li><p>Jar (Java Archive File)</p>
 <ul>
-<li><p>layout 可以是 post, page, draft 之一</p>
+<li><p>是编译后的Java代码(<code>.class</code>)的压缩包</p>
 </li>
-<li><p>分别保存至 source/_posts, source, source/_drafts 中</p>
+<li><p>实际上是一个zip格式文件</p>
 </li>
-<li><p>新建文件名可以在 _config.yml 里面指定, <code>new_post_name</code>, 默认为 <code>name.md</code></p>
+<li><p>对Jar的操作用<code>jar</code>命令, 其语法类似Linux下的<code>tar</code></p>
+<ul>
+<li><p>创建Jar包: <code>jar cvf test.jar test</code></p>
+</li>
+<li><p>解压Jar包: <code>jar xvf test.jar</code></p>
+</li>
+<li><p>列举Jar包的内容: <code>jar tvf test.jar</code></p>
 </li>
 </ul>
 </li>
-<li><p>临时开启 server</p>
-<p>  <code>hexo server</code></p>
+</ul>
+</li>
+<li><p>模块 (Module)</p>
+<ul>
+<li><p>是Java语言内置的一种管理组件之间依赖关系的方法, 在Java 9被引入</p>
+</li>
+<li><p>Module 解决的问题:</p>
+<ul>
+<li><p>在Java 9之前, <strong>主要使用package作为封装方式，使用Jar作为模块, 封装方式由 package和访问修饰符 (private, protected, public,包私有) 控制</strong></p>
+<ul>
+<li><p>任何模块都能访问其他模块的public的代码，不同Jar下的同名包可以相互访问包私有的代码。</p>
+</li>
+<li><p>无法控制非平台开发者对平台内部包的访问，如应用代码可以访问sun.misc、com.sun.security这样和具体平台绑定的包。</p>
+</li>
+<li><p>没有明确的依赖信息，模块开发者无法设置必须的依赖，模块使用者不清楚该模块必须依赖哪些模块。只能使用外部的工具，如Maven、Gradle、OSGI等。</p>
 </li>
 </ul>
-<h1 id="React-入门"><a href="#React-入门" class="headerlink" title="React 入门"></a>React 入门</h1><h2 id="复习-JavaScript"><a href="#复习-JavaScript" class="headerlink" title="复习 JavaScript"></a>复习 JavaScript</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/A_re-introduction_to_JavaScript">很好的文章</a></li>
+</li>
 </ul>
-<h1 id="Vue-和-React-路由模块的区别"><a href="#Vue-和-React-路由模块的区别" class="headerlink" title="Vue 和 React 路由模块的区别"></a>Vue 和 React 路由模块的区别</h1><h2 id="Vue-路由"><a href="#Vue-路由" class="headerlink" title="Vue 路由"></a>Vue 路由</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Router(&#123;</span><br><span class="line">    mode: <span class="string">&#x27;history&#x27;</span>,</span><br><span class="line">    routes: [</span><br><span class="line">    &#123;</span><br><span class="line">        path: <span class="string">&#x27;/inspect&#x27;</span>,</span><br><span class="line">        component: Layout,</span><br><span class="line">        redirect: <span class="string">&#x27;/inspect/table1&#x27;</span>,</span><br><span class="line">        name: <span class="string">&#x27;报表&#x27;</span>,</span><br><span class="line">        meta: &#123; <span class="attr">title</span>: <span class="string">&#x27;报表&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;,</span><br><span class="line">        children: [</span><br><span class="line">        &#123;</span><br><span class="line">            path: <span class="string">&#x27;table1&#x27;</span>,</span><br><span class="line">            name: <span class="string">&#x27;Table&#x27;</span>,</span><br><span class="line">            component: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;@/views/table/index&#x27;</span>),</span><br><span class="line">            meta: &#123; <span class="attr">title</span>: <span class="string">&#x27;Table&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
-<h1 id="Vue-深入-——-MVVM-框架"><a href="#Vue-深入-——-MVVM-框架" class="headerlink" title="Vue 深入 —— MVVM 框架"></a>Vue 深入 —— MVVM 框架</h1><ul>
-<li><p>Observer 数据劫持</p>
 </li>
-<li><p>Dep/Watcher 发布订阅</p>
+<li><p>Module 的优势</p>
+<ul>
+<li><p>明确的依赖配置，JPMS会在编译和运行之前检查当前环境是否满足依赖的要求。JPMS会检查版本冲突，即当有两个模块暴露了相同的包名时，系统会抛出异常。JPMS支持传递性依赖。</p>
 </li>
-<li><p>Compiler 解析 <code>&#123;&#123; &#125;&#125;</code>, 创建watcher, 求解表达式</p>
+<li><p>强大的封装，模块可以明确指定哪些包能暴露给哪些模块，JPMS不允许代码使用反射的方式访问不对外开放的包。</p>
+</li>
+<li><p>性能优化，JPMS完全清楚哪些模块是需要的，所以不需要的模块不会被JVM载入。</p>
+</li>
+</ul>
+</li>
+<li><p>Module 的不足:</p>
+<ul>
+<li>缺乏对模块的版本的支持</li>
+</ul>
+</li>
+<li><p>特点:</p>
+<p>  <img src="images/module.jpg"></p>
+</li>
+</ul>
 </li>
 </ul>
 
@@ -243,7 +269,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/hexo/" rel="tag"># hexo</a>
+              <a href="/tags/Java/" rel="tag"># Java</a>
           </div>
 
         
@@ -251,11 +277,11 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2020/11/30/daily/" rel="next" title="每日记录">
-      每日记录 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/12/03/daily/" rel="prev" title="每日记录">
+      <i class="fa fa-chevron-left"></i> 每日记录
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -315,7 +341,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%A8-Hexo-%E6%90%AD%E5%BB%BA%E4%BA%86%E4%B8%AA%E4%BA%BA-blog"><span class="nav-number">1.</span> <span class="nav-text">用 Hexo 搭建了个人 blog</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Hexo-%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">1.1.</span> <span class="nav-text">Hexo 基本操作</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#React-%E5%85%A5%E9%97%A8"><span class="nav-number">2.</span> <span class="nav-text">React 入门</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%8D%E4%B9%A0-JavaScript"><span class="nav-number">2.1.</span> <span class="nav-text">复习 JavaScript</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Vue-%E5%92%8C-React-%E8%B7%AF%E7%94%B1%E6%A8%A1%E5%9D%97%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">Vue 和 React 路由模块的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Vue-%E8%B7%AF%E7%94%B1"><span class="nav-number">3.1.</span> <span class="nav-text">Vue 路由</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Vue-%E6%B7%B1%E5%85%A5-%E2%80%94%E2%80%94-MVVM-%E6%A1%86%E6%9E%B6"><span class="nav-number">4.</span> <span class="nav-text">Vue 深入 —— MVVM 框架</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E5%8C%85-Package-Jar%E5%92%8C%E6%A8%A1%E5%9D%97-Module-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.</span> <span class="nav-text">Java 包(Package), Jar和模块(Module)的区别</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -437,7 +463,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'frezcirno.github.io',
       owner       : 'frezcirno',
       admin       : ['frezcirno'],
-      id          : '1d4f6413b849287637de3f07ec2be37b',
+      id          : '615827ae47c6323ff272a5cef6aa0327',
         language: '',
       distractionFreeMode: true
     });
