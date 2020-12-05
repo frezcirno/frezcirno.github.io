@@ -11,7 +11,7 @@ date: 2020-12-03 12:59:18
 
 - 用户与schema的关系: In Oracle Database, a database schema is a collection of logical data structures, or schema objects. A database user owns a database schema, which has the same name as the user name.
 
-    ![](user-schema-tables.png)
+    ![](images/user-schema-tables.png)
 
 # 表空间
 
@@ -57,7 +57,7 @@ date: 2020-12-03 12:59:18
 
 # 数据库启动过程
 
-![](startup-sequence.png)
+![](images/startup-sequence.png)
 
 # 常用命令
 
