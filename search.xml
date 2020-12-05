@@ -702,6 +702,41 @@
 </ul>
 </li>
 </ul>
+<h1 id="Github-开源项目包含不想公开的密码-Token等怎么处理"><a href="#Github-开源项目包含不想公开的密码-Token等怎么处理" class="headerlink" title="Github 开源项目包含不想公开的密码/Token等怎么处理"></a>Github 开源项目包含不想公开的密码/Token等怎么处理</h1><p>可以将隐私数据包含在项目的Secret设置中, 在Github Action中使用脚本将隐私数据注入到文件中</p>
+<h1 id="YAML-语言"><a href="#YAML-语言" class="headerlink" title="YAML 语言"></a>YAML 语言</h1><p>基本类型:</p>
+<blockquote>
+<ul>
+<li><p>String</p>
+</li>
+<li><p>Bool: <code>true</code>, <code>false</code></p>
+</li>
+<li><p>Int</p>
+</li>
+<li><p>Number</p>
+</li>
+<li><p>null: <code>~</code></p>
+</li>
+<li><p>Time: ISO8601 格式, 例<code>2001-12-14t21:59:43.10-05:00</code></p>
+</li>
+<li><p>Date: <code>1976-07-31</code></p>
+</li>
+</ul>
+</blockquote>
+<p>注释: <code>#</code></p>
+<p>使用左端对齐的键值对表示对象:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">key1:</span> <span class="string">abc</span></span><br><span class="line">  <span class="attr">key2:</span> <span class="number">123</span></span><br><span class="line">  <span class="attr">key3:</span> <span class="string">sss</span></span><br></pre></td></tr></table></figure>
+
+<p>使用以<code>-</code>开头的对齐的值表示数组: </p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">fruits:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">apple</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">banana</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">orange</span></span><br></pre></td></tr></table></figure>
+
+<p>数组套对象:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">objs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">object</span> <span class="string">A</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">an</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">B</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">another</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">C</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">still</span> <span class="string">an</span> <span class="string">object</span></span><br></pre></td></tr></table></figure>
+
+<p>数组套数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">matrix:</span> </span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a11</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a12</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a13</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a21</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a22</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a23</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a31</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a32</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a33</span></span><br></pre></td></tr></table></figure>
+
+<p>对象套数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">frezcirno</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Boy</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Handsome</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Student</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Cool</span></span><br></pre></td></tr></table></figure>
 ]]></content>
       <tags>
         <tag>Java</tag>
