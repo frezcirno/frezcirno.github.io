@@ -9,11 +9,9 @@ date: 2020-12-03 12:59:18
 
 [Oracle官方文档](https://docs.oracle.com/en/database/oracle/oracle-database/index.html)
 
-
-
 # Schema
 
-Schema是表, 索引, 存储过程等等数据库对象的存储容器
+Schema是表, 索引, 存储过程等等数据库对象(DB Object)的存储容器
 
 用户与Schema之间是**一对一**的关系
 
@@ -147,7 +145,7 @@ Oracle数据库与实例的关闭过程
 
         `SQL> select instance_name from v$instance;`
         
-    - 查看数据库实例状态(open/mount等)
+    - 查看当前数据库实例状态(open/mount等)
 
         `SQL> select status from v$instance;`
         
@@ -211,7 +209,7 @@ Oracle数据库与实例的关闭过程
 
         `SQL> show con_name;`
 
-    - 列举当前容器中的所有PDB
+    - 列举当前容器中的所有PDB以及状态
 
         `SQL> select con_id, dbid, guid, name, open_mode from v$pdbs;`
 
