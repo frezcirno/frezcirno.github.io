@@ -23,21 +23,21 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":true,"nav":null,"activeClass":"gitalk"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
-<meta name="description" content="用 Hexo 搭建了个人 blogHexo 基本操作 安装   npm install -g hexo-cli  初始化hexo   hexo init  当前目录必须是空的   新建文章   hexo new [layout] name  layout 可以是 post, page, draft 之一  分别保存至 source&#x2F;_posts, source, source&#x2F;_drafts 中">
+<meta name="description" content="Spring学习IoC容器Spring类似一个类实例的工厂, 我们提供配置文件(.Java, .xml), Spring按照配置文件装配产品. Spring的核心IoC容器接口是ApplicationContext，并提供了多种实现类:例如读取xml文件的ClassPathXmlApplicationContext, 使用注解的AnnotationConfigApplicationContext">
 <meta property="og:type" content="article">
 <meta property="og:title" content="每日记录">
-<meta property="og:url" content="https://frezcirno.github.io/2020/11/29/daily/index.html">
+<meta property="og:url" content="https://frezcirno.github.io/2020/12/09/daily/index.html">
 <meta property="og:site_name" content="frezcirno&#39;s blog">
-<meta property="og:description" content="用 Hexo 搭建了个人 blogHexo 基本操作 安装   npm install -g hexo-cli  初始化hexo   hexo init  当前目录必须是空的   新建文章   hexo new [layout] name  layout 可以是 post, page, draft 之一  分别保存至 source&#x2F;_posts, source, source&#x2F;_drafts 中">
+<meta property="og:description" content="Spring学习IoC容器Spring类似一个类实例的工厂, 我们提供配置文件(.Java, .xml), Spring按照配置文件装配产品. Spring的核心IoC容器接口是ApplicationContext，并提供了多种实现类:例如读取xml文件的ClassPathXmlApplicationContext, 使用注解的AnnotationConfigApplicationContext">
 <meta property="og:locale">
-<meta property="article:published_time" content="2020-11-29T15:49:41.000Z">
+<meta property="article:published_time" content="2020-12-09T00:04:26.000Z">
 <meta property="article:modified_time" content="2020-12-09T16:38:17.141Z">
 <meta property="article:author" content="frezcirno">
-<meta property="article:tag" content="hexo">
+<meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://frezcirno.github.io/2020/11/29/daily/">
+<link rel="canonical" href="https://frezcirno.github.io/2020/12/09/daily/">
 
 
 <script class="page-configurations">
@@ -192,7 +192,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <section class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%A8-Hexo-%E6%90%AD%E5%BB%BA%E4%BA%86%E4%B8%AA%E4%BA%BA-blog"><span class="nav-number">1.</span> <span class="nav-text">用 Hexo 搭建了个人 blog</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Hexo-%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">1.1.</span> <span class="nav-text">Hexo 基本操作</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#React-%E5%85%A5%E9%97%A8"><span class="nav-number">2.</span> <span class="nav-text">React 入门</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%8D%E4%B9%A0-JavaScript"><span class="nav-number">2.1.</span> <span class="nav-text">复习 JavaScript</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Vue-%E5%92%8C-React-%E8%B7%AF%E7%94%B1%E6%A8%A1%E5%9D%97%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">Vue 和 React 路由模块的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Vue-%E8%B7%AF%E7%94%B1"><span class="nav-number">3.1.</span> <span class="nav-text">Vue 路由</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Vue-%E6%B7%B1%E5%85%A5-%E2%80%94%E2%80%94-MVVM-%E6%A1%86%E6%9E%B6"><span class="nav-number">4.</span> <span class="nav-text">Vue 深入 —— MVVM 框架</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring%E5%AD%A6%E4%B9%A0"><span class="nav-number">1.</span> <span class="nav-text">Spring学习</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#IoC%E5%AE%B9%E5%99%A8"><span class="nav-number">1.1.</span> <span class="nav-text">IoC容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java%E7%9A%84Web%E6%A1%86%E6%9E%B6"><span class="nav-number">1.2.</span> <span class="nav-text">Java的Web框架</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring%E8%BF%9E%E6%8E%A5%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">1.3.</span> <span class="nav-text">Spring连接数据库</span></a></li></ol></li></ol></div>
         </section>
         <!--/noindex-->
 
@@ -261,7 +261,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/2020/11/29/daily/">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/2020/12/09/daily/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -285,7 +285,7 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2020-11-29 23:49:41" itemprop="dateCreated datePublished" datetime="2020-11-29T23:49:41+08:00">2020-11-29</time>
+      <time title="Created: 2020-12-09 08:04:26" itemprop="dateCreated datePublished" datetime="2020-12-09T08:04:26+08:00">2020-12-09</time>
     </span>
       <span class="post-meta-item">
         <span class="post-meta-item-icon">
@@ -305,42 +305,25 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="用-Hexo-搭建了个人-blog"><a href="#用-Hexo-搭建了个人-blog" class="headerlink" title="用 Hexo 搭建了个人 blog"></a>用 Hexo 搭建了个人 blog</h1><h2 id="Hexo-基本操作"><a href="#Hexo-基本操作" class="headerlink" title="Hexo 基本操作"></a>Hexo 基本操作</h2><ul>
-<li><p>安装</p>
-<p>  <code>npm install -g hexo-cli</code></p>
+        <h1 id="Spring学习"><a href="#Spring学习" class="headerlink" title="Spring学习"></a>Spring学习</h1><h2 id="IoC容器"><a href="#IoC容器" class="headerlink" title="IoC容器"></a>IoC容器</h2><p>Spring类似一个类实例的工厂, 我们提供配置文件(.Java, .xml), Spring按照配置文件装配产品.</p>
+<p>Spring的核心IoC容器接口是<code>ApplicationContext</code>，并提供了多种实现类:<br>例如读取xml文件的<code>ClassPathXmlApplicationContext</code>, 使用注解的<code>AnnotationConfigApplicationContext</code></p>
+<h2 id="Java的Web框架"><a href="#Java的Web框架" class="headerlink" title="Java的Web框架"></a>Java的Web框架</h2><ul>
+<li><p>Struts: 最古老的一个MVC框架，目前版本是2，和1.x有很大的区别；</p>
 </li>
-<li><p>初始化hexo</p>
-<p>  <code>hexo init</code></p>
-<ul>
-<li>当前目录必须是空的</li>
-</ul>
+<li><p>WebWork(Struts 2.0): 一个比Struts设计更优秀的MVC框架；</p>
 </li>
-<li><p>新建文章</p>
-<p>  <code>hexo new [layout] name</code></p>
-<ul>
-<li><p>layout 可以是 post, page, draft 之一</p>
+<li><p>Turbine: 一个重度使用Velocity，强调布局的MVC框架；</p>
 </li>
-<li><p>分别保存至 source/_posts, source, source/_drafts 中</p>
-</li>
-<li><p>新建文件名可以在 _config.yml 里面指定, <code>new_post_name</code>, 默认为 <code>name.md</code></p>
+<li><p>其他100+MVC框架……（略）</p>
 </li>
 </ul>
+<p>Spring本身也开发了一个MVC框架，就叫Spring MVC。</p>
+<h2 id="Spring连接数据库"><a href="#Spring连接数据库" class="headerlink" title="Spring连接数据库"></a>Spring连接数据库</h2><ul>
+<li><p>使用jdbcTemplate</p>
 </li>
-<li><p>临时开启 server</p>
-<p>  <code>hexo server</code></p>
+<li><p>使用Hibernate集成框架</p>
 </li>
-</ul>
-<h1 id="React-入门"><a href="#React-入门" class="headerlink" title="React 入门"></a>React 入门</h1><h2 id="复习-JavaScript"><a href="#复习-JavaScript" class="headerlink" title="复习 JavaScript"></a>复习 JavaScript</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/A_re-introduction_to_JavaScript">很好的文章</a></li>
-</ul>
-<h1 id="Vue-和-React-路由模块的区别"><a href="#Vue-和-React-路由模块的区别" class="headerlink" title="Vue 和 React 路由模块的区别"></a>Vue 和 React 路由模块的区别</h1><h2 id="Vue-路由"><a href="#Vue-路由" class="headerlink" title="Vue 路由"></a>Vue 路由</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Router(&#123;</span><br><span class="line">    mode: <span class="string">&#x27;history&#x27;</span>,</span><br><span class="line">    routes: [</span><br><span class="line">    &#123;</span><br><span class="line">        path: <span class="string">&#x27;/inspect&#x27;</span>,</span><br><span class="line">        component: Layout,</span><br><span class="line">        redirect: <span class="string">&#x27;/inspect/table1&#x27;</span>,</span><br><span class="line">        name: <span class="string">&#x27;报表&#x27;</span>,</span><br><span class="line">        meta: &#123; <span class="attr">title</span>: <span class="string">&#x27;报表&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;,</span><br><span class="line">        children: [</span><br><span class="line">        &#123;</span><br><span class="line">            path: <span class="string">&#x27;table1&#x27;</span>,</span><br><span class="line">            name: <span class="string">&#x27;Table&#x27;</span>,</span><br><span class="line">            component: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;@/views/table/index&#x27;</span>),</span><br><span class="line">            meta: &#123; <span class="attr">title</span>: <span class="string">&#x27;Table&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
-<h1 id="Vue-深入-——-MVVM-框架"><a href="#Vue-深入-——-MVVM-框架" class="headerlink" title="Vue 深入 —— MVVM 框架"></a>Vue 深入 —— MVVM 框架</h1><ul>
-<li><p>Observer 数据劫持</p>
-</li>
-<li><p>Dep/Watcher 发布订阅</p>
-</li>
-<li><p>Compiler 解析 <code>&#123;&#123; &#125;&#125;</code>, 创建watcher, 求解表达式</p>
+<li><p>使用MyBatis集成框架</p>
 </li>
 </ul>
 
@@ -352,18 +335,18 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/hexo/" rel="tag"># hexo</a>
+              <a href="/tags/Java/" rel="tag"># Java</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
+                <a href="/2020/12/07/daily/" rel="prev" title="每日记录">
+                  <i class="fa fa-chevron-left"></i> 每日记录
+                </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2020/11/30/daily/" rel="next" title="每日记录">
-                  每日记录 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
@@ -450,7 +433,7 @@ NexT.utils.loadComments('#gitalk-container', () => {
       repo        : 'frezcirno.github.io',
       owner       : 'frezcirno',
       admin       : ['frezcirno'],
-      id          : '1d4f6413b849287637de3f07ec2be37b',
+      id          : '3ba2ade6896630daba36526a82412eef',
         language: '',
       distractionFreeMode: true
     });
