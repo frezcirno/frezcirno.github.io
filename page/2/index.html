@@ -129,6 +129,16 @@
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
 
   </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
         <li class="menu-item menu-item-archives">
 
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
@@ -205,13 +215,21 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
       <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
         <span class="site-state-item-count">20</span>
-        <span class="site-state-item-name">tags</span>
+        <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
 </div>
@@ -257,7 +275,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/2020/11/30/daily/">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/2020/12/03/daily-2020-12-03-daily/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -270,7 +288,734 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/11/30/daily/" class="post-title-link" itemprop="url">每日记录</a>
+          <a href="/2020/12/03/daily-2020-12-03-daily/" class="post-title-link" itemprop="url">每日小结</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-03 12:52:43" itemprop="dateCreated datePublished" datetime="2020-12-03T12:52:43+08:00">2020-12-03</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-12 14:50:02" itemprop="dateModified" datetime="2020-12-12T14:50:02+08:00">2020-12-12</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="秘书问题"><a href="#秘书问题" class="headerlink" title="秘书问题"></a>秘书问题</h1><ul>
+<li><p>又称相亲问题、止步问题、见好就收问题、苏丹的嫁妆问题、挑剔的求婚者问题等</p>
+</li>
+<li><p>要聘请一名秘书，有 n 个应聘者。每次面试一人，面试后就要及时决定是否聘他，如果当时决定不聘他，他便不会回来。面试后总能清楚了解应聘者的合适程度，并能和之前的每个人做比较。问什么样的策略，才使最佳人选被选中的概率最大。 </p>
+</li>
+<li><p>答案:</p>
+  <details>
+  <summary>展开</summary>
+
+<ul>
+<li><p>这个问题的最优解是一个停止规则。在这个规则里，面试官会拒绝头 r - 1 个应聘者 (令他们中的最佳人选为 应聘者 M)，然后选出第一个比 M 好的应聘者。可见最优策略包含于这个系列的策略中。 (如果M在所有n个应聘者中也是最好的一个，那么这个策略将选不出任何人选)对于任意的截断值 r，最佳人选被选中的概率是： </p>
+<p>  $${\displaystyle {\begin{aligned}P(r)&amp;=\sum _{i=1}^{n}P\left({\text{applicant }}i{\text{ is selected}}\cap {\text{applicant }}i{\text{ is the best}}\right)\&amp;=\sum _{i=1}^{n}P\left({\text{applicant }}i{\text{ is selected}}|{\text{applicant }}i{\text{ is the best}}\right)\cdot P\left({\text{applicant }}i{\text{ is the best}}\right)\&amp;=\left[\sum _{i=1}^{r-1}0+\sum _{i=r}^{n}P\left(\left.{\begin{array}{l}{\text{the best of the first }}i-1{\text{ applicants}}\{\text{is in the first }}r-1{\text{ applicants}}\end{array}}\right|{\text{applicant }}i{\text{ is the best}}\right)\right]\cdot {\frac {1}{n}}\&amp;=\left[\sum _{i=r}^{n}{\frac {r-1}{i-1}}\right]\cdot {\frac {1}{n}}\quad =\quad {\frac {r-1}{n}}\sum _{i=r}^{n}{\frac {1}{i-1}}.\end{aligned}}}$$</p>
+</li>
+<li><p>当n趋近于无穷大时</p>
+<p>  $${\displaystyle P(x)=x\int _{x}^{1}{\frac {1}{t}},dt=-x\ln(x).}$$</p>
+</li>
+<li><p>求出最优的x值为</p>
+<p>  $$\frac {1}{e}$$</p>
+</details>
+
+
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="Nginx-配置"><a href="#Nginx-配置" class="headerlink" title="Nginx 配置"></a>Nginx 配置</h1><ul>
+<li><p>root: 表示去哪个目录下寻找对应url的文件, 实际上是添加前缀</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location &#x2F;aaaa&#x2F; &#123;</span><br><span class="line">    root &#x2F;home&#x2F;tom&#x2F;www&#x2F;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>请求: http://(hostname)<span style="background-color: yellow;">/aaaa/</span>hello.txt</p>
+</li>
+<li><p>返回: <span style="background-color: #cdffd8;">/home/tom/www</span><span style="background-color: yellow;">/aaaa/</span>hello.txt</p>
+</li>
+</ul>
+</li>
+<li><p>alias: 表示把匹配成功的路径<strong>替换</strong>成alias</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location &#x2F;aaaa&#x2F; &#123;</span><br><span class="line">    alias &#x2F;home&#x2F;tom&#x2F;www&#x2F;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>请求: http://(hostname)<span style="background-color: yellow;">/aaaa/</span>hello.txt </p>
+</li>
+<li><p>返回: <span style="background-color: #cdffd8;">/home/tom/www/</span>hello.txt</p>
+</li>
+</ul>
+</li>
+<li><p>PS: Nginx会自动将两个连续的斜杠替换成一个</p>
+</li>
+</ul>
+<h1 id="Flask-嵌套路由配置"><a href="#Flask-嵌套路由配置" class="headerlink" title="Flask 嵌套路由配置"></a>Flask 嵌套路由配置</h1><ul>
+<li><p>使用<code>register_blueprint</code>时的<code>url_prefix</code>参数</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># create app, blueprints, etc.</span></span><br><span class="line">app.register_blueprint(myblueprint, url_prefix=<span class="string">&#x27;/somepath&#x27;</span>)</span><br><span class="line"><span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="视频网站设计思考"><a href="#视频网站设计思考" class="headerlink" title="视频网站设计思考"></a>视频网站设计思考</h1><ul>
+<li>视频文件存储到哪里: OSS对象存储服务</li>
+</ul>
+<h1 id="数据库隔离级别"><a href="#数据库隔离级别" class="headerlink" title="数据库隔离级别"></a>数据库隔离级别</h1><ol>
+<li><p>读未提交(Read Uncommitted)</p>
+</li>
+<li><p>读已提交(Read Committed)/不可重复读 大多数数据库默认的隔离级别</p>
+</li>
+<li><p>可重复读(Repeatable-Read) mysql数据库所默认的级别</p>
+</li>
+<li><p>序列化(serializable)</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/2020/12/03/compiler-principle-index/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2020/12/03/compiler-principle-index/" class="post-title-link" itemprop="url">编译原理笔记</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-03 10:57:20" itemprop="dateCreated datePublished" datetime="2020-12-03T10:57:20+08:00">2020-12-03</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-12 14:50:02" itemprop="dateModified" datetime="2020-12-12T14:50:02+08:00">2020-12-12</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="语法分析"><a href="#语法分析" class="headerlink" title="语法分析"></a>语法分析</h1><ul>
+<li><p>背景</p>
+</li>
+<li><p>LL分析法</p>
+<ul>
+<li><p>LL(1)</p>
+</li>
+<li><p>增加预测</p>
+</li>
+</ul>
+</li>
+<li><p>算法优先分析法</p>
+</li>
+<li><p>LR分析法</p>
+<ul>
+<li><p>LR(0)</p>
+</li>
+<li><p>SLR</p>
+</li>
+<li><p>LR(1)</p>
+</li>
+<li><p>LALR</p>
+</li>
+<li><p>二义文法</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="属性文法"><a href="#属性文法" class="headerlink" title="属性文法"></a>属性文法</h1><ul>
+<li><p>属性</p>
+<ul>
+<li><p>综合属性: 通过子节点的属性计算出来的属性</p>
+</li>
+<li><p>继承属性: 通过父节点和兄弟节点的属性计算出来的属性</p>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/2020/12/02/daily-2020-12-02-daily/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2020/12/02/daily-2020-12-02-daily/" class="post-title-link" itemprop="url">每日小结</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-02 09:14:54" itemprop="dateCreated datePublished" datetime="2020-12-02T09:14:54+08:00">2020-12-02</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-12 14:50:02" itemprop="dateModified" datetime="2020-12-12T14:50:02+08:00">2020-12-12</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <ul>
+<li><p>React</p>
+<ul>
+<li>children属性: 子元素构成的数组</li>
+</ul>
+</li>
+<li><p>React-redux</p>
+<ul>
+<li><p>引入: <code>import &#123;...&#125; from &#39;react-redux&#39;</code></p>
+</li>
+<li><p><code>Store</code></p>
+<ul>
+<li><p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
+</li>
+<li><p><code>createStore(reducer, initState)</code></p>
+<ul>
+<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
+</li>
+<li><p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component </p>
+</li>
+<li><p><code>connect(mapStateToProps)(Component)</code></p>
+<ul>
+<li><p>map current states to <code>Component</code>‘s props</p>
+</li>
+<li><p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
+</li>
+<li><p>一般和<Provider>结合起来用</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>React-Router</p>
+<ul>
+<li><p>引入: <code>import &#123;&#125; from &#39;react-router-dom&#39;</code></p>
+</li>
+<li><p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
+<ul>
+<li><p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
+</li>
+<li><p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
+</li>
+<li><p>参数化匹配</p>
+<ul>
+<li><p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
+</li>
+<li><p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
+<ul>
+<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
+</ul>
+</li>
+<li><p>嵌套使用: </p>
+  <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = useRouteMatch(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    &lt;Route path=&#123;<span class="string">`<span class="subst">$&#123;path&#125;</span>/next`</span>&#125;&gt;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>Vue-Router</p>
+<ul>
+<li><p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
+</li>
+<li><p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
+</li>
+<li><p><code>Router</code>: 在这里定义全局路由表</p>
+</li>
+</ul>
+</li>
+<li><p>Ubuntu 安装 rpm 包</p>
+<ul>
+<li><p>sudo apt install alien</p>
+</li>
+<li><p>sudo alien packagename.rpm</p>
+</li>
+<li><p>sudo apt install ./packagename.deb</p>
+</li>
+<li><p>一步到位: sudo alien -i packagename.rpm</p>
+</li>
+</ul>
+</li>
+<li><p>Oracle 的连接方式</p>
+<ul>
+<li><p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
+</li>
+<li><p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
+<ul>
+<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
+</ul>
+</li>
+<li><p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD &#x3D;</span><br><span class="line">    (DESCRIPTION &#x3D;</span><br><span class="line">        (ADDRESS &#x3D;</span><br><span class="line">            (PROTOCOL &#x3D; TCP) </span><br><span class="line">            (PORT &#x3D; 1521)</span><br><span class="line">            (HOST &#x3D; LITTLECOMPUTER.ACME.ORG) &#x2F;&#x2F; 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA &#x3D; (SID &#x3D; MYSID)) &#x2F;&#x2F; 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD &#x3D;</span><br><span class="line">    (DESCRIPTION &#x3D;</span><br><span class="line">        (ADDRESS &#x3D;</span><br><span class="line">            (PROTOCOL &#x3D; TCP) </span><br><span class="line">            (PORT &#x3D; 1521)</span><br><span class="line">            (HOST &#x3D; BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA &#x3D; (SERVICE_NAME &#x3D; MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/2020/12/01/daily-2020-12-01-daily/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2020/12/01/daily-2020-12-01-daily/" class="post-title-link" itemprop="url">每日小结</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-01 10:23:15" itemprop="dateCreated datePublished" datetime="2020-12-01T10:23:15+08:00">2020-12-01</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-12 14:50:02" itemprop="dateModified" datetime="2020-12-12T14:50:02+08:00">2020-12-12</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="转换dos格式行尾为unix行尾"><a href="#转换dos格式行尾为unix行尾" class="headerlink" title="转换dos格式行尾为unix行尾"></a>转换dos格式行尾为unix行尾</h1><ul>
+<li><p>工具: dos2unix</p>
+</li>
+<li><p>单文件: <code>dos2unix input output</code></p>
+</li>
+<li><p>递归转换: <code>find . -type f -print0 | xargs -0 dos2unix</code></p>
+</li>
+</ul>
+<h1 id="Linux下-nodejs-环境配置"><a href="#Linux下-nodejs-环境配置" class="headerlink" title="Linux下 nodejs 环境配置"></a>Linux下 nodejs 环境配置</h1><ul>
+<li><p>安装node(不是最新版): <code>sudo apt install nodejs</code></p>
+</li>
+<li><p>使用<code>n</code>来切换node版本: </p>
+<ul>
+<li><p><code>sudo npm install -g n</code></p>
+</li>
+<li><p><code>sudo n stable</code></p>
+</li>
+</ul>
+</li>
+<li><p>安装yarn: <code>sudo npm install -g yarn</code></p>
+</li>
+</ul>
+<h1 id="Nodejs版本切换"><a href="#Nodejs版本切换" class="headerlink" title="Nodejs版本切换"></a>Nodejs版本切换</h1><ul>
+<li><p>使用<code>n</code></p>
+<ul>
+<li><p>方法:</p>
+<ul>
+<li><p>安装: <code>sudo npm install -g n</code></p>
+</li>
+<li><p>切换版本: <code>sudo n stable</code></p>
+</li>
+</ul>
+</li>
+<li><p>缺点: 据说会导致node modules混乱</p>
+</li>
+</ul>
+</li>
+<li><p>使用<code>nvm</code></p>
+</li>
+</ul>
+<h1 id="清理npm缓存"><a href="#清理npm缓存" class="headerlink" title="清理npm缓存"></a>清理npm缓存</h1><ul>
+<li><p><code>npm cache clean --force</code></p>
+</li>
+<li><p>The default cache direconstructory is ~/.npm on Posix (mac or linux), or %AppData%/npm-cache on Windows.</p>
+</li>
+</ul>
+<h1 id="Javascript-复习"><a href="#Javascript-复习" class="headerlink" title="Javascript 复习"></a>Javascript 复习</h1><ul>
+<li><p>数据类型</p>
+<ul>
+<li>Number</li>
+<li>String</li>
+<li>Boolean</li>
+<li>Symbol (new in ES2015)</li>
+<li>Object<ul>
+<li>Function</li>
+<li>Array</li>
+<li>Date</li>
+<li>RegExp</li>
+</ul>
+</li>
+<li>null</li>
+<li>undefined</li>
+</ul>
+</li>
+<li><p>关于变量</p>
+<ul>
+<li><p>用<code>var</code>定义的变量具有<strong>函数</strong>作用域</p>
+<ul>
+<li><p>name hiding: <code>(function () &#123; ... &#125;)();</code></p>
+</li>
+<li><p>允许递归版(IIFEs): <code>(function foo() &#123; ...foo()... &#125;)();</code></p>
+</li>
+</ul>
+</li>
+<li><p>尽量使用<code>let</code>和<code>const</code></p>
+</li>
+</ul>
+</li>
+<li><p>关于Array:</p>
+<ul>
+<li><p>相当于一个下标是整数, 有一个length属性, 外表看起来像是数组的Object</p>
+</li>
+<li><p>数组的length属性是数组中最大的下标+1</p>
+</li>
+<li><p>当然作为Object, 也可以有非整数类型的下标</p>
+</li>
+<li><p>for…in…循环遍历实际存储的值, for…of…循环遍历下标</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a = []</span><br><span class="line"></span><br><span class="line">a[<span class="number">100</span>] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">a.length <span class="comment">// 101</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">in</span> a) <span class="built_in">console</span>.log(i) <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">of</span> a) <span class="built_in">console</span>.log(i) <span class="comment">// undefined, undefined, ... , 1</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>关于String</p>
+<ul>
+<li><p>String + any = String</p>
+</li>
+<li><p>any + String = String</p>
+</li>
+<li><p>注意结合性</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> + <span class="number">2</span> + <span class="string">&#x27;3&#x27;</span> <span class="comment">// &#x27;33&#x27;</span></span><br><span class="line"><span class="string">&#x27;1&#x27;</span> + <span class="number">2</span> + <span class="number">3</span> <span class="comment">// &#x27;123&#x27;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>关于Object:</p>
+<ul>
+<li><p>对象字面量<code>&#123;&#125;</code>等效于<code>new Object()</code></p>
+<ul>
+<li><p>不过<code>Object()</code>可以被重载</p>
+</li>
+<li><p>对象字面量不能被重载</p>
+</li>
+</ul>
+</li>
+<li><p><code>new XXX()</code>: 相当于创建了一个类实例(实际上是个Object), <code>XXX()</code>函数可以对其进行进一步修饰</p>
+</li>
+</ul>
+</li>
+<li><p>关于<code>function</code>:</p>
+<ul>
+<li>函数是对象</li>
+</ul>
+</li>
+<li><p>关于<code>new</code>:</p>
+<ul>
+<li><p>new的功能:</p>
+<ul>
+<li><p>创建一个空对象{}</p>
+</li>
+<li><p>设置空对象的<code>__proto__</code>(与浏览器实现有关)为构造函数的<code>prototype</code></p>
+</li>
+<li><p>让this指向空对象</p>
+</li>
+<li><p>执行构造函数, 传入参数this</p>
+</li>
+<li><p>如果构造函数不返回一个对象, 则返回this</p>
+</li>
+</ul>
+</li>
+<li><p>模仿一个new:</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fake_new</span>(<span class="params">ctor, ...args</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> x = <span class="built_in">Object</span>.create(ctor.prototype); <span class="comment">// ES5 创建新对象</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">///* before ES5 */</span></span><br><span class="line">    <span class="comment">// function F() &#123;&#125;</span></span><br><span class="line">    <span class="comment">// F.prototype = ctor.prototype;</span></span><br><span class="line">    <span class="comment">// let x = new F();</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> res = ctor.call(x, ...args); <span class="comment">//借用外部传入的构造器给obj设置属性</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">typeof</span> res === <span class="string">&#x27;object&#x27;</span> ? res : x; <span class="comment">//确保构造器总是返回一个对象</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>关于<code>this</code>:</p>
+<ul>
+<li><p>如何正确绑定this</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="title">foo</span>(<span class="params"></span>)</span> &#123; ... &#125;, <span class="comment">// bad, `this` is bound to the object</span></span><br><span class="line">    foo = <span class="function">() =&gt;</span> &#123; ... &#125;, <span class="comment">// good, `this` is bound dynamically</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>Javascript面向对象:</p>
+<ul>
+<li><p>不用<code>new</code>模拟对象, 利用闭包</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">makePerson</span>(<span class="params">first, last</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        first: first,</span><br><span class="line">        last: last,</span><br><span class="line">        fullName: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="comment">// 每次创建对象时, 这个函数都会被拷贝</span></span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>.first + <span class="string">&#x27; &#x27;</span> + <span class="built_in">this</span>.last;</span><br><span class="line">        &#125;,</span><br><span class="line">        fullNameReversed: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="comment">// 每次创建对象时, 这个函数都会被拷贝</span></span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>.last + <span class="string">&#x27;, &#x27;</span> + <span class="built_in">this</span>.first;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> s = makePerson(<span class="string">&#x27;Simon&#x27;</span>, <span class="string">&#x27;Willison&#x27;</span>);</span><br><span class="line">s.fullName(); <span class="comment">// &quot;Simon Willison&quot;</span></span><br><span class="line">s.fullNameReversed(); <span class="comment">// &quot;Willison, Simon&quot;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用<code>new</code></p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Person</span>(<span class="params">first, last</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">this</span>.first = first;</span><br><span class="line">    <span class="built_in">this</span>.last = last;</span><br><span class="line">    <span class="built_in">this</span>.fullName = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="comment">// 每次创建对象时, 这个函数都会被拷贝</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.first + <span class="string">&#x27; &#x27;</span> + <span class="built_in">this</span>.last;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">this</span>.fullNameReversed = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="comment">// 每次创建对象时, 这个函数都会被拷贝</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.last + <span class="string">&#x27;, &#x27;</span> + <span class="built_in">this</span>.first;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> s = <span class="keyword">new</span> Person(<span class="string">&#x27;Simon&#x27;</span>, <span class="string">&#x27;Willison&#x27;</span>);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>优化: 减少函数对象的拷贝, 利用原型链</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Person</span>(<span class="params">first, last</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">this</span>.first = first;</span><br><span class="line">    <span class="built_in">this</span>.last = last;</span><br><span class="line">&#125;</span><br><span class="line">Person.prototype.fullName = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.first + <span class="string">&#x27; &#x27;</span> + <span class="built_in">this</span>.last;</span><br><span class="line">&#125;;</span><br><span class="line">Person.prototype.fullNameReversed = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.last + <span class="string">&#x27;, &#x27;</span> + <span class="built_in">this</span>.first;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="React-复习"><a href="#React-复习" class="headerlink" title="React 复习"></a>React 复习</h1><ul>
+<li><p>JSX语法</p>
+  <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = (</span><br><span class="line">    &lt;h1 className=<span class="string">&quot;greeting&quot;</span> onClick=&#123;<span class="built_in">this</span>.handleClick&#125;&gt;</span><br><span class="line">        Hello, world!</span><br><span class="line">    &lt;/h1&gt;</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = React.createElement(</span><br><span class="line">    <span class="string">&#x27;h1&#x27;</span>, <span class="comment">// label type</span></span><br><span class="line">    &#123;<span class="attr">className</span>: <span class="string">&#x27;greeting&#x27;</span>, <span class="attr">onClick</span>: <span class="built_in">this</span>.handleClick&#125;, <span class="comment">// attrs</span></span><br><span class="line">    <span class="string">&#x27;Hello, world!&#x27;</span> <span class="comment">// children</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>遇到<code>&lt;</code>开始解析HTML, 遇到<code>&#123;</code>开始解析Javascript</p>
+</li>
+<li><p>要比Vue的模板更加灵活</p>
+</li>
+</ul>
+</li>
+<li><p>数据流</p>
+<ul>
+<li><p>外层-&gt;内层组件: <code>props</code>, 只读</p>
+</li>
+<li><p>组件自己的状态: <code>state</code>, 可以修改</p>
+<ul>
+<li><p>初始化: 在构造函数内直接赋值</p>
+</li>
+<li><p>更新: 通过<code>this.setState(&#123;&#125;)</code></p>
+</li>
+<li><p>state可以被传递给子组件作为子组件的props</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>受控组件:</p>
+<ul>
+<li><p>不自己维护状态的组件</p>
+</li>
+<li><p>状态变化全部交给外部来做: props.value, props.onValueChanged()</p>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/2020/11/30/daily-2020-11-30-daily/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2020/11/30/daily-2020-11-30-daily/" class="post-title-link" itemprop="url">每日小结</a>
         </h2>
 
         <div class="post-meta-container">
@@ -288,8 +1033,17 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-12 13:12:50" itemprop="dateModified" datetime="2020-12-12T13:12:50+08:00">2020-12-12</time>
+        <time title="Modified: 2020-12-12 14:50:02" itemprop="dateModified" datetime="2020-12-12T14:50:02+08:00">2020-12-12</time>
       </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+        </span>
+    </span>
 
   
 </div>
@@ -383,7 +1137,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/2020/11/29/daily/">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/2020/11/29/daily-2020-11-29-daily/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -396,7 +1150,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/11/29/daily/" class="post-title-link" itemprop="url">每日记录</a>
+          <a href="/2020/11/29/daily-2020-11-29-daily/" class="post-title-link" itemprop="url">每日小结</a>
         </h2>
 
         <div class="post-meta-container">
@@ -414,8 +1168,17 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-12 13:12:50" itemprop="dateModified" datetime="2020-12-12T13:12:50+08:00">2020-12-12</time>
+        <time title="Modified: 2020-12-12 14:50:02" itemprop="dateModified" datetime="2020-12-12T14:50:02+08:00">2020-12-12</time>
       </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+        </span>
+    </span>
 
   
 </div>
