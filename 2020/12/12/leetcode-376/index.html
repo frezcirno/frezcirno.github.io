@@ -23,22 +23,21 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":true,"nav":null,"activeClass":"gitalk"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
-<meta name="description" content="React  children属性: 子元素构成的数组   React-redux  引入: import &amp;#123;...&amp;#125; from &#39;react-redux&#39;  Store  Redux maintains a store, which hold state and reducer  createStore(reducer, initState)  reduce">
+<meta name="description" content="思路: 先差分, 然后把所有0和相邻同号的数字(之一)去掉, 剩下的元素数量+2既是最终答案 注意: 元素个数为0, 元素个数为1, 差分后有0出现 代码: 12345678910111213141516171819202122232425262728293031323334class Solution&amp;#123;  public:    int wiggleMaxLength(vector&amp;lt">
 <meta property="og:type" content="article">
-<meta property="og:title" content="每日小结">
-<meta property="og:url" content="https://frezcirno.github.io/2020/12/02/daily-2020-12-02-daily/index.html">
+<meta property="og:title" content="376. 摆动序列">
+<meta property="og:url" content="https://frezcirno.github.io/2020/12/12/leetcode-376/index.html">
 <meta property="og:site_name" content="frezcirno&#39;s blog">
-<meta property="og:description" content="React  children属性: 子元素构成的数组   React-redux  引入: import &amp;#123;...&amp;#125; from &#39;react-redux&#39;  Store  Redux maintains a store, which hold state and reducer  createStore(reducer, initState)  reduce">
+<meta property="og:description" content="思路: 先差分, 然后把所有0和相邻同号的数字(之一)去掉, 剩下的元素数量+2既是最终答案 注意: 元素个数为0, 元素个数为1, 差分后有0出现 代码: 12345678910111213141516171819202122232425262728293031323334class Solution&amp;#123;  public:    int wiggleMaxLength(vector&amp;lt">
 <meta property="og:locale">
-<meta property="article:published_time" content="2020-12-02T01:14:54.000Z">
+<meta property="article:published_time" content="2020-12-12T07:49:18.000Z">
 <meta property="article:modified_time" content="2020-12-12T08:46:15.232Z">
 <meta property="article:author" content="frezcirno">
-<meta property="article:tag" content="React">
-<meta property="article:tag" content="Oracle">
+<meta property="article:tag" content="daily">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://frezcirno.github.io/2020/12/02/daily-2020-12-02-daily/">
+<link rel="canonical" href="https://frezcirno.github.io/2020/12/12/leetcode-376/">
 
 
 <script class="page-configurations">
@@ -50,7 +49,7 @@
     lang   : 'cn'
   };
 </script>
-<title>每日小结 | frezcirno's blog</title>
+<title>376. 摆动序列 | frezcirno's blog</title>
   
 
 
@@ -279,7 +278,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/2020/12/02/daily-2020-12-02-daily/">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/2020/12/12/leetcode-376/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -292,7 +291,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          每日小结
+          376. 摆动序列
         </h1>
 
         <div class="post-meta-container">
@@ -302,23 +301,17 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
+      
 
-      <time title="Created: 2020-12-02 09:14:54" itemprop="dateCreated datePublished" datetime="2020-12-02T09:14:54+08:00">2020-12-02</time>
+      <time title="Created: 2020-12-12 15:49:18 / Modified: 16:46:15" itemprop="dateCreated datePublished" datetime="2020-12-12T15:49:18+08:00">2020-12-12</time>
     </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-12 16:46:15" itemprop="dateModified" datetime="2020-12-12T16:46:15+08:00">2020-12-12</time>
-      </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-folder"></i>
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+          <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
         </span>
     </span>
 
@@ -332,109 +325,14 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <ul>
-<li><p>React</p>
-<ul>
-<li>children属性: 子元素构成的数组</li>
-</ul>
-</li>
-<li><p>React-redux</p>
-<ul>
-<li><p>引入: <code>import &#123;...&#125; from &#39;react-redux&#39;</code></p>
-</li>
-<li><p><code>Store</code></p>
-<ul>
-<li><p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
-</li>
-<li><p><code>createStore(reducer, initState)</code></p>
-<ul>
-<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
-</li>
-<li><p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component </p>
-</li>
-<li><p><code>connect(mapStateToProps)(Component)</code></p>
-<ul>
-<li><p>map current states to <code>Component</code>‘s props</p>
-</li>
-<li><p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
-</li>
-<li><p>一般和<Provider>结合起来用</p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>React-Router</p>
-<ul>
-<li><p>引入: <code>import &#123;&#125; from &#39;react-router-dom&#39;</code></p>
-</li>
-<li><p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
-<ul>
-<li><p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
-</li>
-<li><p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
-</li>
-<li><p>参数化匹配</p>
-<ul>
-<li><p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
-</li>
-<li><p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
-<ul>
-<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
-</ul>
-</li>
-<li><p>嵌套使用: </p>
-  <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = useRouteMatch(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    &lt;Route path=&#123;<span class="string">`<span class="subst">$&#123;path&#125;</span>/next`</span>&#125;&gt;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>Vue-Router</p>
-<ul>
-<li><p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
-</li>
-<li><p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
-</li>
-<li><p><code>Router</code>: 在这里定义全局路由表</p>
-</li>
-</ul>
-</li>
-<li><p>Ubuntu 安装 rpm 包</p>
-<ul>
-<li><p>sudo apt install alien</p>
-</li>
-<li><p>sudo alien packagename.rpm</p>
-</li>
-<li><p>sudo apt install ./packagename.deb</p>
-</li>
-<li><p>一步到位: sudo alien -i packagename.rpm</p>
-</li>
-</ul>
-</li>
-<li><p>Oracle 的连接方式</p>
-<ul>
-<li><p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
-</li>
-<li><p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
-<ul>
-<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
-</ul>
-</li>
-<li><p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
-  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD &#x3D;</span><br><span class="line">    (DESCRIPTION &#x3D;</span><br><span class="line">        (ADDRESS &#x3D;</span><br><span class="line">            (PROTOCOL &#x3D; TCP) </span><br><span class="line">            (PORT &#x3D; 1521)</span><br><span class="line">            (HOST &#x3D; LITTLECOMPUTER.ACME.ORG) &#x2F;&#x2F; 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA &#x3D; (SID &#x3D; MYSID)) &#x2F;&#x2F; 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD &#x3D;</span><br><span class="line">    (DESCRIPTION &#x3D;</span><br><span class="line">        (ADDRESS &#x3D;</span><br><span class="line">            (PROTOCOL &#x3D; TCP) </span><br><span class="line">            (PORT &#x3D; 1521)</span><br><span class="line">            (HOST &#x3D; BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA &#x3D; (SERVICE_NAME &#x3D; MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ul>
+        <p>思路: 先差分, 然后把所有0和相邻同号的数字(之一)去掉, 剩下的元素数量+2既是最终答案</p>
+<p>注意: 元素个数为0, 元素个数为1, 差分后有0出现</p>
+<p>代码:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">wiggleMaxLength</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;nums)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> size = nums.size() - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (size &lt; <span class="number">1</span>) &#123; <span class="keyword">return</span> size + <span class="number">1</span>; &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> start = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">            nums[i] -= nums[i + <span class="number">1</span>];</span><br><span class="line">            <span class="comment">// find first not zero</span></span><br><span class="line">            <span class="keyword">if</span> (start == <span class="number">-1</span> &amp;&amp; nums[i] != <span class="number">0</span>) &#123; start = i; &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (start == <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// none</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">1</span>, want = nums[start];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = start + <span class="number">1</span>; i &lt; size; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((nums[i] &gt; <span class="number">0</span> &amp;&amp; want &lt; <span class="number">0</span>) ||</span><br><span class="line">                (nums[i] &lt; <span class="number">0</span> &amp;&amp; want &gt; <span class="number">0</span>)) &#123;  <span class="comment">// different sign and no zero</span></span><br><span class="line">                want = nums[i];</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> count + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>看过题解: 复杂了, 只要统计波峰和波谷的数量就行了</p>
+<p>别人的代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">wiggleMaxLength</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = nums.length;</span><br><span class="line">        <span class="keyword">if</span> (n &lt; <span class="number">2</span>) <span class="keyword">return</span> n;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>, prev_diff = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> diff = nums[i] - nums[i - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span> (diff &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &gt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = -<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (diff &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &lt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：lincs</span><br><span class="line">链接：https:<span class="comment">//leetcode-cn.com/problems/wiggle-subsequence/solution/java-on-solution-by-lincs-6l5r/</span></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -443,23 +341,16 @@
     
 
     <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/React/" rel="tag"># React</a>
-              <a href="/tags/Oracle/" rel="tag"># Oracle</a>
-          </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2020/12/01/daily-2020-12-01-daily/" rel="prev" title="每日小结">
-                  <i class="fa fa-chevron-left"></i> 每日小结
+                <a href="/2020/12/12/leetcode-index/" rel="prev" title="每日 leetcode">
+                  <i class="fa fa-chevron-left"></i> 每日 leetcode
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2020/12/03/compiler-principle-index/" rel="next" title="编译原理笔记">
-                  编译原理笔记 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
@@ -546,7 +437,7 @@ NexT.utils.loadComments('#gitalk-container', () => {
       repo        : 'frezcirno.github.io',
       owner       : 'frezcirno',
       admin       : ['frezcirno'],
-      id          : 'c466a66f4730e82d7f73ebb69b37255d',
+      id          : '4d80fb207f94f8b84fdd66a9bc48b607',
         language: '',
       distractionFreeMode: true
     });
