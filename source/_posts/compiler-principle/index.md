@@ -1,6 +1,7 @@
 ---
-title: CompilerPrinciple
+title: 编译原理笔记
 date: 2020-12-03 10:57:20
+category: 学习笔记
 ---
 
 # 语法分析
