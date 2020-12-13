@@ -7,4 +7,4 @@ tags:
 
 # 决定开始刷leetcode了
 
-目标: 每天一道
+目标: <del>每天一道</del>如果每日一题是easy, 就加一道hard
