@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title>编译原理笔记</title>
-    <url>/2020/12/03/compiler-principle-index/</url>
+    <url>/compiler-principle/index/</url>
     <content><![CDATA[<h1 id="语法分析"><a href="#语法分析" class="headerlink" title="语法分析"></a>语法分析</h1><ul>
 <li><p>背景</p>
 </li>
@@ -47,8 +47,251 @@
       </categories>
   </entry>
   <entry>
+    <title>217. 存在重复元素</title>
+    <url>/leetcode/217/</url>
+    <content><![CDATA[<p>给定一个整数数组，判断是否存在重复元素。</p>
+<p>如果任意一值在数组中出现至少两次，函数返回 true 。如果数组中每个元素都不相同，则返回 false 。</p>
+<p>没啥好说的:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">containsDuplicate</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        sort(nums.begin(),nums.end());</span><br><span class="line">        <span class="keyword">return</span> unique(nums.begin(),nums.end())!=nums.end();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>376. 摆动序列</title>
+    <url>/leetcode/376/</url>
+    <content><![CDATA[<p>思路: 先差分, 然后把所有0和相邻同号的数字(之一)去掉, 剩下的元素数量+2既是最终答案</p>
+<p>注意: 元素个数为0, 元素个数为1, 差分后有0出现</p>
+<p>代码:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">wiggleMaxLength</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;nums)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> size = nums.size() - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (size &lt; <span class="number">1</span>) &#123; <span class="keyword">return</span> size + <span class="number">1</span>; &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> start = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">            nums[i] -= nums[i + <span class="number">1</span>];</span><br><span class="line">            <span class="comment">// find first not zero</span></span><br><span class="line">            <span class="keyword">if</span> (start == <span class="number">-1</span> &amp;&amp; nums[i] != <span class="number">0</span>) &#123; start = i; &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (start == <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// none</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">1</span>, want = nums[start];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = start + <span class="number">1</span>; i &lt; size; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((nums[i] &gt; <span class="number">0</span> &amp;&amp; want &lt; <span class="number">0</span>) ||</span><br><span class="line">                (nums[i] &lt; <span class="number">0</span> &amp;&amp; want &gt; <span class="number">0</span>)) &#123;  <span class="comment">// different sign and no zero</span></span><br><span class="line">                want = nums[i];</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> count + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>看过题解: 复杂了, 只要统计波峰和波谷的数量就行了</p>
+<p>别人的代码</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">wiggleMaxLength</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = nums.length;</span><br><span class="line">        <span class="keyword">if</span> (n &lt; <span class="number">2</span>) <span class="keyword">return</span> n;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>, prev_diff = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> diff = nums[i] - nums[i - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span> (diff &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &gt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = -<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (diff &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &lt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：lincs</span><br><span class="line">链接：https:<span class="comment">//leetcode-cn.com/problems/wiggle-subsequence/solution/java-on-solution-by-lincs-6l5r/</span></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>4. 寻找两个正序数组的中位数</title>
+    <url>/leetcode/4/</url>
+    <content><![CDATA[<p>思路: 先归并排序, 再寻找中间位置</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i=<span class="number">0</span>,j=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> len1=nums1.size(),len2=nums2.size(),len=len1+len2;</span><br><span class="line">        <span class="keyword">int</span> t, lastt;</span><br><span class="line">        <span class="keyword">while</span>(i+j&lt;=len/<span class="number">2</span>)&#123;</span><br><span class="line">            lastt=t;</span><br><span class="line">            <span class="keyword">if</span>(i&lt;len1 &amp;&amp; j&lt; len2)&#123;</span><br><span class="line">                <span class="keyword">int</span> n1=nums1[i];</span><br><span class="line">                <span class="keyword">int</span> n2=nums2[j];</span><br><span class="line">                <span class="keyword">if</span>(n1&lt;n2)&#123;</span><br><span class="line">                    t=n1;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    t=n2;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(i&lt;len1)&#123;</span><br><span class="line">                t=nums1[i++];</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                t=nums2[j++];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;i+j&lt;&lt;<span class="string">&quot;:&quot;</span>&lt;&lt;t&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (len%<span class="number">2</span>?t:(t+lastt)/<span class="number">2.0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>49. 字母异位词分组</title>
+    <url>/leetcode/49/</url>
+    <content><![CDATA[<p>思路: 字符串排序后作为key, 存到map中再转成vector返回, AC</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; <span class="title">groupAnagrams</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; strs)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="built_in">string</span>, <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; m;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;strs.size();i++)&#123;</span><br><span class="line">            <span class="built_in">string</span> s=strs[i];</span><br><span class="line">            sort(s.begin(),s.end());</span><br><span class="line">            m[s].push_back(strs[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; res;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> &amp;k:m)&#123;</span><br><span class="line">            res.push_back(k.second);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>每日 leetcode</title>
+    <url>/leetcode/index/</url>
+    <content><![CDATA[<h1 id="决定开始刷leetcode了"><a href="#决定开始刷leetcode了" class="headerlink" title="决定开始刷leetcode了"></a>决定开始刷leetcode了</h1><p>目标: <del>每天一道</del>如果每日一题是easy, 就加一道hard</p>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Oracle APEX学习</title>
+    <url>/oracle-apex/index/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>什么垃圾软件, 毁我人生!!</p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>略</p>
+<h1 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h1><p>启动apex安装到的数据库(PDB默认不会自动open)</p>
+<p>启动ords服务</p>
+<p><code>$ java -jar ords.war</code></p>
+<h1 id="怎么修改密码"><a href="#怎么修改密码" class="headerlink" title="怎么修改密码"></a>怎么修改密码</h1><p><code>SQL&gt; @apxchpwd.sql</code></p>
+]]></content>
+      <categories>
+        <category>编程</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Oracle数据库学习</title>
+    <url>/oracledb/index/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考资料:</p>
+<p><a href="https://docs.oracle.com/en/database/oracle/oracle-database/index.html">Oracle官方文档</a></p>
+<h1 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h1><p>Schema是表, 索引, 存储过程等等数据库对象(DB Object)的存储容器</p>
+<p>用户与Schema之间是<strong>一对一</strong>的关系</p>
+<p>例如: 访问用户A的xxx对象就通过 <code>A.xxx</code></p>
+<p><img src="images/user-schema-tables.png"></p>
+<h1 id="Oracle-表空间"><a href="#Oracle-表空间" class="headerlink" title="Oracle 表空间"></a>Oracle 表空间</h1><p>表空间是逻辑上, 存放数据表的容器</p>
+<p>每张表一定属于某个表空间</p>
+<p>每个用户(Schema)可以拥有多个表空间, 而且都有一个默认表空间</p>
+<p>用户之间可以通过共享表空间的方式共享数据表</p>
+<p>物理上, 表空间的存储可能不是连续的</p>
+<h1 id="PL-SQL"><a href="#PL-SQL" class="headerlink" title="PL/SQL"></a>PL/SQL</h1><ul>
+<li>A primary benefit of PL/SQL is the ability to store application logic in the database itself.</li>
+</ul>
+<h1 id="Oracle-体系结构-重要"><a href="#Oracle-体系结构-重要" class="headerlink" title="Oracle 体系结构 (重要)"></a>Oracle 体系结构 (重要)</h1><ul>
+<li>Oracle Server = Oracle Instance + Oracle Database</li>
+</ul>
+<h2 id="1-Oracle实例-Oracle-Instance"><a href="#1-Oracle实例-Oracle-Instance" class="headerlink" title="1. Oracle实例 (Oracle Instance)"></a>1. Oracle实例 (Oracle Instance)</h2><p>Oracle Instance = SGA(system global area) + Background Process</p>
+<p>是一组**OS进程(线程)和一些内存(SGA)**的总称</p>
+<p>可以用来mount和open一个数据库</p>
+<p>一个实例在其生存期中最多只能装载和打开一个数据库。要想再打开这个（或其他）数据库，必须先丢弃这个实例，并创建一个新的实例。</p>
+<p>一个数据库实例的状态分为以下几种</p>
+<ul>
+<li><p><code>started</code></p>
+</li>
+<li><p><code>mounted</code></p>
+</li>
+<li><p><code>open</code></p>
+</li>
+<li><p><code>close</code></p>
+</li>
+<li><p><code>mounted</code></p>
+</li>
+<li><p><code>open</code></p>
+</li>
+</ul>
+<h3 id="started-状态"><a href="#started-状态" class="headerlink" title="started 状态"></a><code>started</code> 状态</h3><p>在执行<code>startup nomount</code>命令后, Oracle会执行以下操作, 之后实例会进入<code>started</code>状态, 此时实例还未绑定数据库</p>
+<ul>
+<li><p>读取配置文件</p>
+</li>
+<li><p>分配<code>SGA</code></p>
+</li>
+<li><p>启动后台进程</p>
+</li>
+<li><p>打开一些用于记录的文件</p>
+</li>
+</ul>
+<h3 id="mounted-状态"><a href="#mounted-状态" class="headerlink" title="mounted 状态"></a><code>mounted</code> 状态</h3><p>在执行<code>startup mount</code>或者<code>alter database mount</code>命令后, 实例会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
+<p>数据库打开后, 执行<code>alter database close</code>命令后, 实例也会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
+<p>此时实例与数据库建立了联系, 但是只有DBA能够访问数据库。</p>
+<h3 id="open-状态"><a href="#open-状态" class="headerlink" title="open 状态"></a><code>open</code> 状态</h3><p>在执行<code>startup</code>或者<code>alter database open</code>命令后, 实例会进入<code>open</code>状态。</p>
+<p>此时实例与数据库建立了联系, 数据库完全启动, 普通用户也可以访问数据库。</p>
+<h2 id="2-Oracle数据库-Oracle-Database"><a href="#2-Oracle数据库-Oracle-Database" class="headerlink" title="2. Oracle数据库 (Oracle Database)"></a>2. Oracle数据库 (Oracle Database)</h2><p>Oracle Database = Controlfile + datafile + logfile + spfile + …</p>
+<p>是存储在<strong>磁盘</strong>上的<strong>一组数据文件</strong>的集合</p>
+<p>一般来说, 一个数据库上只有一个实例对其进行操作</p>
+<p>但是也有例外: RAC（Real Application Clusters）就允许在集群环境中的多台计算机上操作，这样就可以有多台实例同时装载并打开一个数据库（位于一组共享物理磁盘上）</p>
+<p>例外2: 容器式数据库</p>
+<h2 id="3-Oracle数据库和Oracle实例的关系"><a href="#3-Oracle数据库和Oracle实例的关系" class="headerlink" title="3. Oracle数据库和Oracle实例的关系"></a>3. <em>Oracle数据库</em>和<em>Oracle实例</em>的关系</h2><ol>
+<li><p>一个实例一生只能够装载及打开一个数据库  </p>
+</li>
+<li><p>一个数据库能够被多个实例装载并打开(RAC)</p>
+</li>
+<li><p>每个运行着的数据库一定与至少一个实例关联</p>
+</li>
+</ol>
+<p><img src="images/instance-and-database.png"></p>
+<p>Oracle数据库与实例的启动过程</p>
+<p><img src="images/startup-sequence.png"></p>
+<p>Oracle数据库与实例的关闭过程</p>
+<p><img src="images/shutdown-sequence.png"></p>
+<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><ul>
+<li><p>名称, 版本信息查看</p>
+<ul>
+<li><p>查询数据库版本信息</p>
+<p>  <code>SQL&gt; select * from v$version;</code></p>
+</li>
+<li><p>查看数据库名称</p>
+<p>  <code>SQL&gt; show parameter db_name;</code></p>
+</li>
+<li><p>查看数据库服务名</p>
+<p>  <code>SQL&gt; show parameter service_names;</code></p>
+</li>
+<li><p>查询全局数据库名称</p>
+<p>  <code>SQL&gt; select * from global_name;</code></p>
+</li>
+</ul>
+</li>
+<li><p>数据库实例 (Instance)</p>
+<ul>
+<li><p>查询当前数据库实例名称</p>
+<p>  <code>SQL&gt; select instance_name from v$instance;</code></p>
+</li>
+<li><p>查看当前数据库实例状态(open/mount等)</p>
+<p>  <code>SQL&gt; select status from v$instance;</code></p>
+</li>
+<li><p>查看数据库实例启动时间</p>
+<p>  <code>SQL&gt; SELECT TO_CHAR(STARTUP_TIME,&#39;MON-DD-RR HH24:MI:SS&#39;) AS &quot;Inst Start Time&quot; FROM V$INSTANCE;</code></p>
+</li>
+<li><p>创建一个新的数据库实例、加载数据库、打开数据库 (需要DBA权限)</p>
+<p>  <code>SQL&gt; startup [nomount | mount | open];</code></p>
+</li>
+<li><p>关闭实例绑定的数据库、卸载数据库、结束当前实例 (需要DBA权限)</p>
+<p>  <code>SQL&gt; shutdown [normal | transactional | immediate];</code></p>
+</li>
+<li><p>关闭实例绑定的数据库、卸载数据库</p>
+<p>  <code>SQL&gt; alter database close;</code></p>
+</li>
+<li><p>加载数据库/打开数据库</p>
+<p>  <code>SQL&gt; alter database [mount | open];</code></p>
+</li>
+</ul>
+</li>
+<li><p>数据库设置, 统计信息等</p>
+<ul>
+<li><p>查询数据库打开模式(mounted/open/read write)</p>
+<p>  <code>SQL&gt; select open_mode from v$database;</code></p>
+</li>
+<li><p>查看数据库DBF文件位置</p>
+<p>  <code>SQL&gt; select name from v$datafile;</code></p>
+</li>
+<li><p>查询数据文件状态</p>
+<p>  <code>SQL&gt; select file#,name,status,enabled,checkpoint_change# from v$datafile;</code></p>
+</li>
+<li><p>查询数据文件位置</p>
+<p>  <code>SQL&gt; select name from v$datafile;</code></p>
+</li>
+<li><p>查询数据文件（表空间）大小</p>
+<p>  <code>SQL&gt; select sum(bytes)/1024/1024/1024 as GB from v$datafile;</code></p>
+</li>
+<li><p>查询有效数据大小</p>
+<p>  <code>SQL&gt; select sum(bytes)/1024/1024/1024 as GB from dba_segments;</code></p>
+</li>
+<li><p>查看当前库的所有数据表</p>
+<p>  <code>SQL&gt; select TABLE_NAME from all_tables;</code></p>
+</li>
+</ul>
+</li>
+<li><p>可插拔数据库 (PDB) 管理</p>
+<ul>
+<li><p>查看数据库是CDB还是传统DB</p>
+<p>  <code>SQL&gt; select name, cdb, open_mode, con_id from v$database;</code></p>
+</li>
+<li><p>查看当前容器 (CDB) 名</p>
+<p>  <code>SQL&gt; show con_name;</code></p>
+</li>
+<li><p>列举当前容器中的所有PDB以及状态</p>
+<p>  <code>SQL&gt; select con_id, dbid, guid, name, open_mode from v$pdbs;</code></p>
+</li>
+<li><p>切换到某个PDB</p>
+<p>  <code>SQL&gt; alter session set container=&lt;PDB&gt;;</code></p>
+</li>
+<li><p>启动PDB数据库</p>
+<p>  <code>SQL&gt; alter pluggable database &lt;PDB&gt; open;</code></p>
+<p>  或者</p>
+<p>  <code>SQL&gt; alter session set container=&lt;PDB&gt;;</code><br>  <code>SQL&gt; startup</code></p>
+</li>
+<li><p>关闭PDB数据库</p>
+<p>  <code>SQL&gt; alter pluggable database &lt;PDB&gt; close;</code></p>
+</li>
+</ul>
+</li>
+<li><p>用户管理</p>
+<ul>
+<li>创建用户</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>编程</category>
+      </categories>
+  </entry>
+  <entry>
     <title>每日小结</title>
-    <url>/2020/11/29/daily-2020-11-29-daily/</url>
+    <url>/daily/2020/11/29/</url>
     <content><![CDATA[<h1 id="用-Hexo-搭建了个人-blog"><a href="#用-Hexo-搭建了个人-blog" class="headerlink" title="用 Hexo 搭建了个人 blog"></a>用 Hexo 搭建了个人 blog</h1><h2 id="Hexo-基本操作"><a href="#Hexo-基本操作" class="headerlink" title="Hexo 基本操作"></a>Hexo 基本操作</h2><ul>
 <li><p>安装</p>
 <p>  <code>npm install -g hexo-cli</code></p>
@@ -97,7 +340,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/11/30/daily-2020-11-30-daily/</url>
+    <url>/daily/2020/11/30/</url>
     <content><![CDATA[<h1 id="Github-Developer-Settings"><a href="#Github-Developer-Settings" class="headerlink" title="Github Developer Settings"></a>Github Developer Settings</h1><ul>
 <li><p>GitHub Apps</p>
 </li>
@@ -165,7 +408,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/01/daily-2020-12-01-daily/</url>
+    <url>/daily/2020/12/01/</url>
     <content><![CDATA[<h1 id="转换dos格式行尾为unix行尾"><a href="#转换dos格式行尾为unix行尾" class="headerlink" title="转换dos格式行尾为unix行尾"></a>转换dos格式行尾为unix行尾</h1><ul>
 <li><p>工具: dos2unix</p>
 </li>
@@ -381,7 +624,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/02/daily-2020-12-02-daily/</url>
+    <url>/daily/2020/12/02/</url>
     <content><![CDATA[<ul>
 <li><p>React</p>
 <ul>
@@ -496,7 +739,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/03/daily-2020-12-03-daily/</url>
+    <url>/daily/2020/12/03/</url>
     <content><![CDATA[<h1 id="秘书问题"><a href="#秘书问题" class="headerlink" title="秘书问题"></a>秘书问题</h1><ul>
 <li><p>又称相亲问题、止步问题、见好就收问题、苏丹的嫁妆问题、挑剔的求婚者问题等</p>
 </li>
@@ -577,7 +820,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/04/daily-2020-12-04-daily/</url>
+    <url>/daily/2020/12/04/</url>
     <content><![CDATA[<h1 id="Java-包-Package-Jar和模块-Module-的区别"><a href="#Java-包-Package-Jar和模块-Module-的区别" class="headerlink" title="Java 包(Package), Jar和模块(Module)的区别"></a>Java 包(Package), Jar和模块(Module)的区别</h1><ul>
 <li><p>包 (Package)</p>
 <ul>
@@ -727,7 +970,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/05/daily-2020-12-05-daily/</url>
+    <url>/daily/2020/12/05/</url>
     <content><![CDATA[<h1 id="Java-Spring-框架学习"><a href="#Java-Spring-框架学习" class="headerlink" title="Java Spring 框架学习"></a>Java Spring 框架学习</h1><p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
 <p>要管理bean，也即是这堆发挥业务功能的类，就不能直接把它们new出来，这样缺乏统一的调度。所以，Spring使用.xml配置文件作为媒介，以IoC（Inversion of Control 控制反转）作为工具，将这些bean拿给Spring container作统一管理。</p>
 <h1 id="Git-submodule-使用"><a href="#Git-submodule-使用" class="headerlink" title="Git submodule 使用"></a>Git submodule 使用</h1><ul>
@@ -815,7 +1058,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/06/daily-2020-12-06-daily/</url>
+    <url>/daily/2020/12/06/</url>
     <content><![CDATA[<h1 id="学习Oracle使用"><a href="#学习Oracle使用" class="headerlink" title="学习Oracle使用"></a>学习Oracle使用</h1><p><a href="../oracledb/index">OracleDB</a></p>
 ]]></content>
       <categories>
@@ -827,7 +1070,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/07/daily-2020-12-07-daily/</url>
+    <url>/daily/2020/12/07/</url>
     <content><![CDATA[<h1 id="Visio-画图如何添加自定义连接点"><a href="#Visio-画图如何添加自定义连接点" class="headerlink" title="Visio 画图如何添加自定义连接点"></a>Visio 画图如何添加自定义连接点</h1><p>在工具栏选中”连接点”</p>
 <p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
 <p>有时候可能需要多点几次</p>
@@ -846,7 +1089,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/09/daily-2020-12-09-daily/</url>
+    <url>/daily/2020/12/09/</url>
     <content><![CDATA[<h1 id="Spring学习"><a href="#Spring学习" class="headerlink" title="Spring学习"></a>Spring学习</h1><h2 id="IoC容器"><a href="#IoC容器" class="headerlink" title="IoC容器"></a>IoC容器</h2><p>Spring类似一个类实例的工厂, 我们提供配置文件(.Java, .xml), Spring按照配置文件装配产品.</p>
 <p>Spring的核心IoC容器接口是<code>ApplicationContext</code>，并提供了多种实现类:<br>例如读取xml文件的<code>ClassPathXmlApplicationContext</code>, 使用注解的<code>AnnotationConfigApplicationContext</code></p>
 <h2 id="Java的Web框架"><a href="#Java的Web框架" class="headerlink" title="Java的Web框架"></a>Java的Web框架</h2><ul>
@@ -878,7 +1121,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/10/daily-2020-12-10-daily/</url>
+    <url>/daily/2020/12/10/</url>
     <content><![CDATA[<h1 id="Java的ORM框架-vs-Python的ORM框架"><a href="#Java的ORM框架-vs-Python的ORM框架" class="headerlink" title="Java的ORM框架 vs Python的ORM框架"></a>Java的ORM框架 vs Python的ORM框架</h1><p>TODO: 待更新</p>
 <h1 id="为什么需要CORS-CORS是为了保护谁"><a href="#为什么需要CORS-CORS是为了保护谁" class="headerlink" title="为什么需要CORS? CORS是为了保护谁?"></a>为什么需要CORS? CORS是为了保护谁?</h1><p>CORS标准允许服务器指定谁可以访问该服务器上的资源, 以及该如何访问这些资源</p>
 <p>所以说其实是保护服务器端, 防止恶意网站窃取数据</p>
@@ -895,7 +1138,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/11/daily-2020-12-11-daily/</url>
+    <url>/daily/2020/12/11/</url>
     <content><![CDATA[<h1 id="Linux-内核提权"><a href="#Linux-内核提权" class="headerlink" title="Linux 内核提权"></a>Linux 内核提权</h1><ul>
 <li>获取内核版本</li>
 </ul>
@@ -924,7 +1167,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/12/daily-2020-12-12-daily/</url>
+    <url>/daily/2020/12/12/</url>
     <content><![CDATA[<h1 id="线性代数"><a href="#线性代数" class="headerlink" title="线性代数"></a>线性代数</h1>]]></content>
       <categories>
         <category>每日小结</category>
@@ -932,7 +1175,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/13/daily-2020-12-13-daily/</url>
+    <url>/daily/2020/12/13/</url>
     <content><![CDATA[<h1 id="C-STL中unique的用法"><a href="#C-STL中unique的用法" class="headerlink" title="C++ STL中unique的用法"></a>C++ STL中unique的用法</h1><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>&gt;</span></span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>, <span class="keyword">class</span> <span class="title">BinaryPredicate</span>&gt;</span></span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last,</span></span></span><br><span class="line"><span class="function"><span class="params">                           BinaryPredicate pred )</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>将[first, last)之间, <strong>相邻</strong>的多个相同元素合并为一个, 返回指向不重复部分末尾的迭代器. 多和sort函数一起使用</p>
@@ -952,253 +1195,10 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/14/daily-2020-12-14-daily/</url>
+    <url>/daily/2020/12/14/</url>
     <content><![CDATA[<h1 id="满课-摸了"><a href="#满课-摸了" class="headerlink" title="满课, 摸了"></a>满课, 摸了</h1>]]></content>
       <categories>
         <category>每日小结</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>217. 存在重复元素</title>
-    <url>/2020/12/13/leetcode-217/</url>
-    <content><![CDATA[<p>给定一个整数数组，判断是否存在重复元素。</p>
-<p>如果任意一值在数组中出现至少两次，函数返回 true 。如果数组中每个元素都不相同，则返回 false 。</p>
-<p>没啥好说的:</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">containsDuplicate</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        sort(nums.begin(),nums.end());</span><br><span class="line">        <span class="keyword">return</span> unique(nums.begin(),nums.end())!=nums.end();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>376. 摆动序列</title>
-    <url>/2020/12/12/leetcode-376/</url>
-    <content><![CDATA[<p>思路: 先差分, 然后把所有0和相邻同号的数字(之一)去掉, 剩下的元素数量+2既是最终答案</p>
-<p>注意: 元素个数为0, 元素个数为1, 差分后有0出现</p>
-<p>代码:</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">wiggleMaxLength</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;nums)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> size = nums.size() - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (size &lt; <span class="number">1</span>) &#123; <span class="keyword">return</span> size + <span class="number">1</span>; &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> start = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">            nums[i] -= nums[i + <span class="number">1</span>];</span><br><span class="line">            <span class="comment">// find first not zero</span></span><br><span class="line">            <span class="keyword">if</span> (start == <span class="number">-1</span> &amp;&amp; nums[i] != <span class="number">0</span>) &#123; start = i; &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (start == <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// none</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">1</span>, want = nums[start];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = start + <span class="number">1</span>; i &lt; size; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((nums[i] &gt; <span class="number">0</span> &amp;&amp; want &lt; <span class="number">0</span>) ||</span><br><span class="line">                (nums[i] &lt; <span class="number">0</span> &amp;&amp; want &gt; <span class="number">0</span>)) &#123;  <span class="comment">// different sign and no zero</span></span><br><span class="line">                want = nums[i];</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> count + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>看过题解: 复杂了, 只要统计波峰和波谷的数量就行了</p>
-<p>别人的代码</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">wiggleMaxLength</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = nums.length;</span><br><span class="line">        <span class="keyword">if</span> (n &lt; <span class="number">2</span>) <span class="keyword">return</span> n;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>, prev_diff = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> diff = nums[i] - nums[i - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span> (diff &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &gt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = -<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (diff &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &lt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：lincs</span><br><span class="line">链接：https:<span class="comment">//leetcode-cn.com/problems/wiggle-subsequence/solution/java-on-solution-by-lincs-6l5r/</span></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>4. 寻找两个正序数组的中位数</title>
-    <url>/2020/12/13/leetcode-4/</url>
-    <content><![CDATA[<p>思路: 先归并排序, 再寻找中间位置</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i=<span class="number">0</span>,j=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> len1=nums1.size(),len2=nums2.size(),len=len1+len2;</span><br><span class="line">        <span class="keyword">int</span> t, lastt;</span><br><span class="line">        <span class="keyword">while</span>(i+j&lt;=len/<span class="number">2</span>)&#123;</span><br><span class="line">            lastt=t;</span><br><span class="line">            <span class="keyword">if</span>(i&lt;len1 &amp;&amp; j&lt; len2)&#123;</span><br><span class="line">                <span class="keyword">int</span> n1=nums1[i];</span><br><span class="line">                <span class="keyword">int</span> n2=nums2[j];</span><br><span class="line">                <span class="keyword">if</span>(n1&lt;n2)&#123;</span><br><span class="line">                    t=n1;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    t=n2;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(i&lt;len1)&#123;</span><br><span class="line">                t=nums1[i++];</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                t=nums2[j++];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;i+j&lt;&lt;<span class="string">&quot;:&quot;</span>&lt;&lt;t&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (len%<span class="number">2</span>?t:(t+lastt)/<span class="number">2.0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>49. 字母异位词分组</title>
-    <url>/2020/12/14/leetcode-49/</url>
-    <content><![CDATA[<p>思路: 字符串排序后作为key, 存到map中再转成vector返回, AC</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; <span class="title">groupAnagrams</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; strs)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="built_in">string</span>, <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; m;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;strs.size();i++)&#123;</span><br><span class="line">            <span class="built_in">string</span> s=strs[i];</span><br><span class="line">            sort(s.begin(),s.end());</span><br><span class="line">            m[s].push_back(strs[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; res;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> &amp;k:m)&#123;</span><br><span class="line">            res.push_back(k.second);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日 leetcode</title>
-    <url>/2020/12/12/leetcode-index/</url>
-    <content><![CDATA[<h1 id="决定开始刷leetcode了"><a href="#决定开始刷leetcode了" class="headerlink" title="决定开始刷leetcode了"></a>决定开始刷leetcode了</h1><p>目标: <del>每天一道</del>如果每日一题是easy, 就加一道hard</p>
-]]></content>
-      <categories>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Oracle APEX学习</title>
-    <url>/2020/12/07/oracle-apex-index/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>什么垃圾软件, 毁我人生!!</p>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>略</p>
-<h1 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h1><p>启动apex安装到的数据库(PDB默认不会自动open)</p>
-<p>启动ords服务</p>
-<p><code>$ java -jar ords.war</code></p>
-<h1 id="怎么修改密码"><a href="#怎么修改密码" class="headerlink" title="怎么修改密码"></a>怎么修改密码</h1><p><code>SQL&gt; @apxchpwd.sql</code></p>
-]]></content>
-      <categories>
-        <category>编程</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Oracle数据库学习</title>
-    <url>/2020/12/03/oracledb-index/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考资料:</p>
-<p><a href="https://docs.oracle.com/en/database/oracle/oracle-database/index.html">Oracle官方文档</a></p>
-<h1 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h1><p>Schema是表, 索引, 存储过程等等数据库对象(DB Object)的存储容器</p>
-<p>用户与Schema之间是<strong>一对一</strong>的关系</p>
-<p>例如: 访问用户A的xxx对象就通过 <code>A.xxx</code></p>
-<p><img src="images/user-schema-tables.png"></p>
-<h1 id="Oracle-表空间"><a href="#Oracle-表空间" class="headerlink" title="Oracle 表空间"></a>Oracle 表空间</h1><p>表空间是逻辑上, 存放数据表的容器</p>
-<p>每张表一定属于某个表空间</p>
-<p>每个用户(Schema)可以拥有多个表空间, 而且都有一个默认表空间</p>
-<p>用户之间可以通过共享表空间的方式共享数据表</p>
-<p>物理上, 表空间的存储可能不是连续的</p>
-<h1 id="PL-SQL"><a href="#PL-SQL" class="headerlink" title="PL/SQL"></a>PL/SQL</h1><ul>
-<li>A primary benefit of PL/SQL is the ability to store application logic in the database itself.</li>
-</ul>
-<h1 id="Oracle-体系结构-重要"><a href="#Oracle-体系结构-重要" class="headerlink" title="Oracle 体系结构 (重要)"></a>Oracle 体系结构 (重要)</h1><ul>
-<li>Oracle Server = Oracle Instance + Oracle Database</li>
-</ul>
-<h2 id="1-Oracle实例-Oracle-Instance"><a href="#1-Oracle实例-Oracle-Instance" class="headerlink" title="1. Oracle实例 (Oracle Instance)"></a>1. Oracle实例 (Oracle Instance)</h2><p>Oracle Instance = SGA(system global area) + Background Process</p>
-<p>是一组**OS进程(线程)和一些内存(SGA)**的总称</p>
-<p>可以用来mount和open一个数据库</p>
-<p>一个实例在其生存期中最多只能装载和打开一个数据库。要想再打开这个（或其他）数据库，必须先丢弃这个实例，并创建一个新的实例。</p>
-<p>一个数据库实例的状态分为以下几种</p>
-<ul>
-<li><p><code>started</code></p>
-</li>
-<li><p><code>mounted</code></p>
-</li>
-<li><p><code>open</code></p>
-</li>
-<li><p><code>close</code></p>
-</li>
-<li><p><code>mounted</code></p>
-</li>
-<li><p><code>open</code></p>
-</li>
-</ul>
-<h3 id="started-状态"><a href="#started-状态" class="headerlink" title="started 状态"></a><code>started</code> 状态</h3><p>在执行<code>startup nomount</code>命令后, Oracle会执行以下操作, 之后实例会进入<code>started</code>状态, 此时实例还未绑定数据库</p>
-<ul>
-<li><p>读取配置文件</p>
-</li>
-<li><p>分配<code>SGA</code></p>
-</li>
-<li><p>启动后台进程</p>
-</li>
-<li><p>打开一些用于记录的文件</p>
-</li>
-</ul>
-<h3 id="mounted-状态"><a href="#mounted-状态" class="headerlink" title="mounted 状态"></a><code>mounted</code> 状态</h3><p>在执行<code>startup mount</code>或者<code>alter database mount</code>命令后, 实例会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
-<p>数据库打开后, 执行<code>alter database close</code>命令后, 实例也会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
-<p>此时实例与数据库建立了联系, 但是只有DBA能够访问数据库。</p>
-<h3 id="open-状态"><a href="#open-状态" class="headerlink" title="open 状态"></a><code>open</code> 状态</h3><p>在执行<code>startup</code>或者<code>alter database open</code>命令后, 实例会进入<code>open</code>状态。</p>
-<p>此时实例与数据库建立了联系, 数据库完全启动, 普通用户也可以访问数据库。</p>
-<h2 id="2-Oracle数据库-Oracle-Database"><a href="#2-Oracle数据库-Oracle-Database" class="headerlink" title="2. Oracle数据库 (Oracle Database)"></a>2. Oracle数据库 (Oracle Database)</h2><p>Oracle Database = Controlfile + datafile + logfile + spfile + …</p>
-<p>是存储在<strong>磁盘</strong>上的<strong>一组数据文件</strong>的集合</p>
-<p>一般来说, 一个数据库上只有一个实例对其进行操作</p>
-<p>但是也有例外: RAC（Real Application Clusters）就允许在集群环境中的多台计算机上操作，这样就可以有多台实例同时装载并打开一个数据库（位于一组共享物理磁盘上）</p>
-<p>例外2: 容器式数据库</p>
-<h2 id="3-Oracle数据库和Oracle实例的关系"><a href="#3-Oracle数据库和Oracle实例的关系" class="headerlink" title="3. Oracle数据库和Oracle实例的关系"></a>3. <em>Oracle数据库</em>和<em>Oracle实例</em>的关系</h2><ol>
-<li><p>一个实例一生只能够装载及打开一个数据库  </p>
-</li>
-<li><p>一个数据库能够被多个实例装载并打开(RAC)</p>
-</li>
-<li><p>每个运行着的数据库一定与至少一个实例关联</p>
-</li>
-</ol>
-<p><img src="images/instance-and-database.png"></p>
-<p>Oracle数据库与实例的启动过程</p>
-<p><img src="images/startup-sequence.png"></p>
-<p>Oracle数据库与实例的关闭过程</p>
-<p><img src="images/shutdown-sequence.png"></p>
-<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><ul>
-<li><p>名称, 版本信息查看</p>
-<ul>
-<li><p>查询数据库版本信息</p>
-<p>  <code>SQL&gt; select * from v$version;</code></p>
-</li>
-<li><p>查看数据库名称</p>
-<p>  <code>SQL&gt; show parameter db_name;</code></p>
-</li>
-<li><p>查看数据库服务名</p>
-<p>  <code>SQL&gt; show parameter service_names;</code></p>
-</li>
-<li><p>查询全局数据库名称</p>
-<p>  <code>SQL&gt; select * from global_name;</code></p>
-</li>
-</ul>
-</li>
-<li><p>数据库实例 (Instance)</p>
-<ul>
-<li><p>查询当前数据库实例名称</p>
-<p>  <code>SQL&gt; select instance_name from v$instance;</code></p>
-</li>
-<li><p>查看当前数据库实例状态(open/mount等)</p>
-<p>  <code>SQL&gt; select status from v$instance;</code></p>
-</li>
-<li><p>查看数据库实例启动时间</p>
-<p>  <code>SQL&gt; SELECT TO_CHAR(STARTUP_TIME,&#39;MON-DD-RR HH24:MI:SS&#39;) AS &quot;Inst Start Time&quot; FROM V$INSTANCE;</code></p>
-</li>
-<li><p>创建一个新的数据库实例、加载数据库、打开数据库 (需要DBA权限)</p>
-<p>  <code>SQL&gt; startup [nomount | mount | open];</code></p>
-</li>
-<li><p>关闭实例绑定的数据库、卸载数据库、结束当前实例 (需要DBA权限)</p>
-<p>  <code>SQL&gt; shutdown [normal | transactional | immediate];</code></p>
-</li>
-<li><p>关闭实例绑定的数据库、卸载数据库</p>
-<p>  <code>SQL&gt; alter database close;</code></p>
-</li>
-<li><p>加载数据库/打开数据库</p>
-<p>  <code>SQL&gt; alter database [mount | open];</code></p>
-</li>
-</ul>
-</li>
-<li><p>数据库设置, 统计信息等</p>
-<ul>
-<li><p>查询数据库打开模式(mounted/open/read write)</p>
-<p>  <code>SQL&gt; select open_mode from v$database;</code></p>
-</li>
-<li><p>查看数据库DBF文件位置</p>
-<p>  <code>SQL&gt; select name from v$datafile;</code></p>
-</li>
-<li><p>查询数据文件状态</p>
-<p>  <code>SQL&gt; select file#,name,status,enabled,checkpoint_change# from v$datafile;</code></p>
-</li>
-<li><p>查询数据文件位置</p>
-<p>  <code>SQL&gt; select name from v$datafile;</code></p>
-</li>
-<li><p>查询数据文件（表空间）大小</p>
-<p>  <code>SQL&gt; select sum(bytes)/1024/1024/1024 as GB from v$datafile;</code></p>
-</li>
-<li><p>查询有效数据大小</p>
-<p>  <code>SQL&gt; select sum(bytes)/1024/1024/1024 as GB from dba_segments;</code></p>
-</li>
-<li><p>查看当前库的所有数据表</p>
-<p>  <code>SQL&gt; select TABLE_NAME from all_tables;</code></p>
-</li>
-</ul>
-</li>
-<li><p>可插拔数据库 (PDB) 管理</p>
-<ul>
-<li><p>查看数据库是CDB还是传统DB</p>
-<p>  <code>SQL&gt; select name, cdb, open_mode, con_id from v$database;</code></p>
-</li>
-<li><p>查看当前容器 (CDB) 名</p>
-<p>  <code>SQL&gt; show con_name;</code></p>
-</li>
-<li><p>列举当前容器中的所有PDB以及状态</p>
-<p>  <code>SQL&gt; select con_id, dbid, guid, name, open_mode from v$pdbs;</code></p>
-</li>
-<li><p>切换到某个PDB</p>
-<p>  <code>SQL&gt; alter session set container=&lt;PDB&gt;;</code></p>
-</li>
-<li><p>启动PDB数据库</p>
-<p>  <code>SQL&gt; alter pluggable database &lt;PDB&gt; open;</code></p>
-<p>  或者</p>
-<p>  <code>SQL&gt; alter session set container=&lt;PDB&gt;;</code><br>  <code>SQL&gt; startup</code></p>
-</li>
-<li><p>关闭PDB数据库</p>
-<p>  <code>SQL&gt; alter pluggable database &lt;PDB&gt; close;</code></p>
-</li>
-</ul>
-</li>
-<li><p>用户管理</p>
-<ul>
-<li>创建用户</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>编程</category>
       </categories>
   </entry>
 </search>
