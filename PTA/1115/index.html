@@ -21,7 +21,7 @@
 
 <script class="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":true,"nav":null,"activeClass":"gitalk"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+    var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
 <meta name="description" content="按给定序列构造一个二叉搜索树, 分别计算最低两层的节点数量 思路: 如题, 考基本功 注意: 一种新奇的写法, 获取倒数第n个元素 (想到了Python是不是XD) 123&#x2F;&#x2F; vector&lt;int&gt; x;&#x2F;&#x2F; ...cout &lt;&lt; x.end()[-n] &lt;&lt; endl;  代码(有内存泄漏): 12345678910111213141516171819202">
 <meta property="og:type" content="article">
@@ -31,7 +31,7 @@
 <meta property="og:description" content="按给定序列构造一个二叉搜索树, 分别计算最低两层的节点数量 思路: 如题, 考基本功 注意: 一种新奇的写法, 获取倒数第n个元素 (想到了Python是不是XD) 123&#x2F;&#x2F; vector&lt;int&gt; x;&#x2F;&#x2F; ...cout &lt;&lt; x.end()[-n] &lt;&lt; endl;  代码(有内存泄漏): 12345678910111213141516171819202">
 <meta property="og:locale">
 <meta property="article:published_time" content="2020-12-15T04:49:41.000Z">
-<meta property="article:modified_time" content="2020-12-15T15:40:28.975Z">
+<meta property="article:modified_time" content="2020-12-16T03:54:41.349Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="daily">
 <meta name="twitter:card" content="summary">
@@ -301,10 +301,16 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2020-12-15 12:49:41 / Modified: 23:40:28" itemprop="dateCreated datePublished" datetime="2020-12-15T12:49:41+08:00">2020-12-15</time>
+      <time title="Created: 2020-12-15 12:49:41" itemprop="dateCreated datePublished" datetime="2020-12-15T12:49:41+08:00">2020-12-15</time>
     </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-16 11:54:41" itemprop="dateModified" datetime="2020-12-16T11:54:41+08:00">2020-12-16</time>
+      </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-folder"></i>
@@ -315,6 +321,20 @@
         </span>
     </span>
 
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/PTA/1115/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="PTA/1115/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
   
 </div>
 
@@ -361,7 +381,13 @@
 
 
 
-    <div class="comments" id="gitalk-container"></div>
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -425,24 +451,35 @@
 
 
 
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/gitalk/1.7.0/gitalk.min.css">
-
 <script>
-NexT.utils.loadComments('#gitalk-container', () => {
-  NexT.utils.getScript('//cdnjs.cloudflare.com/ajax/libs/gitalk/1.7.0/gitalk.min.js', () => {
-    var gitalk = new Gitalk({
-      clientID    : '0825405d2644f553bceb',
-      clientSecret: '0e158cc2062a6f21c3c1068b8efa0fbaebffbe85',
-      repo        : 'frezcirno.github.io',
-      owner       : 'frezcirno',
-      admin       : ['frezcirno'],
-      id          : '91e85780a9f152362ba663dfb01488c9',
-        language: '',
-      distractionFreeMode: true
-    });
-    gitalk.render('gitalk-container');
-  }, window.Gitalk);
-});
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://frezcirno-github-io.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://frezcirno.github.io/PTA/1115/";
+    this.page.identifier = "PTA/1115/";
+    this.page.title = "1115. Counting Nodes in a BST";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://frezcirno-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
 </script>
 
 </body>
