@@ -23,21 +23,24 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
-<meta name="description" content="实现支持.和*的正则表达式匹配. 思路: 动态规划 用 $f[i][j]$ 表示$s$中的前 $i$ 个字母能否与 $p$ 中的前 $j$ 个字母匹配, 按照$p[j]$是否为*分为两种情况 存在*时的转移方程可以这样考虑:   匹配 s 末尾的一个字符，将该字符扔掉，而该组合还可以继续进行匹配；($f[i-1][j]$)  不匹配字符，将该组合扔掉，不再进行匹配。($f[i][j - 2]$)">
+<meta name="description" content="Spring-doc OpenAPI 注解@Operation@Response@Parameter Ubuntu设置代理启动clash for linux  配置代理地址配置文件  配置restAPI地址和访问密码  将clash作为一个daemon进程:  使用systemd:   先创建配置文件&#x2F;etc&#x2F;systemd&#x2F;system&#x2F;clash.service   12345678[Unit">
 <meta property="og:type" content="article">
-<meta property="og:title" content="10. 正则表达式匹配">
-<meta property="og:url" content="https://frezcirno.github.io/leetcode/10/index.html">
+<meta property="og:title" content="post">
+<meta property="og:url" content="https://frezcirno.github.io/daily/2020/12/17/index.html">
 <meta property="og:site_name" content="frezcirno&#39;s blog">
-<meta property="og:description" content="实现支持.和*的正则表达式匹配. 思路: 动态规划 用 $f[i][j]$ 表示$s$中的前 $i$ 个字母能否与 $p$ 中的前 $j$ 个字母匹配, 按照$p[j]$是否为*分为两种情况 存在*时的转移方程可以这样考虑:   匹配 s 末尾的一个字符，将该字符扔掉，而该组合还可以继续进行匹配；($f[i-1][j]$)  不匹配字符，将该组合扔掉，不再进行匹配。($f[i][j - 2]$)">
+<meta property="og:description" content="Spring-doc OpenAPI 注解@Operation@Response@Parameter Ubuntu设置代理启动clash for linux  配置代理地址配置文件  配置restAPI地址和访问密码  将clash作为一个daemon进程:  使用systemd:   先创建配置文件&#x2F;etc&#x2F;systemd&#x2F;system&#x2F;clash.service   12345678[Unit">
 <meta property="og:locale">
-<meta property="article:published_time" content="2020-12-16T04:41:49.000Z">
+<meta property="article:published_time" content="2020-12-17T16:27:04.000Z">
 <meta property="article:modified_time" content="2020-12-17T18:09:32.277Z">
 <meta property="article:author" content="frezcirno">
-<meta property="article:tag" content="动态规划">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Spring">
+<meta property="article:tag" content="Swagger">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://frezcirno.github.io/leetcode/10/">
+<link rel="canonical" href="https://frezcirno.github.io/daily/2020/12/17/">
 
 
 <script class="page-configurations">
@@ -49,7 +52,7 @@
     lang   : 'cn'
   };
 </script>
-<title>10. 正则表达式匹配 | frezcirno's blog</title>
+<title>post | frezcirno's blog</title>
   
 
 
@@ -189,7 +192,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           Table of Contents
@@ -202,6 +205,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-doc-OpenAPI-%E6%B3%A8%E8%A7%A3"><span class="nav-number">1.</span> <span class="nav-text">Spring-doc OpenAPI 注解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ubuntu%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">Ubuntu设置代理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Shell%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">Shell的类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#shell%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.1.</span> <span class="nav-text">shell的类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%99%BB%E5%BD%95shell%E5%92%8C%E9%9D%9E%E7%99%BB%E5%BD%95shell"><span class="nav-number">3.2.</span> <span class="nav-text">登录shell和非登录shell</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A4%E4%BA%92%E5%BC%8Fshell%E5%92%8C%E9%9D%9E%E4%BA%A4%E4%BA%92%E5%BC%8Fshell"><span class="nav-number">3.3.</span> <span class="nav-text">交互式shell和非交互式shell</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#profile-%E5%92%8C-xxshrc"><span class="nav-number">3.4.</span> <span class="nav-text">.profile 和 .xxshrc</span></a></li></ol></li></ol></div>
         </section>
         <!--/noindex-->
 
@@ -278,7 +282,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/leetcode/10/">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/17/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -291,7 +295,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          10. 正则表达式匹配
+          post
         </h1>
 
         <div class="post-meta-container">
@@ -301,23 +305,17 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
+      
 
-      <time title="Created: 2020-12-16 12:41:49" itemprop="dateCreated datePublished" datetime="2020-12-16T12:41:49+08:00">2020-12-16</time>
+      <time title="Created: 2020-12-18 00:27:04 / Modified: 02:09:32" itemprop="dateCreated datePublished" datetime="2020-12-18T00:27:04+08:00">2020-12-18</time>
     </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-18 02:09:32" itemprop="dateModified" datetime="2020-12-18T02:09:32+08:00">2020-12-18</time>
-      </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-folder"></i>
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
         </span>
     </span>
 
@@ -330,8 +328,8 @@
       </span>
       <span class="post-meta-item-text">Disqus: </span>
     
-    <a title="disqus" href="/leetcode/10/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="leetcode/10/" itemprop="commentCount"></span>
+    <a title="disqus" href="/daily/2020/12/17/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/17/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -345,20 +343,44 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>实现支持.和*的正则表达式匹配.</p>
-<p>思路: 动态规划</p>
-<p>用 $f[i][j]$ 表示$s$中的前 $i$ 个字母能否与 $p$ 中的前 $j$ 个字母匹配, 按照$p[j]$是否为*分为两种情况</p>
-<p>存在*时的转移方程可以这样考虑: </p>
-<ol>
-<li><p>匹配 s 末尾的一个字符，将该字符扔掉，而该组合还可以继续进行匹配；($f[i-1][j]$)</p>
+        <h1 id="Spring-doc-OpenAPI-注解"><a href="#Spring-doc-OpenAPI-注解" class="headerlink" title="Spring-doc OpenAPI 注解"></a>Spring-doc OpenAPI 注解</h1><p>@Operation<br>@Response<br>@Parameter</p>
+<h1 id="Ubuntu设置代理"><a href="#Ubuntu设置代理" class="headerlink" title="Ubuntu设置代理"></a>Ubuntu设置代理</h1><p>启动clash for linux</p>
+<ul>
+<li><p>配置代理地址配置文件</p>
 </li>
-<li><p>不匹配字符，将该组合扔掉，不再进行匹配。($f[i][j - 2]$)</p>
+<li><p>配置restAPI地址和访问密码</p>
 </li>
-</ol>
-<p>最终的状态转移方程:</p>
-<p>$$<br>f[i][j] = \begin{cases}<br>f[i - 1][j - 1], &amp; p[j] \neq ‘<em>‘ <del>and</del> s[i] = p[j] \<br>false, &amp; p[j] \neq ‘</em>‘ <del>and</del> s[i] \neq p[j] \<br>f[i][j - 2] <del>or</del> f[i-1][j], &amp; p[j] = ‘<em>‘ <del>and</del> s[i] = p[j-1] \<br>f[i][j - 2], &amp; p[j] = ‘</em>‘ <del>and</del> s[i] \neq p[j-1]<br>\end{cases}<br>$$</p>
-<p>代码:</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isMatch</span><span class="params">(<span class="built_in">string</span> s, <span class="built_in">string</span> p)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> m = s.size();</span><br><span class="line">        <span class="keyword">int</span> n = p.size();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> matches = [&amp;](<span class="keyword">int</span> i, <span class="keyword">int</span> j) &#123;</span><br><span class="line">            <span class="keyword">if</span> (i == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (p[j - <span class="number">1</span>] == <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> s[i - <span class="number">1</span>] == p[j - <span class="number">1</span>];</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">f</span><span class="params">(m + <span class="number">1</span>, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(n + <span class="number">1</span>))</span></span>;</span><br><span class="line">        f[<span class="number">0</span>][<span class="number">0</span>] = <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= m; ++i) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; ++j) &#123;</span><br><span class="line">                <span class="keyword">if</span> (p[j - <span class="number">1</span>] == <span class="string">&#x27;*&#x27;</span>) &#123;</span><br><span class="line">                    f[i][j] |= f[i][j - <span class="number">2</span>];</span><br><span class="line">                    <span class="keyword">if</span> (matches(i, j - <span class="number">1</span>)) &#123;</span><br><span class="line">                        f[i][j] |= f[i - <span class="number">1</span>][j];</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (matches(i, j)) &#123;</span><br><span class="line">                        f[i][j] |= f[i - <span class="number">1</span>][j - <span class="number">1</span>];</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> f[m][n];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<li><p>将clash作为一个daemon进程:</p>
+<ul>
+<li><p>使用systemd:</p>
+<p>  先创建配置文件<code>/etc/systemd/system/clash.service</code></p>
+  <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Clash Daemon</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">ExecStart=/usr/<span class="built_in">local</span>/bin/clash -d /etc/clash/</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<p>  然后clash就成为了一个service, 可以通过systemctl命令启动, 通过journalctl命令查看日志等</p>
+</li>
+<li><p>使用pm2: <code>pm2 start clash</code></p>
+</li>
+</ul>
+</li>
+<li><p>在.bashrc或者.zshrc文件底部设置</p>
+</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> all_proxy=<span class="string">&#x27;socks5://localhost:7891&#x27;</span></span><br><span class="line"><span class="built_in">export</span> http_proxy=<span class="string">&#x27;http://localhost:7890&#x27;</span></span><br><span class="line"><span class="built_in">export</span> https_proxy=<span class="string">&#x27;http://localhost:7890&#x27;</span></span><br><span class="line"><span class="built_in">export</span> ftp_proxy=<span class="string">&#x27;http://localhost:7890&#x27;</span></span><br><span class="line"><span class="built_in">export</span> no_proxy=<span class="string">&#x27;localhost,127.0.0.1&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="Shell的类型"><a href="#Shell的类型" class="headerlink" title="Shell的类型"></a>Shell的类型</h1><h2 id="shell的类型"><a href="#shell的类型" class="headerlink" title="shell的类型"></a>shell的类型</h2><p>常见的shell有sh, bash, zsh等, </p>
+<p>查看当前使用的shell: <code>echo $SHELL</code></p>
+<p>查看系统中的所有shell: <code>cat /etc/shells</code></p>
+<h2 id="登录shell和非登录shell"><a href="#登录shell和非登录shell" class="headerlink" title="登录shell和非登录shell"></a>登录shell和非登录shell</h2><h2 id="交互式shell和非交互式shell"><a href="#交互式shell和非交互式shell" class="headerlink" title="交互式shell和非交互式shell"></a>交互式shell和非交互式shell</h2><h2 id="profile-和-xxshrc"><a href="#profile-和-xxshrc" class="headerlink" title=".profile 和 .xxshrc"></a>.profile 和 .xxshrc</h2><ul>
+<li><p>/etc/profile 为系统的每个用户设置环境信息,当第一个用户登录时, 该文件被执行, 并从/etc/profile.d目录的配置文件中搜集shell的设置</p>
+</li>
+<li><p>/etc/xxshrc 为每一个运行xx shell的用户执行此文件. 当xx shell被打开时, 该文件被读取。有些linux版本中的/etc目录下已经没有了该文件。</p>
+</li>
+<li><p>~/.profile 每个用户都可使用该文件输入专用于自己使用的shell信息, 当用户登录时,该文件仅仅执行一次 默认情况下,它设置一些环境变量,然后执行用户的.xxshrc文件.</p>
+</li>
+<li><p>~/.xxshrc 该文件包含专用于某个用户的xx shell的配置, 当该用户登录时以及每次打开新的xx shell时,该文件被读取.</p>
+</li>
+</ul>
+
     </div>
 
     
@@ -367,21 +389,21 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag"># 动态规划</a>
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Spring/" rel="tag"># Spring</a>
+              <a href="/tags/Swagger/" rel="tag"># Swagger</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/leetcode/290/" rel="prev" title="290. 单词规律">
-                  <i class="fa fa-chevron-left"></i> 290. 单词规律
+                <a href="/compiler-principle/5/" rel="prev" title="5">
+                  <i class="fa fa-chevron-left"></i> 5
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/PTA/1099/" rel="next" title="1099. Build A Binary Search Tree">
-                  1099. Build A Binary Search Tree <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
@@ -475,9 +497,9 @@
 </script>
 <script>
   var disqus_config = function() {
-    this.page.url = "https://frezcirno.github.io/leetcode/10/";
-    this.page.identifier = "leetcode/10/";
-    this.page.title = "10. 正则表达式匹配";
+    this.page.url = "https://frezcirno.github.io/daily/2020/12/17/";
+    this.page.identifier = "daily/2020/12/17/";
+    this.page.title = "post";
     };
   NexT.utils.loadComments('#disqus_thread', () => {
     if (window.DISQUS) {

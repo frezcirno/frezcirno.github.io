@@ -215,7 +215,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -228,7 +228,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-count">28</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -275,6 +275,130 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/17/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/daily/2020/12/17/" class="post-title-link" itemprop="url">post</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2020-12-18 00:27:04 / Modified: 02:09:32" itemprop="dateCreated datePublished" datetime="2020-12-18T00:27:04+08:00">2020-12-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/daily/2020/12/17/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/17/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="Spring-doc-OpenAPI-注解"><a href="#Spring-doc-OpenAPI-注解" class="headerlink" title="Spring-doc OpenAPI 注解"></a>Spring-doc OpenAPI 注解</h1><p>@Operation<br>@Response<br>@Parameter</p>
+<h1 id="Ubuntu设置代理"><a href="#Ubuntu设置代理" class="headerlink" title="Ubuntu设置代理"></a>Ubuntu设置代理</h1><p>启动clash for linux</p>
+<ul>
+<li><p>配置代理地址配置文件</p>
+</li>
+<li><p>配置restAPI地址和访问密码</p>
+</li>
+<li><p>将clash作为一个daemon进程:</p>
+<ul>
+<li><p>使用systemd:</p>
+<p>  先创建配置文件<code>/etc/systemd/system/clash.service</code></p>
+  <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Clash Daemon</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">ExecStart=/usr/<span class="built_in">local</span>/bin/clash -d /etc/clash/</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<p>  然后clash就成为了一个service, 可以通过systemctl命令启动, 通过journalctl命令查看日志等</p>
+</li>
+<li><p>使用pm2: <code>pm2 start clash</code></p>
+</li>
+</ul>
+</li>
+<li><p>在.bashrc或者.zshrc文件底部设置</p>
+</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> all_proxy=<span class="string">&#x27;socks5://localhost:7891&#x27;</span></span><br><span class="line"><span class="built_in">export</span> http_proxy=<span class="string">&#x27;http://localhost:7890&#x27;</span></span><br><span class="line"><span class="built_in">export</span> https_proxy=<span class="string">&#x27;http://localhost:7890&#x27;</span></span><br><span class="line"><span class="built_in">export</span> ftp_proxy=<span class="string">&#x27;http://localhost:7890&#x27;</span></span><br><span class="line"><span class="built_in">export</span> no_proxy=<span class="string">&#x27;localhost,127.0.0.1&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="Shell的类型"><a href="#Shell的类型" class="headerlink" title="Shell的类型"></a>Shell的类型</h1><h2 id="shell的类型"><a href="#shell的类型" class="headerlink" title="shell的类型"></a>shell的类型</h2><p>常见的shell有sh, bash, zsh等, </p>
+<p>查看当前使用的shell: <code>echo $SHELL</code></p>
+<p>查看系统中的所有shell: <code>cat /etc/shells</code></p>
+<h2 id="登录shell和非登录shell"><a href="#登录shell和非登录shell" class="headerlink" title="登录shell和非登录shell"></a>登录shell和非登录shell</h2><h2 id="交互式shell和非交互式shell"><a href="#交互式shell和非交互式shell" class="headerlink" title="交互式shell和非交互式shell"></a>交互式shell和非交互式shell</h2><h2 id="profile-和-xxshrc"><a href="#profile-和-xxshrc" class="headerlink" title=".profile 和 .xxshrc"></a>.profile 和 .xxshrc</h2><ul>
+<li><p>/etc/profile 为系统的每个用户设置环境信息,当第一个用户登录时, 该文件被执行, 并从/etc/profile.d目录的配置文件中搜集shell的设置</p>
+</li>
+<li><p>/etc/xxshrc 为每一个运行xx shell的用户执行此文件. 当xx shell被打开时, 该文件被读取。有些linux版本中的/etc目录下已经没有了该文件。</p>
+</li>
+<li><p>~/.profile 每个用户都可使用该文件输入专用于自己使用的shell信息, 当用户登录时,该文件仅仅执行一次 默认情况下,它设置一些环境变量,然后执行用户的.xxshrc文件.</p>
+</li>
+<li><p>~/.xxshrc 该文件包含专用于某个用户的xx shell的配置, 当该用户登录时以及每次打开新的xx shell时,该文件被读取.</p>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
     <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle/5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -298,10 +422,16 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2020-12-17 10:56:11 / Modified: 11:35:30" itemprop="dateCreated datePublished" datetime="2020-12-17T10:56:11+08:00">2020-12-17</time>
+      <time title="Created: 2020-12-17 10:56:11" itemprop="dateCreated datePublished" datetime="2020-12-17T10:56:11+08:00">2020-12-17</time>
     </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-18 02:09:32" itemprop="dateModified" datetime="2020-12-18T02:09:32+08:00">2020-12-18</time>
+      </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-folder"></i>
@@ -385,10 +515,16 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2020-12-17 10:56:07 / Modified: 11:35:30" itemprop="dateCreated datePublished" datetime="2020-12-17T10:56:07+08:00">2020-12-17</time>
+      <time title="Created: 2020-12-17 10:56:07" itemprop="dateCreated datePublished" datetime="2020-12-17T10:56:07+08:00">2020-12-17</time>
     </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-18 02:09:32" itemprop="dateModified" datetime="2020-12-18T02:09:32+08:00">2020-12-18</time>
+      </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-folder"></i>
@@ -472,10 +608,16 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2020-12-17 10:55:55 / Modified: 11:35:30" itemprop="dateCreated datePublished" datetime="2020-12-17T10:55:55+08:00">2020-12-17</time>
+      <time title="Created: 2020-12-17 10:55:55" itemprop="dateCreated datePublished" datetime="2020-12-17T10:55:55+08:00">2020-12-17</time>
     </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-18 02:09:32" itemprop="dateModified" datetime="2020-12-18T02:09:32+08:00">2020-12-18</time>
+      </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-folder"></i>
@@ -587,10 +729,16 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2020-12-17 10:54:20 / Modified: 11:35:30" itemprop="dateCreated datePublished" datetime="2020-12-17T10:54:20+08:00">2020-12-17</time>
+      <time title="Created: 2020-12-17 10:54:20" itemprop="dateCreated datePublished" datetime="2020-12-17T10:54:20+08:00">2020-12-17</time>
     </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-18 02:09:32" itemprop="dateModified" datetime="2020-12-18T02:09:32+08:00">2020-12-18</time>
+      </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-folder"></i>
@@ -703,10 +851,16 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2020-12-17 10:54:12 / Modified: 11:35:30" itemprop="dateCreated datePublished" datetime="2020-12-17T10:54:12+08:00">2020-12-17</time>
+      <time title="Created: 2020-12-17 10:54:12" itemprop="dateCreated datePublished" datetime="2020-12-17T10:54:12+08:00">2020-12-17</time>
     </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-18 02:09:32" itemprop="dateModified" datetime="2020-12-18T02:09:32+08:00">2020-12-18</time>
+      </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-folder"></i>
@@ -798,7 +952,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-17 11:35:30" itemprop="dateModified" datetime="2020-12-17T11:35:30+08:00">2020-12-17</time>
+        <time title="Modified: 2020-12-18 02:09:32" itemprop="dateModified" datetime="2020-12-18T02:09:32+08:00">2020-12-18</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -893,7 +1047,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-17 11:35:30" itemprop="dateModified" datetime="2020-12-17T11:35:30+08:00">2020-12-17</time>
+        <time title="Modified: 2020-12-18 02:09:32" itemprop="dateModified" datetime="2020-12-18T02:09:32+08:00">2020-12-18</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -999,7 +1153,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-17 11:35:30" itemprop="dateModified" datetime="2020-12-17T11:35:30+08:00">2020-12-17</time>
+        <time title="Modified: 2020-12-18 02:09:32" itemprop="dateModified" datetime="2020-12-18T02:09:32+08:00">2020-12-18</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1101,7 +1255,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-17 11:35:30" itemprop="dateModified" datetime="2020-12-17T11:35:30+08:00">2020-12-17</time>
+        <time title="Modified: 2020-12-18 02:09:32" itemprop="dateModified" datetime="2020-12-18T02:09:32+08:00">2020-12-18</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1138,106 +1292,6 @@
     
     <div class="post-body" itemprop="articleBody">
           <h1 id="Spring-Security"><a href="#Spring-Security" class="headerlink" title="Spring Security"></a>Spring Security</h1><h1 id="JWT"><a href="#JWT" class="headerlink" title="JWT"></a>JWT</h1>
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/PTA/1115/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="frezcirno's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/PTA/1115/" class="post-title-link" itemprop="url">1115. Counting Nodes in a BST</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-12-15 12:49:41" itemprop="dateCreated datePublished" datetime="2020-12-15T12:49:41+08:00">2020-12-15</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-17 11:35:30" itemprop="dateModified" datetime="2020-12-17T11:35:30+08:00">2020-12-17</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/PTA/" itemprop="url" rel="index"><span itemprop="name">PTA</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/PTA/1115/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="PTA/1115/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>按给定序列构造一个二叉搜索树, 分别计算最低两层的节点数量</p>
-<p>思路: 如题, 考基本功</p>
-<p>注意: 一种新奇的写法, 获取倒数第n个元素 (想到了Python是不是XD)</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// vector&lt;int&gt; x;</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; x.end()[-n] &lt;&lt; <span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure>
-
-<p>代码(有内存泄漏):</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">node</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    node *left, *right, *parent;</span><br><span class="line">&#125; root;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">insert</span><span class="params">(<span class="keyword">int</span> x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!root.parent) &#123;</span><br><span class="line">        <span class="comment">// is the first root</span></span><br><span class="line">        root.parent = &amp;root;</span><br><span class="line">        root.val = x;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    node *p = &amp;root;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (x &lt;= p-&gt;val) &#123;</span><br><span class="line">            <span class="keyword">if</span> (p-&gt;left) &#123;</span><br><span class="line">                p = p-&gt;left;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (p-&gt;right) &#123;</span><br><span class="line">                p = p-&gt;right;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (x &gt; p-&gt;val) &#123;</span><br><span class="line">        p-&gt;right = <span class="keyword">new</span> node();</span><br><span class="line">        p-&gt;right-&gt;val = x;</span><br><span class="line">        p-&gt;right-&gt;parent = p;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        p-&gt;left = <span class="keyword">new</span> node();</span><br><span class="line">        p-&gt;left-&gt;val = x;</span><br><span class="line">        p-&gt;left-&gt;parent = p;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">trav</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">queue</span>&lt;node *&gt; Q;</span><br><span class="line">    <span class="keyword">if</span> (root.parent) &#123;</span><br><span class="line">        Q.push(&amp;root);</span><br><span class="line">    &#125;</span><br><span class="line">    Q.push(<span class="literal">nullptr</span>);</span><br><span class="line">    <span class="keyword">int</span> lcount = <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; counts;</span><br><span class="line">    <span class="keyword">while</span> (Q.size() &gt; <span class="number">1</span>) &#123;</span><br><span class="line">        node *x = Q.front();</span><br><span class="line">        Q.pop();</span><br><span class="line">        <span class="keyword">if</span> (x == <span class="literal">nullptr</span>) &#123;</span><br><span class="line">            counts.push_back(lcount);</span><br><span class="line">            lcount = <span class="number">0</span>;</span><br><span class="line">            Q.push(<span class="literal">nullptr</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        lcount++;</span><br><span class="line">        <span class="keyword">if</span> (x-&gt;left)</span><br><span class="line">            Q.push(x-&gt;left);</span><br><span class="line">        <span class="keyword">if</span> (x-&gt;right)</span><br><span class="line">            Q.push(x-&gt;right);</span><br><span class="line">    &#125;</span><br><span class="line">    counts.push_back(lcount);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> back = counts.size() ? counts.back() : <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> back2 = counts.size() &gt; <span class="number">2</span> ? counts.end()[<span class="number">-2</span>] : <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; back &lt;&lt; <span class="string">&quot; + &quot;</span> &lt;&lt; back2 &lt;&lt; <span class="string">&quot; = &quot;</span> &lt;&lt; back + back2 &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; x;</span><br><span class="line">        insert(x);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    trav();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
       
     </div>
 
