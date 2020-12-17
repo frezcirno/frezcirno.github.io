@@ -37,21 +37,20 @@
       </categories>
   </entry>
   <entry>
-    <title>编译原理笔记</title>
-    <url>/compiler-principle/index/</url>
-    <content><![CDATA[<h1 id="语法分析"><a href="#语法分析" class="headerlink" title="语法分析"></a>语法分析</h1><ul>
-<li><p>背景</p>
-</li>
-<li><p>LL分析法</p>
-<ul>
-<li><p>LL(1)</p>
-</li>
-<li><p>增加预测</p>
-</li>
-</ul>
-</li>
-<li><p>算法优先分析法</p>
-</li>
+    <title>1</title>
+    <url>/compiler-principle/1/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>学习笔记</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>语法分析</title>
+    <url>/compiler-principle/2/</url>
+    <content><![CDATA[<h2 id="LL分析法"><a href="#LL分析法" class="headerlink" title="LL分析法"></a>LL分析法</h2><pre><code>- LL(1)
+
+- 增加预测</code></pre>
+<h2 id="算法优先分析法"><a href="#算法优先分析法" class="headerlink" title="算法优先分析法"></a>算法优先分析法</h2><ul>
 <li><p>LR分析法</p>
 <ul>
 <li><p>LR(0)</p>
@@ -77,6 +76,152 @@
 </ul>
 </li>
 </ul>
+]]></content>
+      <categories>
+        <category>学习笔记</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>语义分析和中间代码生成</title>
+    <url>/compiler-principle/3/</url>
+    <content><![CDATA[<h1 id="语义分析和中间代码生成"><a href="#语义分析和中间代码生成" class="headerlink" title="语义分析和中间代码生成"></a>语义分析和中间代码生成</h1><h2 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h2><h2 id="中间语言"><a href="#中间语言" class="headerlink" title="中间语言"></a>中间语言</h2><p>中间语言是复杂性界于源语言和目标语言之间的语言</p>
+<p>好处:</p>
+<ul>
+<li>便于进行与机器无关的代码优化工作</li>
+<li>易于移植</li>
+<li>使编译程序的结构在逻辑上更为简单明确</li>
+</ul>
+<p>常用的中间语言:</p>
+<ul>
+<li>后缀式(逆波兰式)</li>
+<li>图表示<ul>
+<li>DAG</li>
+<li>AST</li>
+</ul>
+</li>
+<li>三地址代码<ul>
+<li>三元式</li>
+<li>四元式</li>
+<li>间接三元式</li>
+</ul>
+</li>
+</ul>
+<p>后缀式:</p>
+<p>二元操作符后置<br>(一元操作符后置)<br>去括号</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">a+b*(c+d&#x2F;e)</span><br><span class="line">a b*(c+d&#x2F;e) +</span><br><span class="line">a b (c+d&#x2F;e) * +</span><br><span class="line">a b c d&#x2F;e + * +</span><br><span class="line">a b c d e &#x2F; + * +</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">b:&#x3D;-c*a+-c*a</span><br><span class="line">b -c*a+-c*a :&#x3D;</span><br><span class="line">b -c*a -c*a + :&#x3D;</span><br><span class="line">b -c a * -c a * + :&#x3D;</span><br><span class="line">b c Neg a * c Neg a * + :&#x3D;</span><br></pre></td></tr></table></figure>
+
+<p>抽象语法树</p>
+<h2 id="说明语句"><a href="#说明语句" class="headerlink" title="说明语句"></a>说明语句</h2><h2 id="赋值语句的翻译"><a href="#赋值语句的翻译" class="headerlink" title="赋值语句的翻译"></a>赋值语句的翻译</h2><h2 id="布尔表达式的翻译"><a href="#布尔表达式的翻译" class="headerlink" title="布尔表达式的翻译"></a>布尔表达式的翻译</h2><h2 id="控制语句的翻译"><a href="#控制语句的翻译" class="headerlink" title="控制语句的翻译"></a>控制语句的翻译</h2><h2 id="过程调用的翻译"><a href="#过程调用的翻译" class="headerlink" title="过程调用的翻译"></a>过程调用的翻译</h2><h3 id=""><a href="#" class="headerlink" title=""></a></h3>]]></content>
+      <categories>
+        <category>学习笔记</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>4</title>
+    <url>/compiler-principle/4/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>学习笔记</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>5</title>
+    <url>/compiler-principle/5/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>学习笔记</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>编译原理笔记</title>
+    <url>/compiler-principle/index/</url>
+    <content><![CDATA[<h1 id="课程简介"><a href="#课程简介" class="headerlink" title="课程简介"></a>课程简介</h1><p>总评 = 考试 * 60% + 作业 * 30% + 平时 * 10%</p>
+<h2 id="程序语言的发展"><a href="#程序语言的发展" class="headerlink" title="程序语言的发展"></a>程序语言的发展</h2><p>机器语言 -&gt; 汇编语言 -&gt; 高级语言</p>
+<h2 id="程序的两种执行方式"><a href="#程序的两种执行方式" class="headerlink" title="程序的两种执行方式"></a>程序的两种执行方式</h2><ul>
+<li><p>解释方式</p>
+</li>
+<li><p>编译方式</p>
+</li>
+</ul>
+<p>Java认为是解释型语言</p>
+<h2 id="编译的步骤"><a href="#编译的步骤" class="headerlink" title="编译的步骤"></a>编译的步骤</h2><p>编译过程基本分为五个基本阶段: </p>
+<ol>
+<li>词法分析</li>
+<li>语法分析</li>
+<li>语义分析和中间代码生成</li>
+<li>优化</li>
+<li>目标代码生成</li>
+</ol>
+<h3 id="1-词法分析"><a href="#1-词法分析" class="headerlink" title="1. 词法分析"></a>1. 词法分析</h3><ul>
+<li>词法分析程序又称扫描程序(Scanner)。<ul>
+<li>任务：读源程序的字符流、识别单词（也称单词符号，或简称符号），如标识符、关键字、常量、界限符等，并转换成内部形式。</li>
+<li>输入：源程序中的字符流</li>
+<li>输出：等长的内部形式，即属性字（单词类型Token-name, 单词属性Attribute-value），其中单词属性指向符号表</li>
+</ul>
+</li>
+</ul>
+<p>输入: 字符流</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">cppcode = <span class="string">`</span></span><br><span class="line"><span class="string">int a, b;</span></span><br><span class="line"><span class="string">a = a + 2;</span></span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure>
+<p>输出: Token流和对应的符号表</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">tokenList = [</span><br><span class="line">    &lt;int&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;,&gt;</span><br><span class="line">    &lt;id,<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;op,EQ&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;+&gt;</span><br><span class="line">    &lt;<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">]</span><br><span class="line">tokenTable = [</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;a&#x27;</span>, ...&#125;,</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;b&#x27;</span>, ...&#125; </span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在词法分析阶段工作所依循的是语言的词法规则。</li>
+<li>描述词法规则的有效工具是<strong>正规式</strong>和<strong>有限自动机</strong>。</li>
+<li>方法：<strong>状态图</strong>；<strong>DFA</strong>；<strong>NFA</strong></li>
+</ul>
+<p>DFA模拟代码：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">s = s0;</span><br><span class="line">c = nextChar() ;</span><br><span class="line"><span class="keyword">while</span> ( c != eof ) &#123;</span><br><span class="line">    s = move(s, c);</span><br><span class="line">    c = nextChar() ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> ( s is in F ) <span class="keyword">return</span> <span class="string">&quot; yes &quot;</span> ;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">return</span> <span class="string">&quot;no &quot;</span> ;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-语法分析"><a href="#2-语法分析" class="headerlink" title="2. 语法分析"></a>2. 语法分析</h3><ul>
+<li>语法分析程序又称识别程序(Parser)。<ul>
+<li>任务：读入由词法分析程序识别出的符号，根据给定语法规则，识别出各个语法单位（如：短语、子句、语句、程序段、程序）,并生成另一种内部表示。</li>
+<li>输入：由词法分析程序识别出并转换的符号</li>
+<li>输出：另一种内部表示，如<strong>语法分析树</strong>或其它<strong>中间表示</strong>。</li>
+</ul>
+</li>
+<li>语法规则通常用<strong>上下文无关文法</strong>描述。</li>
+<li>方法：递归子程序法、<strong>LR分析法</strong>、<strong>算符优先分析法</strong>。</li>
+</ul>
+<p>输入: 符号流</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">sum := first + count * <span class="number">10</span></span><br></pre></td></tr></table></figure>
+<p>输出: 语法树<br><img src="ast_demo.png"></p>
+<h3 id="3-1-语义分析"><a href="#3-1-语义分析" class="headerlink" title="3.1 语义分析"></a>3.1 语义分析</h3><h3 id="3-2-中间代码生成"><a href="#3-2-中间代码生成" class="headerlink" title="3.2 中间代码生成"></a>3.2 中间代码生成</h3><h3 id="4-优化"><a href="#4-优化" class="headerlink" title="4. 优化"></a>4. 优化</h3><ul>
+<li>优化的任务在于对前段产生的中间代码进行加工，把它变换成功能相同，但功效更高的优化了的中间表示代码，以期在最后阶段产生更为高效（省时间和空间）的代码</li>
+<li>优化所依循的原则是程序的等价变换规则</li>
+<li>其方法有：公共子表达式的提取、循环优化、删除无用代码等等。</li>
+</ul>
+<h3 id="5-目标代码生成"><a href="#5-目标代码生成" class="headerlink" title="5. 目标代码生成"></a>5. 目标代码生成</h3><h3 id="遍-Pass"><a href="#遍-Pass" class="headerlink" title="遍(Pass)"></a>遍(Pass)</h3><p>对<strong>源程序</strong>或源程序的<strong>中间结果</strong>从头到尾扫描一次，并做相关处理，生成新的中间结果或目标程序的过程。</p>
+<p>“遍”是处理数据的一个完整周期，每遍工作从外存上获得前一遍的中间结果（如源程序），完成它所含的有关工作之后，再把结果记录于外存。</p>
+<p>一个编译程序可由一遍、两遍或多遍完成。每一遍可完成不同的阶段或多个阶段的工作。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>从时间和空间角度看</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>多遍编译</td>
+<td><strong>少占内存，多耗时间</strong></td>
+</tr>
+<tr>
+<td>一遍编译</td>
+<td><strong>多占内存，少耗时间</strong></td>
+</tr>
+</tbody></table>
+<h3 id="T形图"><a href="#T形图" class="headerlink" title="T形图"></a>T形图</h3><p><img src="t_diagram.png"></p>
+<ul>
+<li>S:源语言(程序)，Source language(program)</li>
+<li>T:目标语言(程序), target/object language(program)</li>
+<li>I:实现语言, implementation language</li>
+</ul>
+<p>用T形图表示编译器移植</p>
+<p><img src="t_diagram2.png"></p>
+<h3 id="特殊"><a href="#特殊" class="headerlink" title="特殊"></a>特殊</h3><p>自编译: </p>
+<p>交叉编译</p>
+<p>自动编译:<br>    lex, yacc</p>
 ]]></content>
       <categories>
         <category>学习笔记</category>
