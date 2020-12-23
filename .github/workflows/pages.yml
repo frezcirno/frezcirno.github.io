@@ -11,12 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.MY_REPO_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           submodules: 'recursive'
-      - name: Inject Gitalk Token
-        run: sed -i -e "s/ENV_GITALK_APP_TOKEN/${TOKEN}/g" _config.next.yml
-        env:
-          TOKEN: ${{ secrets.GITALK_APP_TOKEN }}
+      # - name: Inject Gitalk Token
+      #   run: sed -i -e "s/ENV_GITALK_APP_TOKEN/${TOKEN}/g" _config.next.yml
+      #   env:
+      #     TOKEN: ${{ secrets.GITALK_APP_TOKEN }}
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
