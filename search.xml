@@ -67,6 +67,21 @@
       </categories>
   </entry>
   <entry>
+    <title>post</title>
+    <url>/PTA/63/</url>
+    <content><![CDATA[<p>给出n个集合和k次查询, 计算集合相似度:</p>
+<blockquote>
+<p>集合相似度 = 交集元素数量 / 并集元素数量</p>
+</blockquote>
+<p>思路: 重复查询缓存结果</p>
+<p>tips: </p>
+<ul>
+<li>C++ STL中有<code>set_intersection</code>, <code>set_union</code>, <code>set_difference</code>可以直接使用</li>
+<li>insert_iterator<Container>(Container container, Iterator iter)可以创建一个”自动插入迭代器”, 将对迭代器的copy(to)操作转化为插入操作</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; S[<span class="number">50</span>];</span><br><span class="line"><span class="keyword">float</span> F[<span class="number">50</span>][<span class="number">50</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">compare</span><span class="params">(<span class="keyword">int</span> _a, <span class="keyword">int</span> _b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (F[_a][_b]) &#123;</span><br><span class="line">        <span class="keyword">return</span> F[_a][_b];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; &amp;a = S[_a], &amp;b = S[_b];</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; U, I;</span><br><span class="line">    set_intersection(a.begin(), a.end(), b.begin(), b.end(), insert_iterator&lt;<span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt;&gt;(I, I.begin()));</span><br><span class="line">    set_union(a.begin(), a.end(), b.begin(), b.end(), insert_iterator&lt;<span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt;&gt;(U, U.begin()));</span><br><span class="line">    <span class="keyword">float</span> res = <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(I.size()) / U.size();</span><br><span class="line">    <span class="keyword">if</span> (res == <span class="number">0</span>) res = <span class="number">0.0001F</span>;</span><br><span class="line">    <span class="keyword">return</span> F[_a][_b] = F[_b][_a] = res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> s;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; s;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; s; j++) &#123;</span><br><span class="line">            <span class="keyword">int</span> x;</span><br><span class="line">            <span class="built_in">cin</span> &gt;&gt; x;</span><br><span class="line">            S[i].insert(x);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> k;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; k;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; k; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> a, b;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; a &gt;&gt; b;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%.1f%%\n&quot;</span>, <span class="number">100</span> * compare(a - <span class="number">1</span>, b - <span class="number">1</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+  </entry>
+  <entry>
     <title>每日 PTA</title>
     <url>/PTA/index/</url>
     <content><![CDATA[<p>leetcode medium 纯算法题偏少, 准备每日加一道PTA.</p>
@@ -293,6 +308,12 @@
       </tags>
   </entry>
   <entry>
+    <title>2. 两数相加</title>
+    <url>/leetcode/2/</url>
+    <content><![CDATA[<p>指针</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">addTwoNumbers</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;</span><br><span class="line">        ListNode*p1=l1,*p2=l2,*p3,*last=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">int</span> up=<span class="number">0</span>;</span><br><span class="line">        ListNode* root=<span class="keyword">new</span> ListNode();</span><br><span class="line">        p3=root;</span><br><span class="line">        <span class="keyword">while</span>(p1 || p2 || up)&#123;</span><br><span class="line">            <span class="keyword">int</span> n1=<span class="number">0</span>,n2=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span>(p1)&#123;n1=p1-&gt;val;p1=p1-&gt;next;&#125;</span><br><span class="line">            <span class="keyword">if</span>(p2)&#123;n2=p2-&gt;val;p2=p2-&gt;next;&#125;</span><br><span class="line">            up+=n1+n2;</span><br><span class="line">            p3-&gt;val=up%<span class="number">10</span>;</span><br><span class="line">            last=p3;</span><br><span class="line">            p3=p3-&gt;next=<span class="keyword">new</span> ListNode();</span><br><span class="line">            up/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">delete</span> last-&gt;next;</span><br><span class="line">        last-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+  </entry>
+  <entry>
     <title>217. 存在重复元素</title>
     <url>/leetcode/217/</url>
     <content><![CDATA[<p>给定一个整数数组，判断是否存在重复元素。</p>
@@ -360,6 +381,15 @@
     <url>/leetcode/4/</url>
     <content><![CDATA[<p>思路: 先归并排序, 再寻找中间位置</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i=<span class="number">0</span>,j=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> len1=nums1.size(),len2=nums2.size(),len=len1+len2;</span><br><span class="line">        <span class="keyword">int</span> t, lastt;</span><br><span class="line">        <span class="keyword">while</span>(i+j&lt;=len/<span class="number">2</span>)&#123;</span><br><span class="line">            lastt=t;</span><br><span class="line">            <span class="keyword">if</span>(i&lt;len1 &amp;&amp; j&lt; len2)&#123;</span><br><span class="line">                <span class="keyword">int</span> n1=nums1[i];</span><br><span class="line">                <span class="keyword">int</span> n2=nums2[j];</span><br><span class="line">                <span class="keyword">if</span>(n1&lt;n2)&#123;</span><br><span class="line">                    t=n1;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    t=n2;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(i&lt;len1)&#123;</span><br><span class="line">                t=nums1[i++];</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                t=nums2[j++];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;i+j&lt;&lt;<span class="string">&quot;:&quot;</span>&lt;&lt;t&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (len%<span class="number">2</span>?t:(t+lastt)/<span class="number">2.0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>455. 分发饼干</title>
+    <url>/leetcode/455/</url>
+    <content><![CDATA[<p>排序</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findContentChildren</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; g, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; s)</span> </span>&#123;</span><br><span class="line">        sort(g.begin(),g.end()); <span class="comment">// 1 2 3</span></span><br><span class="line">        sort(s.begin(),s.end()); <span class="comment">// 1 1</span></span><br><span class="line">        <span class="keyword">int</span> count=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=s.size()<span class="number">-1</span>, gg=g.size()<span class="number">-1</span>;i&gt;=<span class="number">0</span>&amp;&amp;gg&gt;=<span class="number">0</span>;i--,gg--,count++)&#123;</span><br><span class="line">            <span class="keyword">int</span> ss=s[i];</span><br><span class="line">            <span class="keyword">while</span>(gg&gt;=<span class="number">0</span>&amp;&amp;g[gg]&gt;ss)&#123;</span><br><span class="line">                gg--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(gg&lt;<span class="number">0</span>) count--;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>leetcode</category>
       </categories>
@@ -1782,9 +1812,69 @@
   <entry>
     <title>每日小结</title>
     <url>/daily/2020/12/25/</url>
-    <content><![CDATA[<h1 id="Java-答辩结束了-Yeah"><a href="#Java-答辩结束了-Yeah" class="headerlink" title="Java 答辩结束了, Yeah!"></a>Java 答辩结束了, Yeah!</h1><h1 id="今天开始刷题"><a href="#今天开始刷题" class="headerlink" title="今天开始刷题"></a>今天开始刷题</h1>]]></content>
+    <content><![CDATA[<h1 id="Java-答辩结束了-Yeah"><a href="#Java-答辩结束了-Yeah" class="headerlink" title="Java 答辩结束了, Yeah!"></a>Java 答辩结束了, Yeah!</h1><p>今天开始刷题</p>
+<h1 id="Hash-Map-Hash-Set-vs-Tree-Map-Tree-Set"><a href="#Hash-Map-Hash-Set-vs-Tree-Map-Tree-Set" class="headerlink" title="Hash Map, Hash Set vs Tree Map, Tree Set"></a>Hash Map, Hash Set vs Tree Map, Tree Set</h1><p>c++中的<code>map</code>, <code>set</code>默认是treemap和treeset, 底层基于红黑树, 元素始终保持有序</p>
+<p>而<code>unordered_map</code>, <code>unordered_set</code>底层基于哈希表</p>
+<h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><p>查询/插入/删除</p>
+<table>
+<thead>
+<tr>
+<th>数据结构</th>
+<th>底层</th>
+<th>find/get/contain</th>
+<th>set</th>
+<th>delete</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>map</td>
+<td>tree</td>
+<td>O(1)</td>
+<td>O(1)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>unordered_map</td>
+<td>hash</td>
+<td>O(logn)</td>
+<td>O(logn)</td>
+<td>O(logn)</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>数据结构</th>
+<th>底层</th>
+<th>find/contain</th>
+<th>insert</th>
+<th>delete</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>set</td>
+<td>tree</td>
+<td>O(1)</td>
+<td>O(1)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>unordered_set</td>
+<td>hash</td>
+<td>O(logn)</td>
+<td>O(logn)</td>
+<td>O(logn)</td>
+</tr>
+</tbody></table>
+<p>遍历</p>
+<p><code>map</code>和<code>set</code>都支持按序遍历, 而<code>unordered_map</code>, <code>unordered_set</code>天生就不适合按序遍历(底层不是按序存储), 但是可以无序遍历</p>
+]]></content>
       <categories>
         <category>每日小结</category>
       </categories>
+      <tags>
+        <tag>答辩</tag>
+        <tag>数据结构</tag>
+      </tags>
   </entry>
 </search>
