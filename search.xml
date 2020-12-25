@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title>1032. Sharing</title>
-    <url>/PTA/1032/</url>
+    <url>/PTA/PTA/1032/</url>
     <content><![CDATA[<p>寻找最长公共后缀</p>
 <p>注意:<br>边界情况: 两条链没有交集, 其中一条链是另一条链的子链</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span> <span class="function"><span class="keyword">void</span> <span class="title">ERR</span><span class="params">(T x, <span class="built_in">string</span> name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="meta-keyword">define</span> debug(x) ERR(x, #x)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="meta-keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">map</span>&lt;<span class="built_in">string</span>, <span class="built_in">pair</span>&lt;<span class="keyword">char</span>, <span class="built_in">string</span>&gt;&gt; M;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    freopen(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, <span class="built_in">stdin</span>);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">string</span> w1, w2;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; w1 &gt;&gt; w2 &gt;&gt; n;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="built_in">string</span> a, b;</span><br><span class="line">        <span class="keyword">char</span> c;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; a &gt;&gt; c &gt;&gt; b;</span><br><span class="line">        M[a] = <span class="built_in">make_pair</span>(c, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">stack</span>&lt;<span class="built_in">string</span>&gt; s1, s2;</span><br><span class="line">    debug(<span class="string">&quot;s1&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">string</span> addr = w1; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s1.push(addr);</span><br><span class="line">        debug(addr);</span><br><span class="line">    &#125;</span><br><span class="line">    debug(<span class="string">&quot;s2&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">string</span> addr = w2; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s2.push(addr);</span><br><span class="line">        debug(addr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">string</span> top = <span class="string">&quot;-1&quot;</span>;</span><br><span class="line">    <span class="keyword">while</span> (s1.size() &amp;&amp; s2.size() &amp;&amp; s1.top() == s2.top()) &#123;</span><br><span class="line">        top = s1.top();</span><br><span class="line">        debug(top);</span><br><span class="line">        s1.pop();</span><br><span class="line">        s2.pop();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; top &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
@@ -12,7 +12,7 @@
   </entry>
   <entry>
     <title>1063. Set Similarity</title>
-    <url>/PTA/1063/</url>
+    <url>/PTA/PTA/1063/</url>
     <content><![CDATA[<p>给出n个集合和k次查询, 计算集合相似度:</p>
 <blockquote>
 <p>集合相似度 = 交集元素数量 / 并集元素数量</p>
@@ -30,7 +30,7 @@
   </entry>
   <entry>
     <title>1098. Insertion or Heap Sort</title>
-    <url>/PTA/1098/</url>
+    <url>/PTA/PTA/1098/</url>
     <content><![CDATA[<p>根据排序的中间结果判断使用的插入排序还是堆排序, 并给出下一轮迭代的中间结果</p>
 <p>堆排序: 先逐步构造一个大顶堆, 再每次从堆中取出最大的元素放到堆后面</p>
 <p>思路:<br>插入排序的特点: 前面递增, 后面和原数组一样</p>
@@ -42,7 +42,7 @@
   </entry>
   <entry>
     <title>1099. Build A Binary Search Tree</title>
-    <url>/PTA/1099/</url>
+    <url>/PTA/PTA/1099/</url>
     <content><![CDATA[<p>给出二叉树结构和节点的值列表, 将值填入二叉树中, 输出层次序遍历的结果</p>
 <p>考点: 二叉树的直接后继</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span> <span class="function"><span class="keyword">void</span> <span class="title">ERR</span><span class="params">(T x, <span class="built_in">string</span> name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="meta-keyword">define</span> debug(x) ERR(x, #    x)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="meta-keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">node</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    <span class="keyword">int</span> left, right, parent;</span><br><span class="line">&#125; N[<span class="number">100</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    freopen(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, <span class="built_in">stdin</span>);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    <span class="keyword">int</span> first = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n;</span><br><span class="line">    N[<span class="number">0</span>].parent = <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> l, r;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; l &gt;&gt; r;</span><br><span class="line">        N[i].left = l;</span><br><span class="line">        N[l].parent = i;</span><br><span class="line">        N[i].right = r;</span><br><span class="line">        N[r].parent = i;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vals;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> val;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; val;</span><br><span class="line">        vals.push_back(val);</span><br><span class="line">    &#125;</span><br><span class="line">    sort(vals.begin(), vals.end());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> p = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (N[p].left != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (N[p].left != <span class="number">-1</span>)</span><br><span class="line">            p = N[p].left;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (p != <span class="number">-1</span>) &#123;</span><br><span class="line">        debug(p);</span><br><span class="line">        N[p].val = vals.front();</span><br><span class="line">        vals.erase(vals.begin());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (N[p].right != <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// right down</span></span><br><span class="line">            p = N[p].right;</span><br><span class="line">            <span class="keyword">while</span> (N[p].left != <span class="number">-1</span>) &#123;</span><br><span class="line">                p = N[p].left;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (N[p].parent != <span class="number">-1</span> &amp;&amp; N[N[p].parent].left == p) &#123;</span><br><span class="line">            <span class="comment">// right up</span></span><br><span class="line">            p = N[p].parent;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (N[p].parent != <span class="number">-1</span> &amp;&amp; N[N[p].parent].right == p) &#123;</span><br><span class="line">                p = N[p].parent;</span><br><span class="line">            &#125;</span><br><span class="line">            p = N[p].parent;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt; Q;</span><br><span class="line">    Q.push(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">while</span> (Q.size()) &#123;</span><br><span class="line">        <span class="keyword">int</span> top = Q.front();</span><br><span class="line">        Q.pop();</span><br><span class="line">        <span class="keyword">if</span> (!first)</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            first = <span class="number">0</span>;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; N[top].val;</span><br><span class="line">        <span class="keyword">if</span> (N[top].left != <span class="number">-1</span>)</span><br><span class="line">            Q.push(N[top].left);</span><br><span class="line">        <span class="keyword">if</span> (N[top].right != <span class="number">-1</span>)</span><br><span class="line">            Q.push(N[top].right);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
@@ -52,7 +52,7 @@
   </entry>
   <entry>
     <title>1115. Counting Nodes in a BST</title>
-    <url>/PTA/1115/</url>
+    <url>/PTA/PTA/1115/</url>
     <content><![CDATA[<p>按给定序列构造一个二叉搜索树, 分别计算最低两层的节点数量</p>
 <p>思路: 如题, 考基本功</p>
 <p>注意: 一种新奇的写法, 获取倒数第n个元素 (想到了Python是不是XD)</p>
@@ -67,7 +67,7 @@
   </entry>
   <entry>
     <title>1123. Is It a Complete AVL Tree</title>
-    <url>/PTA/1123/</url>
+    <url>/PTA/PTA/1123/</url>
     <content><![CDATA[<h2 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h2><p>按输入序列构造AVL树, 输出层次序遍历的结果, 和AVL树是否为完全二叉树</p>
 <h2 id="一些小技巧"><a href="#一些小技巧" class="headerlink" title="一些小技巧:"></a>一些小技巧:</h2><h3 id="1-树的初始化问题"><a href="#1-树的初始化问题" class="headerlink" title="1. 树的初始化问题"></a>1. 树的初始化问题</h3><p>我们可以让insert函数返回插入后新的树根(从而可以递归调用), 调用时采用 <code>node = insert(node, val)</code> 的方式, 从而统一了第一个节点和其他节点的处理, 极大地简化了判断逻辑</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">node* <span class="title">insert</span><span class="params">(node* p, <span class="keyword">int</span> x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!p)&#123;</span><br><span class="line">        p=<span class="keyword">new</span> node();</span><br><span class="line">        p-&gt;val=x;</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(x&lt;p-&gt;val)&#123;</span><br><span class="line">        p-&gt;left=insert(p-&gt;left,x);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        p-&gt;right=insert(p-&gt;right,x);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    node*root=<span class="literal">nullptr</span>;</span><br><span class="line">    root=insert(root,<span class="number">1</span>);</span><br><span class="line">    root=insert(root,<span class="number">2</span>);</span><br><span class="line">    root=insert(root,<span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -86,7 +86,7 @@
   </entry>
   <entry>
     <title>每日 PTA</title>
-    <url>/PTA/index/</url>
+    <url>/PTA/PTA/index/</url>
     <content><![CDATA[<p>leetcode medium 纯算法题偏少, 准备每日加一道PTA.</p>
 <p><strong>目标</strong>: 每天一道PTA甲级 [PAT (Advanced Level) Practice]</p>
 <p>题号就roll一个<a href="http://katty.top:8888/api/rand?from=1&to=156">随机数</a></p>
@@ -97,7 +97,7 @@
   </entry>
   <entry>
     <title>1</title>
-    <url>/compiler-principle/1/</url>
+    <url>/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/1/</url>
     <content><![CDATA[]]></content>
       <categories>
         <category>学习笔记</category>
@@ -105,7 +105,7 @@
   </entry>
   <entry>
     <title>语法分析</title>
-    <url>/compiler-principle/2/</url>
+    <url>/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/2/</url>
     <content><![CDATA[<h2 id="LL分析法"><a href="#LL分析法" class="headerlink" title="LL分析法"></a>LL分析法</h2><pre><code>- LL(1)
 
 - 增加预测</code></pre>
@@ -142,7 +142,7 @@
   </entry>
   <entry>
     <title>语义分析和中间代码生成</title>
-    <url>/compiler-principle/3/</url>
+    <url>/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/3/</url>
     <content><![CDATA[<h1 id="语义分析和中间代码生成"><a href="#语义分析和中间代码生成" class="headerlink" title="语义分析和中间代码生成"></a>语义分析和中间代码生成</h1><h2 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h2><h2 id="中间语言"><a href="#中间语言" class="headerlink" title="中间语言"></a>中间语言</h2><p>中间语言是复杂性界于源语言和目标语言之间的语言</p>
 <p>好处:</p>
 <ul>
@@ -178,7 +178,7 @@
   </entry>
   <entry>
     <title>4</title>
-    <url>/compiler-principle/4/</url>
+    <url>/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/4/</url>
     <content><![CDATA[]]></content>
       <categories>
         <category>学习笔记</category>
@@ -186,7 +186,7 @@
   </entry>
   <entry>
     <title>5</title>
-    <url>/compiler-principle/5/</url>
+    <url>/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/5/</url>
     <content><![CDATA[]]></content>
       <categories>
         <category>学习笔记</category>
@@ -194,7 +194,7 @@
   </entry>
   <entry>
     <title>编译原理笔记</title>
-    <url>/compiler-principle/index/</url>
+    <url>/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/index/</url>
     <content><![CDATA[<h1 id="课程简介"><a href="#课程简介" class="headerlink" title="课程简介"></a>课程简介</h1><p>总评 = 考试 * 60% + 作业 * 30% + 平时 * 10%</p>
 <h2 id="程序语言的发展"><a href="#程序语言的发展" class="headerlink" title="程序语言的发展"></a>程序语言的发展</h2><p>机器语言 -&gt; 汇编语言 -&gt; 高级语言</p>
 <h2 id="程序的两种执行方式"><a href="#程序的两种执行方式" class="headerlink" title="程序的两种执行方式"></a>程序的两种执行方式</h2><ul>
@@ -288,7 +288,7 @@
   </entry>
   <entry>
     <title>10. 正则表达式匹配</title>
-    <url>/leetcode/10/</url>
+    <url>/leetcode/leetcode/10/</url>
     <content><![CDATA[<p>实现支持.和*的正则表达式匹配.</p>
 <p>思路: 动态规划</p>
 <p>用 $f[i][j]$ 表示$s$中的前 $i$ 个字母能否与 $p$ 中的前 $j$ 个字母匹配, 按照$p[j]$是否为*分为两种情况</p>
@@ -312,13 +312,13 @@
   </entry>
   <entry>
     <title>2. 两数相加</title>
-    <url>/leetcode/2/</url>
+    <url>/uncategorized/leetcode/2/</url>
     <content><![CDATA[<p>指针</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">addTwoNumbers</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;</span><br><span class="line">        ListNode*p1=l1,*p2=l2,*p3,*last=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">int</span> up=<span class="number">0</span>;</span><br><span class="line">        ListNode* root=<span class="keyword">new</span> ListNode();</span><br><span class="line">        p3=root;</span><br><span class="line">        <span class="keyword">while</span>(p1 || p2 || up)&#123;</span><br><span class="line">            <span class="keyword">int</span> n1=<span class="number">0</span>,n2=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span>(p1)&#123;n1=p1-&gt;val;p1=p1-&gt;next;&#125;</span><br><span class="line">            <span class="keyword">if</span>(p2)&#123;n2=p2-&gt;val;p2=p2-&gt;next;&#125;</span><br><span class="line">            up+=n1+n2;</span><br><span class="line">            p3-&gt;val=up%<span class="number">10</span>;</span><br><span class="line">            last=p3;</span><br><span class="line">            p3=p3-&gt;next=<span class="keyword">new</span> ListNode();</span><br><span class="line">            up/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">delete</span> last-&gt;next;</span><br><span class="line">        last-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
   </entry>
   <entry>
     <title>217. 存在重复元素</title>
-    <url>/leetcode/217/</url>
+    <url>/leetcode/leetcode/217/</url>
     <content><![CDATA[<p>给定一个整数数组，判断是否存在重复元素。</p>
 <p>如果任意一值在数组中出现至少两次，函数返回 true 。如果数组中每个元素都不相同，则返回 false 。</p>
 <p>没啥好说的:</p>
@@ -329,7 +329,7 @@
   </entry>
   <entry>
     <title>23. 合并K个升序链表</title>
-    <url>/leetcode/23/</url>
+    <url>/leetcode/leetcode/23/</url>
     <content><![CDATA[<p>思路类似归并排序</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">mergeKLists</span><span class="params">(<span class="built_in">vector</span>&lt;ListNode*&gt;&amp; lists)</span> </span>&#123;</span><br><span class="line">        ListNode newList;</span><br><span class="line">        ListNode*head=&amp;newList;</span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">true</span>)&#123;</span><br><span class="line">            <span class="keyword">int</span> min=<span class="number">-1</span>,minval=<span class="number">0x3fffffff</span>;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;lists.size();i++)&#123;</span><br><span class="line">                ListNode*l=lists[i];</span><br><span class="line">                <span class="keyword">if</span>(l &amp;&amp; l-&gt;val &lt; minval)&#123;</span><br><span class="line">                    min=i;</span><br><span class="line">                    minval=l-&gt;val;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(min&lt;<span class="number">0</span>)<span class="keyword">break</span>;</span><br><span class="line">            head-&gt;next=lists[min];</span><br><span class="line">            lists[min]=lists[min]-&gt;next;</span><br><span class="line">            head=head-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        head-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> newList.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 ]]></content>
@@ -339,7 +339,7 @@
   </entry>
   <entry>
     <title>290. 单词规律</title>
-    <url>/leetcode/290/</url>
+    <url>/leetcode/leetcode/290/</url>
     <content><![CDATA[<p>判断给定<em>字符串</em>是不是按照给定<em>模式</em>的短语, 例如”dog dog cat cat”就是”aabb”式的短语</p>
 <p>思路: 用map记录模式字母与单词的对应关系, 如果发现不一致, 返回false, 否则返回true</p>
 <p>注意: 模式中不同字母对应的单词不能相同</p>
@@ -356,7 +356,7 @@
   </entry>
   <entry>
     <title>376. 摆动序列</title>
-    <url>/leetcode/376/</url>
+    <url>/leetcode/leetcode/376/</url>
     <content><![CDATA[<p>思路: 先差分, 然后把所有0和相邻同号的数字(之一)去掉, 剩下的元素数量+2既是最终答案</p>
 <p>注意: 元素个数为0, 元素个数为1, 差分后有0出现</p>
 <p>代码:</p>
@@ -372,7 +372,7 @@
   </entry>
   <entry>
     <title>389. 找不同</title>
-    <url>/leetcode/389/</url>
+    <url>/leetcode/leetcode/389/</url>
     <content><![CDATA[<p>送分题</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">char</span> <span class="title">findTheDifference</span><span class="params">(<span class="built_in">string</span> s, <span class="built_in">string</span> t)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="keyword">char</span>, <span class="keyword">int</span>&gt;count;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp;&amp;c:s)&#123;</span><br><span class="line">            count[c]++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp;&amp;c:t)&#123;</span><br><span class="line">            count[c]--;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> find_if(count.begin(),count.end(),[&amp;](<span class="keyword">auto</span> it)&#123;<span class="keyword">return</span> it.second!=<span class="number">0</span>;&#125;)-&gt;first;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
@@ -381,7 +381,7 @@
   </entry>
   <entry>
     <title>4. 寻找两个正序数组的中位数</title>
-    <url>/leetcode/4/</url>
+    <url>/leetcode/leetcode/4/</url>
     <content><![CDATA[<p>思路: 先归并排序, 再寻找中间位置</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i=<span class="number">0</span>,j=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> len1=nums1.size(),len2=nums2.size(),len=len1+len2;</span><br><span class="line">        <span class="keyword">int</span> t, lastt;</span><br><span class="line">        <span class="keyword">while</span>(i+j&lt;=len/<span class="number">2</span>)&#123;</span><br><span class="line">            lastt=t;</span><br><span class="line">            <span class="keyword">if</span>(i&lt;len1 &amp;&amp; j&lt; len2)&#123;</span><br><span class="line">                <span class="keyword">int</span> n1=nums1[i];</span><br><span class="line">                <span class="keyword">int</span> n2=nums2[j];</span><br><span class="line">                <span class="keyword">if</span>(n1&lt;n2)&#123;</span><br><span class="line">                    t=n1;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    t=n2;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(i&lt;len1)&#123;</span><br><span class="line">                t=nums1[i++];</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                t=nums2[j++];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;i+j&lt;&lt;<span class="string">&quot;:&quot;</span>&lt;&lt;t&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (len%<span class="number">2</span>?t:(t+lastt)/<span class="number">2.0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
@@ -390,7 +390,7 @@
   </entry>
   <entry>
     <title>455. 分发饼干</title>
-    <url>/leetcode/455/</url>
+    <url>/leetcode/leetcode/455/</url>
     <content><![CDATA[<p>排序</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findContentChildren</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; g, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; s)</span> </span>&#123;</span><br><span class="line">        sort(g.begin(),g.end()); <span class="comment">// 1 2 3</span></span><br><span class="line">        sort(s.begin(),s.end()); <span class="comment">// 1 1</span></span><br><span class="line">        <span class="keyword">int</span> count=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=s.size()<span class="number">-1</span>, gg=g.size()<span class="number">-1</span>;i&gt;=<span class="number">0</span>&amp;&amp;gg&gt;=<span class="number">0</span>;i--,gg--,count++)&#123;</span><br><span class="line">            <span class="keyword">int</span> ss=s[i];</span><br><span class="line">            <span class="keyword">while</span>(gg&gt;=<span class="number">0</span>&amp;&amp;g[gg]&gt;ss)&#123;</span><br><span class="line">                gg--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(gg&lt;<span class="number">0</span>) count--;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
@@ -399,7 +399,7 @@
   </entry>
   <entry>
     <title>49. 字母异位词分组</title>
-    <url>/leetcode/49/</url>
+    <url>/leetcode/leetcode/49/</url>
     <content><![CDATA[<p>思路: 字符串排序后作为key, 存到map中再转成vector返回, AC</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; <span class="title">groupAnagrams</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; strs)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="built_in">string</span>, <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; m;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;strs.size();i++)&#123;</span><br><span class="line">            <span class="built_in">string</span> s=strs[i];</span><br><span class="line">            sort(s.begin(),s.end());</span><br><span class="line">            m[s].push_back(strs[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; res;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> &amp;k:m)&#123;</span><br><span class="line">            res.push_back(k.second);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
@@ -408,7 +408,7 @@
   </entry>
   <entry>
     <title>738. 单调递增的数字</title>
-    <url>/leetcode/738/</url>
+    <url>/leetcode/leetcode/738/</url>
     <content><![CDATA[<p>思路: 对于数字<code>x = an ... ai+1 ai ... a1 a0</code>, 如果任意相邻的<code>ai+1</code>,<code>ai</code>不符合单调递增, 就给原数字减去<code>(ai + 1) * 10 ^ i</code>, 减去之后得到的新数字即为<code>y</code></p>
 <p>可以发现, 若<code>x</code>与<code>y</code>不完全相同, 则最终结果在第一个不相同位之后的位必定全是<code>9</code>, 按此规律修正结果即可.</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">monotoneIncreasingDigits</span><span class="params">(<span class="keyword">int</span> N)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">string</span> s = to_string(N);</span><br><span class="line">        <span class="built_in">string</span> olds=s;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> bor=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=s.size()<span class="number">-1</span>;i&gt;<span class="number">0</span>;i--)&#123;</span><br><span class="line">            <span class="keyword">if</span>(bor)&#123;</span><br><span class="line">                s[i]--;</span><br><span class="line">                s[i+<span class="number">1</span>]+=<span class="number">10</span>;</span><br><span class="line">                bor=<span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;s[i<span class="number">-1</span>])&#123;</span><br><span class="line">                <span class="comment">// -s[i]-1</span></span><br><span class="line">                s[i]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                s[i<span class="number">-1</span>]--;</span><br><span class="line">                <span class="keyword">if</span>(s[i<span class="number">-1</span>]&lt;<span class="string">&#x27;0&#x27;</span>) bor = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// fix</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;s.size();i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;olds[i])&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> j=i+<span class="number">1</span>;j&lt;s.size();j++)&#123;</span><br><span class="line">                    s[j]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// restore</span></span><br><span class="line">        <span class="keyword">int</span> val =<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;s.size();i++)&#123;</span><br><span class="line">            val=val*<span class="number">10</span>+s[i]-<span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
@@ -418,7 +418,7 @@
   </entry>
   <entry>
     <title>每日 leetcode</title>
-    <url>/leetcode/index/</url>
+    <url>/leetcode/leetcode/index/</url>
     <content><![CDATA[<h1 id="决定开始刷leetcode了"><a href="#决定开始刷leetcode了" class="headerlink" title="决定开始刷leetcode了"></a>决定开始刷leetcode了</h1><p>目标:<br><del>每天一道</del><br><del>如果每日一题是easy, 就加一道hard</del><br>如果每日一题是easy, 就加一道medium</p>
 ]]></content>
       <categories>
@@ -427,7 +427,7 @@
   </entry>
   <entry>
     <title>Oracle APEX学习</title>
-    <url>/oracle-apex/index/</url>
+    <url>/%E7%BC%96%E7%A8%8B/oracle-apex/index/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>什么垃圾软件, 毁我人生!!</p>
 <h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>略</p>
 <h1 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h1><p>启动apex安装到的数据库(PDB默认不会自动open)</p>
@@ -441,7 +441,7 @@
   </entry>
   <entry>
     <title>Oracle数据库学习</title>
-    <url>/oracledb/index/</url>
+    <url>/%E7%BC%96%E7%A8%8B/oracledb/index/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考资料:</p>
 <p><a href="https://docs.oracle.com/en/database/oracle/oracle-database/index.html">Oracle官方文档</a></p>
 <h1 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h1><p>Schema是表, 索引, 存储过程等等数据库对象(DB Object)的存储容器</p>
@@ -616,7 +616,7 @@
   </entry>
   <entry>
     <title>软件工程</title>
-    <url>/se/index/</url>
+    <url>/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/se/index/</url>
     <content><![CDATA[<ol>
 <li>===<ol>
 <li>软件的本质<ol>
@@ -737,16 +737,15 @@
   </entry>
   <entry>
     <title>每日上报自动打卡</title>
-    <url>/tools/auto_check/</url>
-    <content><![CDATA[<h1 id="每日上报自动打卡程序"><a href="#每日上报自动打卡程序" class="headerlink" title="每日上报自动打卡程序"></a>每日上报自动打卡程序</h1><p><a href=""></a></p>
-]]></content>
+    <url>/tools/tools/auto_check/</url>
+    <content><![CDATA[<h1 id="每日上报自动打卡程序"><a href="#每日上报自动打卡程序" class="headerlink" title="每日上报自动打卡程序"></a>每日上报自动打卡程序</h1><figure class="highlight python"><figcaption><span>auto_check.py</span><a href="/downloads/code/auto_check.py">view raw</a></figcaption><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">from</span> urllib <span class="keyword">import</span> request, parse, error</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check</span>(<span class="params">token, param: <span class="built_in">dict</span> = {}</span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;每日上报&#x27;&#x27;&#x27;</span></span><br><span class="line">    req = request.Request(<span class="string">&#x27;https://tjxsfw.chisai.tech/api/school_tjxsfw_student/yqfkLogDailyreport/v2&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    req.add_header(<span class="string">&#x27;User-Agent&#x27;</span>, <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0&#x27;</span>)</span><br><span class="line">    req.add_header(<span class="string">&#x27;Accept-Language&#x27;</span>, <span class="string">&#x27;zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2&#x27;</span>)</span><br><span class="line">    req.add_header(<span class="string">&#x27;Host&#x27;</span>, <span class="string">&#x27;tjxsfw.chisai.tech&#x27;</span>)</span><br><span class="line">    req.add_header(<span class="string">&#x27;Referer&#x27;</span>, <span class="string">&#x27;https://servicewechat.com/wx427cf6b5481c866a/27/page-frame.html&#x27;</span>)</span><br><span class="line">    req.add_header(<span class="string">&#x27;Authorization&#x27;</span>, <span class="string">f&#x27;Bearer <span class="subst">{token}</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    payload = parse.urlencode([</span><br><span class="line">        (<span class="string">&#x27;studentPid&#x27;</span>, param.get(<span class="string">&#x27;studentPid&#x27;</span>)),  <span class="comment"># pid</span></span><br><span class="line">        (<span class="string">&#x27;studentName&#x27;</span>, param.get(<span class="string">&#x27;studentName&#x27;</span>)),  <span class="comment"># 姓名</span></span><br><span class="line">        (<span class="string">&#x27;studentStudentno&#x27;</span>, param.get(<span class="string">&#x27;studentStudentno&#x27;</span>)),  <span class="comment"># 学号</span></span><br><span class="line">        (<span class="string">&#x27;studentCollege&#x27;</span>, param.get(<span class="string">&#x27;studentCollege&#x27;</span>, <span class="string">&#x27;软件学院&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locLat&#x27;</span>, param.get(<span class="string">&#x27;locLat&#x27;</span>, <span class="string">&#x27;31.37482&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locLng&#x27;</span>, param.get(<span class="string">&#x27;locLng&#x27;</span>, <span class="string">&#x27;121.26621&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locNation&#x27;</span>, param.get(<span class="string">&#x27;locNation&#x27;</span>, <span class="string">&#x27;中国&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locProvince&#x27;</span>, param.get(<span class="string">&#x27;locProvince&#x27;</span>, <span class="string">&#x27;上海市&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locCity&#x27;</span>, param.get(<span class="string">&#x27;locCity&#x27;</span>, <span class="string">&#x27;上海市&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locDistrict&#x27;</span>, param.get(<span class="string">&#x27;locDistrict&#x27;</span>, <span class="string">&#x27;嘉定区&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;healthy&#x27;</span>, param.get(<span class="string">&#x27;healthy&#x27;</span>, <span class="string">&#x27;0&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;source&#x27;</span>, param.get(<span class="string">&#x27;source&#x27;</span>, <span class="string">&#x27;weixin,windows&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;reportDatetime&#x27;</span>, datetime.strftime(datetime.now(), <span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>)),</span><br><span class="line">        (<span class="string">&#x27;hasMoved&#x27;</span>, param.get(<span class="string">&#x27;hasMoved&#x27;</span>, <span class="string">&#x27;false&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;leaveReason&#x27;</span>, param.get(<span class="string">&#x27;leaveReason&#x27;</span>, <span class="string">&#x27;&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locNation1&#x27;</span>, param.get(<span class="string">&#x27;locNation1&#x27;</span>, <span class="string">&#x27;中国&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locProvince1&#x27;</span>, param.get(<span class="string">&#x27;locProvince1&#x27;</span>, <span class="string">&#x27;上海市&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locCity1&#x27;</span>, param.get(<span class="string">&#x27;locCity1&#x27;</span>, <span class="string">&#x27;上海市&#x27;</span>))</span><br><span class="line">    ])</span><br><span class="line"></span><br><span class="line">    res = <span class="literal">None</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> request.urlopen(req, data=payload.encode()) <span class="keyword">as</span> f:</span><br><span class="line">            res = json.loads(f.read()) <span class="keyword">if</span> f.status == <span class="number">200</span> <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line">    <span class="keyword">except</span> error.HTTPError <span class="keyword">as</span> e:</span><br><span class="line">        print(<span class="string">&quot;请求失败&quot;</span>, e)</span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    token = <span class="string">&#x27;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzQ1Njc4OSwidXNlcl9uYW1lIjoic3dpZDB4eHh4eHh4eDZjNiIsImF1dGhvcml0aWVzIjpbImFwcF91c2VyIl0sImp0aSI6ImVjY3h4eHgteHh4eC14eHh4LTllN2IteHh4eHhkODRmYjgiLCJjbGllbnRfaWQiOiJhcHAiLCJzY29wZSI6WyJhbGwiXX0.xxxxxxxxxxxxxxxxxxxxxxxxr6d8D4&#x27;</span></span><br><span class="line"></span><br><span class="line">    param = {</span><br><span class="line">        <span class="string">&#x27;studentPid&#x27;</span>: <span class="string">&#x27;9999999&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;studentName&#x27;</span>: <span class="string">&#x27;张三&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;studentStudentno&#x27;</span>: <span class="string">&#x27;1888888&#x27;</span></span><br><span class="line">    }</span><br><span class="line">    res = check(token, param)</span><br><span class="line"></span><br><span class="line">    print(res)</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
-        <category>每日小结</category>
+        <category>tools</category>
       </categories>
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/11/29/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/11/29/</url>
     <content><![CDATA[<h1 id="用-Hexo-搭建了个人-blog"><a href="#用-Hexo-搭建了个人-blog" class="headerlink" title="用 Hexo 搭建了个人 blog"></a>用 Hexo 搭建了个人 blog</h1><h2 id="Hexo-基本操作"><a href="#Hexo-基本操作" class="headerlink" title="Hexo 基本操作"></a>Hexo 基本操作</h2><ul>
 <li><p>安装</p>
 <p>  <code>npm install -g hexo-cli</code></p>
@@ -795,7 +794,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/11/30/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/11/30/</url>
     <content><![CDATA[<h1 id="Github-Developer-Settings"><a href="#Github-Developer-Settings" class="headerlink" title="Github Developer Settings"></a>Github Developer Settings</h1><ul>
 <li><p>GitHub Apps</p>
 </li>
@@ -863,7 +862,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/01/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/01/</url>
     <content><![CDATA[<h1 id="转换dos格式行尾为unix行尾"><a href="#转换dos格式行尾为unix行尾" class="headerlink" title="转换dos格式行尾为unix行尾"></a>转换dos格式行尾为unix行尾</h1><ul>
 <li><p>工具: dos2unix</p>
 </li>
@@ -1079,7 +1078,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/02/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/02/</url>
     <content><![CDATA[<ul>
 <li><p>React</p>
 <ul>
@@ -1194,7 +1193,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/03/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/03/</url>
     <content><![CDATA[<h1 id="秘书问题"><a href="#秘书问题" class="headerlink" title="秘书问题"></a>秘书问题</h1><ul>
 <li><p>又称相亲问题、止步问题、见好就收问题、苏丹的嫁妆问题、挑剔的求婚者问题等</p>
 </li>
@@ -1275,7 +1274,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/04/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/04/</url>
     <content><![CDATA[<h1 id="Java-包-Package-Jar和模块-Module-的区别"><a href="#Java-包-Package-Jar和模块-Module-的区别" class="headerlink" title="Java 包(Package), Jar和模块(Module)的区别"></a>Java 包(Package), Jar和模块(Module)的区别</h1><ul>
 <li><p>包 (Package)</p>
 <ul>
@@ -1425,7 +1424,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/05/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/05/</url>
     <content><![CDATA[<h1 id="Java-Spring-框架学习"><a href="#Java-Spring-框架学习" class="headerlink" title="Java Spring 框架学习"></a>Java Spring 框架学习</h1><p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
 <p>要管理bean，也即是这堆发挥业务功能的类，就不能直接把它们new出来，这样缺乏统一的调度。所以，Spring使用.xml配置文件作为媒介，以IoC（Inversion of Control 控制反转）作为工具，将这些bean拿给Spring container作统一管理。</p>
 <h1 id="Git-submodule-使用"><a href="#Git-submodule-使用" class="headerlink" title="Git submodule 使用"></a>Git submodule 使用</h1><ul>
@@ -1513,7 +1512,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/06/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/06/</url>
     <content><![CDATA[<h1 id="学习Oracle使用"><a href="#学习Oracle使用" class="headerlink" title="学习Oracle使用"></a>学习Oracle使用</h1><p><a href="../oracledb/index">OracleDB</a></p>
 ]]></content>
       <categories>
@@ -1525,7 +1524,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/07/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/07/</url>
     <content><![CDATA[<h1 id="Visio-画图如何添加自定义连接点"><a href="#Visio-画图如何添加自定义连接点" class="headerlink" title="Visio 画图如何添加自定义连接点"></a>Visio 画图如何添加自定义连接点</h1><p>在工具栏选中”连接点”</p>
 <p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
 <p>有时候可能需要多点几次</p>
@@ -1560,7 +1559,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/09/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/09/</url>
     <content><![CDATA[<h1 id="Spring学习"><a href="#Spring学习" class="headerlink" title="Spring学习"></a>Spring学习</h1><h2 id="IoC容器"><a href="#IoC容器" class="headerlink" title="IoC容器"></a>IoC容器</h2><p>Spring类似一个类实例的工厂, 我们提供配置文件(.Java, .xml), Spring按照配置文件装配产品.</p>
 <p>Spring的核心IoC容器接口是<code>ApplicationContext</code>，并提供了多种实现类:<br>例如读取xml文件的<code>ClassPathXmlApplicationContext</code>, 使用注解的<code>AnnotationConfigApplicationContext</code></p>
 <h2 id="Java的Web框架"><a href="#Java的Web框架" class="headerlink" title="Java的Web框架"></a>Java的Web框架</h2><ul>
@@ -1592,7 +1591,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/10/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/10/</url>
     <content><![CDATA[<h1 id="Java的ORM框架-vs-Python的ORM框架"><a href="#Java的ORM框架-vs-Python的ORM框架" class="headerlink" title="Java的ORM框架 vs Python的ORM框架"></a>Java的ORM框架 vs Python的ORM框架</h1><p>TODO: 待更新</p>
 <h1 id="为什么需要CORS-CORS是为了保护谁"><a href="#为什么需要CORS-CORS是为了保护谁" class="headerlink" title="为什么需要CORS? CORS是为了保护谁?"></a>为什么需要CORS? CORS是为了保护谁?</h1><p>CORS标准允许服务器指定谁可以访问该服务器上的资源, 以及该如何访问这些资源</p>
 <p>所以说其实是保护服务器端, 防止恶意网站窃取数据</p>
@@ -1609,7 +1608,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/11/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/11/</url>
     <content><![CDATA[<h1 id="Linux-内核提权"><a href="#Linux-内核提权" class="headerlink" title="Linux 内核提权"></a>Linux 内核提权</h1><ul>
 <li>获取内核版本</li>
 </ul>
@@ -1638,7 +1637,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/12/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/12/</url>
     <content><![CDATA[<h1 id="线性代数"><a href="#线性代数" class="headerlink" title="线性代数"></a>线性代数</h1>]]></content>
       <categories>
         <category>每日小结</category>
@@ -1646,7 +1645,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/13/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/13/</url>
     <content><![CDATA[<h1 id="C-STL中unique的用法"><a href="#C-STL中unique的用法" class="headerlink" title="C++ STL中unique的用法"></a>C++ STL中unique的用法</h1><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>&gt;</span></span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>, <span class="keyword">class</span> <span class="title">BinaryPredicate</span>&gt;</span></span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last,</span></span></span><br><span class="line"><span class="function"><span class="params">                           BinaryPredicate pred )</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>将[first, last)之间, <strong>相邻</strong>的多个相同元素合并为一个, 返回指向不重复部分末尾的迭代器. 多和sort函数一起使用</p>
@@ -1666,7 +1665,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/14/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/14/</url>
     <content><![CDATA[<h1 id="满课-摸了"><a href="#满课-摸了" class="headerlink" title="满课, 摸了"></a>满课, 摸了</h1>]]></content>
       <categories>
         <category>每日小结</category>
@@ -1674,7 +1673,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/15/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/15/</url>
     <content><![CDATA[<h1 id="为什么要使用mongodb"><a href="#为什么要使用mongodb" class="headerlink" title="为什么要使用mongodb"></a>为什么要使用mongodb</h1><ul>
 <li><p>不需要预先定义schema即可存储数据, 适合于快速原型开发, 以及需求经常变更的情况</p>
 </li>
@@ -1697,8 +1696,8 @@
       </tags>
   </entry>
   <entry>
-    <title>post</title>
-    <url>/daily/2020/12/16/</url>
+    <title>每日小结</title>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/16/</url>
     <content><![CDATA[<h1 id="Spring-Security"><a href="#Spring-Security" class="headerlink" title="Spring Security"></a>Spring Security</h1><h1 id="JWT"><a href="#JWT" class="headerlink" title="JWT"></a>JWT</h1>]]></content>
       <categories>
         <category>每日小结</category>
@@ -1709,7 +1708,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/17/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/17/</url>
     <content><![CDATA[<h1 id="Spring-doc-OpenAPI-注解"><a href="#Spring-doc-OpenAPI-注解" class="headerlink" title="Spring-doc OpenAPI 注解"></a>Spring-doc OpenAPI 注解</h1><p>@Operation<br>@Response<br>@Parameter</p>
 <h1 id="Ubuntu设置代理"><a href="#Ubuntu设置代理" class="headerlink" title="Ubuntu设置代理"></a>Ubuntu设置代理</h1><p>启动clash for linux</p>
 <ul>
@@ -1762,7 +1761,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/18/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/18/</url>
     <content><![CDATA[<h1 id="Oracle-Apex怎么调用procedure"><a href="#Oracle-Apex怎么调用procedure" class="headerlink" title="Oracle Apex怎么调用procedure"></a>Oracle Apex怎么调用procedure</h1><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">begin</span></span><br><span class="line">  ANALYSIS(<span class="number">6</span>, <span class="number">1000</span>);</span><br><span class="line"><span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
 
 ]]></content>
@@ -1772,7 +1771,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/19/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/19/</url>
     <content><![CDATA[<h1 id="Spring中Filter和Interceptor的区别"><a href="#Spring中Filter和Interceptor的区别" class="headerlink" title="Spring中Filter和Interceptor的区别"></a>Spring中Filter和Interceptor的区别</h1><p>Filter和Interceptor都可以实现对请求的拦截</p>
 <h2 id="功能定位"><a href="#功能定位" class="headerlink" title="功能定位"></a>功能定位</h2><p>都可以用来实现用户认证</p>
 <h2 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h2><ul>
@@ -1797,7 +1796,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/20/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/20/</url>
     <content><![CDATA[<h1 id="昨天通宵，今天摸了"><a href="#昨天通宵，今天摸了" class="headerlink" title="昨天通宵，今天摸了"></a>昨天通宵，今天摸了</h1>]]></content>
       <categories>
         <category>每日小结</category>
@@ -1805,7 +1804,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/21-24/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/21-24/</url>
     <content><![CDATA[<h1 id="做Java项目"><a href="#做Java项目" class="headerlink" title="做Java项目"></a>做Java项目</h1>]]></content>
       <categories>
         <category>每日小结</category>
@@ -1813,7 +1812,7 @@
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/daily/2020/12/25/</url>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/25/</url>
     <content><![CDATA[<h1 id="Java-答辩结束了-Yeah"><a href="#Java-答辩结束了-Yeah" class="headerlink" title="Java 答辩结束了, Yeah!"></a>Java 答辩结束了, Yeah!</h1><p>今天开始刷题</p>
 <h1 id="Hash-Map-Hash-Set-vs-Tree-Map-Tree-Set"><a href="#Hash-Map-Hash-Set-vs-Tree-Map-Tree-Set" class="headerlink" title="Hash Map, Hash Set vs Tree Map, Tree Set"></a>Hash Map, Hash Set vs Tree Map, Tree Set</h1><p>c++中的<code>map</code>, <code>set</code>默认是treemap和treeset, 底层基于红黑树, 元素始终保持有序</p>
 <p>而<code>unordered_map</code>, <code>unordered_set</code>底层基于哈希表</p>
