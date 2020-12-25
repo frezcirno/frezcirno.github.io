@@ -215,7 +215,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-count">49</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -275,6 +275,100 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/leetcode/389/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/leetcode/389/" class="post-title-link" itemprop="url">389. 找不同</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-18 20:35:42" itemprop="dateCreated datePublished" datetime="2020-12-18T20:35:42+08:00">2020-12-18</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-25 14:35:06" itemprop="dateModified" datetime="2020-12-25T14:35:06+08:00">2020-12-25</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/leetcode/389/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="leetcode/389/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>送分题</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">char</span> <span class="title">findTheDifference</span><span class="params">(<span class="built_in">string</span> s, <span class="built_in">string</span> t)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="keyword">char</span>, <span class="keyword">int</span>&gt;count;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp;&amp;c:s)&#123;</span><br><span class="line">            count[c]++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp;&amp;c:t)&#123;</span><br><span class="line">            count[c]--;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> find_if(count.begin(),count.end(),[&amp;](<span class="keyword">auto</span> it)&#123;<span class="keyword">return</span> it.second!=<span class="number">0</span>;&#125;)-&gt;first;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
     <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/18/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -306,7 +400,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-25 13:09:33" itemprop="dateModified" datetime="2020-12-25T13:09:33+08:00">2020-12-25</time>
+        <time title="Modified: 2020-12-25 14:35:06" itemprop="dateModified" datetime="2020-12-25T14:35:06+08:00">2020-12-25</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -401,7 +495,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-25 13:09:33" itemprop="dateModified" datetime="2020-12-25T13:09:33+08:00">2020-12-25</time>
+        <time title="Modified: 2020-12-25 14:35:06" itemprop="dateModified" datetime="2020-12-25T14:35:06+08:00">2020-12-25</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -533,7 +627,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-25 13:09:33" itemprop="dateModified" datetime="2020-12-25T13:09:33+08:00">2020-12-25</time>
+        <time title="Modified: 2020-12-25 14:35:06" itemprop="dateModified" datetime="2020-12-25T14:35:06+08:00">2020-12-25</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -626,7 +720,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-25 13:09:33" itemprop="dateModified" datetime="2020-12-25T13:09:33+08:00">2020-12-25</time>
+        <time title="Modified: 2020-12-25 14:35:06" itemprop="dateModified" datetime="2020-12-25T14:35:06+08:00">2020-12-25</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -719,7 +813,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-25 13:09:33" itemprop="dateModified" datetime="2020-12-25T13:09:33+08:00">2020-12-25</time>
+        <time title="Modified: 2020-12-25 14:35:06" itemprop="dateModified" datetime="2020-12-25T14:35:06+08:00">2020-12-25</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -840,7 +934,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-25 13:09:33" itemprop="dateModified" datetime="2020-12-25T13:09:33+08:00">2020-12-25</time>
+        <time title="Modified: 2020-12-25 14:35:06" itemprop="dateModified" datetime="2020-12-25T14:35:06+08:00">2020-12-25</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -962,7 +1056,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-25 13:09:33" itemprop="dateModified" datetime="2020-12-25T13:09:33+08:00">2020-12-25</time>
+        <time title="Modified: 2020-12-25 14:35:06" itemprop="dateModified" datetime="2020-12-25T14:35:06+08:00">2020-12-25</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1055,7 +1149,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-25 13:09:33" itemprop="dateModified" datetime="2020-12-25T13:09:33+08:00">2020-12-25</time>
+        <time title="Modified: 2020-12-25 14:35:06" itemprop="dateModified" datetime="2020-12-25T14:35:06+08:00">2020-12-25</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1150,7 +1244,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-25 13:09:33" itemprop="dateModified" datetime="2020-12-25T13:09:33+08:00">2020-12-25</time>
+        <time title="Modified: 2020-12-25 14:35:06" itemprop="dateModified" datetime="2020-12-25T14:35:06+08:00">2020-12-25</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1200,108 +1294,6 @@
 <p>$$<br>f[i][j] = \begin{cases}<br>f[i - 1][j - 1], &amp; p[j] \neq ‘<em>‘ <del>and</del> s[i] = p[j] \<br>false, &amp; p[j] \neq ‘</em>‘ <del>and</del> s[i] \neq p[j] \<br>f[i][j - 2] <del>or</del> f[i-1][j], &amp; p[j] = ‘<em>‘ <del>and</del> s[i] = p[j-1] \<br>f[i][j - 2], &amp; p[j] = ‘</em>‘ <del>and</del> s[i] \neq p[j-1]<br>\end{cases}<br>$$</p>
 <p>代码:</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isMatch</span><span class="params">(<span class="built_in">string</span> s, <span class="built_in">string</span> p)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> m = s.size();</span><br><span class="line">        <span class="keyword">int</span> n = p.size();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> matches = [&amp;](<span class="keyword">int</span> i, <span class="keyword">int</span> j) &#123;</span><br><span class="line">            <span class="keyword">if</span> (i == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (p[j - <span class="number">1</span>] == <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> s[i - <span class="number">1</span>] == p[j - <span class="number">1</span>];</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">f</span><span class="params">(m + <span class="number">1</span>, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(n + <span class="number">1</span>))</span></span>;</span><br><span class="line">        f[<span class="number">0</span>][<span class="number">0</span>] = <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= m; ++i) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; ++j) &#123;</span><br><span class="line">                <span class="keyword">if</span> (p[j - <span class="number">1</span>] == <span class="string">&#x27;*&#x27;</span>) &#123;</span><br><span class="line">                    f[i][j] |= f[i][j - <span class="number">2</span>];</span><br><span class="line">                    <span class="keyword">if</span> (matches(i, j - <span class="number">1</span>)) &#123;</span><br><span class="line">                        f[i][j] |= f[i - <span class="number">1</span>][j];</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (matches(i, j)) &#123;</span><br><span class="line">                        f[i][j] |= f[i - <span class="number">1</span>][j - <span class="number">1</span>];</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> f[m][n];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/leetcode/290/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="frezcirno's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/leetcode/290/" class="post-title-link" itemprop="url">290. 单词规律</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-12-16 11:54:45" itemprop="dateCreated datePublished" datetime="2020-12-16T11:54:45+08:00">2020-12-16</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-25 13:09:33" itemprop="dateModified" datetime="2020-12-25T13:09:33+08:00">2020-12-25</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/leetcode/290/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="leetcode/290/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>判断给定<em>字符串</em>是不是按照给定<em>模式</em>的短语, 例如”dog dog cat cat”就是”aabb”式的短语</p>
-<p>思路: 用map记录模式字母与单词的对应关系, 如果发现不一致, 返回false, 否则返回true</p>
-<p>注意: 模式中不同字母对应的单词不能相同</p>
-<p>提示: </p>
-<p>按照key查询map可以使用map自带的find()函数</p>
-<p>按照value查询map可以使用find_if()函数</p>
-<p>两者都返回迭代器</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">M.find(someKey);</span><br><span class="line">find_if(M.begin(), M.end(), [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; kv)&#123; <span class="comment">/* ... */</span> &#125;);</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">wordPattern</span><span class="params">(<span class="built_in">string</span> pattern, <span class="built_in">string</span> s)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="keyword">char</span>, <span class="built_in">string</span>&gt; M;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; S;</span><br><span class="line">        <span class="keyword">char</span> *p = strtok((<span class="keyword">char</span> *)s.c_str(), <span class="string">&quot; &quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (p) <span class="keyword">do</span> &#123;</span><br><span class="line">            S.push_back(p);</span><br><span class="line">        &#125; <span class="keyword">while</span> (p = strtok(<span class="literal">NULL</span>, <span class="string">&quot; &quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (pattern.size() != S.size()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; pattern.size(); i++) &#123;</span><br><span class="line">            <span class="keyword">char</span> ch = pattern[i];</span><br><span class="line">            <span class="keyword">if</span> (M.find(ch) == M.end()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (find_if(M.begin(),M.end(),[&amp;](<span class="keyword">const</span> <span class="keyword">auto</span>&amp;p)&#123;<span class="keyword">return</span> p.second==S[i];&#125;)!=M.end())&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="built_in">cout</span>&lt;&lt;ch&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;S[i]&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">                M[ch] = S[i];</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (M[ch] != S[i]) &#123;</span><br><span class="line">                <span class="built_in">cout</span>&lt;&lt;M[ch]&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;S[i]&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
       
     </div>
 
