@@ -11,6 +11,24 @@
       </categories>
   </entry>
   <entry>
+    <title>1063. Set Similarity</title>
+    <url>/PTA/1063/</url>
+    <content><![CDATA[<p>给出n个集合和k次查询, 计算集合相似度:</p>
+<blockquote>
+<p>集合相似度 = 交集元素数量 / 并集元素数量</p>
+</blockquote>
+<p>思路: 重复查询缓存结果</p>
+<p>tips: </p>
+<ul>
+<li>C++ STL中有<code>set_intersection</code>, <code>set_union</code>, <code>set_difference</code>可以直接使用</li>
+<li>insert_iterator<Container>(Container container, Iterator iter)可以创建一个”自动插入迭代器”, 将对迭代器的copy(to)操作转化为插入操作</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; S[<span class="number">50</span>];</span><br><span class="line"><span class="keyword">float</span> F[<span class="number">50</span>][<span class="number">50</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">compare</span><span class="params">(<span class="keyword">int</span> _a, <span class="keyword">int</span> _b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (F[_a][_b]) &#123;</span><br><span class="line">        <span class="keyword">return</span> F[_a][_b];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; &amp;a = S[_a], &amp;b = S[_b];</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; U, I;</span><br><span class="line">    set_intersection(a.begin(), a.end(), b.begin(), b.end(), insert_iterator&lt;<span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt;&gt;(I, I.begin()));</span><br><span class="line">    set_union(a.begin(), a.end(), b.begin(), b.end(), insert_iterator&lt;<span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt;&gt;(U, U.begin()));</span><br><span class="line">    <span class="keyword">float</span> res = <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(I.size()) / U.size();</span><br><span class="line">    <span class="keyword">if</span> (res == <span class="number">0</span>) res = <span class="number">0.0001F</span>;</span><br><span class="line">    <span class="keyword">return</span> F[_a][_b] = F[_b][_a] = res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> s;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; s;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; s; j++) &#123;</span><br><span class="line">            <span class="keyword">int</span> x;</span><br><span class="line">            <span class="built_in">cin</span> &gt;&gt; x;</span><br><span class="line">            S[i].insert(x);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> k;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; k;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; k; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> a, b;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; a &gt;&gt; b;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%.1f%%\n&quot;</span>, <span class="number">100</span> * compare(a - <span class="number">1</span>, b - <span class="number">1</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
     <title>1098. Insertion or Heap Sort</title>
     <url>/PTA/1098/</url>
     <content><![CDATA[<p>根据排序的中间结果判断使用的插入排序还是堆排序, 并给出下一轮迭代的中间结果</p>
@@ -65,21 +83,6 @@
       <categories>
         <category>PTA</category>
       </categories>
-  </entry>
-  <entry>
-    <title>post</title>
-    <url>/PTA/63/</url>
-    <content><![CDATA[<p>给出n个集合和k次查询, 计算集合相似度:</p>
-<blockquote>
-<p>集合相似度 = 交集元素数量 / 并集元素数量</p>
-</blockquote>
-<p>思路: 重复查询缓存结果</p>
-<p>tips: </p>
-<ul>
-<li>C++ STL中有<code>set_intersection</code>, <code>set_union</code>, <code>set_difference</code>可以直接使用</li>
-<li>insert_iterator<Container>(Container container, Iterator iter)可以创建一个”自动插入迭代器”, 将对迭代器的copy(to)操作转化为插入操作</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; S[<span class="number">50</span>];</span><br><span class="line"><span class="keyword">float</span> F[<span class="number">50</span>][<span class="number">50</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">compare</span><span class="params">(<span class="keyword">int</span> _a, <span class="keyword">int</span> _b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (F[_a][_b]) &#123;</span><br><span class="line">        <span class="keyword">return</span> F[_a][_b];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; &amp;a = S[_a], &amp;b = S[_b];</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; U, I;</span><br><span class="line">    set_intersection(a.begin(), a.end(), b.begin(), b.end(), insert_iterator&lt;<span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt;&gt;(I, I.begin()));</span><br><span class="line">    set_union(a.begin(), a.end(), b.begin(), b.end(), insert_iterator&lt;<span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt;&gt;(U, U.begin()));</span><br><span class="line">    <span class="keyword">float</span> res = <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(I.size()) / U.size();</span><br><span class="line">    <span class="keyword">if</span> (res == <span class="number">0</span>) res = <span class="number">0.0001F</span>;</span><br><span class="line">    <span class="keyword">return</span> F[_a][_b] = F[_b][_a] = res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> s;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; s;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; s; j++) &#123;</span><br><span class="line">            <span class="keyword">int</span> x;</span><br><span class="line">            <span class="built_in">cin</span> &gt;&gt; x;</span><br><span class="line">            S[i].insert(x);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> k;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; k;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; k; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> a, b;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; a &gt;&gt; b;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%.1f%%\n&quot;</span>, <span class="number">100</span> * compare(a - <span class="number">1</span>, b - <span class="number">1</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
   </entry>
   <entry>
     <title>每日 PTA</title>
@@ -615,8 +618,7 @@
     <title>软件工程</title>
     <url>/se/index/</url>
     <content><![CDATA[<ol>
-<li><hr>
-<ol>
+<li>===<ol>
 <li>软件的本质<ol>
 <li>定义<ol>
 <li>有很多种定义, 以书上(P3)的定义为准, 指令的集合+数据结构+软件描述信息</li>
@@ -643,8 +645,7 @@
 </li>
 </ol>
 </li>
-<li><hr>
-<ol>
+<li>===<ol>
 <li><strong>软件工程的定义</strong><ol>
 <li>以书上为准 IEEE<ol>
 <li>将xxxx(系统化, 规范的, 可量化的)工程化方法应用于软件</li>
@@ -655,6 +656,8 @@
 <li>过程: </li>
 <li>方法:</li>
 <li>工具: </li>
+</ol>
+</li>
 </ol>
 </li>
 </ol>
@@ -727,8 +730,6 @@
 </ol>
 </li>
 </ol>
-</li>
-</ol>
 ]]></content>
       <categories>
         <category>课程笔记</category>
@@ -737,7 +738,8 @@
   <entry>
     <title>每日上报自动打卡</title>
     <url>/tools/auto_check/</url>
-    <content><![CDATA[]]></content>
+    <content><![CDATA[<h1 id="每日上报自动打卡程序"><a href="#每日上报自动打卡程序" class="headerlink" title="每日上报自动打卡程序"></a>每日上报自动打卡程序</h1><p><a href=""></a></p>
+]]></content>
       <categories>
         <category>每日小结</category>
       </categories>
@@ -1868,6 +1870,26 @@
 </tbody></table>
 <p>遍历</p>
 <p><code>map</code>和<code>set</code>都支持按序遍历, 而<code>unordered_map</code>, <code>unordered_set</code>天生就不适合按序遍历(底层不是按序存储), 但是可以无序遍历</p>
+<h1 id="Java-项目总结"><a href="#Java-项目总结" class="headerlink" title="Java 项目总结"></a>Java 项目总结</h1><h2 id="前端"><a href="#前端" class="headerlink" title="前端"></a>前端</h2><h2 id="后端"><a href="#后端" class="headerlink" title="后端"></a>后端</h2><h3 id="Java-Web项目的基本结构"><a href="#Java-Web项目的基本结构" class="headerlink" title="Java Web项目的基本结构"></a>Java Web项目的基本结构</h3><p>Controller层: 前端实际调用的接口, 包括用户鉴权, 页面跳转等等, 接口内部调用Service层来实现功能.</p>
+<p>Service层: 实际的业务逻辑, 一般按照功能分包, 尽量做到与Controller层脱钩, 一般都是些无状态函数(对环境不做任何假设)</p>
+<p>DAO层: 与数据库相关的代码, 也被称为持久层</p>
+<h3 id="Spring框架"><a href="#Spring框架" class="headerlink" title="Spring框架"></a>Spring框架</h3><p>Spring框架的核心:</p>
+<ol>
+<li><p>通过依赖注入来降低代码之间的耦合(IoC控制反转)</p>
+<p> 例如: <code>@Autowired</code>, <code>@Bean</code>, <code>@Resource</code></p>
+</li>
+<li><p>对AOP的支持</p>
+<p> 这个没怎么用到</p>
+</li>
+<li><p>对各种工具的集成和支持</p>
+<p> 例如: Spring Data JPA, Spring Security等等</p>
+</li>
+</ol>
+<h3 id="Spring-Boot框架"><a href="#Spring-Boot框架" class="headerlink" title="Spring Boot框架"></a>Spring Boot框架</h3><p>Spring Boot能够自动识别项目中开启的功能(通过扫描安装的依赖包or配置文件?)</p>
+<p>项目配置全部写在<code>application.[properties|yml]</code>中, 框架会自动识别</p>
+<p>也可以自己定义一些key, 在代码中通过<code>@Value(&quot;xxx.yyy&quot;)</code>注入</p>
+<h3 id="JWT鉴权"><a href="#JWT鉴权" class="headerlink" title="JWT鉴权"></a>JWT鉴权</h3><p><a href="https://jwt.io/">JWT</a>的三部分: <code>Header.Payload.Signature</code></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">Header = &#123;<span class="string">&quot;alg&quot;</span>:<span class="string">&quot;HS256&quot;</span>,<span class="string">&quot;typ&quot;</span>:<span class="string">&quot;JWT&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">Payload = &#123;<span class="string">&quot;sub&quot;</span>:<span class="string">&quot;1234567890&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;John Doe&quot;</span>,<span class="string">&quot;iat&quot;</span>:<span class="number">1516239022</span>&#125;</span><br><span class="line"></span><br><span class="line">_Header64 = base64UrlEncode(Header)</span><br><span class="line">_Payload64 = base64UrlEncode(Payload)</span><br><span class="line"></span><br><span class="line">Signature = HMACSHA256(<span class="string">`<span class="subst">$&#123;_Header64&#125;</span>.<span class="subst">$&#123;_Payload64&#125;</span>`</span>, $&#123;your-<span class="number">256</span>-bit-secret&#125;)</span><br><span class="line"></span><br><span class="line">JWT = <span class="string">`<span class="subst">$&#123;_Header64&#125;</span>.<span class="subst">$&#123;_Payload64&#125;</span>.<span class="subst">$&#123;Signature&#125;</span>`</span></span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>每日小结</category>
