@@ -215,7 +215,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-count">54</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -275,6 +275,249 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/3/" class="post-title-link" itemprop="url">语义分析和中间代码生成</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-17 10:55:55" itemprop="dateCreated datePublished" datetime="2020-12-17T10:55:55+08:00">2020-12-17</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-28 00:54:33" itemprop="dateModified" datetime="2020-12-28T00:54:33+08:00">2020-12-28</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/3/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="学习笔记/compiler-principle/3/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="语义分析和中间代码生成"><a href="#语义分析和中间代码生成" class="headerlink" title="语义分析和中间代码生成"></a>语义分析和中间代码生成</h1><h2 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h2><h2 id="中间语言"><a href="#中间语言" class="headerlink" title="中间语言"></a>中间语言</h2><p>中间语言是复杂性界于源语言和目标语言之间的语言</p>
+<p>好处:</p>
+<ul>
+<li>便于进行与机器无关的代码优化工作</li>
+<li>易于移植</li>
+<li>使编译程序的结构在逻辑上更为简单明确</li>
+</ul>
+<p>常用的中间语言:</p>
+<ul>
+<li>后缀式(逆波兰式)</li>
+<li>图表示<ul>
+<li>DAG</li>
+<li>AST</li>
+</ul>
+</li>
+<li>三地址代码<ul>
+<li>三元式</li>
+<li>四元式</li>
+<li>间接三元式</li>
+</ul>
+</li>
+</ul>
+<p>后缀式:</p>
+<p>二元操作符后置<br>(一元操作符后置)<br>去括号</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a+b*(c+d&#x2F;e)</span><br><span class="line">a b*(c+d&#x2F;e) +</span><br><span class="line">a b (c+d&#x2F;e) * +</span><br><span class="line">a b c d&#x2F;e + * +</span><br><span class="line">a b c d e &#x2F; + * +</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">b:&#x3D;-c*a+-c*a</span><br><span class="line">b -c*a+-c*a :&#x3D;</span><br><span class="line">b -c*a -c*a + :&#x3D;</span><br><span class="line">b -c a * -c a * + :&#x3D;</span><br><span class="line">b c Neg a * c Neg a * + :&#x3D;</span><br></pre></td></tr></table></figure>
+
+<p>抽象语法树</p>
+<h2 id="说明语句"><a href="#说明语句" class="headerlink" title="说明语句"></a>说明语句</h2><h2 id="赋值语句的翻译"><a href="#赋值语句的翻译" class="headerlink" title="赋值语句的翻译"></a>赋值语句的翻译</h2><h2 id="布尔表达式的翻译"><a href="#布尔表达式的翻译" class="headerlink" title="布尔表达式的翻译"></a>布尔表达式的翻译</h2><h2 id="控制语句的翻译"><a href="#控制语句的翻译" class="headerlink" title="控制语句的翻译"></a>控制语句的翻译</h2><h2 id="过程调用的翻译"><a href="#过程调用的翻译" class="headerlink" title="过程调用的翻译"></a>过程调用的翻译</h2><h3 id=""><a href="#" class="headerlink" title=""></a></h3>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/2/" class="post-title-link" itemprop="url">语法分析</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-17 10:54:20" itemprop="dateCreated datePublished" datetime="2020-12-17T10:54:20+08:00">2020-12-17</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-12-28 00:54:33" itemprop="dateModified" datetime="2020-12-28T00:54:33+08:00">2020-12-28</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/2/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="学习笔记/compiler-principle/2/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="LL分析法"><a href="#LL分析法" class="headerlink" title="LL分析法"></a>LL分析法</h2><pre><code>- LL(1)
+
+- 增加预测</code></pre>
+<h2 id="算法优先分析法"><a href="#算法优先分析法" class="headerlink" title="算法优先分析法"></a>算法优先分析法</h2><ul>
+<li><p>LR分析法</p>
+<ul>
+<li><p>LR(0)</p>
+</li>
+<li><p>SLR</p>
+</li>
+<li><p>LR(1)</p>
+</li>
+<li><p>LALR</p>
+</li>
+<li><p>二义文法</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="属性文法"><a href="#属性文法" class="headerlink" title="属性文法"></a>属性文法</h1><ul>
+<li><p>属性</p>
+<ul>
+<li><p>综合属性: 通过子节点的属性计算出来的属性</p>
+</li>
+<li><p>继承属性: 通过父节点和兄弟节点的属性计算出来的属性</p>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
     <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -306,7 +549,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-26 00:57:31" itemprop="dateModified" datetime="2020-12-26T00:57:31+08:00">2020-12-26</time>
+        <time title="Modified: 2020-12-28 00:54:33" itemprop="dateModified" datetime="2020-12-28T00:54:33+08:00">2020-12-28</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -399,7 +642,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-26 00:57:31" itemprop="dateModified" datetime="2020-12-26T00:57:31+08:00">2020-12-26</time>
+        <time title="Modified: 2020-12-28 00:54:33" itemprop="dateModified" datetime="2020-12-28T00:54:33+08:00">2020-12-28</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -494,7 +737,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-26 00:57:31" itemprop="dateModified" datetime="2020-12-26T00:57:31+08:00">2020-12-26</time>
+        <time title="Modified: 2020-12-28 00:54:33" itemprop="dateModified" datetime="2020-12-28T00:54:33+08:00">2020-12-28</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -600,7 +843,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-26 00:57:31" itemprop="dateModified" datetime="2020-12-26T00:57:31+08:00">2020-12-26</time>
+        <time title="Modified: 2020-12-28 00:54:33" itemprop="dateModified" datetime="2020-12-28T00:54:33+08:00">2020-12-28</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -702,7 +945,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-26 00:57:31" itemprop="dateModified" datetime="2020-12-26T00:57:31+08:00">2020-12-26</time>
+        <time title="Modified: 2020-12-28 00:54:33" itemprop="dateModified" datetime="2020-12-28T00:54:33+08:00">2020-12-28</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -795,7 +1038,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-26 00:57:31" itemprop="dateModified" datetime="2020-12-26T00:57:31+08:00">2020-12-26</time>
+        <time title="Modified: 2020-12-28 00:54:33" itemprop="dateModified" datetime="2020-12-28T00:54:33+08:00">2020-12-28</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -895,7 +1138,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-26 00:57:31" itemprop="dateModified" datetime="2020-12-26T00:57:31+08:00">2020-12-26</time>
+        <time title="Modified: 2020-12-28 00:54:33" itemprop="dateModified" datetime="2020-12-28T00:54:33+08:00">2020-12-28</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -991,7 +1234,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-26 00:57:31" itemprop="dateModified" datetime="2020-12-26T00:57:31+08:00">2020-12-26</time>
+        <time title="Modified: 2020-12-28 00:54:33" itemprop="dateModified" datetime="2020-12-28T00:54:33+08:00">2020-12-28</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1030,204 +1273,6 @@
           <p>思路: 对于数字<code>x = an ... ai+1 ai ... a1 a0</code>, 如果任意相邻的<code>ai+1</code>,<code>ai</code>不符合单调递增, 就给原数字减去<code>(ai + 1) * 10 ^ i</code>, 减去之后得到的新数字即为<code>y</code></p>
 <p>可以发现, 若<code>x</code>与<code>y</code>不完全相同, 则最终结果在第一个不相同位之后的位必定全是<code>9</code>, 按此规律修正结果即可.</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">monotoneIncreasingDigits</span><span class="params">(<span class="keyword">int</span> N)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">string</span> s = to_string(N);</span><br><span class="line">        <span class="built_in">string</span> olds=s;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> bor=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=s.size()<span class="number">-1</span>;i&gt;<span class="number">0</span>;i--)&#123;</span><br><span class="line">            <span class="keyword">if</span>(bor)&#123;</span><br><span class="line">                s[i]--;</span><br><span class="line">                s[i+<span class="number">1</span>]+=<span class="number">10</span>;</span><br><span class="line">                bor=<span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;s[i<span class="number">-1</span>])&#123;</span><br><span class="line">                <span class="comment">// -s[i]-1</span></span><br><span class="line">                s[i]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                s[i<span class="number">-1</span>]--;</span><br><span class="line">                <span class="keyword">if</span>(s[i<span class="number">-1</span>]&lt;<span class="string">&#x27;0&#x27;</span>) bor = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// fix</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;s.size();i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;olds[i])&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> j=i+<span class="number">1</span>;j&lt;s.size();j++)&#123;</span><br><span class="line">                    s[j]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// restore</span></span><br><span class="line">        <span class="keyword">int</span> val =<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;s.size();i++)&#123;</span><br><span class="line">            val=val*<span class="number">10</span>+s[i]-<span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/15/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="frezcirno's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/15/" class="post-title-link" itemprop="url">每日小结</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-12-15 10:04:14" itemprop="dateCreated datePublished" datetime="2020-12-15T10:04:14+08:00">2020-12-15</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-26 00:57:31" itemprop="dateModified" datetime="2020-12-26T00:57:31+08:00">2020-12-26</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/15/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="每日小结/daily/2020/12/15/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="为什么要使用mongodb"><a href="#为什么要使用mongodb" class="headerlink" title="为什么要使用mongodb"></a>为什么要使用mongodb</h1><ul>
-<li><p>不需要预先定义schema即可存储数据, 适合于快速原型开发, 以及需求经常变更的情况</p>
-</li>
-<li><p>存储使用的BSON格式非常灵活, 可以表示像数组, 字典这样的数据, 而在RDB中需要拆分成多个表</p>
-</li>
-</ul>
-<h1 id="Sitemap"><a href="#Sitemap" class="headerlink" title="Sitemap"></a>Sitemap</h1><blockquote>
-<p>站点地图（英语：Sitemaps，旧称Google Sitemaps，也写为Sitemap；又称网站地图）是一种列有某个网站所有网址（URL）的XML文件，由Google最先发起。利用Sitemaps协议，网站管理员可以列出网站上可以供搜索引擎抓取的URL，并通知给后者。Sitemaps中包含有关每个URL的其他信息，如URL上次更新的时间、更新的频率以及相对于网站其他URL的重要性。搜索引擎的爬虫可以通过Sitemaps更有效地抓取网站内容，并找到可能与网站其他内容没有相互链接的URL。Sitemaps协议是对robots.txt的补充。</p>
-</blockquote>
-<p>简单来说就是列举了网站所有页面的一个xml文件, 附带了一些meta信息, 有利于搜索引擎抓取, SEO方法之一.</p>
-<p>一般通过程序生成</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/leetcode/leetcode/49/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="frezcirno's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/leetcode/leetcode/49/" class="post-title-link" itemprop="url">49. 字母异位词分组</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-12-14 23:42:28" itemprop="dateCreated datePublished" datetime="2020-12-14T23:42:28+08:00">2020-12-14</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-12-26 00:57:31" itemprop="dateModified" datetime="2020-12-26T00:57:31+08:00">2020-12-26</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/leetcode/leetcode/49/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="leetcode/leetcode/49/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>思路: 字符串排序后作为key, 存到map中再转成vector返回, AC</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; <span class="title">groupAnagrams</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; strs)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">map</span>&lt;<span class="built_in">string</span>, <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; m;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;strs.size();i++)&#123;</span><br><span class="line">            <span class="built_in">string</span> s=strs[i];</span><br><span class="line">            sort(s.begin(),s.end());</span><br><span class="line">            m[s].push_back(strs[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; res;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> &amp;k:m)&#123;</span><br><span class="line">            res.push_back(k.second);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
       
     </div>
 
