@@ -1938,4 +1938,70 @@
         <tag>Linux</tag>
       </tags>
   </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/28/</url>
+    <content><![CDATA[<h1 id="su-user-和-su-user的区别"><a href="#su-user-和-su-user的区别" class="headerlink" title="su user 和 su - user的区别"></a>su user 和 su - user的区别</h1><p><code>$ su user</code>启动nologin shell</p>
+<p><code>$ su - user</code>启动login shell</p>
+]]></content>
+      <categories>
+        <category>每日小结</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/daily/2020/12/30/</url>
+    <content><![CDATA[<h1 id="计网答辩顺利"><a href="#计网答辩顺利" class="headerlink" title="计网答辩顺利"></a>计网答辩顺利</h1><p>开心!</p>
+<h1 id="WiFi协议-802-11-扫盲"><a href="#WiFi协议-802-11-扫盲" class="headerlink" title="WiFi协议(802.11)扫盲"></a>WiFi协议(802.11)扫盲</h1><h2 id="基本概述"><a href="#基本概述" class="headerlink" title="基本概述"></a>基本概述</h2><ol>
+<li><p>有线与无线网络</p>
+<p> 当前有线网络中最著名的是以太网(Ethernet), 无线网络中最有前景的是WiFi.</p>
+<p> 无线网络的缺点:</p>
+<ul>
+<li>通信双方因为是通过无线进行通信，所以通信之前需要建立连接；而有线网络就直接用线缆连接，不用这个过程了。</li>
+<li>通信双方通信方式是半双工的通信方式；而有线网络可以是全双工。</li>
+<li>通信时在网络层以下出错的概率非常高，所以帧的重传概率很大，需要在网络层之下的协议添加重传的机制（不能只依赖上面TCP/IP的延时等待重传等开销来保证）；而有线网络出错概率非常小，无需在网络层有如此复杂的机制。</li>
+<li>数据是在无线环境下进行的，所以抓包非常容易，存在安全隐患。</li>
+<li>因为收发无线信号，所以功耗较大，对电池来说是一个考验。</li>
+<li>相对有线网络吞吐量低，这一点正在逐步改善，802.11n协议可以达到600Mbps的吞吐量。</li>
+</ul>
+</li>
+<li><p>协议</p>
+<p>Ethenet和Wifi采用的协议都属于IEEE 802协议集。其中，Ethenet以802.3协议做为其网络层以下的协议；而Wifi以802.11做为其网络层以下的协议。无论是有线网络，还是无线网络，其网络层以上的部分，基本一样。</p>
+</li>
+<li><p>术语</p>
+<p> 讲述之前，我们需要对无线网络中一些常用的术语有所了解。这里先列出一些，后面描述中出现的新的术语，将会在描述中解释。</p>
+<ul>
+<li><p>LAN：即局域网，是路由和主机组成的内部局域网，一般为有线网络。</p>
+</li>
+<li><p>WAN：即广域网，是外部一个更大的局域网。</p>
+</li>
+<li><p>WLAN（Wireless LAN，即无线局域网）：前面我们说过LAN是局域网，其实大多数指的是有线网络中的局域网，无线网络中的局域网，一般用WLAN。</p>
+</li>
+<li><p>AP（Access point的简称，即访问点，接入点）：是一个无线网络中的特殊节点，通过这个节点，无线网络中的其它类型节点可以和无线网络外部以及内部进行通信。这里，AP和无线路由都在一台设备上（即Cisco E3000）。</p>
+</li>
+<li><p>Station（工作站）：表示连接到无线网络中的设备，这些设备通过AP，可以和内部其它设备或者无线网络外部通信。</p>
+</li>
+<li><p>Assosiate：连接。如果一个Station想要加入到无线网络中，需要和这个无线网络中的AP关联（即Assosiate）。</p>
+</li>
+<li><p>SSID：用来标识一个无线网络，后面会详细介绍，我们这里只需了解，每个无线网络都有它自己的SSID。</p>
+</li>
+<li><p>BSSID：用来标识一个BSS，其格式和MAC地址一样，是48位的地址格式。一般来说，它就是所处的无线接入点的MAC地址。某种程度来说，它的作用和SSID类似，但是SSID是网络的名字，是给人看的，BSSID是给机器看的，BSSID类似MAC地址。</p>
+</li>
+<li><p>BSS（Basic Service Set）：由一组相互通信的工作站组成，是802.11无线网络的基本组件。主要有两种类型的IBSS和基础结构型网络。IBSS又叫ADHOC，组网是临时的，通信方式为Station&lt;-&gt;Station，这里不关注这种组网方式；我们关注的基础结构形网络，其通信方式是Station&lt;-&gt;AP&lt;-&gt;Station，也就是所有无线网络中的设备要想通信，都得经过AP。在无线网络的基础形网络中，最重要的两类设备：AP和Station。</p>
+</li>
+</ul>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>每日小结</category>
+      </categories>
+      <tags>
+        <tag>答辩</tag>
+        <tag>计算机网络</tag>
+      </tags>
+  </entry>
 </search>
