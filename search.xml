@@ -287,6 +287,114 @@
       </categories>
   </entry>
   <entry>
+    <title>计算机网络复习</title>
+    <url>/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/computer-network/index/</url>
+    <content><![CDATA[<h1 id="计算机网络复习"><a href="#计算机网络复习" class="headerlink" title="计算机网络复习"></a>计算机网络复习</h1><h2 id="按章节"><a href="#按章节" class="headerlink" title="按章节"></a>按章节</h2><p><img src="index.png"></p>
+<h3 id="1-9-OSI七层模型"><a href="#1-9-OSI七层模型" class="headerlink" title="1.9 OSI七层模型"></a>1.9 OSI七层模型</h3><p>设计者: 国际标准化组织ISO, 国际电信联盟ITU</p>
+<p>OSI七层模型: 物理层/数据链路层/网络层/传输层/会话层/表示层/应用层</p>
+<p>TCP/IP位于: 传输层/网络层</p>
+<p>会话层和表示层几乎没有内容</p>
+<h3 id="3-4-CS模型"><a href="#3-4-CS模型" class="headerlink" title="3.4 CS模型"></a>3.4 CS模型</h3><table>
+<thead>
+<tr>
+<th>服务端程序S</th>
+<th>客户端程序A</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>先启动</td>
+<td>后启动</td>
+</tr>
+<tr>
+<td>不知道C</td>
+<td>必须知道S的位置</td>
+</tr>
+<tr>
+<td>积极等待C来连接</td>
+<td>需要通讯时初始化连接</td>
+</tr>
+<tr>
+<td>通过收发数据进行通讯</td>
+<td>通过收发数据进行通讯</td>
+</tr>
+<tr>
+<td>服务之后继续运行, 等待下一个C来连接</td>
+<td>可能结束</td>
+</tr>
+</tbody></table>
+<p>Internet只提供基本通讯, 实际上是由计算机上的程序来处理连接</p>
+<h3 id="3-5-C-S程序的特点"><a href="#3-5-C-S程序的特点" class="headerlink" title="3.5 C/S程序的特点"></a>3.5 C/S程序的特点</h3><p>略</p>
+<h3 id="3-13-网络编程Socket-API"><a href="#3-13-网络编程Socket-API" class="headerlink" title="3.13 网络编程Socket API"></a>3.13 网络编程Socket API</h3><p>事实标准: Socket API</p>
+<h3 id="9-12-单工-半双工-全双工传输"><a href="#9-12-单工-半双工-全双工传输" class="headerlink" title="9.12 单工/半双工/全双工传输"></a>9.12 单工/半双工/全双工传输</h3><p>信道的三种类型</p>
+<p>单工: 只能单向传输, 单根光纤就是单工, 类比收音机, 电视</p>
+<p>全双工: 可以同时双向传输, 有两个光纤就可以组成全双工, 类比电话</p>
+<p>半双工: 需要一个共享传输介质, 可以双向传输但是不能同时, 类比对讲机</p>
+<h3 id="10-3-模拟调制"><a href="#10-3-模拟调制" class="headerlink" title="10.3 模拟调制"></a>10.3 模拟调制</h3><p>载波: 信息发送出去时以电波的形式, 负责承载信息的波就是载波</p>
+<p>调制: 根据要发送的信息, 对载波进行的调整</p>
+<pre><code>原始载波(输入1) --\
+                (调制器) ---&gt; 调制过的载波(输出)
+信息 (输入2)    --/</code></pre>
+<p>三种主要调制技术: 调幅, 调频, 移相调制</p>
+<h3 id="10-12-Modem"><a href="#10-12-Modem" class="headerlink" title="10.12 Modem"></a>10.12 Modem</h3><p>为了方便网络安装, 一般将调制和解调功能集成在一个叫做调制解调器的设备中</p>
+<h3 id="12-6-局部环路特性和适应"><a href="#12-6-局部环路特性和适应" class="headerlink" title="12.6 局部环路特性和适应"></a>12.6 局部环路特性和适应</h3><p>接入技术: ISP到用户的连接</p>
+<p>本地用户环路(local subscriber line)/本地环路(local loop): 电话公司交换局到用户之间的物理连接, 一般是使用双绞线 (其实就是电话线路?)</p>
+<p>DSL: 一种利用local loop提供网络的技术</p>
+<p>ADSL: 不对称DSL, 利用频分复用将local loop的带宽分成三个区域</p>
+<table>
+<thead>
+<tr>
+<th>频率</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0-4</td>
+<td>普通老式电话业务</td>
+</tr>
+<tr>
+<td>26-138</td>
+<td>上行频带</td>
+</tr>
+<tr>
+<td>138-1100</td>
+<td>下行频带</td>
+</tr>
+</tbody></table>
+<p>因为本地环路的电气特性变化各异，ADSL采用了自适应技术，即一对调制解调器先探测彼此之间连接线路上的许多频率，然后选择在此线路上能产生最优传输质量的频率和相应的调制技术。</p>
+<h3 id="12-7-ADSL的传输速率"><a href="#12-7-ADSL的传输速率" class="headerlink" title="12.7 ADSL的传输速率"></a>12.7 ADSL的传输速率</h3><p>上行: 32 - 640 Kbps, 去掉控制信道: 32 - 576 Kbps</p>
+<p>下行: 32 - 8448 Kbps</p>
+<h3 id="12-9-电缆调制解调器技术"><a href="#12-9-电缆调制解调器技术" class="headerlink" title="12.9 电缆调制解调器技术"></a>12.9 电缆调制解调器技术</h3><p>本地环路具有局限性: 双绞线不抗干扰, </p>
+<p>因此创造了基于 同轴电缆 + FDM + 统计复用 的电缆调制解调器技术, 每一组用户共享一个数据信道, 通过Modem判断数据是否属于该用户</p>
+<p>传输速率: 上行 512 Kbps, 下行 52 Mbps</p>
+<h3 id="13-4-本地和广域包交换网络"><a href="#13-4-本地和广域包交换网络" class="headerlink" title="13.4 本地和广域包交换网络"></a>13.4 本地和广域包交换网络</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>距离</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LAN</td>
+<td>房间/建筑</td>
+</tr>
+<tr>
+<td>MAN</td>
+<td>大城市</td>
+</tr>
+<tr>
+<td>WAN</td>
+<td>多个城市</td>
+</tr>
+</tbody></table>
+<h3 id="13-9-包识别-解复用-MAC地址"><a href="#13-9-包识别-解复用-MAC地址" class="headerlink" title="13.9 包识别, 解复用, MAC地址"></a>13.9 包识别, 解复用, MAC地址</h3>]]></content>
+      <categories>
+        <category>课程笔记</category>
+      </categories>
+      <tags>
+        <tag>计算机网络</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>10. 正则表达式匹配</title>
     <url>/leetcode/leetcode/10/</url>
     <content><![CDATA[<p>实现支持.和*的正则表达式匹配.</p>
@@ -2094,8 +2202,8 @@
         <category>每日小结</category>
       </categories>
       <tags>
-        <tag>答辩</tag>
         <tag>计算机网络</tag>
+        <tag>答辩</tag>
       </tags>
   </entry>
   <entry>

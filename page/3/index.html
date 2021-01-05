@@ -215,7 +215,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">60</span>
+          <span class="site-state-item-count">61</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -275,6 +275,101 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/PTA/PTA/1032/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/PTA/PTA/1032/" class="post-title-link" itemprop="url">1032. Sharing</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-18 20:59:08" itemprop="dateCreated datePublished" datetime="2020-12-18T20:59:08+08:00">2020-12-18</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/PTA/" itemprop="url" rel="index"><span itemprop="name">PTA</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/PTA/PTA/1032/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="PTA/PTA/1032/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>寻找最长公共后缀</p>
+<p>注意:<br>边界情况: 两条链没有交集, 其中一条链是另一条链的子链</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span> <span class="function"><span class="keyword">void</span> <span class="title">ERR</span><span class="params">(T x, <span class="built_in">string</span> name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="meta-keyword">define</span> debug(x) ERR(x, #x)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="meta-keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">map</span>&lt;<span class="built_in">string</span>, <span class="built_in">pair</span>&lt;<span class="keyword">char</span>, <span class="built_in">string</span>&gt;&gt; M;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    freopen(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, <span class="built_in">stdin</span>);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">string</span> w1, w2;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; w1 &gt;&gt; w2 &gt;&gt; n;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="built_in">string</span> a, b;</span><br><span class="line">        <span class="keyword">char</span> c;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; a &gt;&gt; c &gt;&gt; b;</span><br><span class="line">        M[a] = <span class="built_in">make_pair</span>(c, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">stack</span>&lt;<span class="built_in">string</span>&gt; s1, s2;</span><br><span class="line">    debug(<span class="string">&quot;s1&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">string</span> addr = w1; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s1.push(addr);</span><br><span class="line">        debug(addr);</span><br><span class="line">    &#125;</span><br><span class="line">    debug(<span class="string">&quot;s2&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">string</span> addr = w2; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s2.push(addr);</span><br><span class="line">        debug(addr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">string</span> top = <span class="string">&quot;-1&quot;</span>;</span><br><span class="line">    <span class="keyword">while</span> (s1.size() &amp;&amp; s2.size() &amp;&amp; s1.top() == s2.top()) &#123;</span><br><span class="line">        top = s1.top();</span><br><span class="line">        debug(top);</span><br><span class="line">        s1.pop();</span><br><span class="line">        s2.pop();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; top &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
     <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/leetcode/leetcode/23/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -306,7 +401,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 11:19:08" itemprop="dateModified" datetime="2021-01-05T11:19:08+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -401,7 +496,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 11:19:08" itemprop="dateModified" datetime="2021-01-05T11:19:08+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -495,7 +590,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 11:19:08" itemprop="dateModified" datetime="2021-01-05T11:19:08+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -590,7 +685,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 11:19:08" itemprop="dateModified" datetime="2021-01-05T11:19:08+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -722,7 +817,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 11:19:08" itemprop="dateModified" datetime="2021-01-05T11:19:08+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -815,7 +910,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 11:19:08" itemprop="dateModified" datetime="2021-01-05T11:19:08+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -908,7 +1003,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 11:19:08" itemprop="dateModified" datetime="2021-01-05T11:19:08+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1029,7 +1124,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 11:19:08" itemprop="dateModified" datetime="2021-01-05T11:19:08+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1151,7 +1246,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 11:19:08" itemprop="dateModified" datetime="2021-01-05T11:19:08+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1205,103 +1300,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/PTA/PTA/1099/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="frezcirno's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/PTA/PTA/1099/" class="post-title-link" itemprop="url">1099. Build A Binary Search Tree</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-12-16 15:13:24" itemprop="dateCreated datePublished" datetime="2020-12-16T15:13:24+08:00">2020-12-16</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 11:19:08" itemprop="dateModified" datetime="2021-01-05T11:19:08+08:00">2021-01-05</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/PTA/" itemprop="url" rel="index"><span itemprop="name">PTA</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/PTA/PTA/1099/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="PTA/PTA/1099/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>给出二叉树结构和节点的值列表, 将值填入二叉树中, 输出层次序遍历的结果</p>
-<p>考点: 二叉树的直接后继</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span> <span class="function"><span class="keyword">void</span> <span class="title">ERR</span><span class="params">(T x, <span class="built_in">string</span> name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="meta-keyword">define</span> debug(x) ERR(x, #    x)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="meta-keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">node</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    <span class="keyword">int</span> left, right, parent;</span><br><span class="line">&#125; N[<span class="number">100</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    freopen(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, <span class="built_in">stdin</span>);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    <span class="keyword">int</span> first = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n;</span><br><span class="line">    N[<span class="number">0</span>].parent = <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> l, r;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; l &gt;&gt; r;</span><br><span class="line">        N[i].left = l;</span><br><span class="line">        N[l].parent = i;</span><br><span class="line">        N[i].right = r;</span><br><span class="line">        N[r].parent = i;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vals;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> val;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; val;</span><br><span class="line">        vals.push_back(val);</span><br><span class="line">    &#125;</span><br><span class="line">    sort(vals.begin(), vals.end());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> p = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (N[p].left != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (N[p].left != <span class="number">-1</span>)</span><br><span class="line">            p = N[p].left;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (p != <span class="number">-1</span>) &#123;</span><br><span class="line">        debug(p);</span><br><span class="line">        N[p].val = vals.front();</span><br><span class="line">        vals.erase(vals.begin());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (N[p].right != <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// right down</span></span><br><span class="line">            p = N[p].right;</span><br><span class="line">            <span class="keyword">while</span> (N[p].left != <span class="number">-1</span>) &#123;</span><br><span class="line">                p = N[p].left;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (N[p].parent != <span class="number">-1</span> &amp;&amp; N[N[p].parent].left == p) &#123;</span><br><span class="line">            <span class="comment">// right up</span></span><br><span class="line">            p = N[p].parent;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (N[p].parent != <span class="number">-1</span> &amp;&amp; N[N[p].parent].right == p) &#123;</span><br><span class="line">                p = N[p].parent;</span><br><span class="line">            &#125;</span><br><span class="line">            p = N[p].parent;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt; Q;</span><br><span class="line">    Q.push(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">while</span> (Q.size()) &#123;</span><br><span class="line">        <span class="keyword">int</span> top = Q.front();</span><br><span class="line">        Q.pop();</span><br><span class="line">        <span class="keyword">if</span> (!first)</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            first = <span class="number">0</span>;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; N[top].val;</span><br><span class="line">        <span class="keyword">if</span> (N[top].left != <span class="number">-1</span>)</span><br><span class="line">            Q.push(N[top].left);</span><br><span class="line">        <span class="keyword">if</span> (N[top].right != <span class="number">-1</span>)</span><br><span class="line">            Q.push(N[top].right);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
