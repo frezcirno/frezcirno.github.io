@@ -306,7 +306,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -401,7 +401,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -496,7 +496,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -590,7 +590,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -685,7 +685,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -799,7 +799,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/5/" class="post-title-link" itemprop="url">5</a>
+          <a href="/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compiler-principle/5/" class="post-title-link" itemprop="url">目标代码生成</a>
         </h2>
 
         <div class="post-meta-container">
@@ -817,7 +817,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -853,7 +853,40 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          
+          <h1 id="目标代码生成"><a href="#目标代码生成" class="headerlink" title="目标代码生成"></a>目标代码生成</h1><h2 id="任务"><a href="#任务" class="headerlink" title="任务"></a>任务</h2><pre><code>中间代码 --&gt; 代码生成器 --&gt; 目标程序
+                ^
+                |
+            符号表</code></pre>
+<h2 id="目标代码的三种形式"><a href="#目标代码的三种形式" class="headerlink" title="目标代码的三种形式:"></a>目标代码的三种形式:</h2><ol>
+<li>能立即执行的机器码(所有地址已经定位)</li>
+<li>待装配的机器语言模块(连接装入后即可执行)</li>
+<li>汇编语言代码(经汇编程序汇编后即可执行)</li>
+</ol>
+<p>此处选择汇编语言</p>
+<h2 id="目标机器模型"><a href="#目标机器模型" class="headerlink" title="目标机器模型"></a>目标机器模型</h2><p>此处假设目标计算机:</p>
+<ol>
+<li>具有多个通用寄存器, 可以用来运算, 也可以用来取地址</li>
+<li>支持四种指令形式<ol>
+<li>直接地址型 <code>OP R, M</code> - <code>R OP M =&gt; R</code></li>
+<li>寄存器型 <code>OP Ri, Rj</code> - <code>Ri OP Rj =&gt; Ri</code></li>
+<li>变址型 <code>OP Ri, c(Rj)</code> - <code>Ri OP (Rj+c) =&gt; Ri</code></li>
+<li>间接型<ol>
+<li><code>OP Ri, (M)</code> - <code>R OP (M) =&gt; R</code></li>
+<li><code>OP Ri, (Rj)</code> - <code>Ri OP (Rj) =&gt; Ri</code></li>
+<li><code>OP Ri, (c(Rj))</code> - <code>Ri OP ((Rj+c)) =&gt; Ri</code></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>OP可以是ADD,SUB,MUL,DIV等</p>
+<h2 id="简单代码生成器"><a href="#简单代码生成器" class="headerlink" title="简单代码生成器"></a>简单代码生成器</h2><p>思路: 代码生成器在生成每一条指令时, 必须要知道每个寄存器中存储的是什么, 以及每个变量存储到什么位置<br>方法: </p>
+<ol>
+<li>引入待用信息</li>
+<li>寄存器描述数组</li>
+<li>变量地址描述数组</li>
+</ol>
+<h2 id="待用信息"><a href="#待用信息" class="headerlink" title="待用信息"></a>待用信息</h2>
       
     </div>
 
@@ -910,7 +943,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1003,7 +1036,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1124,7 +1157,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1246,7 +1279,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-05 14:01:26" itemprop="dateModified" datetime="2021-01-05T14:01:26+08:00">2021-01-05</time>
+        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
