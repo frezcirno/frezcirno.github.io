@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+<meta name="description" content="按章节1.9 OSI七层模型设计者: 国际标准化组织ISO, 国际电信联盟ITU OSI七层模型: 物理层&#x2F;数据链路层&#x2F;网络层&#x2F;传输层&#x2F;会话层&#x2F;表示层&#x2F;应用层 TCP&#x2F;IP位于: 传输层&#x2F;网络层 会话层和表示层几乎没有内容 3.4 CS模型   服务端程序S 客户端程序A    先启动 后启动   不知道C 必须知道S的位置   积极等待C来连接 需要通讯时初始化连接   通过收发数据进行通讯 通">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机网络复习">
+<meta property="og:url" content="https://frezcirno.github.io/computer-network/index.html">
+<meta property="og:site_name" content="frezcirno&#39;s blog">
+<meta property="og:description" content="按章节1.9 OSI七层模型设计者: 国际标准化组织ISO, 国际电信联盟ITU OSI七层模型: 物理层&#x2F;数据链路层&#x2F;网络层&#x2F;传输层&#x2F;会话层&#x2F;表示层&#x2F;应用层 TCP&#x2F;IP位于: 传输层&#x2F;网络层 会话层和表示层几乎没有内容 3.4 CS模型   服务端程序S 客户端程序A    先启动 后启动   不知道C 必须知道S的位置   积极等待C来连接 需要通讯时初始化连接   通过收发数据进行通讯 通">
+<meta property="og:locale">
+<meta property="og:image" content="https://frezcirno.github.io/computer-network/ethernet_frame.png">
+<meta property="og:image" content="https://frezcirno.github.io/computer-network/8023_ethernet_frame.png">
+<meta property="og:image" content="https://frezcirno.github.io/computer-network/thicknet.png">
+<meta property="og:image" content="https://frezcirno.github.io/computer-network/thinnet.png">
+<meta property="og:image" content="https://frezcirno.github.io/computer-network/twistnet.png">
+<meta property="og:image" content="https://frezcirno.github.io/computer-network/wlan.png">
+<meta property="og:image" content="https://frezcirno.github.io/computer-network/wlan2.png">
+<meta property="og:image" content="https://frezcirno.github.io/computer-network/80211_frame.png">
+<meta property="og:image" content="https://frezcirno.github.io/computer-network/ip_datagram.png">
+<meta property="article:published_time" content="2021-01-05T03:34:55.000Z">
+<meta property="article:modified_time" content="2021-01-07T13:24:36.028Z">
+<meta property="article:author" content="frezcirno">
+<meta property="article:tag" content="daily">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://frezcirno.github.io/computer-network/ethernet_frame.png">
+
+
+<link rel="canonical" href="https://frezcirno.github.io/computer-network/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'cn'
+  };
+</script>
+<title>计算机网络复习 | frezcirno's blog</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">frezcirno's blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">what do you learn today?</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%89%E7%AB%A0%E8%8A%82"><span class="nav-text">按章节</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-9-OSI%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B"><span class="nav-text">1.9 OSI七层模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-CS%E6%A8%A1%E5%9E%8B"><span class="nav-text">3.4 CS模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-5-C-S%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-text">3.5 C&#x2F;S程序的特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-13-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8BSocket-API"><span class="nav-text">3.13 网络编程Socket API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-12-%E5%8D%95%E5%B7%A5-%E5%8D%8A%E5%8F%8C%E5%B7%A5-%E5%85%A8%E5%8F%8C%E5%B7%A5%E4%BC%A0%E8%BE%93"><span class="nav-text">9.12 单工&#x2F;半双工&#x2F;全双工传输</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-3-%E6%A8%A1%E6%8B%9F%E8%B0%83%E5%88%B6"><span class="nav-text">10.3 模拟调制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-12-Modem"><span class="nav-text">10.12 Modem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-6-%E5%B1%80%E9%83%A8%E7%8E%AF%E8%B7%AF%E7%89%B9%E6%80%A7%E5%92%8C%E9%80%82%E5%BA%94"><span class="nav-text">12.6 局部环路特性和适应</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-7-ADSL%E7%9A%84%E4%BC%A0%E8%BE%93%E9%80%9F%E7%8E%87"><span class="nav-text">12.7 ADSL的传输速率</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-9-%E7%94%B5%E7%BC%86%E8%B0%83%E5%88%B6%E8%A7%A3%E8%B0%83%E5%99%A8%E6%8A%80%E6%9C%AF"><span class="nav-text">12.9 电缆调制解调器技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#13-4-%E6%9C%AC%E5%9C%B0%E5%92%8C%E5%B9%BF%E5%9F%9F%E5%8C%85%E4%BA%A4%E6%8D%A2%E7%BD%91%E7%BB%9C"><span class="nav-text">13.4 本地和广域包交换网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#13-9-%E5%8C%85%E8%AF%86%E5%88%AB-%E8%A7%A3%E5%A4%8D%E7%94%A8-MAC%E5%9C%B0%E5%9D%80"><span class="nav-text">13.9 包识别, 解复用, MAC地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#13-10-%E5%8D%95%E6%92%AD-%E5%B9%BF%E6%92%AD-%E5%A4%9A%E6%92%AD"><span class="nav-text">13.10 单播, 广播, 多播</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#13-11-%E5%B9%BF%E6%92%AD-%E5%A4%9A%E6%92%AD%E5%92%8C%E5%A4%9A%E7%82%B9%E4%BC%A0%E9%80%92"><span class="nav-text">13.11 广播, 多播和多点传递</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#14-6-%E9%9A%8F%E6%9C%BA%E6%8E%A5%E5%85%A5%E5%8D%8F%E8%AE%AE"><span class="nav-text">14.6 随机接入协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-3-%E4%BB%A5%E5%A4%AA%E7%BD%91%E5%B8%A7%E6%A0%BC%E5%BC%8F"><span class="nav-text">15.3 以太网帧格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-4-%E4%BB%A5%E5%A4%AA%E7%BD%91%E5%B8%A7%E7%9A%84%E7%B1%BB%E5%9E%8B%E5%9F%9F"><span class="nav-text">15.4 以太网帧的类型域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-5-802-3%E4%BB%A5%E5%A4%AA%E7%BD%91"><span class="nav-text">15.5 802.3以太网</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-7-%E7%B2%97%E7%BC%86%E5%B8%83%E7%BA%BF%E7%9A%84%E4%BB%A5%E5%A4%AA%E7%BD%91"><span class="nav-text">15.7 粗缆布线的以太网</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-8-%E7%BB%86%E7%BC%86%E5%B8%83%E7%BA%BF%E7%9A%84%E4%BB%A5%E5%A4%AA%E7%BD%91"><span class="nav-text">15.8 细缆布线的以太网</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-9-%E5%8F%8C%E7%BB%9E%E7%BA%BF%E5%B8%83%E7%BA%BF%E7%9A%84%E4%BB%A5%E5%A4%AA%E7%BD%91"><span class="nav-text">15.9 双绞线布线的以太网</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-2-%E6%97%A0%E7%BA%BF%E7%BD%91%E7%BB%9C%E7%9A%84%E5%88%86%E7%B1%BB"><span class="nav-text">16.2 无线网络的分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-3-%E4%B8%AA%E5%9F%9F%E7%BD%91"><span class="nav-text">16.3 个域网</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-5-WLAN%E5%92%8CWi-Fi"><span class="nav-text">16.5 WLAN和Wi-Fi</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-8-WLAN%E5%9F%BA%E7%A1%80%E7%BB%93%E6%9E%84"><span class="nav-text">16.8 WLAN基础结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-9-%E9%87%8D%E5%8F%A0-%E5%85%B3%E8%81%94-802-11%E5%B8%A7%E6%A0%BC%E5%BC%8F"><span class="nav-text">16.9 重叠, 关联, 802.11帧格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-11-%E7%AB%9E%E4%BA%89%E4%B8%8E%E6%97%A0%E7%AB%9E%E4%BA%89%E6%8E%A5%E5%85%A5"><span class="nav-text">16.11 竞争与无竞争接入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-13-PAN%E6%8A%80%E6%9C%AF%E4%B8%8E%E6%A0%87%E5%87%86"><span class="nav-text">16.13 PAN技术与标准</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-3-%E5%85%89%E7%BA%A4%E7%8C%AB%E6%89%A9%E5%B1%95"><span class="nav-text">17.3 光纤猫扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-4-%E4%B8%AD%E7%BB%A7%E5%99%A8"><span class="nav-text">17.4 中继器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-5-%E7%BD%91%E6%A1%A5%E4%B8%8E%E6%A1%A5%E6%8E%A5"><span class="nav-text">17.5 网桥与桥接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-6-%E8%87%AA%E5%AD%A6%E4%B9%A0%E7%BD%91%E6%A1%A5%E4%B8%8E%E5%B8%A7%E8%BF%87%E6%BB%A4"><span class="nav-text">17.6 自学习网桥与帧过滤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-7-%E6%A1%A5%E6%8E%A5%E7%9A%84%E5%A5%BD%E5%A4%84"><span class="nav-text">17.7 桥接的好处</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-8-%E5%88%86%E5%B8%83%E5%BC%8F%E7%94%9F%E6%88%90%E6%A0%91"><span class="nav-text">17.8 分布式生成树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#18-7-%E4%B8%8B%E4%B8%80%E6%9D%A1%E8%BD%AC%E5%8F%91"><span class="nav-text">18.7 下一条转发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#18-9-%E5%B9%BF%E5%9F%9F%E7%BD%91%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1%E6%9B%B4%E6%96%B0"><span class="nav-text">18.9 广域网动态路由更新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#18-12-%E5%88%86%E5%B8%83%E5%BC%8F%E8%B7%AF%E5%BE%84%E8%AE%A1%E7%AE%97"><span class="nav-text">18.12 分布式路径计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#18-13-%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84%E7%9A%84%E8%AE%A1%E7%AE%97"><span class="nav-text">18.13 最短路径的计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#20-6-%E7%94%A8%E8%B7%AF%E7%94%B1%E5%99%A8%E8%BF%9E%E6%8E%A5%E7%89%A9%E7%90%86%E7%BD%91%E7%BB%9C"><span class="nav-text">20.6 用路由器连接物理网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#21-7-IP%E6%9C%89%E7%B1%BB%E7%BC%96%E5%9D%80%E6%96%B9%E6%A1%88"><span class="nav-text">21.7 IP有类编址方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#21-10-IP%E6%97%A0%E7%B1%BB%E7%BC%96%E5%9D%80%E6%96%B9%E6%A1%88"><span class="nav-text">21.10 IP无类编址方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#21-11-CIDR%E8%A1%A8%E7%A4%BA%E6%B3%95"><span class="nav-text">21.11 CIDR表示法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-4-IP%E6%95%B0%E6%8D%AE%E6%8A%A5"><span class="nav-text">22.4 IP数据报</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-5-IP%E6%95%B0%E6%8D%AE%E6%8A%A5%E5%A4%B4%E9%83%A8%E6%A0%BC%E5%BC%8F"><span class="nav-text">22.5 IP数据报头部格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-7-%E7%BD%91%E7%BB%9C%E5%89%8D%E7%BC%80%E6%8F%90%E5%8F%96%E4%B8%8E%E6%95%B0%E6%8D%AE%E6%8A%A5%E8%BD%AC%E5%8F%91"><span class="nav-text">22.7 网络前缀提取与数据报转发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-8-%E6%9C%80%E9%95%BF%E5%89%8D%E7%BC%80%E5%8C%B9%E9%85%8D"><span class="nav-text">22.8 最长前缀匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-11-IP%E5%B0%81%E8%A3%85"><span class="nav-text">22.11 IP封装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-14-IP%E5%88%86%E7%89%87%E5%92%8C%E9%87%8D%E8%A3%85%E6%9C%BA%E5%88%B6"><span class="nav-text">22.14 IP分片和重装机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-15-%E5%88%86%E7%89%87%E6%95%B0%E6%8D%AE%E6%8A%A5%E7%9A%84%E6%94%B6%E9%9B%86"><span class="nav-text">22.15 分片数据报的收集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#23-9-ICMP%E6%8A%A5%E6%96%87%E6%A0%BC%E5%BC%8F%E4%B8%8E%E5%B0%81%E8%A3%85"><span class="nav-text">23.9 ICMP报文格式与封装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#23-10-%E5%8D%8F%E8%AE%AE%E8%BD%AF%E4%BB%B6-%E5%8F%82%E6%95%B0%E5%92%8C%E9%85%8D%E7%BD%AE"><span class="nav-text">23.10 协议软件, 参数和配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#24-3-UDP"><span class="nav-text">24.3 UDP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#24-4-%E6%97%A0%E8%BF%9E%E6%8E%A5%E7%9A%84%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%BC%8F"><span class="nav-text">24.4 无连接的通信模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#24-7-%E4%BA%A4%E4%BA%92%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%B9%BF%E6%92%AD%E4%BC%A0%E9%80%92"><span class="nav-text">24.7 交互模式和广播传递</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#24-8-%E7%94%A8%E5%8D%8F%E8%AE%AE%E7%AB%AF%E5%8F%A3%E5%8F%B7%E6%A0%87%E8%AF%86%E7%AB%AF%E7%82%B9"><span class="nav-text">24.8 用协议端口号标识端点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#25-3-TCP"><span class="nav-text">25.3 TCP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#25-4-%E7%AB%AF%E5%AF%B9%E7%AB%AF%E6%9C%8D%E5%8A%A1%E4%B8%8E%E8%99%9A%E6%8B%9F%E8%BF%9E%E6%8E%A5"><span class="nav-text">25.4 端对端服务与虚拟连接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#25-5-%E4%B8%80%E8%88%AC%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE%E6%89%80%E9%87%87%E7%94%A8%E7%9A%84%E6%8A%80%E6%9C%AF"><span class="nav-text">25.5 一般可靠传输协议所采用的技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#25-11-%E7%BC%93%E5%86%B2-%E6%B5%81%E6%8E%A7%E5%88%B6-%E7%AA%97%E5%8F%A3"><span class="nav-text">25.11 缓冲, 流控制, 窗口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#26-4-%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1%E5%92%8C%E8%B7%AF%E7%94%B1%E5%99%A8"><span class="nav-text">26.4 动态路由和路由器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#26-7-%E4%B8%A4%E7%B1%BB%E5%9B%A0%E7%89%B9%E7%BD%91%E8%B7%AF%E7%94%B1%E5%8D%8F%E8%AE%AE"><span class="nav-text">26.7 两类因特网路由协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#26-12-OSPF%E5%8D%8F%E8%AE%AE"><span class="nav-text">26.12 OSPF协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#26-16-%E7%BB%84%E6%92%AD%E8%B7%AF%E7%94%B1%E6%8A%80%E6%9C%AF"><span class="nav-text">26.16 组播路由技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#29-9-%E7%A7%81%E6%9C%89%E5%AF%86%E9%92%A5-%E5%AF%B9%E7%A7%B0-%E5%8A%A0%E5%AF%86"><span class="nav-text">29.9 私有密钥(对称)加密</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#29-10-%E5%85%AC%E5%BC%80%E5%AF%86%E9%92%A5-%E9%9D%9E%E5%AF%B9%E7%A7%B0-%E5%8A%A0%E5%AF%86"><span class="nav-text">29.10 公开密钥(非对称)加密</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#29-11-%E4%BD%BF%E7%94%A8%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%E7%9A%84%E9%89%B4%E5%88%AB"><span class="nav-text">29.11 使用数字签名的鉴别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#29-13-%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-text">29.13 防火墙</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#29-14-%E5%8C%85%E8%BF%87%E6%BB%A4%E9%98%B2%E7%81%AB%E5%A2%99%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-text">29.14 包过滤防火墙的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#30-7-SNMP"><span class="nav-text">30.7 SNMP</span></a></li></ol></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="frezcirno"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">frezcirno</p>
+  <div class="site-description" itemprop="description">frezcirno的个人blog, 记录一些技术相关的学习内容</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/frezcirno" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;frezcirno" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:2277861660@qq.com" title="E-Mail → mailto:2277861660@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/computer-network/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          计算机网络复习
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-01-05 11:34:55" itemprop="dateCreated datePublished" datetime="2021-01-05T11:34:55+08:00">2021-01-05</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-01-07 21:24:36" itemprop="dateModified" datetime="2021-01-07T21:24:36+08:00">2021-01-07</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">课程笔记</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/computer-network/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="computer-network/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="按章节"><a href="#按章节" class="headerlink" title="按章节"></a>按章节</h1><h2 id="1-9-OSI七层模型"><a href="#1-9-OSI七层模型" class="headerlink" title="1.9 OSI七层模型"></a>1.9 OSI七层模型</h2><p>设计者: 国际标准化组织ISO, 国际电信联盟ITU</p>
+<p>OSI七层模型: 物理层/数据链路层/网络层/传输层/会话层/表示层/应用层</p>
+<p>TCP/IP位于: 传输层/网络层</p>
+<p>会话层和表示层几乎没有内容</p>
+<h2 id="3-4-CS模型"><a href="#3-4-CS模型" class="headerlink" title="3.4 CS模型"></a>3.4 CS模型</h2><table>
+<thead>
+<tr>
+<th>服务端程序S</th>
+<th>客户端程序A</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>先启动</td>
+<td>后启动</td>
+</tr>
+<tr>
+<td>不知道C</td>
+<td>必须知道S的位置</td>
+</tr>
+<tr>
+<td>积极等待C来连接</td>
+<td>需要通讯时初始化连接</td>
+</tr>
+<tr>
+<td>通过收发数据进行通讯</td>
+<td>通过收发数据进行通讯</td>
+</tr>
+<tr>
+<td>服务之后继续运行, 等待下一个C来连接</td>
+<td>可能结束</td>
+</tr>
+</tbody></table>
+<p>Internet只提供基本通讯, 实际上是由计算机上的程序来处理连接</p>
+<h2 id="3-5-C-S程序的特点"><a href="#3-5-C-S程序的特点" class="headerlink" title="3.5 C/S程序的特点"></a>3.5 C/S程序的特点</h2><p>略</p>
+<h2 id="3-13-网络编程Socket-API"><a href="#3-13-网络编程Socket-API" class="headerlink" title="3.13 网络编程Socket API"></a>3.13 网络编程Socket API</h2><p>事实标准: Socket API</p>
+<h2 id="9-12-单工-半双工-全双工传输"><a href="#9-12-单工-半双工-全双工传输" class="headerlink" title="9.12 单工/半双工/全双工传输"></a>9.12 单工/半双工/全双工传输</h2><p>信道的三种类型</p>
+<p>单工: 只能单向传输, 单根光纤就是单工, 类比收音机, 电视</p>
+<p>全双工: 可以同时双向传输, 有两个光纤就可以组成全双工, 类比电话</p>
+<p>半双工: 需要一个共享传输介质, 可以双向传输但是不能同时, 类比对讲机</p>
+<h2 id="10-3-模拟调制"><a href="#10-3-模拟调制" class="headerlink" title="10.3 模拟调制"></a>10.3 模拟调制</h2><p>载波: 信息发送出去时以电波的形式, 负责承载信息的波就是载波</p>
+<p>调制: 根据要发送的信息, 对载波进行的调整</p>
+<pre><code>原始载波(输入1) --\
+                (调制器) ---&gt; 调制过的载波(输出)
+信息 (输入2)    --/</code></pre>
+<p>三种主要调制技术: 调幅, 调频, 移相调制</p>
+<h2 id="10-12-Modem"><a href="#10-12-Modem" class="headerlink" title="10.12 Modem"></a>10.12 Modem</h2><p>为了方便网络安装, 一般将调制和解调功能集成在一个叫做调制解调器的设备中</p>
+<h2 id="12-6-局部环路特性和适应"><a href="#12-6-局部环路特性和适应" class="headerlink" title="12.6 局部环路特性和适应"></a>12.6 局部环路特性和适应</h2><p>接入技术: ISP到用户的连接</p>
+<p>本地用户环路(local subscriber line)/本地环路(local loop): 电话公司交换局到用户之间的物理连接, 一般是使用双绞线 (其实就是电话线路?)</p>
+<p>DSL: 一种利用local loop提供网络的技术</p>
+<p>ADSL: 不对称DSL, 利用频分复用将local loop的带宽分成三个区域</p>
+<table>
+<thead>
+<tr>
+<th>频率</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0-4</td>
+<td>普通老式电话业务</td>
+</tr>
+<tr>
+<td>26-138</td>
+<td>上行频带</td>
+</tr>
+<tr>
+<td>138-1100</td>
+<td>下行频带</td>
+</tr>
+</tbody></table>
+<p>因为本地环路的电气特性变化各异，ADSL采用了自适应技术，即一对调制解调器先探测彼此之间连接线路上的许多频率，然后选择在此线路上能产生最优传输质量的频率和相应的调制技术。</p>
+<h2 id="12-7-ADSL的传输速率"><a href="#12-7-ADSL的传输速率" class="headerlink" title="12.7 ADSL的传输速率"></a>12.7 ADSL的传输速率</h2><p>上行: 32 - 640 Kbps, 去掉控制信道: 32 - 576 Kbps</p>
+<p>下行: 32 - 8448 Kbps</p>
+<h2 id="12-9-电缆调制解调器技术"><a href="#12-9-电缆调制解调器技术" class="headerlink" title="12.9 电缆调制解调器技术"></a>12.9 电缆调制解调器技术</h2><p>本地环路具有局限性: 双绞线不抗干扰, </p>
+<p>因此创造了基于 同轴电缆 + FDM + 统计复用 的电缆调制解调器技术, 每一组用户共享一个数据信道, 通过Modem判断数据是否属于该用户</p>
+<p>传输速率: 上行 512 Kbps, 下行 52 Mbps</p>
+<h2 id="13-4-本地和广域包交换网络"><a href="#13-4-本地和广域包交换网络" class="headerlink" title="13.4 本地和广域包交换网络"></a>13.4 本地和广域包交换网络</h2><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>距离</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LAN</td>
+<td>房间/建筑</td>
+</tr>
+<tr>
+<td>MAN</td>
+<td>大城市</td>
+</tr>
+<tr>
+<td>WAN</td>
+<td>多个城市</td>
+</tr>
+</tbody></table>
+<h2 id="13-9-包识别-解复用-MAC地址"><a href="#13-9-包识别-解复用-MAC地址" class="headerlink" title="13.9 包识别, 解复用, MAC地址"></a>13.9 包识别, 解复用, MAC地址</h2><p>地址: 在包交换系统中, 解复用时使用的标识符, 每个包都包含了目的地地址</p>
+<p>IEEE地址: 48位地址, 每个NIC都不一样, 分为前24位OUI, 24位NIC地址</p>
+<h2 id="13-10-单播-广播-多播"><a href="#13-10-单播-广播-多播" class="headerlink" title="13.10 单播, 广播, 多播"></a>13.10 单播, 广播, 多播</h2><p>IEEE保留了MAC地址中的一位来区分单播和多播</p>
+<p>广播视为一种特殊的多播, 广播地址所有位全1</p>
+<h2 id="13-11-广播-多播和多点传递"><a href="#13-11-广播-多播和多点传递" class="headerlink" title="13.11 广播, 多播和多点传递"></a>13.11 广播, 多播和多点传递</h2><p>在LAN中, 广播和多播极大地提高了效率</p>
+<h2 id="14-6-随机接入协议"><a href="#14-6-随机接入协议" class="headerlink" title="14.6 随机接入协议"></a>14.6 随机接入协议</h2><p>接入技术: 多台相互独立的计算机如何进行协调接入一个<strong>共享介质</strong></p>
+<p>MAC层: Media <strong>Access</strong> Control 介质接入控制</p>
+<p>方法: 采用复用技术的改进形式, 采用分布式算法</p>
+<p>多址接入协议</p>
+<ul>
+<li>受控接入协议<ul>
+<li>预约</li>
+<li>轮询</li>
+<li>令牌传递</li>
+</ul>
+</li>
+<li>随机接入协议<ul>
+<li>ALOHA</li>
+<li>CSMA/CD</li>
+<li>CSMA/CA</li>
+</ul>
+</li>
+<li>信道分配协议<ul>
+<li>FDMA</li>
+<li>TDMA</li>
+<li>CDMA</li>
+</ul>
+</li>
+</ul>
+<p>在LAN中, 用户接入共享介质的时机是随机的, 因此可能造成冲突, 需要用合适的方法解决</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ALOHA</td>
+<td>教科书中流行的协议, 但没有实际应用, 划分上行/下行两个频段用来传输信息, 上行采用随机延迟来解决冲突问题, 下行采用广播机制</td>
+</tr>
+<tr>
+<td>CSMA/CD</td>
+<td>带冲突检测的载波侦听多址接入, 原始以太网使用, 但交换式以太网不再使用, 使用载波侦听+冲突检测+指数退避算法解决冲突问题</td>
+</tr>
+<tr>
+<td>CSMA/CA</td>
+<td>带冲突避免的载波侦听多址接入, 无线LAN使用, 与CSMA/CD类似, 不同在于分组传输前会发送一个控制报文, 接收方广播控制消息</td>
+</tr>
+</tbody></table>
+<h2 id="15-3-以太网帧格式"><a href="#15-3-以太网帧格式" class="headerlink" title="15.3 以太网帧格式"></a>15.3 以太网帧格式</h2><p>(传统)以太网: 是一种LAN技术, 最早在施乐公司的PARC中发明, 后来被标准化</p>
+<p>(传统)以太网帧格式:</p>
+<p><img src="ethernet_frame.png"></p>
+<ul>
+<li><p>以太网帧(64-1518) := 头部(14) + 载荷(46-1500) + CRC(4)</p>
+</li>
+<li><p>头部 := 目的地址(MAC地址, 6) + 源地址(MAC地址, 6) + 类型(2)</p>
+</li>
+</ul>
+<h2 id="15-4-以太网帧的类型域"><a href="#15-4-以太网帧的类型域" class="headerlink" title="15.4 以太网帧的类型域"></a>15.4 以太网帧的类型域</h2><p>以太网帧类型域包含了载荷中的报文类型, 如IPv4/IPv6/ARP等, 接收方检查该值来进行复用与解复用</p>
+<h2 id="15-5-802-3以太网"><a href="#15-5-802-3以太网" class="headerlink" title="15.5 802.3以太网"></a>15.5 802.3以太网</h2><p>802.3以太网: IEEE 802.3重新修订后的以太网标准, (但不是很成功)</p>
+<p><img src="8023_ethernet_frame.png"></p>
+<ul>
+<li><p>802.3以太网帧(64-1518) := 头部(14) + <strong>SNAP头部(8)</strong> + 新载荷(46(存疑)-<strong>1492</strong>) + CRC(4)</p>
+</li>
+<li><p>头部 := 目的地址(MAC地址, 6) + 源地址(MAC地址, 6) + <strong>帧长度(2)</strong></p>
+</li>
+<li><p><strong>SNAP头部 := LLC(3) + OUI(3) + 类型(2)</strong></p>
+</li>
+<li><p>兼容性处理: 类型域&lt;=1500是802.3帧, 否则是传统以太网帧 </p>
+</li>
+</ul>
+<h2 id="15-7-粗缆布线的以太网"><a href="#15-7-粗缆布线的以太网" class="headerlink" title="15.7 粗缆布线的以太网"></a>15.7 粗缆布线的以太网</h2><p>粗缆以太网(Thick wire Ethernet)/粗网(Thicknet, 10Base5): 最初版本的以太网布线方案, 因为其使用笨重的同轴电缆+收发器+AUI电缆方式而得名.</p>
+<p><img src="thicknet.png"></p>
+<h2 id="15-8-细缆布线的以太网"><a href="#15-8-细缆布线的以太网" class="headerlink" title="15.8 细缆布线的以太网"></a>15.8 细缆布线的以太网</h2><p>细缆以太网(Thin wire Ethernet)/细网(Thinnet, 10Base2): 第二代以太网布线方案, 使用细同轴电缆依次串联计算机, 不再需要AUI线, 收发器集成到NIC中, 缺点是容易单点故障 </p>
+<p><img src="thinnet.png"></p>
+<h2 id="15-9-双绞线布线的以太网"><a href="#15-9-双绞线布线的以太网" class="headerlink" title="15.9 双绞线布线的以太网"></a>15.9 双绞线布线的以太网</h2><p>双绞线以太网(10BaseT): 第三代以太网布线系统, 使用了双绞线取代同轴电缆, 引入中心集线器(hub)</p>
+<p><img src="twistnet.png"></p>
+<p>集线器是物理层设备, 具有一定的功能, 比如CSMA/CD等, 现在大部分已经被交换机取代</p>
+<h2 id="16-2-无线网络的分类"><a href="#16-2-无线网络的分类" class="headerlink" title="16.2 无线网络的分类"></a>16.2 无线网络的分类</h2><p>和有线网络类似: 个域网/局域网/城域网/广域网</p>
+<h2 id="16-3-个域网"><a href="#16-3-个域网" class="headerlink" title="16.3 个域网"></a>16.3 个域网</h2><p>蓝牙/红外/ISM无线</p>
+<h2 id="16-5-WLAN和Wi-Fi"><a href="#16-5-WLAN和Wi-Fi" class="headerlink" title="16.5 WLAN和Wi-Fi"></a>16.5 WLAN和Wi-Fi</h2><p>WLAN技术的种类很多, 归类于IEEE802.11标准</p>
+<p>Wi-Fi联盟: 一群无线设备供应商组成的非营利性组织, 使用802.11标准对无线设备进行测试与认证</p>
+<h2 id="16-8-WLAN基础结构"><a href="#16-8-WLAN基础结构" class="headerlink" title="16.8 WLAN基础结构"></a>16.8 WLAN基础结构</h2><p>WLAN的三个构件: 接入点(Access Point, AP, 非正式也称基站), 互联机构(交换机或路由器等), 无线主机(Station)</p>
+<p><img src="wlan.png"></p>
+<p><img src="wlan2.png"></p>
+<p>WLAN的两种类型: Adhoc无接入点结构(很少), Infrastructure有中心接入点</p>
+<p>互联设备到AP的有线连接通常使用双绞线以太网</p>
+<p>基本服务组(BSS): 在某一个给定AP范围内的计算机集合</p>
+<h2 id="16-9-重叠-关联-802-11帧格式"><a href="#16-9-重叠-关联-802-11帧格式" class="headerlink" title="16.9 重叠, 关联, 802.11帧格式"></a>16.9 重叠, 关联, 802.11帧格式</h2><p>重叠: 两个AP太近, 一台STA可以同时触及到两个AP</p>
+<p>802.11要求每个主机只能与一个AP相关联(associate), 而且在802.11帧中携带了AP的MAC地址</p>
+<p><img src="80211_frame.png"></p>
+<h2 id="16-11-竞争与无竞争接入"><a href="#16-11-竞争与无竞争接入" class="headerlink" title="16.11 竞争与无竞争接入"></a>16.11 竞争与无竞争接入</h2><p>802.11定义了两种接入方法</p>
+<ul>
+<li>点协调功能PCF</li>
+<li>分布式协调功能DCF</li>
+</ul>
+<p>802.11使用CSMA/CA协议来解决接入中的隐蔽站问题</p>
+<ul>
+<li>传输分组前交换一对RTS,CTS控制报文</li>
+<li>没有冲突检测, 而是采用确认ACK+超时重传机制</li>
+</ul>
+<h2 id="16-13-PAN技术与标准"><a href="#16-13-PAN技术与标准" class="headerlink" title="16.13 PAN技术与标准"></a>16.13 PAN技术与标准</h2><p>802.15.1a  蓝牙<br>802.15.3a  UWB 超宽带<br>802.15.4   Zigbee 工业无线控制标准 </p>
+<h2 id="17-3-光纤猫扩展"><a href="#17-3-光纤猫扩展" class="headerlink" title="17.3 光纤猫扩展"></a>17.3 光纤猫扩展</h2><p>最简单的LAN扩展机制: 光纤+一对光纤猫, 连接一台计算机和一个远程以太网</p>
+<h2 id="17-4-中继器"><a href="#17-4-中继器" class="headerlink" title="17.4 中继器"></a>17.4 中继器</h2><p>中继器: 信号放大, 信号转发, 早期广泛应用</p>
+<h2 id="17-5-网桥与桥接"><a href="#17-5-网桥与桥接" class="headerlink" title="17.5 网桥与桥接"></a>17.5 网桥与桥接</h2><p>网桥: 往往用来连接两个LAN网段(比如hub), 保证两边的计算机都能互相连通</p>
+<p>计算机无法分辨LAN中有无网桥</p>
+<h2 id="17-6-自学习网桥与帧过滤"><a href="#17-6-自学习网桥与帧过滤" class="headerlink" title="17.6 自学习网桥与帧过滤"></a>17.6 自学习网桥与帧过滤</h2><p>网桥与一根网线直连的区别: 网桥分隔冲突域, 但不分隔广播域 <strong>网桥仅在有必要的时候才进行转发</strong></p>
+<ul>
+<li>源地址和目标地址位于两个网段</li>
+<li>广播帧和多播帧</li>
+</ul>
+<p>网桥能够自动学习设备位于网桥的哪一侧(基于分组中的源MAC地址)</p>
+<h2 id="17-7-桥接的好处"><a href="#17-7-桥接的好处" class="headerlink" title="17.7 桥接的好处"></a>17.7 桥接的好处</h2><p>桥接的各个网段可以同时进行传输, 使得不同建筑物之间的通讯成为了可能</p>
+<h2 id="17-8-分布式生成树"><a href="#17-8-分布式生成树" class="headerlink" title="17.8 分布式生成树"></a>17.8 分布式生成树</h2><p>如果网桥连接导致网络中存在环路, 那么广播和多播帧会被无限循环转发下去</p>
+<p>因此网桥会执行生成树算法来生成一个树</p>
+<h2 id="18-7-下一条转发"><a href="#18-7-下一条转发" class="headerlink" title="18.7 下一条转发"></a>18.7 下一条转发</h2><p>分组交换机收到一个分组后, 如果分组的目的地不是直连在交换机上, 就需要查表转发</p>
+<p>交换机的转发表: 目的地址:输出接口</p>
+<h2 id="18-9-广域网动态路由更新"><a href="#18-9-广域网动态路由更新" class="headerlink" title="18.9 广域网动态路由更新"></a>18.9 广域网动态路由更新</h2><p>转发表的要求</p>
+<ul>
+<li>全局通信 - 必须覆盖所有可能目的地的</li>
+<li>最优路径 - 下一条必须是距目的地的最短路径</li>
+</ul>
+<p>路由软件: 自动重新配置转发表的软件</p>
+<h2 id="18-12-分布式路径计算"><a href="#18-12-分布式路径计算" class="headerlink" title="18.12 分布式路径计算"></a>18.12 分布式路径计算</h2><p>分布式路径计算的两种常用形式:</p>
+<ul>
+<li>链路状态路由LSR, 采用Dijkstra算法</li>
+<li>距离向量路由DVR</li>
+</ul>
+<p>LSR</p>
+<p>DVR: 每台交换机定期告诉相邻交换机自己的距离向量表(包含一对(目的,距离)), 相邻交换机据此更新自己的转发表</p>
+<h2 id="18-13-最短路径的计算"><a href="#18-13-最短路径的计算" class="headerlink" title="18.13 最短路径的计算"></a>18.13 最短路径的计算</h2><p>Dijkstra算法</p>
+<h2 id="20-6-用路由器连接物理网络"><a href="#20-6-用路由器连接物理网络" class="headerlink" title="20.6 用路由器连接物理网络"></a>20.6 用路由器连接物理网络</h2><p>路由器是一台专门完成网络互联任务的专用硬件系统, 可以将多个使用不同技术（包括不同的传输介质、物理编址方案或帧格式）的网络互相连接（互联）起来 (比如连接以太网和WiFi网)</p>
+<h2 id="21-7-IP有类编址方案"><a href="#21-7-IP有类编址方案" class="headerlink" title="21.7 IP有类编址方案"></a>21.7 IP有类编址方案</h2><p>IP地址<strong>有类编址方案</strong><br>| 类别    | 标识位 | 前缀长度 | 最大网络数量 | 后缀长度 | 最大主机数量 |<br>| ——- | —— | ——– | ———— | ——– | ———— |<br>| A       | 0      | 7        | 128          | 24       | 2^24         |<br>| B       | 10     | 14       | 16384        | 16       | 65536        |<br>| C       | 110    | 21       | 2^21         | 8        | 256          |<br>| D(组播) | 1110   | -        | -            | -        | -            |<br>| E(保留) | 1111   | -        | -            | -        | -            |</p>
+<h2 id="21-10-IP无类编址方案"><a href="#21-10-IP无类编址方案" class="headerlink" title="21.10 IP无类编址方案"></a>21.10 IP无类编址方案</h2><p>IP地址<strong>无类/子网编址方案</strong>: 引入附加的地址掩码(子网掩码)来指定网络地址和主机地址的分界线</p>
+<p>无类地址 &amp; 子网掩码 == 网络地址</p>
+<h2 id="21-11-CIDR表示法"><a href="#21-11-CIDR表示法" class="headerlink" title="21.11 CIDR表示法"></a>21.11 CIDR表示法</h2><p>格式: <code>地址/掩码中1的个数</code></p>
+<h2 id="22-4-IP数据报"><a href="#22-4-IP数据报" class="headerlink" title="22.4 IP数据报"></a>22.4 IP数据报</h2><p>IP数据报 := 头部 + 数据区(载荷区)</p>
+<h2 id="22-5-IP数据报头部格式"><a href="#22-5-IP数据报头部格式" class="headerlink" title="22.5 IP数据报头部格式"></a>22.5 IP数据报头部格式</h2><p><img src="ip_datagram.png"></p>
+<h2 id="22-7-网络前缀提取与数据报转发"><a href="#22-7-网络前缀提取与数据报转发" class="headerlink" title="22.7 网络前缀提取与数据报转发"></a>22.7 网络前缀提取与数据报转发</h2><p>根据网络地址查询转发表发给下一站</p>
+<h2 id="22-8-最长前缀匹配"><a href="#22-8-最长前缀匹配" class="headerlink" title="22.8 最长前缀匹配"></a>22.8 最长前缀匹配</h2><p>查询转发表时如果有多项匹配, 采用<strong>最长前缀匹配</strong>规则</p>
+<h2 id="22-11-IP封装"><a href="#22-11-IP封装" class="headerlink" title="22.11 IP封装"></a>22.11 IP封装</h2><p>IP数据报要被封装到一个帧里才能发送出去, 帧的目的地址是下一站的IP地址对应的MAC地址(通过ARP协议获得)</p>
+<h2 id="22-14-IP分片和重装机制"><a href="#22-14-IP分片和重装机制" class="headerlink" title="22.14 IP分片和重装机制"></a>22.14 IP分片和重装机制</h2><h2 id="22-15-分片数据报的收集"><a href="#22-15-分片数据报的收集" class="headerlink" title="22.15 分片数据报的收集"></a>22.15 分片数据报的收集</h2><p>最大传输单元MTU: 每种物理网络规定的一帧能够携带的最大数据量</p>
+<p>IP数据报分片机制: 当一个数据报长度大于前方网络的MTU时, 路由器会将数据报分成若干较小的片(fragment), 然后将每一片独立地封装发送出去</p>
+<p>分片: 每个片与数据报的格式一样, 头部部分参数不同</p>
+<ul>
+<li>标识: 每个数据报的唯一标识, 同一个原始数据报的所有片段的标识是一样的</li>
+<li>标志: 标识了该数据报是片还是完整的数据报, 以及是否是最后一片</li>
+<li>片偏移: 该片在原数据报中的位置</li>
+</ul>
+<p>重装: 在所有片的基础上重新产生原数据报的过程, <strong>IP规定只有最终目的主机才能对片进行重装</strong></p>
+<h2 id="23-9-ICMP报文格式与封装"><a href="#23-9-ICMP报文格式与封装" class="headerlink" title="23.9 ICMP报文格式与封装"></a>23.9 ICMP报文格式与封装</h2><p>因特网控制报文协议(ICMP): 利用IP来传输IP传输中发生的错误</p>
+<p>ICMP报文放置在IP数据报的数据区传输</p>
+<h2 id="23-10-协议软件-参数和配置"><a href="#23-10-协议软件-参数和配置" class="headerlink" title="23.10 协议软件, 参数和配置"></a>23.10 协议软件, 参数和配置</h2><p>协议软件采用参数化设计</p>
+<p>主机配置采用自举过程, 运行时获取到IP地址, 掩码, DNS服务器地址等参数填入程序中运行</p>
+<h2 id="24-3-UDP"><a href="#24-3-UDP" class="headerlink" title="24.3 UDP"></a>24.3 UDP</h2><p>UDP的特征: </p>
+<ul>
+<li>端到端: UDP是一个传输协议, 它能区分运行在给定计算机上的多个应用程序</li>
+<li>无连接: UDP提供给应用的接口遵从无连接模式</li>
+<li>面向报文: 使用UDP的应用进程所发送和接收的数据是单个报文</li>
+<li>尽力而为: UDP提供给应用的是与IP一样的尽力传递机制</li>
+<li>任意交互: UDP允许应用进程给很多其他应用进程发送数据, 也允许从很多其他应用进程那里接收数据, 或者只跟一个其他应用进程相互通信</li>
+<li>操作系统无关: UDP所提供的标识应用程序的方法, 不取决于本地操作系统所使用的标识符</li>
+</ul>
+<h2 id="24-4-无连接的通信模式"><a href="#24-4-无连接的通信模式" class="headerlink" title="24.4 无连接的通信模式"></a>24.4 无连接的通信模式</h2><p>UDP采用无连接通信模式, 可以在任何时候发送数据, 不需要维护通信状态, 也不使用控制报文, 因此传输开销极低</p>
+<h2 id="24-7-交互模式和广播传递"><a href="#24-7-交互模式和广播传递" class="headerlink" title="24.7 交互模式和广播传递"></a>24.7 交互模式和广播传递</h2><p>UDP支持四种交互通信方式:</p>
+<ul>
+<li>一对一</li>
+<li>一对多</li>
+<li>多对一</li>
+<li>多对多</li>
+</ul>
+<p>底层是利用IP组播和广播机制实现的</p>
+<h2 id="24-8-用协议端口号标识端点"><a href="#24-8-用协议端口号标识端点" class="headerlink" title="24.8 用协议端口号标识端点"></a>24.8 用协议端口号标识端点</h2><p>协议端口号: 用来标识应用程序的<strong>标识符抽象集</strong>, 独立于底层操作系统</p>
+<h2 id="25-3-TCP"><a href="#25-3-TCP" class="headerlink" title="25.3 TCP"></a>25.3 TCP</h2><p>TCP提供的服务有7个主要特点:</p>
+<ul>
+<li>面向连接: TCP提供面向连接的服务, 应用程序必须首先请求建立一个到目的地的连接, 然后使用这个连接来传输数据 </li>
+<li>点对点通信: 每个TCP连接上只有两个端点 </li>
+<li>完全的可靠性: TCP能保证在一个连接上发送的数据被正确地传递, 且保证数据的完整和按序到达 </li>
+<li>全双工通信: TCP连接允许数据在任何一个方向上流动, 并允许任何应用程序在任何时刻发送数据 </li>
+<li>流接口: TCP提供一个流接口, 利用它应用进程可以在一个连接上发送连续的字节流. TCP不必将数据组合成记录或是报文, 也不要求传递给接收应用进程的数据段大小一定要与发送端所送出的数据段大小相同 </li>
+<li>可靠的连接建立: TCP允许两个应用进程可靠地开始通信 </li>
+<li>友好的连接关闭: 在关闭一个连接之前, TCP必须保证所有数据已经传递完毕, 并且通信双方都要同意关闭这个连接 </li>
+</ul>
+<h2 id="25-4-端对端服务与虚拟连接"><a href="#25-4-端对端服务与虚拟连接" class="headerlink" title="25.4 端对端服务与虚拟连接"></a>25.4 端对端服务与虚拟连接</h2><p>TCP和UDP都是<strong>端到端协议</strong>: 提供在一台计算机上的应用进程与另一台计算机上的应用进程之间的通信能力</p>
+<p>TCP是<strong>面向连接</strong>的协议, TCP提供的连接是一种虚拟连接, 因为它是软件实现的连接</p>
+<p>TCP将底层因特网视为一个通信系统</p>
+<h2 id="25-5-一般可靠传输协议所采用的技术"><a href="#25-5-一般可靠传输协议所采用的技术" class="headerlink" title="25.5 一般可靠传输协议所采用的技术"></a>25.5 一般可靠传输协议所采用的技术</h2><ul>
+<li><p>分组乱序</p>
+<ul>
+<li>排序技术: 每个分组都附加一个序号</li>
+</ul>
+</li>
+<li><p>分组丢失</p>
+<ul>
+<li>带重传的正向确认: 接收方发送ACK报文表示成功接收; 若超时仍未收到ACK, 则重传</li>
+</ul>
+</li>
+<li><p>分组重复(重放错误)</p>
+<ul>
+<li>每一次会话用一个唯一的ID标识</li>
+</ul>
+</li>
+<li><p>数据过载</p>
+<ul>
+<li>停-走系统: 不好, 效率很低</li>
+<li>滑动窗口: 定义<strong>窗口大小</strong>为接收方一次可以承载的最大数据量/发送方收到ACK前可以发送的最大数据量, 发送方收到ACK之后窗口向后移动</li>
+</ul>
+</li>
+</ul>
+<h2 id="25-11-缓冲-流控制-窗口"><a href="#25-11-缓冲-流控制-窗口" class="headerlink" title="25.11 缓冲, 流控制, 窗口"></a>25.11 缓冲, 流控制, 窗口</h2><p>TCP使用了以字节计量的窗口, 接收方将自己剩余的缓冲区大小放在ACK报文中, 发送方根据这个窗口大小来决定是继续发送还是停止</p>
+<h2 id="26-4-动态路由和路由器"><a href="#26-4-动态路由和路由器" class="headerlink" title="26.4 动态路由和路由器"></a>26.4 动态路由和路由器</h2><h2 id="26-7-两类因特网路由协议"><a href="#26-7-两类因特网路由协议" class="headerlink" title="26.7 两类因特网路由协议"></a>26.7 两类因特网路由协议</h2><p>因特网路由协议的分类:</p>
+<ul>
+<li>内部网关协议IGP</li>
+<li>外部网关协议EGP</li>
+</ul>
+<h2 id="26-12-OSPF协议"><a href="#26-12-OSPF协议" class="headerlink" title="26.12 OSPF协议"></a>26.12 OSPF协议</h2><p>OSPF是一种基于Dijkstra算法的内部网关协议</p>
+<h2 id="26-16-组播路由技术"><a href="#26-16-组播路由技术" class="headerlink" title="26.16 组播路由技术"></a>26.16 组播路由技术</h2><h2 id="29-9-私有密钥-对称-加密"><a href="#29-9-私有密钥-对称-加密" class="headerlink" title="29.9 私有密钥(对称)加密"></a>29.9 私有密钥(对称)加密</h2><h2 id="29-10-公开密钥-非对称-加密"><a href="#29-10-公开密钥-非对称-加密" class="headerlink" title="29.10 公开密钥(非对称)加密"></a>29.10 公开密钥(非对称)加密</h2><h2 id="29-11-使用数字签名的鉴别"><a href="#29-11-使用数字签名的鉴别" class="headerlink" title="29.11 使用数字签名的鉴别"></a>29.11 使用数字签名的鉴别</h2><p>签名: 发送方使用自己的私钥对报文进行加密</p>
+<p>验证: 接收方使用发送方的公钥进行解密</p>
+<p>认证+加密: 发送者先对报文进行签名, 再用接收者的公钥进行加密</p>
+<h2 id="29-13-防火墙"><a href="#29-13-防火墙" class="headerlink" title="29.13 防火墙"></a>29.13 防火墙</h2><p>防火墙: 防止因特网上的问题扩散到本地内部的计算机上的技术, 一般放置在本单位的网络与外部因特网之间</p>
+<h2 id="29-14-包过滤防火墙的实现"><a href="#29-14-包过滤防火墙的实现" class="headerlink" title="29.14 包过滤防火墙的实现"></a>29.14 包过滤防火墙的实现</h2><p>防火墙利用包过滤技术来防止不希望有的通信交互。每种过滤器规则都要给出数据包头部参数的组合，包括IP源地址、目的地址、协议端口号和传输协议类型等。</p>
+<h2 id="30-7-SNMP"><a href="#30-7-SNMP" class="headerlink" title="30.7 SNMP"></a>30.7 SNMP</h2><p>简单网络管理协议SNMP: 基于IP的网络管理的标准协议</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/daily/2021/1/5/" rel="prev" title="每日小结">
+                  <i class="fa fa-chevron-left"></i> 每日小结
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/daily/2021/1/7/" rel="next" title="每日小结">
+                  每日小结 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">frezcirno</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://frezcirno-github-io.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://frezcirno.github.io/computer-network/";
+    this.page.identifier = "computer-network/";
+    this.page.title = "计算机网络复习";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://frezcirno-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

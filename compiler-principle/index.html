@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+<meta name="description" content="课程简介总评 &#x3D; 考试 * 60% + 作业 * 30% + 平时 * 10% 程序语言的发展机器语言 -&gt; 汇编语言 -&gt; 高级语言 程序的两种执行方式 解释方式  编译方式   Java认为是解释型语言 编译的步骤编译过程基本分为五个基本阶段:   词法分析 语法分析 语义分析和中间代码生成 优化 目标代码生成  1. 词法分析 词法分析程序又称扫描程序(Scanner)。 任务：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译原理笔记">
+<meta property="og:url" content="https://frezcirno.github.io/compiler-principle/index.html">
+<meta property="og:site_name" content="frezcirno&#39;s blog">
+<meta property="og:description" content="课程简介总评 &#x3D; 考试 * 60% + 作业 * 30% + 平时 * 10% 程序语言的发展机器语言 -&gt; 汇编语言 -&gt; 高级语言 程序的两种执行方式 解释方式  编译方式   Java认为是解释型语言 编译的步骤编译过程基本分为五个基本阶段:   词法分析 语法分析 语义分析和中间代码生成 优化 目标代码生成  1. 词法分析 词法分析程序又称扫描程序(Scanner)。 任务：">
+<meta property="og:locale">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ast_demo.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/t_diagram.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/t_diagram2.png">
+<meta property="article:published_time" content="2020-12-03T02:57:20.000Z">
+<meta property="article:modified_time" content="2021-01-07T13:24:36.028Z">
+<meta property="article:author" content="frezcirno">
+<meta property="article:tag" content="daily">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://frezcirno.github.io/compiler-principle/ast_demo.png">
+
+
+<link rel="canonical" href="https://frezcirno.github.io/compiler-principle/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'cn'
+  };
+</script>
+<title>编译原理笔记 | frezcirno's blog</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">frezcirno's blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">what do you learn today?</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BE%E7%A8%8B%E7%AE%80%E4%BB%8B"><span class="nav-text">课程简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%AF%AD%E8%A8%80%E7%9A%84%E5%8F%91%E5%B1%95"><span class="nav-text">程序语言的发展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%89%A7%E8%A1%8C%E6%96%B9%E5%BC%8F"><span class="nav-text">程序的两种执行方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E7%9A%84%E6%AD%A5%E9%AA%A4"><span class="nav-text">编译的步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90"><span class="nav-text">1. 词法分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90"><span class="nav-text">2. 语法分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90"><span class="nav-text">3.1 语义分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-text">3.2 中间代码生成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%BC%98%E5%8C%96"><span class="nav-text">4. 优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E7%9B%AE%E6%A0%87%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-text">5. 目标代码生成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%8D-Pass"><span class="nav-text">遍(Pass)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#T%E5%BD%A2%E5%9B%BE"><span class="nav-text">T形图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E6%AE%8A"><span class="nav-text">特殊</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%8D%E4%B9%A0"><span class="nav-text">复习</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="frezcirno"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">frezcirno</p>
+  <div class="site-description" itemprop="description">frezcirno的个人blog, 记录一些技术相关的学习内容</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/frezcirno" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;frezcirno" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:2277861660@qq.com" title="E-Mail → mailto:2277861660@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          编译原理笔记
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-03 10:57:20" itemprop="dateCreated datePublished" datetime="2020-12-03T10:57:20+08:00">2020-12-03</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-01-07 21:24:36" itemprop="dateModified" datetime="2021-01-07T21:24:36+08:00">2021-01-07</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">课程笔记</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">编译原理</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/compiler-principle/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="compiler-principle/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="课程简介"><a href="#课程简介" class="headerlink" title="课程简介"></a>课程简介</h2><p>总评 = 考试 * 60% + 作业 * 30% + 平时 * 10%</p>
+<h2 id="程序语言的发展"><a href="#程序语言的发展" class="headerlink" title="程序语言的发展"></a>程序语言的发展</h2><p>机器语言 -&gt; 汇编语言 -&gt; 高级语言</p>
+<h2 id="程序的两种执行方式"><a href="#程序的两种执行方式" class="headerlink" title="程序的两种执行方式"></a>程序的两种执行方式</h2><ul>
+<li><p>解释方式</p>
+</li>
+<li><p>编译方式</p>
+</li>
+</ul>
+<p>Java认为是解释型语言</p>
+<h2 id="编译的步骤"><a href="#编译的步骤" class="headerlink" title="编译的步骤"></a>编译的步骤</h2><p>编译过程基本分为五个基本阶段: </p>
+<ol>
+<li>词法分析</li>
+<li>语法分析</li>
+<li>语义分析和中间代码生成</li>
+<li>优化</li>
+<li>目标代码生成</li>
+</ol>
+<h3 id="1-词法分析"><a href="#1-词法分析" class="headerlink" title="1. 词法分析"></a>1. 词法分析</h3><ul>
+<li>词法分析程序又称扫描程序(Scanner)。<ul>
+<li>任务：读源程序的字符流、识别单词（也称单词符号，或简称符号），如标识符、关键字、常量、界限符等，并转换成内部形式。</li>
+<li>输入：源程序中的字符流</li>
+<li>输出：等长的内部形式，即属性字（单词类型Token-name, 单词属性Attribute-value），其中单词属性指向符号表</li>
+</ul>
+</li>
+</ul>
+<p>输入: 字符流</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cppcode = <span class="string">`</span></span><br><span class="line"><span class="string">int a, b;</span></span><br><span class="line"><span class="string">a = a + 2;</span></span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure>
+<p>输出: Token流和对应的符号表</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">tokenList = [</span><br><span class="line">    &lt;int&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;,&gt;</span><br><span class="line">    &lt;id,<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;op,EQ&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;+&gt;</span><br><span class="line">    &lt;<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">]</span><br><span class="line">tokenTable = [</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;a&#x27;</span>, ...&#125;,</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;b&#x27;</span>, ...&#125; </span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在词法分析阶段工作所依循的是语言的词法规则。</li>
+<li>描述词法规则的有效工具是<strong>正规式</strong>和<strong>有限自动机</strong>。</li>
+<li>方法：<strong>状态图</strong>；<strong>DFA</strong>；<strong>NFA</strong></li>
+</ul>
+<p>DFA模拟代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">s = s0;</span><br><span class="line">c = nextChar() ;</span><br><span class="line"><span class="keyword">while</span> ( c != eof ) &#123;</span><br><span class="line">    s = move(s, c);</span><br><span class="line">    c = nextChar() ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> ( s is in F ) <span class="keyword">return</span> <span class="string">&quot; yes &quot;</span> ;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">return</span> <span class="string">&quot;no &quot;</span> ;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-语法分析"><a href="#2-语法分析" class="headerlink" title="2. 语法分析"></a>2. 语法分析</h3><ul>
+<li>语法分析程序又称识别程序(Parser)。<ul>
+<li>任务：读入由词法分析程序识别出的符号，根据给定语法规则，识别出各个语法单位（如：短语、子句、语句、程序段、程序）,并生成另一种内部表示。</li>
+<li>输入：由词法分析程序识别出并转换的符号</li>
+<li>输出：另一种内部表示，如<strong>语法分析树</strong>或其它<strong>中间表示</strong>。</li>
+</ul>
+</li>
+<li>语法规则通常用<strong>上下文无关文法</strong>描述。</li>
+<li>方法：递归子程序法、<strong>LR分析法</strong>、<strong>算符优先分析法</strong>。</li>
+</ul>
+<p>输入: 符号流</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sum := first + count * <span class="number">10</span></span><br></pre></td></tr></table></figure>
+<p>输出: 语法树<br><img src="ast_demo.png"></p>
+<h3 id="3-1-语义分析"><a href="#3-1-语义分析" class="headerlink" title="3.1 语义分析"></a>3.1 语义分析</h3><h3 id="3-2-中间代码生成"><a href="#3-2-中间代码生成" class="headerlink" title="3.2 中间代码生成"></a>3.2 中间代码生成</h3><h3 id="4-优化"><a href="#4-优化" class="headerlink" title="4. 优化"></a>4. 优化</h3><ul>
+<li>优化的任务在于对前段产生的中间代码进行加工，把它变换成功能相同，但功效更高的优化了的中间表示代码，以期在最后阶段产生更为高效（省时间和空间）的代码</li>
+<li>优化所依循的原则是程序的等价变换规则</li>
+<li>其方法有：公共子表达式的提取、循环优化、删除无用代码等等。</li>
+</ul>
+<h3 id="5-目标代码生成"><a href="#5-目标代码生成" class="headerlink" title="5. 目标代码生成"></a>5. 目标代码生成</h3><h3 id="遍-Pass"><a href="#遍-Pass" class="headerlink" title="遍(Pass)"></a>遍(Pass)</h3><p>对<strong>源程序</strong>或源程序的<strong>中间结果</strong>从头到尾扫描一次，并做相关处理，生成新的中间结果或目标程序的过程。</p>
+<p>“遍”是处理数据的一个完整周期，每遍工作从外存上获得前一遍的中间结果（如源程序），完成它所含的有关工作之后，再把结果记录于外存。</p>
+<p>一个编译程序可由一遍、两遍或多遍完成。每一遍可完成不同的阶段或多个阶段的工作。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>从时间和空间角度看</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>多遍编译</td>
+<td><strong>少占内存，多耗时间</strong></td>
+</tr>
+<tr>
+<td>一遍编译</td>
+<td><strong>多占内存，少耗时间</strong></td>
+</tr>
+</tbody></table>
+<h3 id="T形图"><a href="#T形图" class="headerlink" title="T形图"></a>T形图</h3><p><img src="t_diagram.png"></p>
+<ul>
+<li>S:源语言(程序)，Source language(program)</li>
+<li>T:目标语言(程序), target/object language(program)</li>
+<li>I:实现语言, implementation language</li>
+</ul>
+<p>用T形图表示编译器移植</p>
+<p><img src="t_diagram2.png"></p>
+<h3 id="特殊"><a href="#特殊" class="headerlink" title="特殊"></a>特殊</h3><p>自编译: </p>
+<p>交叉编译</p>
+<p>自动编译:<br>    lex, yacc</p>
+<h2 id="复习"><a href="#复习" class="headerlink" title="复习"></a>复习</h2><p>乔姆斯基文法:<br>0/1/2/3</p>
+<p>词法分析: 3型<br>语法分析: 2型</p>
+<p>A卷 - 简单<br>缓考不考-&gt;B卷-&gt;难</p>
+<p>语法分析:<br>LR,SLR,二义文法</p>
+<p>就5道大题 5个部分 占40%<br>平时 60%</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/daily/2020/12/2/" rel="prev" title="每日小结">
+                  <i class="fa fa-chevron-left"></i> 每日小结
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/daily/2020/12/3/" rel="next" title="每日小结">
+                  每日小结 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">frezcirno</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://frezcirno-github-io.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://frezcirno.github.io/compiler-principle/";
+    this.page.identifier = "compiler-principle/";
+    this.page.title = "编译原理笔记";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://frezcirno-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
