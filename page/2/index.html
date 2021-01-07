@@ -215,7 +215,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-count">62</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -275,6 +275,109 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/PTA/PTA/1063/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/PTA/PTA/1063/" class="post-title-link" itemprop="url">1063. Set Similarity</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-25 15:48:24" itemprop="dateCreated datePublished" datetime="2020-12-25T15:48:24+08:00">2020-12-25</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-01-07 19:52:29" itemprop="dateModified" datetime="2021-01-07T19:52:29+08:00">2021-01-07</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/PTA/" itemprop="url" rel="index"><span itemprop="name">PTA</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/PTA/PTA/1063/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="PTA/PTA/1063/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>给出n个集合和k次查询, 计算集合相似度:</p>
+<blockquote>
+<p>集合相似度 = 交集元素数量 / 并集元素数量</p>
+</blockquote>
+<p>思路: 重复查询缓存结果</p>
+<p>tips: </p>
+<ul>
+<li>C++ STL中有<code>set_intersection</code>, <code>set_union</code>, <code>set_difference</code>可以直接使用</li>
+<li>insert_iterator<Container>(Container container, Iterator iter)可以创建一个”自动插入迭代器”, 将对迭代器的copy(to)操作转化为插入操作</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; S[<span class="number">50</span>];</span><br><span class="line"><span class="keyword">float</span> F[<span class="number">50</span>][<span class="number">50</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">compare</span><span class="params">(<span class="keyword">int</span> _a, <span class="keyword">int</span> _b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (F[_a][_b]) &#123;</span><br><span class="line">        <span class="keyword">return</span> F[_a][_b];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; &amp;a = S[_a], &amp;b = S[_b];</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; U, I;</span><br><span class="line">    set_intersection(a.begin(), a.end(), b.begin(), b.end(), insert_iterator&lt;<span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt;&gt;(I, I.begin()));</span><br><span class="line">    set_union(a.begin(), a.end(), b.begin(), b.end(), insert_iterator&lt;<span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt;&gt;(U, U.begin()));</span><br><span class="line">    <span class="keyword">float</span> res = <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(I.size()) / U.size();</span><br><span class="line">    <span class="keyword">if</span> (res == <span class="number">0</span>) res = <span class="number">0.0001F</span>;</span><br><span class="line">    <span class="keyword">return</span> F[_a][_b] = F[_b][_a] = res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> s;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; s;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; s; j++) &#123;</span><br><span class="line">            <span class="keyword">int</span> x;</span><br><span class="line">            <span class="built_in">cin</span> &gt;&gt; x;</span><br><span class="line">            S[i].insert(x);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> k;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; k;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; k; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> a, b;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; a &gt;&gt; b;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%.1f%%\n&quot;</span>, <span class="number">100</span> * compare(a - <span class="number">1</span>, b - <span class="number">1</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
     <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/uncategorized/leetcode/2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -306,7 +409,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-07 19:52:29" itemprop="dateModified" datetime="2021-01-07T19:52:29+08:00">2021-01-07</time>
       </span>
 
   
@@ -391,7 +494,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-07 19:52:29" itemprop="dateModified" datetime="2021-01-07T19:52:29+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -485,7 +588,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-07 19:52:29" itemprop="dateModified" datetime="2021-01-07T19:52:29+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -578,7 +681,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-07 19:52:29" itemprop="dateModified" datetime="2021-01-07T19:52:29+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -747,7 +850,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-07 19:52:29" itemprop="dateModified" datetime="2021-01-07T19:52:29+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -969,7 +1072,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-07 19:52:29" itemprop="dateModified" datetime="2021-01-07T19:52:29+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1062,7 +1165,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-07 19:52:29" itemprop="dateModified" datetime="2021-01-07T19:52:29+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1155,7 +1258,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-07 19:52:29" itemprop="dateModified" datetime="2021-01-07T19:52:29+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1262,7 +1365,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-07 19:52:29" itemprop="dateModified" datetime="2021-01-07T19:52:29+08:00">2021-01-07</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1303,110 +1406,6 @@
 <p>思路:<br>插入排序的特点: 前面递增, 后面和原数组一样</p>
 <p>进行1次插排: sort<br>进行1次堆排: pop_heap</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">solve</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a[<span class="number">100</span>], b[<span class="number">100</span>];</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; a[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; b[i];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> p = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (p &lt; n &amp;&amp; b[p - <span class="number">1</span>] &lt;= b[p])</span><br><span class="line">        p++;</span><br><span class="line">    <span class="keyword">int</span> index = p;</span><br><span class="line">    <span class="keyword">while</span> (p &lt; n &amp;&amp; a[p] == b[p])</span><br><span class="line">        p++;</span><br><span class="line">    <span class="keyword">if</span> (p == n) &#123;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Insertion Sort&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">        sort(b, b + index + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (i != <span class="number">0</span>)</span><br><span class="line">                <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; b[i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Heap Sort&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">int</span> p = n - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (p &gt; <span class="number">1</span> &amp;&amp; b[p] &gt;= b[<span class="number">1</span>])</span><br><span class="line">            p--;</span><br><span class="line">        pop_heap(b, b + p + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (i != <span class="number">0</span>)</span><br><span class="line">                <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; b[i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    freopen(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, <span class="built_in">stdin</span>);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    solve();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/PTA/PTA/1123/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="frezcirno's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/PTA/PTA/1123/" class="post-title-link" itemprop="url">1123. Is It a Complete AVL Tree</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-12-18 23:21:25" itemprop="dateCreated datePublished" datetime="2020-12-18T23:21:25+08:00">2020-12-18</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 19:48:01" itemprop="dateModified" datetime="2021-01-07T19:48:01+08:00">2021-01-07</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/PTA/" itemprop="url" rel="index"><span itemprop="name">PTA</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/PTA/PTA/1123/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="PTA/PTA/1123/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h2><p>按输入序列构造AVL树, 输出层次序遍历的结果, 和AVL树是否为完全二叉树</p>
-<h2 id="一些小技巧"><a href="#一些小技巧" class="headerlink" title="一些小技巧:"></a>一些小技巧:</h2><h3 id="1-树的初始化问题"><a href="#1-树的初始化问题" class="headerlink" title="1. 树的初始化问题"></a>1. 树的初始化问题</h3><p>我们可以让insert函数返回插入后新的树根(从而可以递归调用), 调用时采用 <code>node = insert(node, val)</code> 的方式, 从而统一了第一个节点和其他节点的处理, 极大地简化了判断逻辑</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">node* <span class="title">insert</span><span class="params">(node* p, <span class="keyword">int</span> x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!p)&#123;</span><br><span class="line">        p=<span class="keyword">new</span> node();</span><br><span class="line">        p-&gt;val=x;</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(x&lt;p-&gt;val)&#123;</span><br><span class="line">        p-&gt;left=insert(p-&gt;left,x);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        p-&gt;right=insert(p-&gt;right,x);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    node*root=<span class="literal">nullptr</span>;</span><br><span class="line">    root=insert(root,<span class="number">1</span>);</span><br><span class="line">    root=insert(root,<span class="number">2</span>);</span><br><span class="line">    root=insert(root,<span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="体会"><a href="#体会" class="headerlink" title="体会:"></a>体会:</h2><ol>
-<li>KISS, 简单的才是最好的</li>
-<li>用好递归能节约大量代码</li>
-<li>数据结构题不必在性能上过多纠结</li>
-</ol>
-<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p>(部分参考自网络)</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">node</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    node *left = <span class="literal">nullptr</span>, *right = <span class="literal">nullptr</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">depth</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> p ? <span class="number">1</span> + max(depth(p-&gt;left), depth(p-&gt;right)) : <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">rr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *lc = p-&gt;left;</span><br><span class="line">    p-&gt;left = lc-&gt;right;</span><br><span class="line">    lc-&gt;right = p;</span><br><span class="line">    <span class="keyword">return</span> lc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">lr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *rc = p-&gt;right;</span><br><span class="line">    p-&gt;right = rc-&gt;left;</span><br><span class="line">    rc-&gt;left = p;</span><br><span class="line">    <span class="keyword">return</span> rc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">lrr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    p-&gt;left = lr(p-&gt;left);</span><br><span class="line">    <span class="keyword">return</span> rr(p);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">rlr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    p-&gt;right = rr(p-&gt;right);</span><br><span class="line">    <span class="keyword">return</span> lr(p);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">insert</span><span class="params">(node *p, <span class="keyword">int</span> x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!p) &#123;</span><br><span class="line">        p = <span class="keyword">new</span> node();</span><br><span class="line">        p-&gt;val = x;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (x &lt; p-&gt;val) &#123;</span><br><span class="line">        p-&gt;left = insert(p-&gt;left, x);</span><br><span class="line">        <span class="keyword">if</span> (depth(p-&gt;left) - depth(p-&gt;right) &gt; <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x &lt; p-&gt;left-&gt;val)</span><br><span class="line">                p = rr(p);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                p = lrr(p);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        p-&gt;right = insert(p-&gt;right, x);</span><br><span class="line">        <span class="keyword">if</span> (depth(p-&gt;left) - depth(p-&gt;right) &lt; <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x &gt; p-&gt;right-&gt;val)</span><br><span class="line">                p = lr(p);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                p = rlr(p);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">trav</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> first = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> empty = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> comp = <span class="number">1</span>;</span><br><span class="line">    <span class="built_in">queue</span>&lt;node *&gt; Q;</span><br><span class="line">    <span class="keyword">if</span> (p) &#123;</span><br><span class="line">        Q.push(p);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (Q.size()) &#123;</span><br><span class="line">        node *top = Q.front();</span><br><span class="line">        Q.pop();</span><br><span class="line">        <span class="keyword">if</span> (!first) &#123;</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        first = <span class="number">0</span>;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; top-&gt;val;</span><br><span class="line">        <span class="keyword">if</span> (top-&gt;left) &#123;</span><br><span class="line">            <span class="keyword">if</span> (empty) &#123;</span><br><span class="line">                comp = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            Q.push(top-&gt;left);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            empty = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (top-&gt;right) &#123;</span><br><span class="line">            <span class="keyword">if</span> (empty) &#123;</span><br><span class="line">                comp = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            Q.push(top-&gt;right);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            empty = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span> &lt;&lt; (comp ? <span class="string">&quot;YES&quot;</span> : <span class="string">&quot;NO&quot;</span>) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *root = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; x;</span><br><span class="line">        root = insert(root, x);</span><br><span class="line">    &#125;</span><br><span class="line">    trav(root);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
       
     </div>
 
