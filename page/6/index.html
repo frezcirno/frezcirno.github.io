@@ -215,7 +215,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">64</span>
+          <span class="site-state-item-count">68</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -228,7 +228,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">34</span>
+        <span class="site-state-item-count">35</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -275,6 +275,403 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/leetcode/376/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/leetcode/376/" class="post-title-link" itemprop="url">376. 摆动序列</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-12 15:49:18" itemprop="dateCreated datePublished" datetime="2020-12-12T15:49:18+08:00">2020-12-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-01-08 23:22:28" itemprop="dateModified" datetime="2021-01-08T23:22:28+08:00">2021-01-08</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/leetcode/376/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="leetcode/376/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>思路: 先差分, 然后把所有0和相邻同号的数字(之一)去掉, 剩下的元素数量+2既是最终答案</p>
+<p>注意: 元素个数为0, 元素个数为1, 差分后有0出现</p>
+<p>代码:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">wiggleMaxLength</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;nums)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> size = nums.size() - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (size &lt; <span class="number">1</span>) &#123; <span class="keyword">return</span> size + <span class="number">1</span>; &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> start = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">            nums[i] -= nums[i + <span class="number">1</span>];</span><br><span class="line">            <span class="comment">// find first not zero</span></span><br><span class="line">            <span class="keyword">if</span> (start == <span class="number">-1</span> &amp;&amp; nums[i] != <span class="number">0</span>) &#123; start = i; &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (start == <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// none</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">1</span>, want = nums[start];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = start + <span class="number">1</span>; i &lt; size; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((nums[i] &gt; <span class="number">0</span> &amp;&amp; want &lt; <span class="number">0</span>) ||</span><br><span class="line">                (nums[i] &lt; <span class="number">0</span> &amp;&amp; want &gt; <span class="number">0</span>)) &#123;  <span class="comment">// different sign and no zero</span></span><br><span class="line">                want = nums[i];</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> count + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>看过题解: 复杂了, 只要统计波峰和波谷的数量就行了</p>
+<p>别人的代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">wiggleMaxLength</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = nums.length;</span><br><span class="line">        <span class="keyword">if</span> (n &lt; <span class="number">2</span>) <span class="keyword">return</span> n;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>, prev_diff = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> diff = nums[i] - nums[i - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span> (diff &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &gt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = -<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (diff &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &lt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：lincs</span><br><span class="line">链接：https:<span class="comment">//leetcode-cn.com/problems/wiggle-subsequence/solution/java-on-solution-by-lincs-6l5r/</span></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/leetcode/index/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/leetcode/index/" class="post-title-link" itemprop="url">每日 leetcode</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-12 15:35:18" itemprop="dateCreated datePublished" datetime="2020-12-12T15:35:18+08:00">2020-12-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-01-08 23:22:28" itemprop="dateModified" datetime="2021-01-08T23:22:28+08:00">2021-01-08</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/leetcode/index/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="leetcode/index/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="决定开始刷leetcode了"><a href="#决定开始刷leetcode了" class="headerlink" title="决定开始刷leetcode了"></a>决定开始刷leetcode了</h1><p>目标:<br><del>每天一道</del><br><del>如果每日一题是easy, 就加一道hard</del><br>如果每日一题是easy, 就加一道medium</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/12/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/daily/2020/12/12/" class="post-title-link" itemprop="url">每日小结</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-12 13:01:21" itemprop="dateCreated datePublished" datetime="2020-12-12T13:01:21+08:00">2020-12-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-01-08 23:22:28" itemprop="dateModified" datetime="2021-01-08T23:22:28+08:00">2021-01-08</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/daily/2020/12/12/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/12/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="线性代数"><a href="#线性代数" class="headerlink" title="线性代数"></a>线性代数</h1>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/11/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/daily/2020/12/11/" class="post-title-link" itemprop="url">每日小结</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-12-11 13:02:08" itemprop="dateCreated datePublished" datetime="2020-12-11T13:02:08+08:00">2020-12-11</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-01-08 23:22:28" itemprop="dateModified" datetime="2021-01-08T23:22:28+08:00">2021-01-08</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/daily/2020/12/11/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/11/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="Linux-内核提权"><a href="#Linux-内核提权" class="headerlink" title="Linux 内核提权"></a>Linux 内核提权</h1><ul>
+<li>获取内核版本</li>
+</ul>
+<p><code>uname -a</code></p>
+<p><code>lsb_release -a</code></p>
+<ul>
+<li>查询可用的exploit</li>
+</ul>
+<p>在Kali中 <code>searchsploit Linux x.x.xx priv</code></p>
+<p>人工筛选</p>
+<ul>
+<li>传到目标机器上碰运气</li>
+</ul>
+<h1 id="gcc编译参数"><a href="#gcc编译参数" class="headerlink" title="gcc编译参数"></a>gcc编译参数</h1><p>目标机器上的header/lib可能不能正常使用, 此时可以下载一套header/lib放在用户目录, 用下面的方式指定</p>
+<p>指定include目录: <code>-I&lt;path&gt;</code></p>
+<p>指定连接库目录: <code>-L&lt;path&gt; -l&lt;libname&gt;</code></p>
+<h1 id="忘了报名NCRE-难过"><a href="#忘了报名NCRE-难过" class="headerlink" title="忘了报名NCRE, 难过"></a>忘了报名NCRE, 难过</h1>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
     <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/10/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -306,7 +703,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 22:42:54" itemprop="dateModified" datetime="2021-01-07T22:42:54+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-08 23:22:28" itemprop="dateModified" datetime="2021-01-08T23:22:28+08:00">2021-01-08</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -403,7 +800,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 22:42:54" itemprop="dateModified" datetime="2021-01-07T22:42:54+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-08 23:22:28" itemprop="dateModified" datetime="2021-01-08T23:22:28+08:00">2021-01-08</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -517,7 +914,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 22:42:54" itemprop="dateModified" datetime="2021-01-07T22:42:54+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-08 23:22:28" itemprop="dateModified" datetime="2021-01-08T23:22:28+08:00">2021-01-08</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -616,7 +1013,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 22:42:54" itemprop="dateModified" datetime="2021-01-07T22:42:54+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-08 23:22:28" itemprop="dateModified" datetime="2021-01-08T23:22:28+08:00">2021-01-08</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -733,7 +1130,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 22:42:54" itemprop="dateModified" datetime="2021-01-07T22:42:54+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-08 23:22:28" itemprop="dateModified" datetime="2021-01-08T23:22:28+08:00">2021-01-08</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -827,7 +1224,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 22:42:54" itemprop="dateModified" datetime="2021-01-07T22:42:54+08:00">2021-01-07</time>
+        <time title="Modified: 2021-01-08 23:22:28" itemprop="dateModified" datetime="2021-01-08T23:22:28+08:00">2021-01-08</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -938,846 +1335,6 @@
 
 <p>对象套数组:</p>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">frezcirno</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Boy</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Handsome</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Student</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Cool</span></span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/4/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="frezcirno's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/daily/2020/12/4/" class="post-title-link" itemprop="url">每日小结</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-12-04 10:17:02" itemprop="dateCreated datePublished" datetime="2020-12-04T10:17:02+08:00">2020-12-04</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 22:42:54" itemprop="dateModified" datetime="2021-01-07T22:42:54+08:00">2021-01-07</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/daily/2020/12/4/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/4/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="Java-包-Package-Jar和模块-Module-的区别"><a href="#Java-包-Package-Jar和模块-Module-的区别" class="headerlink" title="Java 包(Package), Jar和模块(Module)的区别"></a>Java 包(Package), Jar和模块(Module)的区别</h1><ul>
-<li><p>包 (Package)</p>
-<ul>
-<li><p>是Java源文件的集合, 包含Class/Interface/Annotation的定义</p>
-</li>
-<li><p>与文件系统中的目录对应</p>
-</li>
-<li><p>主要目的是<em>防止命名冲突</em></p>
-</li>
-</ul>
-</li>
-<li><p>Jar (Java Archive File)</p>
-<ul>
-<li><p>是编译后的Java代码(<code>.class</code>)的压缩包</p>
-</li>
-<li><p>实际上是一个zip格式文件</p>
-</li>
-<li><p>对Jar的操作用<code>jar</code>命令, 其语法类似Linux下的<code>tar</code></p>
-<ul>
-<li><p>创建Jar包: <code>jar cvf test.jar test</code></p>
-</li>
-<li><p>解压Jar包: <code>jar xvf test.jar</code></p>
-</li>
-<li><p>列举Jar包的内容: <code>jar tvf test.jar</code></p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>模块 (Module)</p>
-<ul>
-<li><p>是Java语言内置的一种管理组件之间依赖关系的方法, 在Java 9被引入</p>
-</li>
-<li><p>Module 解决的问题:</p>
-<ul>
-<li><p>在Java 9之前, <strong>主要使用package作为封装方式，使用Jar作为模块, 封装方式由 package和访问修饰符 (private, protected, public,包私有) 控制</strong></p>
-<ul>
-<li><p>任何模块都能访问其他模块的public的代码，不同Jar下的同名包可以相互访问包私有的代码。</p>
-</li>
-<li><p>无法控制非平台开发者对平台内部包的访问，如应用代码可以访问sun.misc、com.sun.security这样和具体平台绑定的包。</p>
-</li>
-<li><p>没有明确的依赖信息，模块开发者无法设置必须的依赖，模块使用者不清楚该模块必须依赖哪些模块。只能使用外部的工具，如Maven、Gradle、OSGI等。</p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Module 的优势</p>
-<ul>
-<li><p>明确的依赖配置，JPMS会在编译和运行之前检查当前环境是否满足依赖的要求。JPMS会检查版本冲突，即当有两个模块暴露了相同的包名时，系统会抛出异常。JPMS支持传递性依赖。</p>
-</li>
-<li><p>强大的封装，模块可以明确指定哪些包能暴露给哪些模块，JPMS不允许代码使用反射的方式访问不对外开放的包。</p>
-</li>
-<li><p>性能优化，JPMS完全清楚哪些模块是需要的，所以不需要的模块不会被JVM载入。</p>
-</li>
-</ul>
-</li>
-<li><p>Module 的不足:</p>
-<ul>
-<li>缺乏对模块的版本的支持</li>
-</ul>
-</li>
-<li><p>特点:</p>
-<p>  <img src="java-module.jpg"></p>
-</li>
-</ul>
-</li>
-</ul>
-<h1 id="Linux-Ubuntu-硬件管理"><a href="#Linux-Ubuntu-硬件管理" class="headerlink" title="Linux (Ubuntu) 硬件管理"></a>Linux (Ubuntu) 硬件管理</h1><ul>
-<li><p>通用</p>
-<ul>
-<li><code>lshw -short</code>: 列举所有硬件信息</li>
-</ul>
-</li>
-<li><p>CPU</p>
-<ul>
-<li><p><code>lscpu</code>: 查看CPU信息</p>
-</li>
-<li><p><code>cat /proc/cpuinfo</code>: 查看每个CPU的信息</p>
-</li>
-</ul>
-</li>
-<li><p>内存</p>
-<ul>
-<li><p><code>free [-m|-g|-k|-b|-h]</code>: 查看内存使用情况</p>
-</li>
-<li><p><code>cat /proc/meminfo</code>: 查看内存详细使用情况</p>
-</li>
-<li><p><code>dmidecode -t memory</code>: 查看内存硬件信息</p>
-</li>
-</ul>
-</li>
-<li><p>硬盘</p>
-<ul>
-<li><p><code>lsblk</code>: 查看硬盘和分区信息</p>
-</li>
-<li><p><code>fdisk -l</code>: 查看详细分区表</p>
-</li>
-<li><p><code>df -h</code>: 查看硬盘剩余空间</p>
-</li>
-</ul>
-</li>
-<li><p>主板 BIOS</p>
-<ul>
-<li><code>dmidecode -t bios</code>: 查看bios信息</li>
-</ul>
-</li>
-<li><p>PCI设备</p>
-<ul>
-<li><code>lspci</code></li>
-</ul>
-</li>
-<li><p>网卡</p>
-<ul>
-<li><p><code>lspci | grep -i &#39;Ethernet&#39;</code>: 查看网卡硬件信息 (Ethernet 以太网)</p>
-</li>
-<li><p><code>lspci | grep -i &#39;Wireless&#39;</code>: 查看无线网卡硬件信息</p>
-</li>
-<li><p><code>ifconfig -a</code>: 查看系统的所有网络接口</p>
-</li>
-</ul>
-</li>
-<li><p>USB 设备</p>
-<ul>
-<li><code>lsusb</code></li>
-</ul>
-</li>
-</ul>
-<h1 id="apt-remove-与-apt-purge-的区别"><a href="#apt-remove-与-apt-purge-的区别" class="headerlink" title="apt remove 与 apt purge 的区别"></a>apt remove 与 apt purge 的区别</h1><ul>
-<li>purge会删除配置文件, 而remove只会删除程序文件</li>
-</ul>
-<h1 id="Java-学习"><a href="#Java-学习" class="headerlink" title="Java 学习"></a>Java 学习</h1><ul>
-<li><p>Java多线程</p>
-<ul>
-<li>interrupt() 向该进程发送中断信号, 具体怎么处理由该进程实现</li>
-</ul>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/oracledb/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="frezcirno's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/oracledb/" class="post-title-link" itemprop="url">Oracle数据库学习</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-12-03 12:59:18" itemprop="dateCreated datePublished" datetime="2020-12-03T12:59:18+08:00">2020-12-03</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 22:42:54" itemprop="dateModified" datetime="2021-01-07T22:42:54+08:00">2021-01-07</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">编程</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/oracledb/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="oracledb/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考资料:</p>
-<p><a target="_blank" rel="noopener" href="https://docs.oracle.com/en/database/oracle/oracle-database/index.html">Oracle官方文档</a></p>
-<h1 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h1><p>Schema是表, 索引, 存储过程等等数据库对象(DB Object)的存储容器</p>
-<p>用户与Schema之间是<strong>一对一</strong>的关系</p>
-<p>例如: 访问用户A的xxx对象就通过 <code>A.xxx</code></p>
-<p><img src="user-schema-tables.png"></p>
-<h1 id="Oracle-表空间"><a href="#Oracle-表空间" class="headerlink" title="Oracle 表空间"></a>Oracle 表空间</h1><p>表空间是逻辑上, 存放数据表的容器</p>
-<p>每张表一定属于某个表空间</p>
-<p>每个用户(Schema)可以拥有多个表空间, 而且都有一个默认表空间</p>
-<p>用户之间可以通过共享表空间的方式共享数据表</p>
-<p>物理上, 表空间的存储可能不是连续的</p>
-<h1 id="PL-SQL"><a href="#PL-SQL" class="headerlink" title="PL/SQL"></a>PL/SQL</h1><ul>
-<li>A primary benefit of PL/SQL is the ability to store application logic in the database itself.</li>
-</ul>
-<h1 id="Oracle-体系结构-重要"><a href="#Oracle-体系结构-重要" class="headerlink" title="Oracle 体系结构 (重要)"></a>Oracle 体系结构 (重要)</h1><ul>
-<li>Oracle Server = Oracle Instance + Oracle Database</li>
-</ul>
-<h2 id="1-Oracle实例-Oracle-Instance"><a href="#1-Oracle实例-Oracle-Instance" class="headerlink" title="1. Oracle实例 (Oracle Instance)"></a>1. Oracle实例 (Oracle Instance)</h2><p>Oracle Instance = SGA(system global area) + Background Process</p>
-<p>是一组**OS进程(线程)和一些内存(SGA)**的总称</p>
-<p>可以用来mount和open一个数据库</p>
-<p>一个实例在其生存期中最多只能装载和打开一个数据库。要想再打开这个（或其他）数据库，必须先丢弃这个实例，并创建一个新的实例。</p>
-<p>一个数据库实例的状态分为以下几种</p>
-<ul>
-<li><p><code>started</code></p>
-</li>
-<li><p><code>mounted</code></p>
-</li>
-<li><p><code>open</code></p>
-</li>
-<li><p><code>close</code></p>
-</li>
-<li><p><code>mounted</code></p>
-</li>
-<li><p><code>open</code></p>
-</li>
-</ul>
-<h3 id="started-状态"><a href="#started-状态" class="headerlink" title="started 状态"></a><code>started</code> 状态</h3><p>在执行<code>startup nomount</code>命令后, Oracle会执行以下操作, 之后实例会进入<code>started</code>状态, 此时实例还未绑定数据库</p>
-<ul>
-<li><p>读取配置文件</p>
-</li>
-<li><p>分配<code>SGA</code></p>
-</li>
-<li><p>启动后台进程</p>
-</li>
-<li><p>打开一些用于记录的文件</p>
-</li>
-</ul>
-<h3 id="mounted-状态"><a href="#mounted-状态" class="headerlink" title="mounted 状态"></a><code>mounted</code> 状态</h3><p>在执行<code>startup mount</code>或者<code>alter database mount</code>命令后, 实例会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
-<p>数据库打开后, 执行<code>alter database close</code>命令后, 实例也会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
-<p>此时实例与数据库建立了联系, 但是只有DBA能够访问数据库。</p>
-<h3 id="open-状态"><a href="#open-状态" class="headerlink" title="open 状态"></a><code>open</code> 状态</h3><p>在执行<code>startup</code>或者<code>alter database open</code>命令后, 实例会进入<code>open</code>状态。</p>
-<p>此时实例与数据库建立了联系, 数据库完全启动, 普通用户也可以访问数据库。</p>
-<h2 id="2-Oracle数据库-Oracle-Database"><a href="#2-Oracle数据库-Oracle-Database" class="headerlink" title="2. Oracle数据库 (Oracle Database)"></a>2. Oracle数据库 (Oracle Database)</h2><p>Oracle Database = Controlfile + datafile + logfile + spfile + …</p>
-<p>是存储在<strong>磁盘</strong>上的<strong>一组数据文件</strong>的集合</p>
-<p>一般来说, 一个数据库上只有一个实例对其进行操作</p>
-<p>但是也有例外: RAC（Real Application Clusters）就允许在集群环境中的多台计算机上操作，这样就可以有多台实例同时装载并打开一个数据库（位于一组共享物理磁盘上）</p>
-<p>例外2: 容器式数据库</p>
-<h2 id="3-Oracle数据库和Oracle实例的关系"><a href="#3-Oracle数据库和Oracle实例的关系" class="headerlink" title="3. Oracle数据库和Oracle实例的关系"></a>3. <em>Oracle数据库</em>和<em>Oracle实例</em>的关系</h2><ol>
-<li><p>一个实例一生只能够装载及打开一个数据库  </p>
-</li>
-<li><p>一个数据库能够被多个实例装载并打开(RAC)</p>
-</li>
-<li><p>每个运行着的数据库一定与至少一个实例关联</p>
-</li>
-</ol>
-<p><img src="instance-and-database.png"></p>
-<p>Oracle数据库与实例的启动过程</p>
-<p><img src="startup-sequence.png"></p>
-<p>Oracle数据库与实例的关闭过程</p>
-<p><img src="shutdown-sequence.png"></p>
-<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><ul>
-<li><p>名称, 版本信息查看</p>
-<ul>
-<li><p>查询数据库版本信息</p>
-<p>  <code>SQL&gt; select * from v$version;</code></p>
-</li>
-<li><p>查看数据库名称</p>
-<p>  <code>SQL&gt; show parameter db_name;</code></p>
-</li>
-<li><p>查看数据库服务名</p>
-<p>  <code>SQL&gt; show parameter service_names;</code></p>
-</li>
-<li><p>查询全局数据库名称</p>
-<p>  <code>SQL&gt; select * from global_name;</code></p>
-</li>
-</ul>
-</li>
-<li><p>数据库实例 (Instance)</p>
-<ul>
-<li><p>查询当前数据库实例名称</p>
-<p>  <code>SQL&gt; select instance_name from v$instance;</code></p>
-</li>
-<li><p>查看当前数据库实例状态(open/mount等)</p>
-<p>  <code>SQL&gt; select status from v$instance;</code></p>
-</li>
-<li><p>查看数据库实例启动时间</p>
-<p>  <code>SQL&gt; SELECT TO_CHAR(STARTUP_TIME,&#39;MON-DD-RR HH24:MI:SS&#39;) AS &quot;Inst Start Time&quot; FROM V$INSTANCE;</code></p>
-</li>
-<li><p>创建一个新的数据库实例、加载数据库、打开数据库 (需要DBA权限)</p>
-<p>  <code>SQL&gt; startup [nomount | mount | open];</code></p>
-</li>
-<li><p>关闭实例绑定的数据库、卸载数据库、结束当前实例 (需要DBA权限)</p>
-<p>  <code>SQL&gt; shutdown [normal | transactional | immediate];</code></p>
-</li>
-<li><p>关闭实例绑定的数据库、卸载数据库</p>
-<p>  <code>SQL&gt; alter database close;</code></p>
-</li>
-<li><p>加载数据库/打开数据库</p>
-<p>  <code>SQL&gt; alter database [mount | open];</code></p>
-</li>
-</ul>
-</li>
-<li><p>数据库设置, 统计信息等</p>
-<ul>
-<li><p>查询数据库打开模式(mounted/open/read write)</p>
-<p>  <code>SQL&gt; select open_mode from v$database;</code></p>
-</li>
-<li><p>查看数据库DBF文件位置</p>
-<p>  <code>SQL&gt; select name from v$datafile;</code></p>
-</li>
-<li><p>查询数据文件状态</p>
-<p>  <code>SQL&gt; select file#,name,status,enabled,checkpoint_change# from v$datafile;</code></p>
-</li>
-<li><p>查询数据文件位置</p>
-<p>  <code>SQL&gt; select name from v$datafile;</code></p>
-</li>
-<li><p>查询数据文件（表空间）大小</p>
-<p>  <code>SQL&gt; select sum(bytes)/1024/1024/1024 as GB from v$datafile;</code></p>
-</li>
-<li><p>查询有效数据大小</p>
-<p>  <code>SQL&gt; select sum(bytes)/1024/1024/1024 as GB from dba_segments;</code></p>
-</li>
-<li><p>查看当前库的所有数据表</p>
-<p>  <code>SQL&gt; select TABLE_NAME from all_tables;</code></p>
-</li>
-</ul>
-</li>
-<li><p>可插拔数据库 (PDB) 管理</p>
-<ul>
-<li><p>查看数据库是CDB还是传统DB</p>
-<p>  <code>SQL&gt; select name, cdb, open_mode, con_id from v$database;</code></p>
-</li>
-<li><p>查看当前容器 (CDB) 名</p>
-<p>  <code>SQL&gt; show con_name;</code></p>
-</li>
-<li><p>列举当前容器中的所有PDB以及状态</p>
-<p>  <code>SQL&gt; select con_id, dbid, guid, name, open_mode from v$pdbs;</code></p>
-</li>
-<li><p>切换到某个PDB</p>
-<p>  <code>SQL&gt; alter session set container=&lt;PDB&gt;;</code></p>
-</li>
-<li><p>启动PDB数据库</p>
-<p>  <code>SQL&gt; alter pluggable database &lt;PDB&gt; open;</code></p>
-<p>  或者</p>
-<p>  <code>SQL&gt; alter session set container=&lt;PDB&gt;;</code><br>  <code>SQL&gt; startup</code></p>
-</li>
-<li><p>关闭PDB数据库</p>
-<p>  <code>SQL&gt; alter pluggable database &lt;PDB&gt; close;</code></p>
-</li>
-</ul>
-</li>
-<li><p>用户管理</p>
-<ul>
-<li>创建用户</li>
-</ul>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="frezcirno's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/daily/2020/12/3/" class="post-title-link" itemprop="url">每日小结</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-12-03 12:52:43" itemprop="dateCreated datePublished" datetime="2020-12-03T12:52:43+08:00">2020-12-03</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 22:42:54" itemprop="dateModified" datetime="2021-01-07T22:42:54+08:00">2021-01-07</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/daily/2020/12/3/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/3/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="秘书问题"><a href="#秘书问题" class="headerlink" title="秘书问题"></a>秘书问题</h1><ul>
-<li><p>又称相亲问题、止步问题、见好就收问题、苏丹的嫁妆问题、挑剔的求婚者问题等</p>
-</li>
-<li><p>要聘请一名秘书，有 n 个应聘者。每次面试一人，面试后就要及时决定是否聘他，如果当时决定不聘他，他便不会回来。面试后总能清楚了解应聘者的合适程度，并能和之前的每个人做比较。问什么样的策略，才使最佳人选被选中的概率最大。 </p>
-</li>
-<li><p>答案:</p>
-  <details>
-  <summary>展开</summary>
-
-<ul>
-<li><p>这个问题的最优解是一个停止规则。在这个规则里，面试官会拒绝头 r - 1 个应聘者 (令他们中的最佳人选为 应聘者 M)，然后选出第一个比 M 好的应聘者。可见最优策略包含于这个系列的策略中。 (如果M在所有n个应聘者中也是最好的一个，那么这个策略将选不出任何人选)对于任意的截断值 r，最佳人选被选中的概率是： </p>
-<p>  $${\displaystyle {\begin{aligned}P(r)&amp;=\sum _{i=1}^{n}P\left({\text{applicant }}i{\text{ is selected}}\cap {\text{applicant }}i{\text{ is the best}}\right)\&amp;=\sum _{i=1}^{n}P\left({\text{applicant }}i{\text{ is selected}}|{\text{applicant }}i{\text{ is the best}}\right)\cdot P\left({\text{applicant }}i{\text{ is the best}}\right)\&amp;=\left[\sum _{i=1}^{r-1}0+\sum _{i=r}^{n}P\left(\left.{\begin{array}{l}{\text{the best of the first }}i-1{\text{ applicants}}\{\text{is in the first }}r-1{\text{ applicants}}\end{array}}\right|{\text{applicant }}i{\text{ is the best}}\right)\right]\cdot {\frac {1}{n}}\&amp;=\left[\sum _{i=r}^{n}{\frac {r-1}{i-1}}\right]\cdot {\frac {1}{n}}\quad =\quad {\frac {r-1}{n}}\sum _{i=r}^{n}{\frac {1}{i-1}}.\end{aligned}}}$$</p>
-</li>
-<li><p>当n趋近于无穷大时</p>
-<p>  $${\displaystyle P(x)=x\int _{x}^{1}{\frac {1}{t}},dt=-x\ln(x).}$$</p>
-</li>
-<li><p>求出最优的x值为</p>
-<p>  $$\frac {1}{e}$$</p>
-</details>
-
-
-</li>
-</ul>
-</li>
-</ul>
-<h1 id="Nginx-配置"><a href="#Nginx-配置" class="headerlink" title="Nginx 配置"></a>Nginx 配置</h1><ul>
-<li><p>root: 表示去哪个目录下寻找对应url的文件, 实际上是添加前缀</p>
-  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location &#x2F;aaaa&#x2F; &#123;</span><br><span class="line">    root &#x2F;home&#x2F;tom&#x2F;www&#x2F;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>请求: http://(hostname)<span style="background-color: yellow;">/aaaa/</span>hello.txt</p>
-</li>
-<li><p>返回: <span style="background-color: #cdffd8;">/home/tom/www</span><span style="background-color: yellow;">/aaaa/</span>hello.txt</p>
-</li>
-</ul>
-</li>
-<li><p>alias: 表示把匹配成功的路径<strong>替换</strong>成alias</p>
-  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location &#x2F;aaaa&#x2F; &#123;</span><br><span class="line">    alias &#x2F;home&#x2F;tom&#x2F;www&#x2F;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>请求: http://(hostname)<span style="background-color: yellow;">/aaaa/</span>hello.txt </p>
-</li>
-<li><p>返回: <span style="background-color: #cdffd8;">/home/tom/www/</span>hello.txt</p>
-</li>
-</ul>
-</li>
-<li><p>PS: Nginx会自动将两个连续的斜杠替换成一个</p>
-</li>
-</ul>
-<h1 id="Flask-嵌套路由配置"><a href="#Flask-嵌套路由配置" class="headerlink" title="Flask 嵌套路由配置"></a>Flask 嵌套路由配置</h1><ul>
-<li><p>使用<code>register_blueprint</code>时的<code>url_prefix</code>参数</p>
-  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># create app, blueprints, etc.</span></span><br><span class="line">app.register_blueprint(myblueprint, url_prefix=<span class="string">&#x27;/somepath&#x27;</span>)</span><br><span class="line"><span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h1 id="视频网站设计思考"><a href="#视频网站设计思考" class="headerlink" title="视频网站设计思考"></a>视频网站设计思考</h1><ul>
-<li>视频文件存储到哪里: OSS对象存储服务</li>
-</ul>
-<h1 id="数据库隔离级别"><a href="#数据库隔离级别" class="headerlink" title="数据库隔离级别"></a>数据库隔离级别</h1><ol>
-<li><p>读未提交(Read Uncommitted)</p>
-</li>
-<li><p>读已提交(Read Committed)/不可重复读 大多数数据库默认的隔离级别</p>
-</li>
-<li><p>可重复读(Repeatable-Read) mysql数据库所默认的级别</p>
-</li>
-<li><p>序列化(serializable)</p>
-</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="cn">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="frezcirno的个人blog, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="frezcirno's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/compiler-principle/" class="post-title-link" itemprop="url">编译原理笔记</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2020-12-03 10:57:20" itemprop="dateCreated datePublished" datetime="2020-12-03T10:57:20+08:00">2020-12-03</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-01-07 22:42:54" itemprop="dateModified" datetime="2021-01-07T22:42:54+08:00">2021-01-07</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">课程笔记</span></a>
-        </span>
-          , 
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">编译原理</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/compiler-principle/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="compiler-principle/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="课程简介"><a href="#课程简介" class="headerlink" title="课程简介"></a>课程简介</h2><p>总评 = 考试 * 60% + 作业 * 30% + 平时 * 10%</p>
-<h2 id="程序语言的发展"><a href="#程序语言的发展" class="headerlink" title="程序语言的发展"></a>程序语言的发展</h2><p>机器语言 -&gt; 汇编语言 -&gt; 高级语言</p>
-<h2 id="程序的两种执行方式"><a href="#程序的两种执行方式" class="headerlink" title="程序的两种执行方式"></a>程序的两种执行方式</h2><ul>
-<li><p>解释方式</p>
-</li>
-<li><p>编译方式</p>
-</li>
-</ul>
-<p>Java认为是解释型语言</p>
-<h2 id="编译的步骤"><a href="#编译的步骤" class="headerlink" title="编译的步骤"></a>编译的步骤</h2><p>编译过程基本分为五个基本阶段: </p>
-<ol>
-<li>词法分析</li>
-<li>语法分析</li>
-<li>语义分析和中间代码生成</li>
-<li>优化</li>
-<li>目标代码生成</li>
-</ol>
-<h3 id="1-词法分析"><a href="#1-词法分析" class="headerlink" title="1. 词法分析"></a>1. 词法分析</h3><ul>
-<li>词法分析程序又称扫描程序(Scanner)。<ul>
-<li>任务：读源程序的字符流、识别单词（也称单词符号，或简称符号），如标识符、关键字、常量、界限符等，并转换成内部形式。</li>
-<li>输入：源程序中的字符流</li>
-<li>输出：等长的内部形式，即属性字（单词类型Token-name, 单词属性Attribute-value），其中单词属性指向符号表</li>
-</ul>
-</li>
-</ul>
-<p>输入: 字符流</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cppcode = <span class="string">`</span></span><br><span class="line"><span class="string">int a, b;</span></span><br><span class="line"><span class="string">a = a + 2;</span></span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure>
-<p>输出: Token流和对应的符号表</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">tokenList = [</span><br><span class="line">    &lt;int&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;,&gt;</span><br><span class="line">    &lt;id,<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;op,EQ&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;+&gt;</span><br><span class="line">    &lt;<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">]</span><br><span class="line">tokenTable = [</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;a&#x27;</span>, ...&#125;,</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;b&#x27;</span>, ...&#125; </span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>在词法分析阶段工作所依循的是语言的词法规则。</li>
-<li>描述词法规则的有效工具是<strong>正规式</strong>和<strong>有限自动机</strong>。</li>
-<li>方法：<strong>状态图</strong>；<strong>DFA</strong>；<strong>NFA</strong></li>
-</ul>
-<p>DFA模拟代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">s = s0;</span><br><span class="line">c = nextChar() ;</span><br><span class="line"><span class="keyword">while</span> ( c != eof ) &#123;</span><br><span class="line">    s = move(s, c);</span><br><span class="line">    c = nextChar() ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> ( s is in F ) <span class="keyword">return</span> <span class="string">&quot; yes &quot;</span> ;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">return</span> <span class="string">&quot;no &quot;</span> ;</span><br></pre></td></tr></table></figure>
-
-<h3 id="2-语法分析"><a href="#2-语法分析" class="headerlink" title="2. 语法分析"></a>2. 语法分析</h3><ul>
-<li>语法分析程序又称识别程序(Parser)。<ul>
-<li>任务：读入由词法分析程序识别出的符号，根据给定语法规则，识别出各个语法单位（如：短语、子句、语句、程序段、程序）,并生成另一种内部表示。</li>
-<li>输入：由词法分析程序识别出并转换的符号</li>
-<li>输出：另一种内部表示，如<strong>语法分析树</strong>或其它<strong>中间表示</strong>。</li>
-</ul>
-</li>
-<li>语法规则通常用<strong>上下文无关文法</strong>描述。</li>
-<li>方法：递归子程序法、<strong>LR分析法</strong>、<strong>算符优先分析法</strong>。</li>
-</ul>
-<p>输入: 符号流</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sum := first + count * <span class="number">10</span></span><br></pre></td></tr></table></figure>
-<p>输出: 语法树<br><img src="ast_demo.png"></p>
-<h3 id="3-1-语义分析"><a href="#3-1-语义分析" class="headerlink" title="3.1 语义分析"></a>3.1 语义分析</h3><h3 id="3-2-中间代码生成"><a href="#3-2-中间代码生成" class="headerlink" title="3.2 中间代码生成"></a>3.2 中间代码生成</h3><h3 id="4-优化"><a href="#4-优化" class="headerlink" title="4. 优化"></a>4. 优化</h3><ul>
-<li>优化的任务在于对前段产生的中间代码进行加工，把它变换成功能相同，但功效更高的优化了的中间表示代码，以期在最后阶段产生更为高效（省时间和空间）的代码</li>
-<li>优化所依循的原则是程序的等价变换规则</li>
-<li>其方法有：公共子表达式的提取、循环优化、删除无用代码等等。</li>
-</ul>
-<h3 id="5-目标代码生成"><a href="#5-目标代码生成" class="headerlink" title="5. 目标代码生成"></a>5. 目标代码生成</h3><h3 id="遍-Pass"><a href="#遍-Pass" class="headerlink" title="遍(Pass)"></a>遍(Pass)</h3><p>对<strong>源程序</strong>或源程序的<strong>中间结果</strong>从头到尾扫描一次，并做相关处理，生成新的中间结果或目标程序的过程。</p>
-<p>“遍”是处理数据的一个完整周期，每遍工作从外存上获得前一遍的中间结果（如源程序），完成它所含的有关工作之后，再把结果记录于外存。</p>
-<p>一个编译程序可由一遍、两遍或多遍完成。每一遍可完成不同的阶段或多个阶段的工作。</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>从时间和空间角度看</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>多遍编译</td>
-<td><strong>少占内存，多耗时间</strong></td>
-</tr>
-<tr>
-<td>一遍编译</td>
-<td><strong>多占内存，少耗时间</strong></td>
-</tr>
-</tbody></table>
-<h3 id="T形图"><a href="#T形图" class="headerlink" title="T形图"></a>T形图</h3><p><img src="t_diagram.png"></p>
-<ul>
-<li>S:源语言(程序)，Source language(program)</li>
-<li>T:目标语言(程序), target/object language(program)</li>
-<li>I:实现语言, implementation language</li>
-</ul>
-<p>用T形图表示编译器移植</p>
-<p><img src="t_diagram2.png"></p>
-<h3 id="特殊"><a href="#特殊" class="headerlink" title="特殊"></a>特殊</h3><p>自编译: </p>
-<p>交叉编译</p>
-<p>自动编译:<br>    lex, yacc</p>
-<h2 id="复习"><a href="#复习" class="headerlink" title="复习"></a>复习</h2><p>乔姆斯基文法:<br>0/1/2/3</p>
-<p>词法分析: 3型<br>语法分析: 2型</p>
-<p>A卷 - 简单<br>缓考不考-&gt;B卷-&gt;难</p>
-<p>语法分析:<br>LR,SLR,二义文法</p>
-<p>就5道大题 5个部分 占40%<br>平时 60%</p>
 
       
     </div>
