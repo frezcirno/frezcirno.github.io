@@ -1,10 +1,6 @@
 <hr>
 <p>title: 语义分析和中间代码生成<br>date: 2020-12-17 10:55:55<br>category: </p>
-<ul>
-<li>[课程笔记, 编译原理]</li>
-</ul>
-<hr>
-<h1 id="语义分析和中间代码生成"><a href="#语义分析和中间代码生成" class="headerlink" title="语义分析和中间代码生成"></a>语义分析和中间代码生成</h1><h2 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h2><h2 id="中间语言"><a href="#中间语言" class="headerlink" title="中间语言"></a>中间语言</h2><p>中间语言是复杂性界于源语言和目标语言之间的语言</p>
+<h2 id="课程笔记-编译原理"><a href="#课程笔记-编译原理" class="headerlink" title="- [课程笔记, 编译原理]"></a>- [课程笔记, 编译原理]</h2><h1 id="语义分析和中间代码生成"><a href="#语义分析和中间代码生成" class="headerlink" title="语义分析和中间代码生成"></a>语义分析和中间代码生成</h1><h2 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h2><h2 id="中间语言"><a href="#中间语言" class="headerlink" title="中间语言"></a>中间语言</h2><p>中间语言是复杂性界于源语言和目标语言之间的语言</p>
 <p>好处:</p>
 <ul>
 <li>便于进行与机器无关的代码优化工作</li>
@@ -32,11 +28,11 @@
 a b*(c+d/e) +
 a b (c+d/e) * +
 a b c d/e + * +
-a b c d e / + * +</code></pre>
-<pre><code>b:=-c*a+-c*a
+a b c d e / + * +
+</code></pre><pre><code>b:=-c*a+-c*a
 b -c*a+-c*a :=
 b -c*a -c*a + :=
 b -c a * -c a * + :=
-b c Neg a * c Neg a * + :=</code></pre>
-<p>抽象语法树</p>
-<h2 id="说明语句"><a href="#说明语句" class="headerlink" title="说明语句"></a>说明语句</h2><h2 id="赋值语句的翻译"><a href="#赋值语句的翻译" class="headerlink" title="赋值语句的翻译"></a>赋值语句的翻译</h2><h2 id="布尔表达式的翻译"><a href="#布尔表达式的翻译" class="headerlink" title="布尔表达式的翻译"></a>布尔表达式的翻译</h2><h2 id="控制语句的翻译"><a href="#控制语句的翻译" class="headerlink" title="控制语句的翻译"></a>控制语句的翻译</h2><h2 id="过程调用的翻译"><a href="#过程调用的翻译" class="headerlink" title="过程调用的翻译"></a>过程调用的翻译</h2><h3 id=""><a href="#" class="headerlink" title=""></a></h3>
+b c Neg a * c Neg a * + :=
+</code></pre><p>抽象语法树</p>
+<h2 id="说明语句"><a href="#说明语句" class="headerlink" title="说明语句"></a>说明语句</h2><h2 id="赋值语句的翻译"><a href="#赋值语句的翻译" class="headerlink" title="赋值语句的翻译"></a>赋值语句的翻译</h2><h2 id="布尔表达式的翻译"><a href="#布尔表达式的翻译" class="headerlink" title="布尔表达式的翻译"></a>布尔表达式的翻译</h2><h2 id="控制语句的翻译"><a href="#控制语句的翻译" class="headerlink" title="控制语句的翻译"></a>控制语句的翻译</h2><h2 id="过程调用的翻译"><a href="#过程调用的翻译" class="headerlink" title="过程调用的翻译"></a>过程调用的翻译</h2><h3 id=""><a href="#" class="headerlink" title=" "></a> </h3>
