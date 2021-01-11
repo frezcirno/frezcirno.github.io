@@ -31,7 +31,7 @@ custom_file_path:
   #bodyEnd: source/_data/body-end.swig
   #variable: source/_data/variables.styl
   #mixin: source/_data/mixins.styl
-  #style: source/_data/styles.styl
+  style: source/_data/styles.styl
 
 
 # ---------------------------------------------------------------
@@ -57,11 +57,11 @@ footer:
   # Icon between year and copyright info.
   icon:
     # Icon name in Font Awesome. See: https://fontawesome.com/icons
-    name: fa fa-heart
+    name: fas fa-dove
     # If you want to animate the icon, set it to true.
     animated: false
     # Change the color of icon, using Hex Code.
-    color: "#ff0000"
+    color: "#999"
 
   # If not defined, `author` from Hexo `_config.yml` will be used.
   copyright:
@@ -128,7 +128,7 @@ menu:
 # Enable / Disable menu icons / item badges.
 menu_settings:
   icons: true
-  badges: false
+  badges: true
 
 
 # ---------------------------------------------------------------
@@ -244,7 +244,7 @@ post_meta:
   item_text: true
   created_at: true
   updated_at:
-    enable: true
+    enable: false
     another_day: true
   categories: true
 
@@ -283,15 +283,15 @@ follow_me:
 # Related popular posts
 # Dependencies: https://github.com/tea3/hexo-related-popular-posts
 related_posts:
-  enable: false
-  title: # Custom header, leave empty to use the default one
+  enable: true
+  title: 推荐文章 # Custom header, leave empty to use the default one
   display_in_home: false
   params:
     maxCount: 5
-    #PPMixingRate: 0.0
-    #isDate: false
-    #isImage: false
-    #isExcerpt: false
+    PPMixingRate: 0.25
+    isDate: false
+    isImage: false
+    isExcerpt: false
 
 # Post edit
 # Dependencies: https://github.com/hexojs/hexo-deployer-git
@@ -373,7 +373,7 @@ back2top:
 
 # Reading progress bar
 reading_progress:
-  enable: true
+  enable: false
   # Available values: top | bottom
   position: top
   color: "#37c6c0"
@@ -889,11 +889,10 @@ vendors:
   # Internal version: 5.13.0
   # fontawesome: //cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css
   fontawesome: //cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
-  # fontawesome:
 
   # MathJax
   # mathjax: //cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
-  mathjax:
+  mathjax: #//cdnjs.cloudflare.com/ajax/libs/mathjax/3.1.2/es5/startup.js
 
   # KaTeX
   # katex: //cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css
