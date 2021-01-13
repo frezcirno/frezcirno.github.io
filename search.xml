@@ -864,6 +864,15 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </categories>
   </entry>
   <entry>
+    <title>1035. Password</title>
+    <url>/PTA/1035.html</url>
+    <content><![CDATA[<p>水题</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sstream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n;</span><br><span class="line">    <span class="keyword">int</span> mod = <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">ostringstream</span> out;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="built_in">string</span> name, pass;</span><br><span class="line">        <span class="keyword">int</span> flag = <span class="number">0</span>;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; name &gt;&gt; pass;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;ch : pass) &#123;</span><br><span class="line">            <span class="keyword">switch</span> (ch) &#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="string">&#x27;l&#x27;</span>: ch = <span class="string">&#x27;L&#x27;</span>; flag = <span class="number">1</span>; <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="string">&#x27;1&#x27;</span>: ch = <span class="string">&#x27;@&#x27;</span>; flag = <span class="number">1</span>; <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="string">&#x27;0&#x27;</span>: ch = <span class="string">&#x27;%&#x27;</span>; flag = <span class="number">1</span>; <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="string">&#x27;O&#x27;</span>: ch = <span class="string">&#x27;o&#x27;</span>; flag = <span class="number">1</span>; <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">default</span>: <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (flag) &#123;</span><br><span class="line">            mod++;</span><br><span class="line">            out &lt;&lt; name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; pass &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (mod) &#123;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; mod &lt;&lt; <span class="built_in">endl</span> &lt;&lt; out.str();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;There &quot;</span> &lt;&lt; (n == <span class="number">1</span> ? <span class="string">&quot;is&quot;</span> : <span class="string">&quot;are&quot;</span>) &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; n &lt;&lt; <span class="string">&quot; account&quot;</span></span><br><span class="line">             &lt;&lt; (n == <span class="number">1</span> ? <span class="string">&quot;&quot;</span> : <span class="string">&quot;s&quot;</span>) &lt;&lt; <span class="string">&quot; and no account is modified&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
     <title>1036. Boys vs Girls</title>
     <url>/PTA/1036.html</url>
     <content><![CDATA[<p>送分题</p>
@@ -1401,6 +1410,15 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
         <tag>图论</tag>
         <tag>连通分量</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>684. 冗余连接</title>
+    <url>/leetcode/684.html</url>
+    <content><![CDATA[<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>有环无向图中找出环上最后出现的边</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; parents;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">dj_root</span><span class="params">(<span class="keyword">int</span> a)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a==parents[a]? a: parents[a]=dj_root(parents[a]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">dj_union</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span></span>&#123;</span><br><span class="line">        a=dj_root(a);</span><br><span class="line">        b=dj_root(b);</span><br><span class="line">        <span class="keyword">if</span> (a!=b) parents[a]=b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">findRedundantConnection</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; edges)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; edge: edges) &#123;</span><br><span class="line">            <span class="keyword">if</span> (edge[<span class="number">0</span>] &gt; n) n = edge[<span class="number">0</span>];</span><br><span class="line">            <span class="keyword">if</span> (edge[<span class="number">1</span>] &gt; n) n = edge[<span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        parents.resize(n);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;n; i++)&#123;</span><br><span class="line">            parents[i] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; edge: edges) &#123;</span><br><span class="line">            <span class="keyword">int</span> a = edge[<span class="number">0</span>]<span class="number">-1</span>;</span><br><span class="line">            <span class="keyword">int</span> b = edge[<span class="number">1</span>]<span class="number">-1</span>;</span><br><span class="line">            <span class="keyword">if</span> (dj_root(a) == dj_root(b)) &#123;</span><br><span class="line">                <span class="keyword">return</span> edge;</span><br><span class="line">            &#125;</span><br><span class="line">            dj_union(a, b);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> edges.back();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>leetcode</category>
+      </categories>
   </entry>
   <entry>
     <title>738. 单调递增的数字</title>
@@ -3212,6 +3230,12 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 <p>基本服务组(BSS): 在某一个给定AP范围内的计算机集合</p>
 <h2 id="16-9-重叠-关联-802-11帧格式"><a href="#16-9-重叠-关联-802-11帧格式" class="headerlink" title="16.9 重叠, 关联, 802.11帧格式"></a>16.9 重叠, 关联, 802.11帧格式</h2><p>重叠: 两个AP太近, 一台STA可以同时触及到两个AP</p>
 <p>802.11要求每个主机只能与一个AP相关联(associate), 而且在802.11帧中携带了AP的MAC地址</p>
+<ul>
+<li>接入点MAC</li>
+<li>本机地址</li>
+<li>路由器MAC</li>
+<li>专用地址</li>
+</ul>
 <p><img src="computer-network/80211_frame.png" alt=""></p>
 <h2 id="16-11-竞争与无竞争接入"><a href="#16-11-竞争与无竞争接入" class="headerlink" title="16.11 竞争与无竞争接入"></a>16.11 竞争与无竞争接入</h2><p>802.11定义了两种接入方法</p>
 <ul>
@@ -3226,7 +3250,11 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 <li>设定SIFS(发ACK前延时)/DIFS(传输前延时)/Slot Time等时间间隔参数</li>
 </ul>
 <p><img src="computer-network/csma_ca.png" alt=""></p>
-<h2 id="16-13-PAN技术与标准"><a href="#16-13-PAN技术与标准" class="headerlink" title="16.13 PAN技术与标准"></a>16.13 PAN技术与标准</h2><p>802.15.1a  蓝牙<br>802.15.3a  UWB 超宽带<br>802.15.4   Zigbee 工业无线控制标准 </p>
+<h2 id="16-13-PAN技术与标准"><a href="#16-13-PAN技术与标准" class="headerlink" title="16.13 PAN技术与标准"></a>16.13 PAN技术与标准</h2><ul>
+<li>802.15.1a  蓝牙</li>
+<li>802.15.3a  UWB 超宽带</li>
+<li>802.15.4   Zigbee 工业无线控制标准 </li>
+</ul>
 <h2 id="17-3-光纤猫扩展"><a href="#17-3-光纤猫扩展" class="headerlink" title="17.3 光纤猫扩展"></a>17.3 光纤猫扩展</h2><p>最简单的LAN扩展机制: 光纤+一对光纤猫, 连接一台计算机和一个远程以太网</p>
 <h2 id="17-4-中继器"><a href="#17-4-中继器" class="headerlink" title="17.4 中继器"></a>17.4 中继器</h2><p>中继器: 信号放大, 信号转发, 早期广泛应用</p>
 <h2 id="17-5-网桥与桥接"><a href="#17-5-网桥与桥接" class="headerlink" title="17.5 网桥与桥接"></a>17.5 网桥与桥接</h2><p>网桥: 往往用来连接两个LAN网段(比如hub), 保证两边的计算机都能互相连通</p>
@@ -3357,9 +3385,11 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 <li><p>在自治系统中，IGP软件使用路由度量来选择到达每个目的地的最佳路径。 EGP软件可以找到到达每个目的地的路径，但是找不到最佳路径，因为它无法比较来自多个自治系统的路由度量。</p>
 </li>
 </ul>
-<h2 id="26-12-OSPF协议"><a href="#26-12-OSPF协议" class="headerlink" title="26.12 OSPF协议"></a>26.12 OSPF协议</h2><p>RIP使用<strong>距离矢量算法</strong></p>
+<h2 id="26-12-OSPF协议"><a href="#26-12-OSPF协议" class="headerlink" title="26.12 OSPF协议"></a>26.12 OSPF协议</h2><p>RIP是内部网关协议, 使用<strong>距离矢量算法</strong>来传递路由信息。RIP 是在 UDP 协议之上的一种路由协议，应用于 OSI 网络七层模型的<strong>网络层</strong>。</p>
 <p>OSPF是内部网关协议，它使用<strong>链路状态算法</strong>来传播路由信息。路由器使用<strong>Dijkstra算法</strong>计算最短路径。</p>
-<h2 id="26-16-组播路由技术"><a href="#26-16-组播路由技术" class="headerlink" title="26.16 组播路由技术"></a>26.16 组播路由技术</h2><h2 id="29-9-私有密钥-对称-加密"><a href="#29-9-私有密钥-对称-加密" class="headerlink" title="29.9 私有密钥(对称)加密"></a>29.9 私有密钥(对称)加密</h2><h2 id="29-10-公开密钥-非对称-加密"><a href="#29-10-公开密钥-非对称-加密" class="headerlink" title="29.10 公开密钥(非对称)加密"></a>29.10 公开密钥(非对称)加密</h2><h2 id="29-11-使用数字签名的鉴别"><a href="#29-11-使用数字签名的鉴别" class="headerlink" title="29.11 使用数字签名的鉴别"></a>29.11 使用数字签名的鉴别</h2><p>签名: 发送方使用自己的私钥对报文进行加密</p>
+<h2 id="26-16-组播路由技术"><a href="#26-16-组播路由技术" class="headerlink" title="26.16 组播路由技术"></a>26.16 组播路由技术</h2><p>IP组播群组的成员关系构成是动态的，即计算机可以随时加入或离开一个群组。群组成员关系只是定义了一组接收者；任意一个应用进程（即使它不是一个群组成员）都能发送数据报给组播群组。</p>
+<p>因特网组播的动态特性使它的组播路径传播问题变得很困难。虽然已经提出了很多协议，但是目前因特网还没有全网范围内的组播路由设施。</p>
+<h2 id="29-9-私有密钥-对称-加密"><a href="#29-9-私有密钥-对称-加密" class="headerlink" title="29.9 私有密钥(对称)加密"></a>29.9 私有密钥(对称)加密</h2><h2 id="29-10-公开密钥-非对称-加密"><a href="#29-10-公开密钥-非对称-加密" class="headerlink" title="29.10 公开密钥(非对称)加密"></a>29.10 公开密钥(非对称)加密</h2><h2 id="29-11-使用数字签名的鉴别"><a href="#29-11-使用数字签名的鉴别" class="headerlink" title="29.11 使用数字签名的鉴别"></a>29.11 使用数字签名的鉴别</h2><p>签名: 发送方使用自己的私钥对报文进行加密</p>
 <p>验证: 接收方使用发送方的公钥进行解密</p>
 <p>认证+加密: 发送者先对报文进行签名, 再用接收者的公钥进行加密</p>
 <h2 id="29-13-防火墙"><a href="#29-13-防火墙" class="headerlink" title="29.13 防火墙"></a>29.13 防火墙</h2><p>防火墙: 防止因特网上的问题扩散到本地内部的计算机上的技术, 一般放置在本单位的网络与外部因特网之间</p>
@@ -3414,6 +3444,41 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 <li>无线接入技术</li>
 <li>T1 速率或更高速率的数据线路</li>
 </ul>
+<h2 id=""><a href="#" class="headerlink" title=" "></a> </h2><h1 id="背背背"><a href="#背背背" class="headerlink" title="背背背"></a>背背背</h1><h2 id="TCP的特征"><a href="#TCP的特征" class="headerlink" title="TCP的特征"></a>TCP的特征</h2><ul>
+<li>面向连接: TCP提供面向连接的服务, 应用程序必须首先请求建立一个到目的地的连接, 然后使用这个连接来传输数据 </li>
+<li>点对点通信: 每个TCP连接上只有两个端点 </li>
+<li>完全的可靠性: TCP能保证在一个连接上发送的数据被正确地传递, 且保证数据的完整和按序到达 </li>
+<li>全双工通信: TCP连接允许数据在任何一个方向上流动, 并允许任何应用程序在任何时刻发送数据 </li>
+<li>流接口: TCP提供一个流接口, 利用它应用进程可以在一个连接上发送连续的字节流. TCP不必将数据组合成记录或是报文, 也不要求传递给接收应用进程的数据段大小一定要与发送端所送出的数据段大小相同 </li>
+<li>可靠的连接建立: TCP允许两个应用进程可靠地开始通信 </li>
+<li>友好的连接关闭: 在关闭一个连接之前, TCP必须保证所有数据已经传递完毕, 并且通信双方都要同意关闭这个连接 </li>
+</ul>
+<h2 id="UDP的特征"><a href="#UDP的特征" class="headerlink" title="UDP的特征"></a>UDP的特征</h2><ul>
+<li>端到端: UDP 是一个传输协议，它能区分运行在给定计算机上的多个应用程序。</li>
+<li>无连接: UDP 提供给应用的接口遵从无连接模式。</li>
+<li>面向报文: 使用 UDP 的应用进程所发送和接收的数据是单个报文。</li>
+<li>尽力而为: UDP 提供给应用的是与 IP 一样的尽力传递机制。</li>
+<li>任意交互: UDP 允许应用进程给很多其他应用进程发送数据，也允许从很多其他应用进程那里接收数据，或者只跟一个其他应用进程相互通信。</li>
+</ul>
+<h2 id="服务端-客户端特征"><a href="#服务端-客户端特征" class="headerlink" title="服务端-客户端特征"></a>服务端-客户端特征</h2><p>虽然存在少量的变种，但大多数客户——服务器交互模式都具有相同的一般特征。一般情况<br>下，客户软件具有如下特征：</p>
+<ol>
+<li>它是一个任意的应用程序，仅在需要进行远程访问时才暂时成为客户，同时还要完成其他的计算任务。</li>
+<li>直接受用户介入操作，并且只执行一个会话过程。</li>
+<li>在用户的个人计算机上进行本地运行。</li>
+<li>主动地发起与服务器的连接请求。</li>
+<li>能访问所需的多种服务，但通常一次只与一个远地服务器请求连接。</li>
+<li>不会特别地要求功能强大的计算机硬件。</li>
+</ol>
+<p>而服务器软件的特征如下：</p>
+<ol>
+<li>它是一个专门提供某种服务的专用特权程序，但同时可以处理多个远程客户的请求。</li>
+<li>在系统启动时自动被调入执行，进行多次会话并持续不断地运行。</li>
+<li>运行在大型、高性能计算机上。</li>
+<li>被动地等待来自任意的远端客户的通信请求。</li>
+<li>接收来自任何客户的通信请求，但只提供单一的服务。</li>
+<li>要求功能强大的硬件和高级复杂的操作系统支持。</li>
+</ol>
+<h2 id="-1"><a href="#-1" class="headerlink" title=" "></a> </h2><h2 id="端口号"><a href="#端口号" class="headerlink" title="端口号"></a>端口号</h2><p>FTP: 20/数据流, 21/控制流<br>TELNET: 23<br>SMTP: 25<br>DNS: 53<br>SNMP: 161/162</p>
 ]]></content>
       <categories>
         <category>课程笔记</category>
