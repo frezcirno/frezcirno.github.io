@@ -349,7 +349,7 @@ n维向量
 
 例题:
 
-![](qiutongjie.png)
+![](linear-algebra/qiutongjie.png)
 
 ##### 性质
 
@@ -488,7 +488,7 @@ $$
 3. 把这些特征向量正交化, 单位化
 4. 排列得到$P$和$\Lambda$, 注意两者对应
 
-![](duijiaohua.png)
+![](linear-algebra/duijiaohua.png)
 
 ### 二次型, 标准形
 
