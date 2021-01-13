@@ -1,6 +1,371 @@
-<hr>
-<p>title: 语义分析和中间代码生成<br>date: 2020-12-17 10:55:55<br>category: </p>
-<h2 id="课程笔记-编译原理"><a href="#课程笔记-编译原理" class="headerlink" title="- [课程笔记, 编译原理]"></a>- [课程笔记, 编译原理]</h2><h1 id="语义分析和中间代码生成"><a href="#语义分析和中间代码生成" class="headerlink" title="语义分析和中间代码生成"></a>语义分析和中间代码生成</h1><h2 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h2><h2 id="中间语言"><a href="#中间语言" class="headerlink" title="中间语言"></a>中间语言</h2><p>中间语言是复杂性界于源语言和目标语言之间的语言</p>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+<meta name="description" content="语义分析和中间代码生成语义分析中间语言中间语言是复杂性界于源语言和目标语言之间的语言 好处:  便于进行与机器无关的代码优化工作 易于移植 使编译程序的结构在逻辑上更为简单明确  常用的中间语言:  后缀式(逆波兰式) 图表示 DAG AST   三地址代码 三元式 四元式 间接三元式    后缀式: 二元操作符后置(一元操作符后置)去括号 12345a+b*(c+d&#x2F;e)a b*(c+">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分析和中间代码生成">
+<meta property="og:url" content="https://frezcirno.github.io/compiler-principle/3.html">
+<meta property="og:site_name" content="frezcirno&#39;s blog">
+<meta property="og:description" content="语义分析和中间代码生成语义分析中间语言中间语言是复杂性界于源语言和目标语言之间的语言 好处:  便于进行与机器无关的代码优化工作 易于移植 使编译程序的结构在逻辑上更为简单明确  常用的中间语言:  后缀式(逆波兰式) 图表示 DAG AST   三地址代码 三元式 四元式 间接三元式    后缀式: 二元操作符后置(一元操作符后置)去括号 12345a+b*(c+d&#x2F;e)a b*(c+">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-12-17T02:55:55.000Z">
+<meta property="article:modified_time" content="2021-01-13T08:45:39.838Z">
+<meta property="article:author" content="frezcirno">
+<meta property="article:tag" content="daily">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://frezcirno.github.io/compiler-principle/3.html">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>语义分析和中间代码生成 | frezcirno's blog</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">frezcirno's blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">今天学到了什么？</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">41</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">80</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90%E5%92%8C%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-text">语义分析和中间代码生成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90"><span class="nav-text">语义分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%AD%E9%97%B4%E8%AF%AD%E8%A8%80"><span class="nav-text">中间语言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B4%E6%98%8E%E8%AF%AD%E5%8F%A5"><span class="nav-text">说明语句</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%8B%E5%80%BC%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">赋值语句的翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%83%E5%B0%94%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">布尔表达式的翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">控制语句的翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E7%A8%8B%E8%B0%83%E7%94%A8%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">过程调用的翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-text"> </span></a></li></ol></li></ol></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="frezcirno"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">frezcirno</p>
+  <div class="site-description" itemprop="description">frezcirno的个人博客, 记录一些技术相关的学习内容</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/frezcirno" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;frezcirno" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:2277861660@qq.com" title="E-Mail → mailto:2277861660@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle/3.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人博客, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          语义分析和中间代码生成
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-17 10:55:55" itemprop="dateCreated datePublished" datetime="2020-12-17T10:55:55+08:00">2020-12-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">课程笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">编译原理</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/compiler-principle/3.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="compiler-principle/3.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+      </div>
+      <div class="post-meta">
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>361</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="语义分析和中间代码生成"><a href="#语义分析和中间代码生成" class="headerlink" title="语义分析和中间代码生成"></a>语义分析和中间代码生成</h1><h2 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h2><h2 id="中间语言"><a href="#中间语言" class="headerlink" title="中间语言"></a>中间语言</h2><p>中间语言是复杂性界于源语言和目标语言之间的语言</p>
 <p>好处:</p>
 <ul>
 <li>便于进行与机器无关的代码优化工作</li>
@@ -24,15 +389,187 @@
 </ul>
 <p>后缀式:</p>
 <p>二元操作符后置<br>(一元操作符后置)<br>去括号</p>
-<pre><code>a+b*(c+d/e)
-a b*(c+d/e) +
-a b (c+d/e) * +
-a b c d/e + * +
-a b c d e / + * +
-</code></pre><pre><code>b:=-c*a+-c*a
-b -c*a+-c*a :=
-b -c*a -c*a + :=
-b -c a * -c a * + :=
-b c Neg a * c Neg a * + :=
-</code></pre><p>抽象语法树</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a+b*(c+d&#x2F;e)</span><br><span class="line">a b*(c+d&#x2F;e) +</span><br><span class="line">a b (c+d&#x2F;e) * +</span><br><span class="line">a b c d&#x2F;e + * +</span><br><span class="line">a b c d e &#x2F; + * +</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">b:&#x3D;-c*a+-c*a</span><br><span class="line">b -c*a+-c*a :&#x3D;</span><br><span class="line">b -c*a -c*a + :&#x3D;</span><br><span class="line">b -c a * -c a * + :&#x3D;</span><br><span class="line">b c Neg a * c Neg a * + :&#x3D;</span><br></pre></td></tr></table></figure>
+<p>抽象语法树</p>
 <h2 id="说明语句"><a href="#说明语句" class="headerlink" title="说明语句"></a>说明语句</h2><h2 id="赋值语句的翻译"><a href="#赋值语句的翻译" class="headerlink" title="赋值语句的翻译"></a>赋值语句的翻译</h2><h2 id="布尔表达式的翻译"><a href="#布尔表达式的翻译" class="headerlink" title="布尔表达式的翻译"></a>布尔表达式的翻译</h2><h2 id="控制语句的翻译"><a href="#控制语句的翻译" class="headerlink" title="控制语句的翻译"></a>控制语句的翻译</h2><h2 id="过程调用的翻译"><a href="#过程调用的翻译" class="headerlink" title="过程调用的翻译"></a>过程调用的翻译</h2><h3 id=""><a href="#" class="headerlink" title=" "></a> </h3>
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">推荐文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/compiler-principle.html" rel="bookmark">编译原理笔记</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/compiler-principle/1.html" rel="bookmark">1</a></div>
+    </li>
+  </ul>
+
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/compiler-principle/2.html" rel="prev" title="语法分析">
+                  <i class="fa fa-chevron-left"></i> 语法分析
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/compiler-principle/4.html" rel="next" title="4">
+                  4 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fas fa-dove"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">frezcirno</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">71k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:05</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+  
+
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://frezcirno-github-io.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://frezcirno.github.io/compiler-principle/3.html";
+    this.page.identifier = "compiler-principle/3.html";
+    this.page.title = "语义分析和中间代码生成";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://frezcirno-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
