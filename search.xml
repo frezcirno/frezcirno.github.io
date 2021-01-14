@@ -1,102 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>编译原理笔记</title>
-    <url>/compiler-principle.html</url>
-    <content><![CDATA[<h2 id="课程简介"><a href="#课程简介" class="headerlink" title="课程简介"></a>课程简介</h2><p>总评 = 考试 <em> 60% + 作业 </em> 30% + 平时 * 10%</p>
-<h2 id="程序语言的发展"><a href="#程序语言的发展" class="headerlink" title="程序语言的发展"></a>程序语言的发展</h2><p>机器语言 -&gt; 汇编语言 -&gt; 高级语言</p>
-<h2 id="程序的两种执行方式"><a href="#程序的两种执行方式" class="headerlink" title="程序的两种执行方式"></a>程序的两种执行方式</h2><ul>
-<li><p>解释方式</p>
-</li>
-<li><p>编译方式</p>
-</li>
-</ul>
-<p>Java认为是解释型语言</p>
-<h2 id="编译的步骤"><a href="#编译的步骤" class="headerlink" title="编译的步骤"></a>编译的步骤</h2><p>编译过程基本分为五个基本阶段: </p>
-<ol>
-<li>词法分析</li>
-<li>语法分析</li>
-<li>语义分析和中间代码生成</li>
-<li>优化</li>
-<li>目标代码生成</li>
-</ol>
-<h3 id="1-词法分析"><a href="#1-词法分析" class="headerlink" title="1. 词法分析"></a>1. 词法分析</h3><ul>
-<li>词法分析程序又称扫描程序(Scanner)。<ul>
-<li>任务：读源程序的字符流、识别单词（也称单词符号，或简称符号），如标识符、关键字、常量、界限符等，并转换成内部形式。</li>
-<li>输入：源程序中的字符流</li>
-<li>输出：等长的内部形式，即属性字（单词类型Token-name, 单词属性Attribute-value），其中单词属性指向符号表</li>
-</ul>
-</li>
-</ul>
-<p>输入: 字符流<br><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">cppcode = <span class="string">`</span></span><br><span class="line"><span class="string">int a, b;</span></span><br><span class="line"><span class="string">a = a + 2;</span></span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure><br>输出: Token流和对应的符号表<br><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">tokenList = [</span><br><span class="line">    &lt;int&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;,&gt;</span><br><span class="line">    &lt;id,<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;op,EQ&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;+&gt;</span><br><span class="line">    &lt;<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">]</span><br><span class="line">tokenTable = [</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;a&#x27;</span>, ...&#125;,</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;b&#x27;</span>, ...&#125; </span><br><span class="line">]</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>在词法分析阶段工作所依循的是语言的词法规则。</li>
-<li>描述词法规则的有效工具是<strong>正规式</strong>和<strong>有限自动机</strong>。</li>
-<li>方法：<strong>状态图</strong>；<strong>DFA</strong>；<strong>NFA</strong></li>
-</ul>
-<p>DFA模拟代码：<br><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">s = s0;</span><br><span class="line">c = nextChar() ;</span><br><span class="line"><span class="keyword">while</span> ( c != eof ) &#123;</span><br><span class="line">    s = move(s, c);</span><br><span class="line">    c = nextChar() ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> ( s is in F ) <span class="keyword">return</span> <span class="string">&quot; yes &quot;</span> ;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">return</span> <span class="string">&quot;no &quot;</span> ;</span><br></pre></td></tr></table></figure></p>
-<h3 id="2-语法分析"><a href="#2-语法分析" class="headerlink" title="2. 语法分析"></a>2. 语法分析</h3><ul>
-<li>语法分析程序又称识别程序(Parser)。<ul>
-<li>任务：读入由词法分析程序识别出的符号，根据给定语法规则，识别出各个语法单位（如：短语、子句、语句、程序段、程序）,并生成另一种内部表示。</li>
-<li>输入：由词法分析程序识别出并转换的符号</li>
-<li>输出：另一种内部表示，如<strong>语法分析树</strong>或其它<strong>中间表示</strong>。</li>
-</ul>
-</li>
-<li>语法规则通常用<strong>上下文无关文法</strong>描述。</li>
-<li>方法：递归子程序法、<strong>LR分析法</strong>、<strong>算符优先分析法</strong>。</li>
-</ul>
-<p>输入: 符号流<br><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">sum := first + count * <span class="number">10</span></span><br></pre></td></tr></table></figure><br>输出: 语法树<br><img src="compiler-principle/ast_demo.png" alt=""></p>
-<h3 id="3-1-语义分析"><a href="#3-1-语义分析" class="headerlink" title="3.1 语义分析"></a>3.1 语义分析</h3><h3 id="3-2-中间代码生成"><a href="#3-2-中间代码生成" class="headerlink" title="3.2 中间代码生成"></a>3.2 中间代码生成</h3><h3 id="4-优化"><a href="#4-优化" class="headerlink" title="4. 优化"></a>4. 优化</h3><ul>
-<li>优化的任务在于对前段产生的中间代码进行加工，把它变换成功能相同，但功效更高的优化了的中间表示代码，以期在最后阶段产生更为高效（省时间和空间）的代码</li>
-<li>优化所依循的原则是程序的等价变换规则</li>
-<li>其方法有：公共子表达式的提取、循环优化、删除无用代码等等。</li>
-</ul>
-<h3 id="5-目标代码生成"><a href="#5-目标代码生成" class="headerlink" title="5. 目标代码生成"></a>5. 目标代码生成</h3><h3 id="遍-Pass"><a href="#遍-Pass" class="headerlink" title="遍(Pass)"></a>遍(Pass)</h3><p>对<strong>源程序</strong>或源程序的<strong>中间结果</strong>从头到尾扫描一次，并做相关处理，生成新的中间结果或目标程序的过程。</p>
-<p>“遍”是处理数据的一个完整周期，每遍工作从外存上获得前一遍的中间结果（如源程序），完成它所含的有关工作之后，再把结果记录于外存。</p>
-<p>一个编译程序可由一遍、两遍或多遍完成。每一遍可完成不同的阶段或多个阶段的工作。</p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th></th>
-<th>从时间和空间角度看</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>多遍编译</td>
-<td><strong>少占内存，多耗时间</strong></td>
-</tr>
-<tr>
-<td>一遍编译</td>
-<td><strong>多占内存，少耗时间</strong></td>
-</tr>
-</tbody>
-</table>
-</div>
-<h3 id="T形图"><a href="#T形图" class="headerlink" title="T形图"></a>T形图</h3><p><img src="compiler-principle/t_diagram.png" alt=""></p>
-<ul>
-<li>S:源语言(程序)，Source language(program)</li>
-<li>T:目标语言(程序), target/object language(program)</li>
-<li>I:实现语言, implementation language</li>
-</ul>
-<p>用T形图表示编译器移植</p>
-<p><img src="compiler-principle/t_diagram2.png" alt=""></p>
-<h3 id="特殊"><a href="#特殊" class="headerlink" title="特殊"></a>特殊</h3><p>自编译: </p>
-<p>交叉编译</p>
-<p>自动编译:<br>    lex, yacc</p>
-<h2 id="复习"><a href="#复习" class="headerlink" title="复习"></a>复习</h2><p>乔姆斯基文法:<br>0/1/2/3</p>
-<p>词法分析: 3型<br>语法分析: 2型</p>
-<p>A卷 - 简单<br>缓考不考-&gt;B卷-&gt;难</p>
-<p>语法分析:<br>LR,SLR,二义文法</p>
-<p>就5道大题 5个部分 占40%<br>平时 60%</p>
-]]></content>
-      <categories>
-        <category>课程笔记</category>
-        <category>编译原理</category>
-      </categories>
-  </entry>
-  <entry>
     <title>线性代数</title>
     <url>/linear-algebra.html</url>
     <content><![CDATA[<h1 id="线性代数笔记"><a href="#线性代数笔记" class="headerlink" title="线性代数笔记"></a>线性代数笔记</h1><h2 id="1-行列式"><a href="#1-行列式" class="headerlink" title="1. 行列式"></a>1. 行列式</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>二阶行列式</p>
@@ -893,6 +797,15 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </categories>
   </entry>
   <entry>
+    <title>1048. Find Coins</title>
+    <url>/PTA/1048.html</url>
+    <content><![CDATA[<p>寻找{(x,y)|x+y=m,x,y∈S}</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unordered_map&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n &gt;&gt; m;</span><br><span class="line">    <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; S;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; x;</span><br><span class="line">        S[x]++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> minx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;k : S) &#123;</span><br><span class="line">        <span class="keyword">int</span> x = k.first;</span><br><span class="line">        <span class="keyword">int</span> y = m - x;</span><br><span class="line">        <span class="keyword">if</span> (x &lt; y &amp;&amp; S.find(y) != S.end() || x == y &amp;&amp; S[x] &gt; <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!minx || x &lt; minx)</span><br><span class="line">                minx = x;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (minx) &#123;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; minx &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; m - minx &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;No Solution&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
     <title>1063. Set Similarity</title>
     <url>/PTA/1063.html</url>
     <content><![CDATA[<p>给出n个集合和k次查询, 计算集合相似度:</p>
@@ -1063,15 +976,6 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
       </categories>
   </entry>
   <entry>
-    <title>1</title>
-    <url>/compiler-principle/1.html</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>课程笔记</category>
-        <category>编译原理</category>
-      </categories>
-  </entry>
-  <entry>
     <title>语法分析</title>
     <url>/compiler-principle/2.html</url>
     <content><![CDATA[<h2 id="LL分析法"><a href="#LL分析法" class="headerlink" title="LL分析法"></a>LL分析法</h2><pre><code>- LL(1)
@@ -1197,6 +1101,287 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
       </categories>
   </entry>
   <entry>
+    <title>编译原理笔记</title>
+    <url>/compiler-principle/index.html</url>
+    <content><![CDATA[<h2 id="课程简介"><a href="#课程简介" class="headerlink" title="课程简介"></a>课程简介</h2><p>总评 = 考试 <em> 60% + 作业 </em> 30% + 平时 * 10%</p>
+<h2 id="程序语言的发展"><a href="#程序语言的发展" class="headerlink" title="程序语言的发展"></a>程序语言的发展</h2><p>机器语言 -&gt; 汇编语言 -&gt; 高级语言</p>
+<h2 id="程序的两种执行方式"><a href="#程序的两种执行方式" class="headerlink" title="程序的两种执行方式"></a>程序的两种执行方式</h2><ul>
+<li><p>解释方式</p>
+</li>
+<li><p>编译方式</p>
+</li>
+</ul>
+<p>Java认为是解释型语言</p>
+<h2 id="编译的步骤"><a href="#编译的步骤" class="headerlink" title="编译的步骤"></a>编译的步骤</h2><p>编译过程基本分为五个基本阶段: </p>
+<ol>
+<li>词法分析</li>
+<li>语法分析</li>
+<li>语义分析和中间代码生成</li>
+<li>优化</li>
+<li>目标代码生成</li>
+</ol>
+<h3 id="1-词法分析"><a href="#1-词法分析" class="headerlink" title="1. 词法分析"></a>1. 词法分析</h3><ul>
+<li>词法分析程序又称扫描程序(Scanner)。<ul>
+<li>任务：读源程序的字符流、识别单词（也称单词符号，或简称符号），如标识符、关键字、常量、界限符等，并转换成内部形式。</li>
+<li>输入：源程序中的字符流</li>
+<li>输出：等长的内部形式，即属性字（单词类型Token-name, 单词属性Attribute-value），其中单词属性指向符号表</li>
+</ul>
+</li>
+</ul>
+<p>输入: 字符流<br><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">cppcode = <span class="string">`</span></span><br><span class="line"><span class="string">int a, b;</span></span><br><span class="line"><span class="string">a = a + 2;</span></span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure><br>输出: Token流和对应的符号表<br><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">tokenList = [</span><br><span class="line">    &lt;int&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;,&gt;</span><br><span class="line">    &lt;id,<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;op,EQ&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;+&gt;</span><br><span class="line">    &lt;<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">]</span><br><span class="line">tokenTable = [</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;a&#x27;</span>, ...&#125;,</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;b&#x27;</span>, ...&#125; </span><br><span class="line">]</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>在词法分析阶段工作所依循的是语言的词法规则。</li>
+<li>描述词法规则的有效工具是<strong>正规式</strong>和<strong>有限自动机</strong>。</li>
+<li>方法：<strong>状态图</strong>；<strong>DFA</strong>；<strong>NFA</strong></li>
+</ul>
+<p>DFA模拟代码：<br><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">s = s0;</span><br><span class="line">c = nextChar() ;</span><br><span class="line"><span class="keyword">while</span> ( c != eof ) &#123;</span><br><span class="line">    s = move(s, c);</span><br><span class="line">    c = nextChar() ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> ( s is in F ) <span class="keyword">return</span> <span class="string">&quot; yes &quot;</span> ;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">return</span> <span class="string">&quot;no &quot;</span> ;</span><br></pre></td></tr></table></figure></p>
+<h3 id="2-语法分析"><a href="#2-语法分析" class="headerlink" title="2. 语法分析"></a>2. 语法分析</h3><ul>
+<li>语法分析程序又称识别程序(Parser)。<ul>
+<li>任务：读入由词法分析程序识别出的符号，根据给定语法规则，识别出各个语法单位（如：短语、子句、语句、程序段、程序）,并生成另一种内部表示。</li>
+<li>输入：由词法分析程序识别出并转换的符号</li>
+<li>输出：另一种内部表示，如<strong>语法分析树</strong>或其它<strong>中间表示</strong>。</li>
+</ul>
+</li>
+<li>语法规则通常用<strong>上下文无关文法</strong>描述。</li>
+<li>方法：递归子程序法、<strong>LR分析法</strong>、<strong>算符优先分析法</strong>。</li>
+</ul>
+<p>输入: 符号流<br><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">sum := first + count * <span class="number">10</span></span><br></pre></td></tr></table></figure><br>输出: 语法树<br><img src="index/ast_demo.png" alt=""></p>
+<h3 id="3-1-语义分析"><a href="#3-1-语义分析" class="headerlink" title="3.1 语义分析"></a>3.1 语义分析</h3><h3 id="3-2-中间代码生成"><a href="#3-2-中间代码生成" class="headerlink" title="3.2 中间代码生成"></a>3.2 中间代码生成</h3><h3 id="4-优化"><a href="#4-优化" class="headerlink" title="4. 优化"></a>4. 优化</h3><ul>
+<li>优化的任务在于对前段产生的中间代码进行加工，把它变换成功能相同，但功效更高的优化了的中间表示代码，以期在最后阶段产生更为高效（省时间和空间）的代码</li>
+<li>优化所依循的原则是程序的等价变换规则</li>
+<li>其方法有：公共子表达式的提取、循环优化、删除无用代码等等。</li>
+</ul>
+<h3 id="5-目标代码生成"><a href="#5-目标代码生成" class="headerlink" title="5. 目标代码生成"></a>5. 目标代码生成</h3><h3 id="遍-Pass"><a href="#遍-Pass" class="headerlink" title="遍(Pass)"></a>遍(Pass)</h3><p>对<strong>源程序</strong>或源程序的<strong>中间结果</strong>从头到尾扫描一次，并做相关处理，生成新的中间结果或目标程序的过程。</p>
+<p>“遍”是处理数据的一个完整周期，每遍工作从外存上获得前一遍的中间结果（如源程序），完成它所含的有关工作之后，再把结果记录于外存。</p>
+<p>一个编译程序可由一遍、两遍或多遍完成。每一遍可完成不同的阶段或多个阶段的工作。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>从时间和空间角度看</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>多遍编译</td>
+<td><strong>少占内存，多耗时间</strong></td>
+</tr>
+<tr>
+<td>一遍编译</td>
+<td><strong>多占内存，少耗时间</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="T形图"><a href="#T形图" class="headerlink" title="T形图"></a>T形图</h3><p><img src="index/t_diagram.png" alt=""></p>
+<ul>
+<li>S:源语言(程序)，Source language(program)</li>
+<li>T:目标语言(程序), target/object language(program)</li>
+<li>I:实现语言, implementation language</li>
+</ul>
+<p>用T形图表示编译器移植</p>
+<p><img src="index/t_diagram2.png" alt=""></p>
+<h3 id="特殊"><a href="#特殊" class="headerlink" title="特殊"></a>特殊</h3><p>自编译: </p>
+<p>交叉编译</p>
+<p>自动编译:<br>    lex, yacc</p>
+<h2 id="复习"><a href="#复习" class="headerlink" title="复习"></a>复习</h2><p>乔姆斯基文法:<br>0/1/2/3</p>
+<p>词法分析: 3型<br>语法分析: 2型</p>
+<p>A卷 - 简单<br>缓考不考-&gt;B卷-&gt;难</p>
+<p>语法分析:<br>LR,SLR,二义文法</p>
+<p>就5道大题 5个部分 占40%<br>平时 60%</p>
+]]></content>
+      <categories>
+        <category>课程笔记</category>
+        <category>编译原理</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>词法分析</title>
+    <url>/compiler-principle/lex.html</url>
+    <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
+<li>单词级别分析和翻译源程序</li>
+<li>任务: 作为<strong>字符串</strong>的源程序-&gt;<strong>单词符号串</strong></li>
+</ul>
+<h2 id="词法分析器的要求"><a href="#词法分析器的要求" class="headerlink" title="词法分析器的要求"></a>词法分析器的要求</h2><p>单词符号表示通常使用二元式 (单词种别, 单词符号的属性值)</p>
+<ul>
+<li>单词种别: 语法分析需要的信息, 通常使用整数编码</li>
+<li>单词(符号属性)值: 编译其他阶段使用</li>
+</ul>
+<p>单词如何分类取决于处理上的方便:</p>
+<ul>
+<li>标识符: 一般通归为一种</li>
+<li>常数: 按类型分种</li>
+<li>关键字: 可全体为一种, 也可一字一种(更方便)</li>
+<li>运算符: 一般一符一种, 可以把具有一定共性的视为一类</li>
+<li>界符: 一般一符一种</li>
+</ul>
+<p>单词符号的属性:</p>
+<ul>
+<li>标识符: 存放它<strong>符号表</strong>项的指针/内部字符串</li>
+<li>常数: 存放它<strong>常数表</strong>项的指针/二进制形式</li>
+<li>关键字/运算符/界符: 不需要属性</li>
+</ul>
+<p><img src="lex/lex.png" alt=""></p>
+<p>实现方式:</p>
+<ul>
+<li>完全独立: lex作为单独一遍<ul>
+<li>结构简洁, 清晰, 条理化</li>
+</ul>
+</li>
+<li>相对独立: 作为parser的一个独立子程序, 需要新符号时调用<ul>
+<li>避免中间文件, 提高效率</li>
+</ul>
+</li>
+</ul>
+<h2 id="词法分析器设计"><a href="#词法分析器设计" class="headerlink" title="词法分析器设计"></a>词法分析器设计</h2><h3 id="lexer的结构"><a href="#lexer的结构" class="headerlink" title="lexer的结构"></a>lexer的结构</h3><p>源程序 -&gt; 输入缓冲区/预处理子程序/扫描缓冲区/扫描器 -&gt; 单词符号</p>
+<p>预处理子程序: 处理空白符等编辑性字符, 删除注释等</p>
+<p>输入缓冲区: 存放源程序文本输入串的缓冲区</p>
+<p>扫描缓冲区: 设定两个指示器</p>
+<h3 id="单词符号的识别-超前搜索"><a href="#单词符号的识别-超前搜索" class="headerlink" title="单词符号的识别: 超前搜索"></a>单词符号的识别: 超前搜索</h3><ul>
+<li>关键字识别</li>
+<li>标识符识别: 一般是字母开头的字母数字串, 一般都跟着算符或者界符, 不难识别</li>
+<li>常数的识别: 有些语言需要使用超前搜索</li>
+<li>算符和界符: 对于c++中的++,—等需要超前搜索</li>
+</ul>
+<h3 id="词法规则的表示"><a href="#词法规则的表示" class="headerlink" title="词法规则的表示"></a>词法规则的表示</h3><p>大多数pl中的单词符号的<strong>词法规则</strong>可以用<strong>正规文法</strong>描述</p>
+<p>例如:</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">&lt;标识符&gt;→ 字母|&lt;标识符&gt;字母|&lt;标识符&gt;数字</span><br><span class="line">&lt;整数&gt;→数字|&lt;整数&gt;数字</span><br><span class="line">&lt;运算符&gt;→+|－|\times|÷…</span><br><span class="line">&lt;界符&gt;→; |, |( | )|…</span><br></pre></td></tr></table></figure>
+<p>利用这些规则识别的过程可以用<strong>状态转换图</strong>来表示, 而状态转换图可以方便地用程序实现</p>
+<h3 id="TG"><a href="#TG" class="headerlink" title="TG"></a>TG</h3><p>状态转换图TG: 一个有限有向图, 可用于接受(识别)一定的符号串</p>
+<ul>
+<li>结点表示状态, 用圆圈表示<ul>
+<li>初态: 通常只有一个, 用一条输入弧表示</li>
+<li>终态: <strong>至少有一个</strong>, 用双圈表示</li>
+</ul>
+</li>
+<li>方向弧表示状态转换, 弧上的标记表示接受的输入字符或字符类</li>
+</ul>
+<p>路: 在状态转换图中从初态到某一个终态的弧上的标记序列</p>
+<p>接受(识别): 若存在一条路产生$\beta$, 则称状态转换图接受符号串$\beta$</p>
+<p>状态转换图能识别的语言: L(TG)能别TG接受的符号串的集合</p>
+<p><img src="lex/tg.png" alt=""></p>
+<h2 id="正规表达式和有限自动机"><a href="#正规表达式和有限自动机" class="headerlink" title="正规表达式和有限自动机"></a>正规表达式和有限自动机</h2><h3 id="正规式和正规集"><a href="#正规式和正规集" class="headerlink" title="正规式和正规集"></a>正规式和正规集</h3><p>字母表$\Sigma$上的正规式和正规集递归定义如下：</p>
+<ol>
+<li>$\varepsilon$和$\varphi$都是$\Sigma$上的正规式，它们所表示的正规集分别为${\varepsilon}$和$\varphi$。其中：$\varepsilon$为空字符串，$\varphi$为空集</li>
+<li>任意元素$a\in\Sigma$，a是$\Sigma$上的一个正规式，它所表示的正规集是${a}$;</li>
+<li>假定U和V都是$\Sigma$上的正规式，它们所表示的正规集记为L(U)和L(V)，那么（U|V），（U·V）和(U)*都是正规式，他们所表示的正规集分别记为L(U)∪L(V)，L(U)L(V)和(L(U))*。</li>
+<li>仅由有限次使用上述三步而得到的表达式才是$\Sigma$上的正规式，它们所表示的字集才是$\Sigma$上的正规集。</li>
+</ol>
+<p>运算:</p>
+<ul>
+<li>闭包<code>*</code></li>
+<li>连接<code>.</code> (可省略)</li>
+<li>或<code>|</code></li>
+</ul>
+<p>运算律:</p>
+<ul>
+<li>或交换律</li>
+<li>或结合律</li>
+<li>连接结合律</li>
+<li>或对连接分配律</li>
+<li>$\varepsilon U=U \varepsilon=U$</li>
+</ul>
+<p>例:</p>
+<ul>
+<li>以01结尾的二进制数串的正规式: <code>(0|1)*01</code></li>
+<li>能被5整除的十进制整数: <code>0|5|(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*(0|5)</code></li>
+</ul>
+<h3 id="FA"><a href="#FA" class="headerlink" title="FA"></a>FA</h3><p>自动机: 具有离散输入输出的数学模型</p>
+<pre><code>状态 + 输入 + 规则 -&gt; 状态迁移
+</code></pre><p>有限自动机(FA)</p>
+<p>有限状态机(FSM)</p>
+<h3 id="DFA"><a href="#DFA" class="headerlink" title="DFA"></a>DFA</h3><p>DFA五元组: $M=(S,\Sigma,\delta,S_0,F)$</p>
+<ul>
+<li>S: 有限的状态集合，每个元素称为一个状态</li>
+<li>$\Sigma$: 有限的输入字母表，每个元素称为一个输入字符</li>
+<li>$\delta: S\times\Sigma → S$: 转换函数(状态转移集合)<ul>
+<li>$\delta(s, a)=s’$</li>
+</ul>
+</li>
+<li>$S_0\in S$: 初始状态</li>
+<li>$F\subseteq S$: 终止状态集</li>
+</ul>
+<p>状态转换矩阵: DFA可以用一个矩阵表示, 每行表示一个状态, 每列表示一种输入, 矩阵元素表示$\delta$(s,a)的值</p>
+<p><strong>DFA与状态转换图: DFA可以用TG唯一表示</strong></p>
+<p><img src="lex/dfa_tg.png" alt=""></p>
+<p><strong>拓展转移函数</strong></p>
+<ul>
+<li>接收一个字符串的状态转移函数</li>
+<li>$\delta’: S\times\Sigma^* → S$</li>
+<li>定义<ul>
+<li>$\delta’(s, \varepsilon) = s$</li>
+<li>$\delta’(s, \omega a) = \delta(\delta’(s,\omega ),a)$</li>
+</ul>
+</li>
+</ul>
+<p>DFA接受的字符串</p>
+<p>DFA接受的语言: $L(M)={α|\delta’(s,α)\in F}$</p>
+<h3 id="NFA"><a href="#NFA" class="headerlink" title="NFA"></a>NFA</h3><p>NFA五元组: $M=(S,\Sigma,\delta,S_0,F)$</p>
+<ul>
+<li>$S$: 同DFA</li>
+<li>$\Sigma$: 同DFA</li>
+<li>$\delta: S\times\Sigma^* → 2^S(幂集)$: 转换函数(状态转移集合)<ul>
+<li>$\delta(s, a)=S’\subseteq S$</li>
+</ul>
+</li>
+<li>$S_0\subseteq S$: 非空初态集</li>
+<li>$F\subseteq S$: 终止状态集</li>
+</ul>
+<p><strong>NFA也可以用TG和转换矩阵表示</strong></p>
+<p><strong>NFA的状态是一个集合</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>比较</th>
+<th>DFA</th>
+<th>NFA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入字母</td>
+<td>每个(状态,输入)都有一个$\delta$</td>
+<td>可能没有$\delta$/是空转换</td>
+</tr>
+<tr>
+<td>转移状态</td>
+<td>确定的</td>
+<td>不确定的, 可能有多个</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>NFA的拓展转移函数 $\delta’(\delta: S\times\Sigma^* → 2^S)$</p>
+<ol>
+<li>$\delta’(s, \varepsilon) = {\varepsilon}$</li>
+<li>$\delta’(s,\omega a)={p|存在r\in\delta’(s,\omega )\wedge p\in\delta(r,a)}$</li>
+</ol>
+<p>NFA接受的字符串</p>
+<p>NFA接受的语言</p>
+<h3 id="DFA和NFA的关系"><a href="#DFA和NFA的关系" class="headerlink" title="DFA和NFA的关系"></a>DFA和NFA的关系</h3><p>DFA是NFA的特例, 两者可以相互转化</p>
+<p>$\varepsilon-闭包:$</p>
+<script type="math/tex; mode=display">
+\varepsilon\_CLOSURE(I)=\{q|q\in I\}\cup\{q'|q经任意条\varepsilon弧可到达q', q\in I\}, I\subseteq M'</script><p>NFA-&gt;DFA之子集法:</p>
+<ol>
+<li>引进新的初态结点X和终态结点Y, 从X到任意结点连接一条$\varepsilon$弧, 从任意结点到Y连接一条$\varepsilon$弧</li>
+<li><p>对复合的弧进行分裂合并替换</p>
+<p> <img src="lex/nfa_dfa.png" alt=""> </p>
+</li>
+<li><p>构造状态矩阵<br> | I                           | $I_{\Sigma_i}$ |<br> | —————————————- | ——————— |<br> | $\varepsilon_CLOSURE({X})$ | …            |<br> | …                         | …            |</p>
+</li>
+<li><p>合并相同状态, 重新命名得到新的状态转换矩阵</p>
+</li>
+<li>画出状态转换图</li>
+</ol>
+<h2 id="词法分析器的自动生成"><a href="#词法分析器的自动生成" class="headerlink" title="词法分析器的自动生成"></a>词法分析器的自动生成</h2>]]></content>
+      <categories>
+        <category>课程笔记</category>
+        <category>编译原理</category>
+      </categories>
+  </entry>
+  <entry>
     <title>10. 正则表达式匹配</title>
     <url>/leetcode/10.html</url>
     <content><![CDATA[<p>实现支持.和*的正则表达式匹配.</p>
@@ -1224,6 +1409,15 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
       <tags>
         <tag>动态规划</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>1018. 可被 5 整除的二进制前缀</title>
+    <url>/leetcode/1018.html</url>
+    <content><![CDATA[<p>找规律题</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; <span class="title">prefixesDivBy5</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; A)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; ret;</span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp;&amp;a:A)&#123;</span><br><span class="line">            res = res * <span class="number">2</span> + a;</span><br><span class="line">            res %= <span class="number">10</span>;</span><br><span class="line">            <span class="keyword">if</span>(res % <span class="number">5</span> == <span class="number">0</span>)&#123;</span><br><span class="line">                ret.push_back(<span class="literal">true</span>);</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                ret.push_back(<span class="literal">false</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>leetcode</category>
+      </categories>
   </entry>
   <entry>
     <title>1202. 交换字符串中的元素</title>
@@ -2344,6 +2538,59 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/daily/2020/12/30.html</url>
+    <content><![CDATA[<h1 id="计网答辩顺利"><a href="#计网答辩顺利" class="headerlink" title="计网答辩顺利"></a>计网答辩顺利</h1><p>开心!</p>
+<h1 id="WiFi协议-802-11-扫盲"><a href="#WiFi协议-802-11-扫盲" class="headerlink" title="WiFi协议(802.11)扫盲"></a>WiFi协议(802.11)扫盲</h1><h2 id="基本概述"><a href="#基本概述" class="headerlink" title="基本概述"></a>基本概述</h2><ol>
+<li><p>有线与无线网络</p>
+<p> 当前有线网络中最著名的是以太网(Ethernet), 无线网络中最有前景的是WiFi.</p>
+<p> 无线网络的缺点:</p>
+<ul>
+<li>通信双方因为是通过无线进行通信，所以通信之前需要建立连接；而有线网络就直接用线缆连接，不用这个过程了。</li>
+<li>通信双方通信方式是半双工的通信方式；而有线网络可以是全双工。</li>
+<li>通信时在网络层以下出错的概率非常高，所以帧的重传概率很大，需要在网络层之下的协议添加重传的机制（不能只依赖上面TCP/IP的延时等待重传等开销来保证）；而有线网络出错概率非常小，无需在网络层有如此复杂的机制。</li>
+<li>数据是在无线环境下进行的，所以抓包非常容易，存在安全隐患。</li>
+<li>因为收发无线信号，所以功耗较大，对电池来说是一个考验。</li>
+<li>相对有线网络吞吐量低，这一点正在逐步改善，802.11n协议可以达到600Mbps的吞吐量。</li>
+</ul>
+</li>
+<li><p>协议</p>
+<p>Ethenet和Wifi采用的协议都属于IEEE 802协议集。其中，Ethenet以802.3协议做为其网络层以下的协议；而Wifi以802.11做为其网络层以下的协议。无论是有线网络，还是无线网络，其网络层以上的部分，基本一样。</p>
+</li>
+<li><p>术语</p>
+<p> 讲述之前，我们需要对无线网络中一些常用的术语有所了解。这里先列出一些，后面描述中出现的新的术语，将会在描述中解释。</p>
+<ul>
+<li><p>LAN：即局域网，是路由和主机组成的内部局域网，一般为有线网络。</p>
+</li>
+<li><p>WAN：即广域网，是外部一个更大的局域网。</p>
+</li>
+<li><p>WLAN（Wireless LAN，即无线局域网）：前面我们说过LAN是局域网，其实大多数指的是有线网络中的局域网，无线网络中的局域网，一般用WLAN。</p>
+</li>
+<li><p>AP（Access point的简称，即访问点，接入点）：是一个无线网络中的特殊节点，通过这个节点，无线网络中的其它类型节点可以和无线网络外部以及内部进行通信。这里，AP和无线路由都在一台设备上（即Cisco E3000）。</p>
+</li>
+<li><p>Station（工作站）：表示连接到无线网络中的设备，这些设备通过AP，可以和内部其它设备或者无线网络外部通信。</p>
+</li>
+<li><p>Assosiate：连接。如果一个Station想要加入到无线网络中，需要和这个无线网络中的AP关联（即Assosiate）。</p>
+</li>
+<li><p>SSID：用来标识一个无线网络，后面会详细介绍，我们这里只需了解，每个无线网络都有它自己的SSID。</p>
+</li>
+<li><p>BSSID：用来标识一个BSS，其格式和MAC地址一样，是48位的地址格式。一般来说，它就是所处的无线接入点的MAC地址。某种程度来说，它的作用和SSID类似，但是SSID是网络的名字，是给人看的，BSSID是给机器看的，BSSID类似MAC地址。</p>
+</li>
+<li><p>BSS（Basic Service Set）：由一组相互通信的工作站组成，是802.11无线网络的基本组件。主要有两种类型的IBSS和基础结构型网络。IBSS又叫ADHOC，组网是临时的，通信方式为Station&lt;-&gt;Station，这里不关注这种组网方式；我们关注的基础结构形网络，其通信方式是Station&lt;-&gt;AP&lt;-&gt;Station，也就是所有无线网络中的设备要想通信，都得经过AP。在无线网络的基础形网络中，最重要的两类设备：AP和Station。</p>
+</li>
+</ul>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>每日小结</category>
+      </categories>
+      <tags>
+        <tag>答辩</tag>
+        <tag>计算机网络</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/daily/2020/12/3.html</url>
     <content><![CDATA[<h1 id="秘书问题"><a href="#秘书问题" class="headerlink" title="秘书问题"></a>秘书问题</h1><ul>
 <li><p>又称相亲问题、止步问题、见好就收问题、苏丹的嫁妆问题、挑剔的求婚者问题等</p>
@@ -2419,59 +2666,6 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
         <tag>Nginx</tag>
         <tag>Math</tag>
         <tag>Database</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/daily/2020/12/30.html</url>
-    <content><![CDATA[<h1 id="计网答辩顺利"><a href="#计网答辩顺利" class="headerlink" title="计网答辩顺利"></a>计网答辩顺利</h1><p>开心!</p>
-<h1 id="WiFi协议-802-11-扫盲"><a href="#WiFi协议-802-11-扫盲" class="headerlink" title="WiFi协议(802.11)扫盲"></a>WiFi协议(802.11)扫盲</h1><h2 id="基本概述"><a href="#基本概述" class="headerlink" title="基本概述"></a>基本概述</h2><ol>
-<li><p>有线与无线网络</p>
-<p> 当前有线网络中最著名的是以太网(Ethernet), 无线网络中最有前景的是WiFi.</p>
-<p> 无线网络的缺点:</p>
-<ul>
-<li>通信双方因为是通过无线进行通信，所以通信之前需要建立连接；而有线网络就直接用线缆连接，不用这个过程了。</li>
-<li>通信双方通信方式是半双工的通信方式；而有线网络可以是全双工。</li>
-<li>通信时在网络层以下出错的概率非常高，所以帧的重传概率很大，需要在网络层之下的协议添加重传的机制（不能只依赖上面TCP/IP的延时等待重传等开销来保证）；而有线网络出错概率非常小，无需在网络层有如此复杂的机制。</li>
-<li>数据是在无线环境下进行的，所以抓包非常容易，存在安全隐患。</li>
-<li>因为收发无线信号，所以功耗较大，对电池来说是一个考验。</li>
-<li>相对有线网络吞吐量低，这一点正在逐步改善，802.11n协议可以达到600Mbps的吞吐量。</li>
-</ul>
-</li>
-<li><p>协议</p>
-<p>Ethenet和Wifi采用的协议都属于IEEE 802协议集。其中，Ethenet以802.3协议做为其网络层以下的协议；而Wifi以802.11做为其网络层以下的协议。无论是有线网络，还是无线网络，其网络层以上的部分，基本一样。</p>
-</li>
-<li><p>术语</p>
-<p> 讲述之前，我们需要对无线网络中一些常用的术语有所了解。这里先列出一些，后面描述中出现的新的术语，将会在描述中解释。</p>
-<ul>
-<li><p>LAN：即局域网，是路由和主机组成的内部局域网，一般为有线网络。</p>
-</li>
-<li><p>WAN：即广域网，是外部一个更大的局域网。</p>
-</li>
-<li><p>WLAN（Wireless LAN，即无线局域网）：前面我们说过LAN是局域网，其实大多数指的是有线网络中的局域网，无线网络中的局域网，一般用WLAN。</p>
-</li>
-<li><p>AP（Access point的简称，即访问点，接入点）：是一个无线网络中的特殊节点，通过这个节点，无线网络中的其它类型节点可以和无线网络外部以及内部进行通信。这里，AP和无线路由都在一台设备上（即Cisco E3000）。</p>
-</li>
-<li><p>Station（工作站）：表示连接到无线网络中的设备，这些设备通过AP，可以和内部其它设备或者无线网络外部通信。</p>
-</li>
-<li><p>Assosiate：连接。如果一个Station想要加入到无线网络中，需要和这个无线网络中的AP关联（即Assosiate）。</p>
-</li>
-<li><p>SSID：用来标识一个无线网络，后面会详细介绍，我们这里只需了解，每个无线网络都有它自己的SSID。</p>
-</li>
-<li><p>BSSID：用来标识一个BSS，其格式和MAC地址一样，是48位的地址格式。一般来说，它就是所处的无线接入点的MAC地址。某种程度来说，它的作用和SSID类似，但是SSID是网络的名字，是给人看的，BSSID是给机器看的，BSSID类似MAC地址。</p>
-</li>
-<li><p>BSS（Basic Service Set）：由一组相互通信的工作站组成，是802.11无线网络的基本组件。主要有两种类型的IBSS和基础结构型网络。IBSS又叫ADHOC，组网是临时的，通信方式为Station&lt;-&gt;Station，这里不关注这种组网方式；我们关注的基础结构形网络，其通信方式是Station&lt;-&gt;AP&lt;-&gt;Station，也就是所有无线网络中的设备要想通信，都得经过AP。在无线网络的基础形网络中，最重要的两类设备：AP和Station。</p>
-</li>
-</ul>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>每日小结</category>
-      </categories>
-      <tags>
-        <tag>答辩</tag>
-        <tag>计算机网络</tag>
       </tags>
   </entry>
   <entry>
@@ -2949,7 +3143,7 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>计算机网络复习</title>
-    <url>/computer-network.html</url>
+    <url>/computer-network/index.html</url>
     <content><![CDATA[<h1 id="按章节"><a href="#按章节" class="headerlink" title="按章节"></a>按章节</h1><h2 id="1-9-OSI七层模型"><a href="#1-9-OSI七层模型" class="headerlink" title="1.9 OSI七层模型"></a>1.9 OSI七层模型</h2><p>设计者: 国际标准化组织ISO, 国际电信联盟ITU</p>
 <p>OSI七层模型: 物理层/数据链路层/网络层/传输层/会话层/表示层/应用层</p>
 <p>TCP/IP位于: 传输层/网络层</p>
@@ -3191,7 +3385,7 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 <h2 id="15-3-以太网帧格式"><a href="#15-3-以太网帧格式" class="headerlink" title="15.3 以太网帧格式"></a>15.3 以太网帧格式</h2><p>(传统)以太网: 是一种LAN技术, 最早在施乐公司的PARC中发明, 后来被标准化</p>
 <p>帧: 数据链路层的协议数据单元</p>
 <p>(传统)以太网帧格式:</p>
-<p><img src="computer-network/ethernet_frame.png" alt=""></p>
+<p><img src="index/ethernet_frame.png" alt=""></p>
 <ul>
 <li><p>以太网帧(64-1518) := 头部(14) + 载荷(46-1500) + CRC(4)</p>
 </li>
@@ -3200,7 +3394,7 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 </ul>
 <h2 id="15-4-以太网帧的类型域"><a href="#15-4-以太网帧的类型域" class="headerlink" title="15.4 以太网帧的类型域"></a>15.4 以太网帧的类型域</h2><p>以太网帧类型域包含了载荷中的报文类型, 如IPv4/IPv6/ARP等, 接收方检查该值来进行复用与解复用</p>
 <h2 id="15-5-802-3以太网"><a href="#15-5-802-3以太网" class="headerlink" title="15.5 802.3以太网"></a>15.5 802.3以太网</h2><p>802.3以太网: IEEE 802.3重新修订后的以太网标准, (但不是很成功)</p>
-<p><img src="computer-network/8023_ethernet_frame.png" alt=""></p>
+<p><img src="index/8023_ethernet_frame.png" alt=""></p>
 <ul>
 <li><p>802.3以太网帧(64-1518) := 头部(14) + <strong>SNAP头部(8)</strong> + 新载荷(46(存疑)-<strong>1492</strong>) + CRC(4)</p>
 </li>
@@ -3212,19 +3406,19 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 </li>
 </ul>
 <h2 id="15-7-粗缆布线的以太网"><a href="#15-7-粗缆布线的以太网" class="headerlink" title="15.7 粗缆布线的以太网"></a>15.7 粗缆布线的以太网</h2><p>粗缆以太网(Thick wire Ethernet)/粗网(Thicknet, 10Base5): 最初版本的以太网布线方案, 因为其使用笨重的同轴电缆+收发器+AUI电缆方式而得名.</p>
-<p><img src="computer-network/thicknet.png" alt=""></p>
+<p><img src="index/thicknet.png" alt=""></p>
 <h2 id="15-8-细缆布线的以太网"><a href="#15-8-细缆布线的以太网" class="headerlink" title="15.8 细缆布线的以太网"></a>15.8 细缆布线的以太网</h2><p>细缆以太网(Thin wire Ethernet)/细网(Thinnet, 10Base2): 第二代以太网布线方案, 使用细同轴电缆依次串联计算机, 不再需要AUI线, 收发器集成到NIC中, 缺点是容易单点故障 </p>
-<p><img src="computer-network/thinnet.png" alt=""></p>
+<p><img src="index/thinnet.png" alt=""></p>
 <h2 id="15-9-双绞线布线的以太网"><a href="#15-9-双绞线布线的以太网" class="headerlink" title="15.9 双绞线布线的以太网"></a>15.9 双绞线布线的以太网</h2><p>双绞线以太网(10BaseT): 第三代以太网布线系统, 使用了双绞线取代同轴电缆, 引入中心集线器(hub)</p>
-<p><img src="computer-network/twistnet.png" alt=""></p>
+<p><img src="index/twistnet.png" alt=""></p>
 <p>集线器是物理层设备, 具有一定的功能, 比如CSMA/CD等, 现在大部分已经被交换机取代</p>
 <h2 id="16-2-无线网络的分类"><a href="#16-2-无线网络的分类" class="headerlink" title="16.2 无线网络的分类"></a>16.2 无线网络的分类</h2><p>和有线网络类似: 个域网/局域网/城域网/广域网</p>
 <h2 id="16-3-个域网"><a href="#16-3-个域网" class="headerlink" title="16.3 个域网"></a>16.3 个域网</h2><p>蓝牙/红外/ISM无线</p>
 <h2 id="16-5-WLAN和Wi-Fi"><a href="#16-5-WLAN和Wi-Fi" class="headerlink" title="16.5 WLAN和Wi-Fi"></a>16.5 WLAN和Wi-Fi</h2><p>WLAN技术的种类很多, 归类于IEEE802.11标准</p>
 <p>Wi-Fi联盟: 一群无线设备供应商组成的非营利性组织, 使用802.11标准对无线设备进行测试与认证</p>
 <h2 id="16-8-WLAN基础结构"><a href="#16-8-WLAN基础结构" class="headerlink" title="16.8 WLAN基础结构"></a>16.8 WLAN基础结构</h2><p>WLAN的三个构件: 接入点(Access Point, AP, 非正式也称基站), 互联机构(交换机或路由器等), 无线主机(Station)</p>
-<p><img src="computer-network/wlan.png" alt=""></p>
-<p><img src="computer-network/wlan2.png" alt=""></p>
+<p><img src="index/wlan.png" alt=""></p>
+<p><img src="index/wlan2.png" alt=""></p>
 <p>WLAN的两种类型: Adhoc无接入点结构(很少), Infrastructure有中心接入点</p>
 <p>互联设备到AP的有线连接通常使用双绞线以太网</p>
 <p>基本服务组(BSS): 在某一个给定AP范围内的计算机集合</p>
@@ -3236,7 +3430,7 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 <li>路由器MAC</li>
 <li>专用地址</li>
 </ul>
-<p><img src="computer-network/80211_frame.png" alt=""></p>
+<p><img src="index/80211_frame.png" alt=""></p>
 <h2 id="16-11-竞争与无竞争接入"><a href="#16-11-竞争与无竞争接入" class="headerlink" title="16.11 竞争与无竞争接入"></a>16.11 竞争与无竞争接入</h2><p>802.11定义了两种接入方法</p>
 <ul>
 <li>点协调功能PCF</li>
@@ -3249,7 +3443,7 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 <li>没有冲突检测, 而是采用确认ACK+超时重传机制</li>
 <li>设定SIFS(发ACK前延时)/DIFS(传输前延时)/Slot Time等时间间隔参数</li>
 </ul>
-<p><img src="computer-network/csma_ca.png" alt=""></p>
+<p><img src="index/csma_ca.png" alt=""></p>
 <h2 id="16-13-PAN技术与标准"><a href="#16-13-PAN技术与标准" class="headerlink" title="16.13 PAN技术与标准"></a>16.13 PAN技术与标准</h2><ul>
 <li>802.15.1a  蓝牙</li>
 <li>802.15.3a  UWB 超宽带</li>
@@ -3292,14 +3486,14 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 <p>IPv6的特点</p>
 <ul>
 <li><p>将<code>网络地址</code>进一步细分为<code>全球单播地址</code>和<code>子网地址</code>两部分, <code>主机地址</code>仍保留, 两者共128位, 用<code>/xx</code>来表示<code>网络地址</code>的长度, 如不指定默认是64位</p>
-<p><img src="computer-network/ipv6.png" alt=""></p>
+<p><img src="index/ipv6.png" alt=""></p>
 </li>
 <li><p>取消<code>广播</code>, 支持<code>多播</code>, 增加<code>任播</code>(anycast)</p>
-<p><img src="computer-network/ipv6_special.png" alt=""></p>
+<p><img src="index/ipv6_special.png" alt=""></p>
 </li>
 </ul>
-<h2 id="22-4-IP数据报"><a href="#22-4-IP数据报" class="headerlink" title="22.4 IP数据报"></a>22.4 IP数据报</h2><p>IP数据报 := 头部 + 数据区(载荷区)</p>
-<h2 id="22-5-IP数据报头部格式"><a href="#22-5-IP数据报头部格式" class="headerlink" title="22.5 IP数据报头部格式"></a>22.5 IP数据报头部格式</h2><p><img src="computer-network/ip_datagram.png" alt=""></p>
+<h2 id="22-4-IP数据报"><a href="#22-4-IP数据报" class="headerlink" title="22.4 IP数据报"></a>22.4 IP数据报</h2><p>IP数据报(-65535) := 头部 + 数据区(载荷区)</p>
+<h2 id="22-5-IP数据报头部格式"><a href="#22-5-IP数据报头部格式" class="headerlink" title="22.5 IP数据报头部格式"></a>22.5 IP数据报头部格式</h2><p><img src="index/ip_datagram.png" alt=""></p>
 <h2 id="22-7-网络前缀提取与数据报转发"><a href="#22-7-网络前缀提取与数据报转发" class="headerlink" title="22.7 网络前缀提取与数据报转发"></a>22.7 网络前缀提取与数据报转发</h2><p>根据网络地址查询转发表发给下一站</p>
 <h2 id="22-8-最长前缀匹配"><a href="#22-8-最长前缀匹配" class="headerlink" title="22.8 最长前缀匹配"></a>22.8 最长前缀匹配</h2><p>查询转发表时如果有多项匹配, 采用<strong>最长前缀匹配</strong>规则</p>
 <h2 id="22-11-IP封装"><a href="#22-11-IP封装" class="headerlink" title="22.11 IP封装"></a>22.11 IP封装</h2><p>IP数据报要被封装到一个帧里才能发送出去, 帧的目的地址是下一站的IP地址对应的MAC地址(通过ARP协议获得)</p>
@@ -3325,6 +3519,7 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 <li>任意交互: UDP允许应用进程给很多其他应用进程发送数据, 也允许从很多其他应用进程那里接收数据, 或者只跟一个其他应用进程相互通信</li>
 <li>操作系统无关: UDP所提供的标识应用程序的方法, 不取决于本地操作系统所使用的标识符</li>
 </ul>
+<p><img src="index/udp_segment.png" alt=""></p>
 <h2 id="24-4-无连接的通信模式"><a href="#24-4-无连接的通信模式" class="headerlink" title="24.4 无连接的通信模式"></a>24.4 无连接的通信模式</h2><p>UDP采用无连接通信模式, 可以在任何时候发送数据, 不需要维护通信状态, 也不使用控制报文, 因此传输开销极低</p>
 <h2 id="24-7-交互模式和广播传递"><a href="#24-7-交互模式和广播传递" class="headerlink" title="24.7 交互模式和广播传递"></a>24.7 交互模式和广播传递</h2><p>UDP支持四种交互通信方式:</p>
 <ul>
@@ -3345,6 +3540,7 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 <li>可靠的连接建立: TCP允许两个应用进程可靠地开始通信 </li>
 <li>友好的连接关闭: 在关闭一个连接之前, TCP必须保证所有数据已经传递完毕, 并且通信双方都要同意关闭这个连接 </li>
 </ul>
+<p><img src="index/tcp_segment.png" alt=""></p>
 <h2 id="25-4-端对端服务与虚拟连接"><a href="#25-4-端对端服务与虚拟连接" class="headerlink" title="25.4 端对端服务与虚拟连接"></a>25.4 端对端服务与虚拟连接</h2><p>TCP和UDP都是<strong>端到端协议</strong>: 提供在一台计算机上的应用进程与另一台计算机上的应用进程之间的通信能力</p>
 <p>TCP是<strong>面向连接</strong>的协议, TCP提供的连接是一种虚拟连接, 因为它是软件实现的连接</p>
 <p>TCP将底层因特网视为一个通信系统</p>

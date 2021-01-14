@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+<meta name="description" content="概述 单词级别分析和翻译源程序 任务: 作为字符串的源程序-&gt;单词符号串  词法分析器的要求单词符号表示通常使用二元式 (单词种别, 单词符号的属性值)  单词种别: 语法分析需要的信息, 通常使用整数编码 单词(符号属性)值: 编译其他阶段使用  单词如何分类取决于处理上的方便:  标识符: 一般通归为一种 常数: 按类型分种 关键字: 可全体为一种, 也可一字一种(更方便) 运算符: 一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="词法分析">
+<meta property="og:url" content="https://frezcirno.github.io/compiler-principle/lex.html">
+<meta property="og:site_name" content="frezcirno&#39;s blog">
+<meta property="og:description" content="概述 单词级别分析和翻译源程序 任务: 作为字符串的源程序-&gt;单词符号串  词法分析器的要求单词符号表示通常使用二元式 (单词种别, 单词符号的属性值)  单词种别: 语法分析需要的信息, 通常使用整数编码 单词(符号属性)值: 编译其他阶段使用  单词如何分类取决于处理上的方便:  标识符: 一般通归为一种 常数: 按类型分种 关键字: 可全体为一种, 也可一字一种(更方便) 运算符: 一">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/lex.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/tg.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/dfa_tg.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/nfa_dfa.png">
+<meta property="article:published_time" content="2020-12-17T02:54:12.000Z">
+<meta property="article:modified_time" content="2021-01-14T15:46:48.532Z">
+<meta property="article:author" content="frezcirno">
+<meta property="article:tag" content="daily">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://frezcirno.github.io/compiler-principle/lex/lex.png">
+
+
+<link rel="canonical" href="https://frezcirno.github.io/compiler-principle/lex.html">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>词法分析 | frezcirno's blog</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">frezcirno's blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">今天学到了什么？</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">41</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E7%9A%84%E8%A6%81%E6%B1%82"><span class="nav-text">词法分析器的要求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E8%AE%BE%E8%AE%A1"><span class="nav-text">词法分析器设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#lexer%E7%9A%84%E7%BB%93%E6%9E%84"><span class="nav-text">lexer的结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E8%AF%8D%E7%AC%A6%E5%8F%B7%E7%9A%84%E8%AF%86%E5%88%AB-%E8%B6%85%E5%89%8D%E6%90%9C%E7%B4%A2"><span class="nav-text">单词符号的识别: 超前搜索</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E8%A7%84%E5%88%99%E7%9A%84%E8%A1%A8%E7%A4%BA"><span class="nav-text">词法规则的表示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TG"><span class="nav-text">TG</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E8%A7%84%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%92%8C%E6%9C%89%E9%99%90%E8%87%AA%E5%8A%A8%E6%9C%BA"><span class="nav-text">正规表达式和有限自动机</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E8%A7%84%E5%BC%8F%E5%92%8C%E6%AD%A3%E8%A7%84%E9%9B%86"><span class="nav-text">正规式和正规集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FA"><span class="nav-text">FA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DFA"><span class="nav-text">DFA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NFA"><span class="nav-text">NFA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DFA%E5%92%8CNFA%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-text">DFA和NFA的关系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E7%9A%84%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90"><span class="nav-text">词法分析器的自动生成</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="frezcirno"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">frezcirno</p>
+  <div class="site-description" itemprop="description">frezcirno的个人博客, 记录一些技术相关的学习内容</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/frezcirno" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;frezcirno" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:2277861660@qq.com" title="E-Mail → mailto:2277861660@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle/lex.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人博客, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          词法分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-17 10:54:12" itemprop="dateCreated datePublished" datetime="2020-12-17T10:54:12+08:00">2020-12-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">课程笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">编译原理</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/compiler-principle/lex.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="compiler-principle/lex.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+      </div>
+      <div class="post-meta">
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>2 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
+<li>单词级别分析和翻译源程序</li>
+<li>任务: 作为<strong>字符串</strong>的源程序-&gt;<strong>单词符号串</strong></li>
+</ul>
+<h2 id="词法分析器的要求"><a href="#词法分析器的要求" class="headerlink" title="词法分析器的要求"></a>词法分析器的要求</h2><p>单词符号表示通常使用二元式 (单词种别, 单词符号的属性值)</p>
+<ul>
+<li>单词种别: 语法分析需要的信息, 通常使用整数编码</li>
+<li>单词(符号属性)值: 编译其他阶段使用</li>
+</ul>
+<p>单词如何分类取决于处理上的方便:</p>
+<ul>
+<li>标识符: 一般通归为一种</li>
+<li>常数: 按类型分种</li>
+<li>关键字: 可全体为一种, 也可一字一种(更方便)</li>
+<li>运算符: 一般一符一种, 可以把具有一定共性的视为一类</li>
+<li>界符: 一般一符一种</li>
+</ul>
+<p>单词符号的属性:</p>
+<ul>
+<li>标识符: 存放它<strong>符号表</strong>项的指针/内部字符串</li>
+<li>常数: 存放它<strong>常数表</strong>项的指针/二进制形式</li>
+<li>关键字/运算符/界符: 不需要属性</li>
+</ul>
+<p><img src="lex/lex.png" alt=""></p>
+<p>实现方式:</p>
+<ul>
+<li>完全独立: lex作为单独一遍<ul>
+<li>结构简洁, 清晰, 条理化</li>
+</ul>
+</li>
+<li>相对独立: 作为parser的一个独立子程序, 需要新符号时调用<ul>
+<li>避免中间文件, 提高效率</li>
+</ul>
+</li>
+</ul>
+<h2 id="词法分析器设计"><a href="#词法分析器设计" class="headerlink" title="词法分析器设计"></a>词法分析器设计</h2><h3 id="lexer的结构"><a href="#lexer的结构" class="headerlink" title="lexer的结构"></a>lexer的结构</h3><p>源程序 -&gt; 输入缓冲区/预处理子程序/扫描缓冲区/扫描器 -&gt; 单词符号</p>
+<p>预处理子程序: 处理空白符等编辑性字符, 删除注释等</p>
+<p>输入缓冲区: 存放源程序文本输入串的缓冲区</p>
+<p>扫描缓冲区: 设定两个指示器</p>
+<h3 id="单词符号的识别-超前搜索"><a href="#单词符号的识别-超前搜索" class="headerlink" title="单词符号的识别: 超前搜索"></a>单词符号的识别: 超前搜索</h3><ul>
+<li>关键字识别</li>
+<li>标识符识别: 一般是字母开头的字母数字串, 一般都跟着算符或者界符, 不难识别</li>
+<li>常数的识别: 有些语言需要使用超前搜索</li>
+<li>算符和界符: 对于c++中的++,—等需要超前搜索</li>
+</ul>
+<h3 id="词法规则的表示"><a href="#词法规则的表示" class="headerlink" title="词法规则的表示"></a>词法规则的表示</h3><p>大多数pl中的单词符号的<strong>词法规则</strong>可以用<strong>正规文法</strong>描述</p>
+<p>例如:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;标识符&gt;→ 字母|&lt;标识符&gt;字母|&lt;标识符&gt;数字</span><br><span class="line">&lt;整数&gt;→数字|&lt;整数&gt;数字</span><br><span class="line">&lt;运算符&gt;→+|－|\times|÷…</span><br><span class="line">&lt;界符&gt;→; |, |( | )|…</span><br></pre></td></tr></table></figure>
+<p>利用这些规则识别的过程可以用<strong>状态转换图</strong>来表示, 而状态转换图可以方便地用程序实现</p>
+<h3 id="TG"><a href="#TG" class="headerlink" title="TG"></a>TG</h3><p>状态转换图TG: 一个有限有向图, 可用于接受(识别)一定的符号串</p>
+<ul>
+<li>结点表示状态, 用圆圈表示<ul>
+<li>初态: 通常只有一个, 用一条输入弧表示</li>
+<li>终态: <strong>至少有一个</strong>, 用双圈表示</li>
+</ul>
+</li>
+<li>方向弧表示状态转换, 弧上的标记表示接受的输入字符或字符类</li>
+</ul>
+<p>路: 在状态转换图中从初态到某一个终态的弧上的标记序列</p>
+<p>接受(识别): 若存在一条路产生$\beta$, 则称状态转换图接受符号串$\beta$</p>
+<p>状态转换图能识别的语言: L(TG)能别TG接受的符号串的集合</p>
+<p><img src="lex/tg.png" alt=""></p>
+<h2 id="正规表达式和有限自动机"><a href="#正规表达式和有限自动机" class="headerlink" title="正规表达式和有限自动机"></a>正规表达式和有限自动机</h2><h3 id="正规式和正规集"><a href="#正规式和正规集" class="headerlink" title="正规式和正规集"></a>正规式和正规集</h3><p>字母表$\Sigma$上的正规式和正规集递归定义如下：</p>
+<ol>
+<li>$\varepsilon$和$\varphi$都是$\Sigma$上的正规式，它们所表示的正规集分别为${\varepsilon}$和$\varphi$。其中：$\varepsilon$为空字符串，$\varphi$为空集</li>
+<li>任意元素$a\in\Sigma$，a是$\Sigma$上的一个正规式，它所表示的正规集是${a}$;</li>
+<li>假定U和V都是$\Sigma$上的正规式，它们所表示的正规集记为L(U)和L(V)，那么（U|V），（U·V）和(U)*都是正规式，他们所表示的正规集分别记为L(U)∪L(V)，L(U)L(V)和(L(U))*。</li>
+<li>仅由有限次使用上述三步而得到的表达式才是$\Sigma$上的正规式，它们所表示的字集才是$\Sigma$上的正规集。</li>
+</ol>
+<p>运算:</p>
+<ul>
+<li>闭包<code>*</code></li>
+<li>连接<code>.</code> (可省略)</li>
+<li>或<code>|</code></li>
+</ul>
+<p>运算律:</p>
+<ul>
+<li>或交换律</li>
+<li>或结合律</li>
+<li>连接结合律</li>
+<li>或对连接分配律</li>
+<li>$\varepsilon U=U \varepsilon=U$</li>
+</ul>
+<p>例:</p>
+<ul>
+<li>以01结尾的二进制数串的正规式: <code>(0|1)*01</code></li>
+<li>能被5整除的十进制整数: <code>0|5|(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*(0|5)</code></li>
+</ul>
+<h3 id="FA"><a href="#FA" class="headerlink" title="FA"></a>FA</h3><p>自动机: 具有离散输入输出的数学模型</p>
+<pre><code>状态 + 输入 + 规则 -&gt; 状态迁移
+</code></pre><p>有限自动机(FA)</p>
+<p>有限状态机(FSM)</p>
+<h3 id="DFA"><a href="#DFA" class="headerlink" title="DFA"></a>DFA</h3><p>DFA五元组: $M=(S,\Sigma,\delta,S_0,F)$</p>
+<ul>
+<li>S: 有限的状态集合，每个元素称为一个状态</li>
+<li>$\Sigma$: 有限的输入字母表，每个元素称为一个输入字符</li>
+<li>$\delta: S\times\Sigma → S$: 转换函数(状态转移集合)<ul>
+<li>$\delta(s, a)=s’$</li>
+</ul>
+</li>
+<li>$S_0\in S$: 初始状态</li>
+<li>$F\subseteq S$: 终止状态集</li>
+</ul>
+<p>状态转换矩阵: DFA可以用一个矩阵表示, 每行表示一个状态, 每列表示一种输入, 矩阵元素表示$\delta$(s,a)的值</p>
+<p><strong>DFA与状态转换图: DFA可以用TG唯一表示</strong></p>
+<p><img src="lex/dfa_tg.png" alt=""></p>
+<p><strong>拓展转移函数</strong></p>
+<ul>
+<li>接收一个字符串的状态转移函数</li>
+<li>$\delta’: S\times\Sigma^* → S$</li>
+<li>定义<ul>
+<li>$\delta’(s, \varepsilon) = s$</li>
+<li>$\delta’(s, \omega a) = \delta(\delta’(s,\omega ),a)$</li>
+</ul>
+</li>
+</ul>
+<p>DFA接受的字符串</p>
+<p>DFA接受的语言: $L(M)={α|\delta’(s,α)\in F}$</p>
+<h3 id="NFA"><a href="#NFA" class="headerlink" title="NFA"></a>NFA</h3><p>NFA五元组: $M=(S,\Sigma,\delta,S_0,F)$</p>
+<ul>
+<li>$S$: 同DFA</li>
+<li>$\Sigma$: 同DFA</li>
+<li>$\delta: S\times\Sigma^* → 2^S(幂集)$: 转换函数(状态转移集合)<ul>
+<li>$\delta(s, a)=S’\subseteq S$</li>
+</ul>
+</li>
+<li>$S_0\subseteq S$: 非空初态集</li>
+<li>$F\subseteq S$: 终止状态集</li>
+</ul>
+<p><strong>NFA也可以用TG和转换矩阵表示</strong></p>
+<p><strong>NFA的状态是一个集合</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>比较</th>
+<th>DFA</th>
+<th>NFA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入字母</td>
+<td>每个(状态,输入)都有一个$\delta$</td>
+<td>可能没有$\delta$/是空转换</td>
+</tr>
+<tr>
+<td>转移状态</td>
+<td>确定的</td>
+<td>不确定的, 可能有多个</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>NFA的拓展转移函数 $\delta’(\delta: S\times\Sigma^* → 2^S)$</p>
+<ol>
+<li>$\delta’(s, \varepsilon) = {\varepsilon}$</li>
+<li>$\delta’(s,\omega a)={p|存在r\in\delta’(s,\omega )\wedge p\in\delta(r,a)}$</li>
+</ol>
+<p>NFA接受的字符串</p>
+<p>NFA接受的语言</p>
+<h3 id="DFA和NFA的关系"><a href="#DFA和NFA的关系" class="headerlink" title="DFA和NFA的关系"></a>DFA和NFA的关系</h3><p>DFA是NFA的特例, 两者可以相互转化</p>
+<p>$\varepsilon-闭包:$</p>
+<script type="math/tex; mode=display">
+\varepsilon\_CLOSURE(I)=\{q|q\in I\}\cup\{q'|q经任意条\varepsilon弧可到达q', q\in I\}, I\subseteq M'</script><p>NFA-&gt;DFA之子集法:</p>
+<ol>
+<li>引进新的初态结点X和终态结点Y, 从X到任意结点连接一条$\varepsilon$弧, 从任意结点到Y连接一条$\varepsilon$弧</li>
+<li><p>对复合的弧进行分裂合并替换</p>
+<p> <img src="lex/nfa_dfa.png" alt=""> </p>
+</li>
+<li><p>构造状态矩阵<br> | I                           | $I_{\Sigma_i}$ |<br> | —————————————- | ——————— |<br> | $\varepsilon_CLOSURE({X})$ | …            |<br> | …                         | …            |</p>
+</li>
+<li><p>合并相同状态, 重新命名得到新的状态转换矩阵</p>
+</li>
+<li>画出状态转换图</li>
+</ol>
+<h2 id="词法分析器的自动生成"><a href="#词法分析器的自动生成" class="headerlink" title="词法分析器的自动生成"></a>词法分析器的自动生成</h2>
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">推荐文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/compiler-principle/2.html" rel="bookmark">语法分析</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/compiler-principle/3.html" rel="bookmark">语义分析和中间代码生成</a></div>
+    </li>
+  </ul>
+
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/PTA/1099.html" rel="prev" title="1099. Build A Binary Search Tree">
+                  <i class="fa fa-chevron-left"></i> 1099. Build A Binary Search Tree
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/compiler-principle/2.html" rel="next" title="语法分析">
+                  语法分析 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fas fa-dove"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">frezcirno</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">78k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:11</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+  <script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              const target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    const script = document.createElement('script');
+    script.src = '//cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js';
+    script.defer = true;
+    document.head.appendChild(script);
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.typesetClear();
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://frezcirno-github-io.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://frezcirno.github.io/compiler-principle/lex.html";
+    this.page.identifier = "compiler-principle/lex.html";
+    this.page.title = "词法分析";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://frezcirno-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

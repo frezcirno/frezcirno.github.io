@@ -26,22 +26,22 @@
 <meta name="description" content="课程简介总评 &#x3D; 考试  60% + 作业  30% + 平时 * 10% 程序语言的发展机器语言 -&gt; 汇编语言 -&gt; 高级语言 程序的两种执行方式 解释方式  编译方式   Java认为是解释型语言 编译的步骤编译过程基本分为五个基本阶段:   词法分析 语法分析 语义分析和中间代码生成 优化 目标代码生成  1. 词法分析 词法分析程序又称扫描程序(Scanner)。 任务：读源">
 <meta property="og:type" content="article">
 <meta property="og:title" content="编译原理笔记">
-<meta property="og:url" content="https://frezcirno.github.io/compiler-principle.html">
+<meta property="og:url" content="https://frezcirno.github.io/compiler-principle/index.html">
 <meta property="og:site_name" content="frezcirno&#39;s blog">
 <meta property="og:description" content="课程简介总评 &#x3D; 考试  60% + 作业  30% + 平时 * 10% 程序语言的发展机器语言 -&gt; 汇编语言 -&gt; 高级语言 程序的两种执行方式 解释方式  编译方式   Java认为是解释型语言 编译的步骤编译过程基本分为五个基本阶段:   词法分析 语法分析 语义分析和中间代码生成 优化 目标代码生成  1. 词法分析 词法分析程序又称扫描程序(Scanner)。 任务：读源">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ast_demo.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/t_diagram.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/t_diagram2.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/index/ast_demo.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/index/t_diagram.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/index/t_diagram2.png">
 <meta property="article:published_time" content="2020-12-03T02:57:20.000Z">
-<meta property="article:modified_time" content="2021-01-13T13:11:01.524Z">
+<meta property="article:modified_time" content="2021-01-14T15:46:48.528Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="daily">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://frezcirno.github.io/compiler-principle/ast_demo.png">
+<meta name="twitter:image" content="https://frezcirno.github.io/compiler-principle/index/ast_demo.png">
 
 
-<link rel="canonical" href="https://frezcirno.github.io/compiler-principle.html">
+<link rel="canonical" href="https://frezcirno.github.io/compiler-principle/">
 
 
 <script class="page-configurations">
@@ -147,7 +147,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">82</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -222,7 +222,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">82</span>
+          <span class="site-state-item-count">84</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -282,7 +282,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle.html">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle/index.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -338,8 +338,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/compiler-principle.html#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="compiler-principle.html" itemprop="commentCount"></span>
+    <a title="disqus" href="/compiler-principle/index.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="compiler-principle/index.html" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -411,7 +411,7 @@
 <li>语法规则通常用<strong>上下文无关文法</strong>描述。</li>
 <li>方法：递归子程序法、<strong>LR分析法</strong>、<strong>算符优先分析法</strong>。</li>
 </ul>
-<p>输入: 符号流<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sum := first + count * <span class="number">10</span></span><br></pre></td></tr></table></figure><br>输出: 语法树<br><img src="compiler-principle/ast_demo.png" alt=""></p>
+<p>输入: 符号流<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sum := first + count * <span class="number">10</span></span><br></pre></td></tr></table></figure><br>输出: 语法树<br><img src="index/ast_demo.png" alt=""></p>
 <h3 id="3-1-语义分析"><a href="#3-1-语义分析" class="headerlink" title="3.1 语义分析"></a>3.1 语义分析</h3><h3 id="3-2-中间代码生成"><a href="#3-2-中间代码生成" class="headerlink" title="3.2 中间代码生成"></a>3.2 中间代码生成</h3><h3 id="4-优化"><a href="#4-优化" class="headerlink" title="4. 优化"></a>4. 优化</h3><ul>
 <li>优化的任务在于对前段产生的中间代码进行加工，把它变换成功能相同，但功效更高的优化了的中间表示代码，以期在最后阶段产生更为高效（省时间和空间）的代码</li>
 <li>优化所依循的原则是程序的等价变换规则</li>
@@ -440,14 +440,14 @@
 </tbody>
 </table>
 </div>
-<h3 id="T形图"><a href="#T形图" class="headerlink" title="T形图"></a>T形图</h3><p><img src="compiler-principle/t_diagram.png" alt=""></p>
+<h3 id="T形图"><a href="#T形图" class="headerlink" title="T形图"></a>T形图</h3><p><img src="index/t_diagram.png" alt=""></p>
 <ul>
 <li>S:源语言(程序)，Source language(program)</li>
 <li>T:目标语言(程序), target/object language(program)</li>
 <li>I:实现语言, implementation language</li>
 </ul>
 <p>用T形图表示编译器移植</p>
-<p><img src="compiler-principle/t_diagram2.png" alt=""></p>
+<p><img src="index/t_diagram2.png" alt=""></p>
 <h3 id="特殊"><a href="#特殊" class="headerlink" title="特殊"></a>特殊</h3><p>自编译: </p>
 <p>交叉编译</p>
 <p>自动编译:<br>    lex, yacc</p>
@@ -466,10 +466,10 @@
   <div class="popular-posts-header">推荐文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/compiler-principle/1.html" rel="bookmark">1</a></div>
+      <div class="popular-posts-title"><a href="/compiler-principle/2.html" rel="bookmark">语法分析</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/compiler-principle/2.html" rel="bookmark">语法分析</a></div>
+      <div class="popular-posts-title"><a href="/compiler-principle/3.html" rel="bookmark">语义分析和中间代码生成</a></div>
     </li>
   </ul>
 
@@ -548,13 +548,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">75k</span>
+    <span title="站点总字数">78k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:08</span>
+    <span title="站点阅读时长">1:11</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -616,8 +616,8 @@
 </script>
 <script>
   var disqus_config = function() {
-    this.page.url = "https://frezcirno.github.io/compiler-principle.html";
-    this.page.identifier = "compiler-principle.html";
+    this.page.url = "https://frezcirno.github.io/compiler-principle/index.html";
+    this.page.identifier = "compiler-principle/index.html";
     this.page.title = "编译原理笔记";
     };
   NexT.utils.loadComments('#disqus_thread', () => {
