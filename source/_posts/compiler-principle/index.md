@@ -95,7 +95,7 @@ else return "no " ;
 sum := first + count * 10
 ```
 输出: 语法树
-![](compiler-principle/ast_demo.png)
+![](index/ast_demo.png)
 
 ### 3.1 语义分析
 
@@ -124,7 +124,7 @@ sum := first + count * 10
 
 ### T形图
 
-![](compiler-principle/t_diagram.png)
+![](index/t_diagram.png)
 
 - S:源语言(程序)，Source language(program)
 - T:目标语言(程序), target/object language(program)
@@ -132,7 +132,7 @@ sum := first + count * 10
 
 用T形图表示编译器移植
 
-![](compiler-principle/t_diagram2.png)
+![](index/t_diagram2.png)
 
 ### 特殊
 

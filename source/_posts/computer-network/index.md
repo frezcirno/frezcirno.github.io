@@ -250,7 +250,7 @@ CSMA/CA:
 
 (传统)以太网帧格式:
 
-![](computer-network/ethernet_frame.png)
+![](index/ethernet_frame.png)
 
 * 以太网帧(64-1518) := 头部(14) + 载荷(46-1500) + CRC(4)
 
@@ -264,7 +264,7 @@ CSMA/CA:
 
 802.3以太网: IEEE 802.3重新修订后的以太网标准, (但不是很成功)
 
-![](computer-network/8023_ethernet_frame.png)
+![](index/8023_ethernet_frame.png)
 
 * 802.3以太网帧(64-1518) := 头部(14) + **SNAP头部(8)** + 新载荷(46(存疑)-**1492**) + CRC(4)
 
@@ -278,19 +278,19 @@ CSMA/CA:
 
 粗缆以太网(Thick wire Ethernet)/粗网(Thicknet, 10Base5): 最初版本的以太网布线方案, 因为其使用笨重的同轴电缆+收发器+AUI电缆方式而得名.
 
-![](computer-network/thicknet.png)
+![](index/thicknet.png)
 
 ## 15.8 细缆布线的以太网
 
 细缆以太网(Thin wire Ethernet)/细网(Thinnet, 10Base2): 第二代以太网布线方案, 使用细同轴电缆依次串联计算机, 不再需要AUI线, 收发器集成到NIC中, 缺点是容易单点故障 
 
-![](computer-network/thinnet.png)
+![](index/thinnet.png)
 
 ## 15.9 双绞线布线的以太网
 
 双绞线以太网(10BaseT): 第三代以太网布线系统, 使用了双绞线取代同轴电缆, 引入中心集线器(hub)
 
-![](computer-network/twistnet.png)
+![](index/twistnet.png)
 
 集线器是物理层设备, 具有一定的功能, 比如CSMA/CD等, 现在大部分已经被交换机取代
 
@@ -312,9 +312,9 @@ Wi-Fi联盟: 一群无线设备供应商组成的非营利性组织, 使用802.1
 
 WLAN的三个构件: 接入点(Access Point, AP, 非正式也称基站), 互联机构(交换机或路由器等), 无线主机(Station)
 
-![](computer-network/wlan.png)
+![](index/wlan.png)
 
-![](computer-network/wlan2.png)
+![](index/wlan2.png)
 
 WLAN的两种类型: Adhoc无接入点结构(很少), Infrastructure有中心接入点
 
@@ -333,7 +333,7 @@ WLAN的两种类型: Adhoc无接入点结构(很少), Infrastructure有中心接
 * 路由器MAC
 * 专用地址
 
-![](computer-network/80211_frame.png)
+![](index/80211_frame.png)
 
 ## 16.11 竞争与无竞争接入
 
@@ -348,7 +348,7 @@ WLAN的两种类型: Adhoc无接入点结构(很少), Infrastructure有中心接
 * 没有冲突检测, 而是采用确认ACK+超时重传机制
 * 设定SIFS(发ACK前延时)/DIFS(传输前延时)/Slot Time等时间间隔参数
 
-![](computer-network/csma_ca.png)
+![](index/csma_ca.png)
 
 ## 16.13 PAN技术与标准
 
@@ -445,19 +445,19 @@ IPv6的特点
 
 * 将`网络地址`进一步细分为`全球单播地址`和`子网地址`两部分, `主机地址`仍保留, 两者共128位, 用`/xx`来表示`网络地址`的长度, 如不指定默认是64位
 
-  ![](computer-network/ipv6.png)
+  ![](index/ipv6.png)
 
 * 取消`广播`, 支持`多播`, 增加`任播`(anycast)
 
-  ![](computer-network/ipv6_special.png)
+  ![](index/ipv6_special.png)
 
 ## 22.4 IP数据报
 
-IP数据报 := 头部 + 数据区(载荷区)
+IP数据报(-65535) := 头部 + 数据区(载荷区)
 
 ## 22.5 IP数据报头部格式
 
-![](computer-network/ip_datagram.png)
+![](index/ip_datagram.png)
 
 ## 22.7 网络前缀提取与数据报转发
 
@@ -507,6 +507,8 @@ UDP的特征:
 * 任意交互: UDP允许应用进程给很多其他应用进程发送数据, 也允许从很多其他应用进程那里接收数据, 或者只跟一个其他应用进程相互通信
 * 操作系统无关: UDP所提供的标识应用程序的方法, 不取决于本地操作系统所使用的标识符
 
+![](index/udp_segment.png)
+
 ## 24.4 无连接的通信模式
 
 UDP采用无连接通信模式, 可以在任何时候发送数据, 不需要维护通信状态, 也不使用控制报文, 因此传输开销极低
@@ -535,6 +537,8 @@ TCP提供的服务有7个主要特点:
 * 流接口: TCP提供一个流接口, 利用它应用进程可以在一个连接上发送连续的字节流. TCP不必将数据组合成记录或是报文, 也不要求传递给接收应用进程的数据段大小一定要与发送端所送出的数据段大小相同 
 * 可靠的连接建立: TCP允许两个应用进程可靠地开始通信 
 * 友好的连接关闭: 在关闭一个连接之前, TCP必须保证所有数据已经传递完毕, 并且通信双方都要同意关闭这个连接 
+
+![](index/tcp_segment.png)
 
 ## 25.4 端对端服务与虚拟连接
 
