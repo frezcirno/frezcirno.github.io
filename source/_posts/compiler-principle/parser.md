@@ -177,17 +177,86 @@ LR(0)项目: 在文法产生式右部中间间隔处加一个原点
 - LR分析时栈里的符号应该始终构成活前缀
 
 1. 识别活前缀的NFA方法:
-- 只有项目1作为初态, 其他任何项目都认为是终态
-- 连接弧
-  - $状态i为X\rightarrow X_1...X_{i-1}\cdot X_i...x_n$
-  - 
-  
+   - 只有项目1作为初态, 其他任何项目都认为是终态
+   - 连接非$\varepsilon$弧
+     - $状态i为X\rightarrow X_1...X_{i-1}\cdot X_i...X_n$
+     - $状态j为X\rightarrow X_1...X_{i-1}X_i\cdot X_{i+1}...X_n$
+     - 则连接状态i到状态j, 标志为$X_i$
+   - 连接$\varepsilon$弧
+     - $状态i为X\rightarrow \alpha\cdot A\beta$
+     - 则连接状态i到所有状态$A\rightarrow\cdot\gamma$, 标志为$\varepsilon$
+     
+   - 确定化(NFA转DFA)
+
+     ![](parser/huoqianzhui.png)
+     
+     ![](parser/huoqianzhui2.png)
+
 2. LR(0)项目集规范族
+   - 识别活前缀的DFA的项目集的全体称为文法的LR(0)项目集规范族
+     - 规约项目: $A\rightarrow\alpha\cdot$
+     - 接受项目: $S\rightarrow\alpha\cdot$
+     - 移进项目: $A\rightarrow\alpha\cdot a\beta$
+     - 待约项目: $A\rightarrow\alpha\cdot B\beta$
+  
+   - 拓广文法
+     - 构造一个新的文法$G'\supseteq G$
+     - 引进一个开始符号, 非终结符$S'$
+     - 增加一个产生式$S'\rightarrow S$
+     - 唯一接受态: $S'\rightarrow S\cdot$
+
+   - 项目集的闭包$Closure(I)$:
+     - $I\in Closure(I)$
+     - 若$(A\rightarrow\alpha\cdot B\beta)\in Closure(I)$, 则对于任何$B\rightarrow\gamma$, $(B\rightarrow\cdot\gamma)\in Closure(I)$
+     - 与$I$同状态的项目集合, 包括子项目
+
+   - 状态转换函数$GO(I,X)$:
+     - $GO(I, X)=Closure(\{A\rightarrow\alpha X\cdot\beta|(A\rightarrow\alpha\cdot X\beta)\in I\})$
+     - 若I是对活前缀$\gamma$有效的项目集, 那么$GO(I, X)$就是对$\gamma X$有效的项目集
+     - 接受$X$之后的$Closure$集合
+
+   - 构造DFA算法
+      ```pascal
+      PROCEDURE ITEMSETS(G')；
+      BEGIN
+        C:={Closure({S'\rightarrow\cdot S})}；
+        REPEAT
+          FOR C中每个项目集I和G'的每个符号X DO
+            IF GO(I, X)非空且不属于C THEN
+              C += GO(I, X)
+        UNTIL C 不再增大
+      END
+      ``` 
+
+
+LR(0)文法:
+- 拓广文法的识别活前缀的dfa的项目集(LR(0)项目集规范族)不包含任何冲突的文法
+
+构造LR(0)分析表:
+- 每个项目集为一个状态
+- 包含$S'\rightarrow\cdot S$的集合为初态
+
+构造LR(0)的ACTION和GOTO:
+- 若$A\rightarrow\alpha\cdot a\beta\in I_k$且$GO(I_k, a)=I_j$, 则$ACTION[k, a]=sj$
+- 若$A\rightarrow\alpha\cdot\in I_k$, 则$ACTION[k, a]=rj$
+- 若$S'\rightarrow S\in I_k$, 则$ACTION[k, a]=acc$
+- 若$GOTO(I_k,A)=I_j$, 则$GOTO[k, a]=j$
+- 其他均为报错
+
+![](parser/lr0_table.png)
 
 ### SLR
 
+LR(0)可能会误判: 即使存在移进-规约, 规约-规约项目冲突, 不一定不合法
 
-
+假定LR(0)规范族的一个项目集$I=\{A_1\rightarrow\alpha\cdot a_1\beta_1, A_2\rightarrow\alpha\cdot a_2\beta_2, ..., A_m\rightarrow\alpha\cdot a_m\beta_m, B_1\rightarrow\alpha\cdot , B_2\rightarrow\alpha\cdot , ..., B_n\rightarrow\alpha\cdot \}$ 如果集合$
+\{a_1, ..., a_m\}, FOLLOW(B_1), ..., FOLLOW(B_n)$两两不相交(
+包括不得有两个FOLLOW集合有#), 则
+1. 若a是某个ai, i=1,2,...,m, 则移进；
+2. 若$a\in FOLLOW(B_i), i=1,2,...,n$, 则用产生式$B_i\rightarrow\alpha$进行归约；
+3. 此外, 报错。
+   
+冲突性动作的这种解决办法叫做SLR(1)解决办法。上述方法构造出的ACTION与GOTO表如果不含多重入口，则称该文法为**SLR(1)文法**
 
 ### LR(1)
 ### LALR
@@ -195,3 +264,14 @@ LR(0)项目: 在文法产生式右部中间间隔处加一个原点
 不考, 略
 
 ## 二义文法的应用
+
+### 二义文法
+不是LR文法
+- 简洁、自然
+- 可以用文法以外的信息来消除二义
+- 语法分析的效率高（基于消除二义后得到的分析表）
+
+举例: E → E + E | E * E | (E) | id
+
+消除二义性:
+1. 使用文法以外信息来解决分析动作冲突
