@@ -23,23 +23,33 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
-<meta name="description" content="概述 单词级别分析和翻译源程序 任务: 作为字符串的源程序-&gt;单词符号串  词法分析器的要求单词符号表示通常使用二元式 (单词种别, 单词符号的属性值)  单词种别: 语法分析需要的信息, 通常使用整数编码 单词(符号属性)值: 编译其他阶段使用  单词如何分类取决于处理上的方便:  标识符: 一般通归为一种 常数: 按类型分种 关键字: 可全体为一种, 也可一字一种(更方便) 运算符: 一">
+<meta name="description" content="提纲 概述 单词级别分析和翻译源程序 任务: 作为字符串的源程序-&gt;单词符号串  词法分析器的要求单词符号表示通常使用二元式 (单词种别, 单词符号的属性值)  单词种别: 语法分析需要的信息, 通常使用整数编码 单词(符号属性)值: 编译其他阶段使用  单词如何分类取决于处理上的方便:  标识符: 一般通归为一种 常数: 按类型分种 关键字: 可全体为一种, 也可一字一种(更方便) 运算符">
 <meta property="og:type" content="article">
 <meta property="og:title" content="词法分析">
 <meta property="og:url" content="https://frezcirno.github.io/compiler-principle/lex.html">
 <meta property="og:site_name" content="frezcirno&#39;s blog">
-<meta property="og:description" content="概述 单词级别分析和翻译源程序 任务: 作为字符串的源程序-&gt;单词符号串  词法分析器的要求单词符号表示通常使用二元式 (单词种别, 单词符号的属性值)  单词种别: 语法分析需要的信息, 通常使用整数编码 单词(符号属性)值: 编译其他阶段使用  单词如何分类取决于处理上的方便:  标识符: 一般通归为一种 常数: 按类型分种 关键字: 可全体为一种, 也可一字一种(更方便) 运算符: 一">
+<meta property="og:description" content="提纲 概述 单词级别分析和翻译源程序 任务: 作为字符串的源程序-&gt;单词符号串  词法分析器的要求单词符号表示通常使用二元式 (单词种别, 单词符号的属性值)  单词种别: 语法分析需要的信息, 通常使用整数编码 单词(符号属性)值: 编译其他阶段使用  单词如何分类取决于处理上的方便:  标识符: 一般通归为一种 常数: 按类型分种 关键字: 可全体为一种, 也可一字一种(更方便) 运算符">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/index.png">
 <meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/lex.png">
 <meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/tg.png">
 <meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/dfa_tg.png">
 <meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/nfa_dfa.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/nfa_dfa_example_1.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/nfa_dfa_example_2.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/nfa_dfa_example_3.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/nfa_regex.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/regex_nfa_1.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/regex_nfa_2.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/regex_nfa_example.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/dfa_simplify.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/dfa_simplify_example.png">
 <meta property="article:published_time" content="2020-12-17T02:54:12.000Z">
-<meta property="article:modified_time" content="2021-01-14T15:46:48.532Z">
+<meta property="article:modified_time" content="2021-01-17T03:42:54.632Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="daily">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://frezcirno.github.io/compiler-principle/lex/lex.png">
+<meta name="twitter:image" content="https://frezcirno.github.io/compiler-principle/lex/index.png">
 
 
 <link rel="canonical" href="https://frezcirno.github.io/compiler-principle/lex.html">
@@ -207,7 +217,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <section class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E7%9A%84%E8%A6%81%E6%B1%82"><span class="nav-text">词法分析器的要求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E8%AE%BE%E8%AE%A1"><span class="nav-text">词法分析器设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#lexer%E7%9A%84%E7%BB%93%E6%9E%84"><span class="nav-text">lexer的结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E8%AF%8D%E7%AC%A6%E5%8F%B7%E7%9A%84%E8%AF%86%E5%88%AB-%E8%B6%85%E5%89%8D%E6%90%9C%E7%B4%A2"><span class="nav-text">单词符号的识别: 超前搜索</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E8%A7%84%E5%88%99%E7%9A%84%E8%A1%A8%E7%A4%BA"><span class="nav-text">词法规则的表示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TG"><span class="nav-text">TG</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E8%A7%84%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%92%8C%E6%9C%89%E9%99%90%E8%87%AA%E5%8A%A8%E6%9C%BA"><span class="nav-text">正规表达式和有限自动机</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E8%A7%84%E5%BC%8F%E5%92%8C%E6%AD%A3%E8%A7%84%E9%9B%86"><span class="nav-text">正规式和正规集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FA"><span class="nav-text">FA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DFA"><span class="nav-text">DFA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NFA"><span class="nav-text">NFA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DFA%E5%92%8CNFA%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-text">DFA和NFA的关系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E7%9A%84%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90"><span class="nav-text">词法分析器的自动生成</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E7%BA%B2"><span class="nav-text">提纲</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E7%9A%84%E8%A6%81%E6%B1%82"><span class="nav-text">词法分析器的要求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E8%AE%BE%E8%AE%A1"><span class="nav-text">词法分析器设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#lexer%E7%9A%84%E7%BB%93%E6%9E%84"><span class="nav-text">lexer的结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E8%AF%8D%E7%AC%A6%E5%8F%B7%E7%9A%84%E8%AF%86%E5%88%AB-%E8%B6%85%E5%89%8D%E6%90%9C%E7%B4%A2"><span class="nav-text">单词符号的识别: 超前搜索</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E8%A7%84%E5%88%99%E7%9A%84%E8%A1%A8%E7%A4%BA"><span class="nav-text">词法规则的表示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TG"><span class="nav-text">TG</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E8%A7%84%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%92%8C%E6%9C%89%E9%99%90%E8%87%AA%E5%8A%A8%E6%9C%BA"><span class="nav-text">正规表达式和有限自动机</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E8%A7%84%E5%BC%8F"><span class="nav-text">正规式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FA"><span class="nav-text">FA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DFA"><span class="nav-text">DFA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NFA"><span class="nav-text">NFA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DFA%E5%92%8CNFA%E7%9A%84%E5%85%B3%E7%B3%BB-%E5%AD%90%E9%9B%86%E6%B3%95"><span class="nav-text">DFA和NFA的关系 (子集法)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E8%A7%84%E5%BC%8F%E5%92%8CFA%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-text">正规式和FA的关系</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8E-NFA-%E6%9E%84%E9%80%A0%E7%AD%89%E4%BB%B7%E7%9A%84%E6%AD%A3%E8%A7%84%E5%BC%8F-%E7%AE%80%E5%8D%95"><span class="nav-text">从 NFA 构造等价的正规式 (简单)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8E%E6%AD%A3%E8%A7%84%E5%BC%8F%E6%9E%84%E9%80%A0%E7%AD%89%E4%BB%B7%E7%9A%84NFA-Thompson%E7%AE%97%E6%B3%95"><span class="nav-text">从正规式构造等价的NFA (Thompson算法)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DFA%E7%9A%84%E5%8C%96%E7%AE%80-%E7%AD%89%E4%BB%B7%E7%8A%B6%E6%80%81%E6%B3%95"><span class="nav-text">DFA的化简 (等价状态法)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E8%A7%84%E6%96%87%E6%B3%95%E5%92%8CFA%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-text">正规文法和FA的关系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E7%9A%84%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90"><span class="nav-text">词法分析器的自动生成</span></a></li></ol></div>
         </section>
         <!--/noindex-->
 
@@ -352,14 +362,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>2.7k</span>
+      <span>3.5k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>2 分钟</span>
+      <span>3 分钟</span>
     </span>
 </div>
 
@@ -370,7 +380,8 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
+        <h2 id="提纲"><a href="#提纲" class="headerlink" title="提纲"></a>提纲</h2><p><img src="lex/index.png" alt=""></p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
 <li>单词级别分析和翻译源程序</li>
 <li>任务: 作为<strong>字符串</strong>的源程序-&gt;<strong>单词符号串</strong></li>
 </ul>
@@ -432,7 +443,7 @@
 <p>接受(识别): 若存在一条路产生$\beta$, 则称状态转换图接受符号串$\beta$</p>
 <p>状态转换图能识别的语言: L(TG)能别TG接受的符号串的集合</p>
 <p><img src="lex/tg.png" alt=""></p>
-<h2 id="正规表达式和有限自动机"><a href="#正规表达式和有限自动机" class="headerlink" title="正规表达式和有限自动机"></a>正规表达式和有限自动机</h2><h3 id="正规式和正规集"><a href="#正规式和正规集" class="headerlink" title="正规式和正规集"></a>正规式和正规集</h3><p>字母表$\Sigma$上的正规式和正规集递归定义如下：</p>
+<h2 id="正规表达式和有限自动机"><a href="#正规表达式和有限自动机" class="headerlink" title="正规表达式和有限自动机"></a>正规表达式和有限自动机</h2><h3 id="正规式"><a href="#正规式" class="headerlink" title="正规式"></a>正规式</h3><p>字母表$\Sigma$上的正规式和正规集递归定义如下：</p>
 <ol>
 <li>$\varepsilon$和$\varphi$都是$\Sigma$上的正规式，它们所表示的正规集分别为${\varepsilon}$和$\varphi$。其中：$\varepsilon$为空字符串，$\varphi$为空集</li>
 <li>任意元素$a\in\Sigma$，a是$\Sigma$上的一个正规式，它所表示的正规集是${a}$;</li>
@@ -531,22 +542,123 @@
 </ol>
 <p>NFA接受的字符串</p>
 <p>NFA接受的语言</p>
-<h3 id="DFA和NFA的关系"><a href="#DFA和NFA的关系" class="headerlink" title="DFA和NFA的关系"></a>DFA和NFA的关系</h3><p>DFA是NFA的特例, 两者可以相互转化</p>
+<h3 id="DFA和NFA的关系-子集法"><a href="#DFA和NFA的关系-子集法" class="headerlink" title="DFA和NFA的关系 (子集法)"></a>DFA和NFA的关系 (子集法)</h3><p>DFA是NFA的特例, 两者可以相互转化</p>
 <p>$\varepsilon-闭包:$</p>
 <script type="math/tex; mode=display">
-\varepsilon\_CLOSURE(I)=\{q|q\in I\}\cup\{q'|q经任意条\varepsilon弧可到达q', q\in I\}, I\subseteq M'</script><p>NFA-&gt;DFA之子集法:</p>
+\varepsilon\_CLOSURE(I)=\{q|q\in I\}\cup\{q'|q经任意条\varepsilon弧可到达q', q\in I\}, I\subseteq M'</script><p><strong>NFA-&gt;DFA之子集法</strong>:</p>
 <ol>
-<li>引进新的初态结点X和终态结点Y, 从X到任意结点连接一条$\varepsilon$弧, 从任意结点到Y连接一条$\varepsilon$弧</li>
-<li><p>对复合的弧进行分裂合并替换</p>
+<li>引进新的初态结点X和终态结点Y, 从X到所有原始态结点连接一条$\varepsilon$弧, 从所有原终态结点到Y连接一条$\varepsilon$弧</li>
+<li><p>对复合的弧进行<strong>分裂</strong></p>
 <p> <img src="lex/nfa_dfa.png" alt=""> </p>
 </li>
-<li><p>构造状态矩阵<br> | I                           | $I_{\Sigma_i}$ |<br> | —————————————- | ——————— |<br> | $\varepsilon_CLOSURE({X})$ | …            |<br> | …                         | …            |</p>
+<li><p>构造状态矩阵<br> | I                           | $I_{\Sigma_i}$ | … |<br> | —————————————- | ——————— | —- |<br> | $\varepsilon_CLOSURE({X})$ | …            | … |<br> | …                         | …            | … |</p>
 </li>
 <li><p>合并相同状态, 重新命名得到新的状态转换矩阵</p>
+<ul>
+<li>第一行第一列的状态为始态</li>
+<li>包含Y的状态为终态</li>
+</ul>
 </li>
 <li>画出状态转换图</li>
 </ol>
-<h2 id="词法分析器的自动生成"><a href="#词法分析器的自动生成" class="headerlink" title="词法分析器的自动生成"></a>词法分析器的自动生成</h2>
+<p>例:</p>
+<p><img src="lex/nfa_dfa_example_1.png" alt=""></p>
+<p><img src="lex/nfa_dfa_example_2.png" alt=""></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>I</th>
+<th>$I_{a}$</th>
+<th>$I_{b}$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{X, 0, Y}</td>
+<td>{1}</td>
+<td>{1}</td>
+</tr>
+<tr>
+<td>{1}</td>
+<td>{0,Y}</td>
+<td>-</td>
+</tr>
+<tr>
+<td>{0,Y}</td>
+<td>{1}</td>
+<td>{1}</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>I</th>
+<th>$I_{a}$</th>
+<th>$I_{b}$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><img src="lex/nfa_dfa_example_3.png" alt=""></p>
+<h3 id="正规式和FA的关系"><a href="#正规式和FA的关系" class="headerlink" title="正规式和FA的关系"></a>正规式和FA的关系</h3><blockquote>
+<p>正规式和FA是等价的</p>
+</blockquote>
+<h4 id="从-NFA-构造等价的正规式-简单"><a href="#从-NFA-构造等价的正规式-简单" class="headerlink" title="从 NFA 构造等价的正规式 (简单)"></a>从 NFA 构造等价的正规式 (简单)</h4><ol>
+<li><p>引进新的初态结点X和终态结点Y, 从X到所有原始态结点连接一条$\varepsilon$弧, 从所有原终态结点到Y连接一条$\varepsilon$弧</p>
+</li>
+<li><p>对复合的弧进行<strong>合并</strong></p>
+<p> <img src="lex/nfa_regex.png" alt=""></p>
+</li>
+<li><p>得到regex</p>
+</li>
+</ol>
+<h4 id="从正规式构造等价的NFA-Thompson算法"><a href="#从正规式构造等价的NFA-Thompson算法" class="headerlink" title="从正规式构造等价的NFA (Thompson算法)"></a>从正规式构造等价的NFA (Thompson算法)</h4><p><img src="lex/regex_nfa_1.png" alt=""><br><img src="lex/regex_nfa_2.png" alt=""></p>
+<p>例:</p>
+<p><img src="lex/regex_nfa_example.png" alt=""></p>
+<h3 id="DFA的化简-等价状态法"><a href="#DFA的化简-等价状态法" class="headerlink" title="DFA的化简 (等价状态法)"></a>DFA的化简 (等价状态法)</h3><p>将状态集$S$根据能否被输入区分划分为更细的集合</p>
+<ol>
+<li>初始划分: $\Pi={终态集I^{(1)}, 非终态集I^{(2)}}$</li>
+<li>检查能否再分<ol>
+<li>如果对输入字符$a$, 存在$I^{(k)}$接受$a$后不全落在现行$\Pi$的某一个子集中</li>
+<li>就把$I^{(k)}$分成多个组, 使得每个组接受$a$后都落在$\Pi$的同一个子集中</li>
+</ol>
+</li>
+<li>重复直到子集数不再增加</li>
+</ol>
+<p><img src="lex/dfa_simplify.png" alt=""></p>
+<p>例题:</p>
+<p><img src="lex/dfa_simplify_example.png" alt=""></p>
+<p>初始划分$\Pi_0={\left{A,B,C,D\right},{E}}$</p>
+<p>考察${A,B,C,D}_a={B}\subseteq {A,B,C,D}$</p>
+<p>${A,B,C,D}_b={C,D,E}$, 需要划分, 其中${A,B,C}_b={C,D}$, ${D}_b={E}$</p>
+<p>将${A,B,C,D}$分成${A,B,C}$和${D}$, 得$\Pi_1={\left{A,B,C\right},{D},{E}}$</p>
+<p>考察${A,B,C}_b={C,D}$, 需要划分, 其中${A,C}_b={C}$, ${B}_b={D}$</p>
+<p>将${A,B,C}$分为${A,C}$和${B}$, 得$\Pi_2={\left{A,C\right},{B},{D},{E}}$</p>
+<h3 id="正规文法和FA的关系"><a href="#正规文法和FA的关系" class="headerlink" title="正规文法和FA的关系"></a>正规文法和FA的关系</h3><p>FA和左(右)线性正规文法等价</p>
+<p>将FA的状态和右线性正规文法的非终结符作为桥梁, 两者等价</p>
+<h2 id="词法分析器的自动生成"><a href="#词法分析器的自动生成" class="headerlink" title="词法分析器的自动生成"></a>词法分析器的自动生成</h2><p>略</p>
+
     </div>
 
     
@@ -556,10 +668,10 @@
   <div class="popular-posts-header">推荐文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/compiler-principle/2.html" rel="bookmark">语法分析</a></div>
+      <div class="popular-posts-title"><a href="/compiler-principle/4.html" rel="bookmark">4</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/compiler-principle/3.html" rel="bookmark">语义分析和中间代码生成</a></div>
+      <div class="popular-posts-title"><a href="/compiler-principle/5.html" rel="bookmark">目标代码生成</a></div>
     </li>
   </ul>
 
@@ -575,7 +687,7 @@
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/compiler-principle/2.html" rel="next" title="语法分析">
+                <a href="/compiler-principle/parser.html" rel="next" title="语法分析">
                   语法分析 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
@@ -638,13 +750,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">78k</span>
+    <span title="站点总字数">84k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:11</span>
+    <span title="站点阅读时长">1:16</span>
   </span>
 </div>
 <div class="busuanzi-count">
