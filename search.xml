@@ -13,17 +13,17 @@
 <p>转置行列式</p>
 <h4 id="性质"><a href="#性质" class="headerlink" title="性质"></a>性质</h4><ul>
 <li>转置行列式, 行列式不变</li>
-<li>对换行(列), 行列式变号<ul>
+<li><strong>对换行(列), 行列式变号</strong><ul>
 <li>两行(列)完全相同, 行列式=0</li>
 <li>两行(列)成比例, 行列式=0</li>
 </ul>
 </li>
 <li>一行(列)乘k = 整体乘k<ul>
-<li>行(列)系数提到外面, 行列式不变</li>
+<li><strong>行(列)系数提到外面, 行列式不变</strong></li>
 </ul>
 </li>
 <li>可以按照某一行(列)分成两个行列式相加</li>
-<li>一行乘k加到另一行, 行列式不变</li>
+<li><strong>一行乘k加到另一行, 行列式不变</strong></li>
 </ul>
 <h3 id="按行-列-展开"><a href="#按行-列-展开" class="headerlink" title="按行(列)展开"></a>按行(列)展开</h3><ul>
 <li>余子式 $M_{ij}$</li>
@@ -310,7 +310,9 @@ P=A^{-1}B</script><p><strong>坐标变换公式</strong>: 一个向量在两个�
 <h3 id="相似矩阵"><a href="#相似矩阵" class="headerlink" title="相似矩阵"></a>相似矩阵</h3><p>相似矩阵: $P^{-1}AP=B$</p>
 <p>相似变换: $P^{-1}AP$</p>
 <h4 id="性质-7"><a href="#性质-7" class="headerlink" title="性质"></a>性质</h4><ul>
-<li>相似矩阵的特征多项式($f(\lambda)=\left|A-\lambda E\right|$)相同, 特征值相同</li>
+<li>特征多项式($f(\lambda)=\left|A-\lambda E\right|$)相同</li>
+<li>特征值相同</li>
+<li>迹相同</li>
 <li><strong>计算矩阵多项式</strong>: $\varphi(A)=P\varphi(B)P^{-1}$<ul>
 <li>一般B是对角矩阵, 从而可以快速计算B的幂:</li>
 </ul>
@@ -434,6 +436,15 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&=(\alpha_1, \alpha_2, ..., \alpha_n)A
 \end{aligned}</script><h4 id="性质-8"><a href="#性质-8" class="headerlink" title="性质"></a>性质</h4><ul>
 <li>同一个变换在不同基下的矩阵<strong>相似</strong>, 且相似变换矩阵就是两个基的过渡矩阵P</li>
 </ul>
+<h4 id="相似-合同与等价"><a href="#相似-合同与等价" class="headerlink" title="相似, 合同与等价"></a>相似, 合同与等价</h4><ul>
+<li><p>等价$\Leftrightarrow$AB秩相同</p>
+</li>
+<li><p>合同=等价+正负惯性系数相同</p>
+</li>
+<li><p>相似=合同+特征值相同+主对角线元素之和相同+矩阵的值相同</p>
+</li>
+</ul>
+<p>由此可见，等价到合同到相似，条件越来越苛刻，AB共同点越来越多</p>
 ]]></content>
       <categories>
         <category>课程笔记</category>
@@ -1857,6 +1868,15 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
     <content><![CDATA[<p>最多可以交易两次</p>
 <h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>动态规划, 用四个状态变量</p>
 <p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iii/solution/mai-mai-gu-piao-de-zui-jia-shi-ji-iii-by-wrnt/">官方题解</a></p>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>1584. 连接所有点的最小费用</title>
+    <url>/leetcode/1584.html</url>
+    <content><![CDATA[<p>实际上是最小生成树</p>
 ]]></content>
       <categories>
         <category>leetcode</category>
