@@ -138,7 +138,7 @@ $$
 ##### 伴随矩阵的行列式和秩
 
 * $\left|A^*\right|=\left|A\right|^{n-1}$
-* $R(A^*)=\begin{cases}n,R(A)=n~(满秩不变)\\1,R(A)=n-1~(差1补1)\\0,R(A)<n-1~(否则为0)\end{cases}$
+* $R(A^*)=\begin{cases}n,R(A)=n~(满秩不变)\\1,R(A)=n-1~(差1补1)\\0,R(A)<n-1~(否则为0, A^*=0)\end{cases}$
 
 ### 矩阵分块法
 
@@ -361,7 +361,7 @@ n维向量
 
 例题:
 
-![](linear-algebra/qiutongjie.png)
+![](index/qiutongjie.png)
 
 ##### 性质
 
@@ -488,6 +488,9 @@ $$
 对角化: 寻找相似变换矩阵P来使$P^{-1}AP=\Lambda$为对角矩阵
 
 能对角化的条件: $A有n个线性无关的特征向量$
+- 常用条件:
+- $有n个各不相同的特征值$
+- $如果特征值有重根, 则可以判断特征矩阵的秩$
 
 #### 对称矩阵的对角化
 
@@ -502,7 +505,7 @@ $$
 3. 把这些特征向量正交化, 单位化
 4. 排列得到$P$和$\Lambda$, 注意两者对应
 
-![](linear-algebra/duijiaohua.png)
+![](index/duijiaohua.png)
 
 ### 二次型, 标准形
 
