@@ -1,457 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>线性代数</title>
-    <url>/linear-algebra.html</url>
-    <content><![CDATA[<h1 id="线性代数笔记"><a href="#线性代数笔记" class="headerlink" title="线性代数笔记"></a>线性代数笔记</h1><h2 id="1-行列式"><a href="#1-行列式" class="headerlink" title="1. 行列式"></a>1. 行列式</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>二阶行列式</p>
-<p>三阶行列式</p>
-<p>全排列</p>
-<p>对换</p>
-<p>n阶行列式</p>
-<p>上下三角行列式</p>
-<p>对角行列式</p>
-<p>转置行列式</p>
-<h4 id="性质"><a href="#性质" class="headerlink" title="性质"></a>性质</h4><ul>
-<li>转置行列式, 行列式不变</li>
-<li><strong>对换行(列), 行列式变号</strong><ul>
-<li>两行(列)完全相同, 行列式=0</li>
-<li>两行(列)成比例, 行列式=0</li>
-</ul>
-</li>
-<li>一行(列)乘k = 整体乘k<ul>
-<li><strong>行(列)系数提到外面, 行列式不变</strong></li>
-</ul>
-</li>
-<li>可以按照某一行(列)分成两个行列式相加</li>
-<li><strong>一行乘k加到另一行, 行列式不变</strong></li>
-</ul>
-<h3 id="按行-列-展开"><a href="#按行-列-展开" class="headerlink" title="按行(列)展开"></a>按行(列)展开</h3><ul>
-<li>余子式 $M_{ij}$</li>
-<li>代数余子式 $A<em>{ij}=(-1)^{i+j}{M</em>{ij}}$</li>
-</ul>
-<h4 id="性质-1"><a href="#性质-1" class="headerlink" title="性质"></a>性质</h4><ul>
-<li><p>按行(列)展开法则 $D=\sum<em>{i=1}^{n}{a</em>{ij}A<em>{ij}}, (j=1,2,…,n)=\sum</em>{j=1}^{n}{a<em>{ij}A</em>{ij}}, (i=1,2,…,n)$</p>
-</li>
-<li><p>如果上式中$a$和$A$的$j(i)$错开, 则结果为0</p>
-</li>
-</ul>
-<h4 id="范德蒙德行列式"><a href="#范德蒙德行列式" class="headerlink" title="范德蒙德行列式"></a>范德蒙德行列式</h4><script type="math/tex; mode=display">
-D_n=\begin{vmatrix}
-1&1&...&1 \\
-x_1&x_2&...&x_n \\
-x_1^2&x_2^2&...&x_n^2 \\
-:&:& &: \\
-x_1^{n-1}&x_2^{n-1}&...&x_n^{n-1}
-\end{vmatrix} 
-=\prod_{n\ge i\ge j\ge 1}{(x_i-x_j)}
-(注意顺序)</script><h2 id="2-矩阵及其运算"><a href="#2-矩阵及其运算" class="headerlink" title="2. 矩阵及其运算"></a>2. 矩阵及其运算</h2><p>线性方程组</p>
-<p>非齐次线性方程组</p>
-<p>齐次线性方程组</p>
-<p>齐次线性方程组的零解</p>
-<h3 id="矩阵"><a href="#矩阵" class="headerlink" title="矩阵"></a>矩阵</h3><p>同型矩阵</p>
-<p>系数矩阵</p>
-<p>未知数矩阵</p>
-<p>常数项矩阵</p>
-<p>增广矩阵</p>
-<p>线性变换</p>
-<h4 id="按性质"><a href="#按性质" class="headerlink" title="按性质"></a>按性质</h4><ul>
-<li>非奇异矩阵/可逆矩阵/满秩矩阵</li>
-<li>奇异矩阵/不可逆矩阵/降秩矩阵</li>
-</ul>
-<h4 id="按形状"><a href="#按形状" class="headerlink" title="按形状"></a>按形状</h4><ul>
-<li>对角矩阵</li>
-<li>单位矩阵</li>
-<li>对称矩阵</li>
-</ul>
-<h3 id="矩阵运算"><a href="#矩阵运算" class="headerlink" title="矩阵运算"></a>矩阵运算</h3><ul>
-<li>矩阵加法<ul>
-<li>负矩阵</li>
-</ul>
-</li>
-<li>数乘</li>
-<li>矩阵乘法<ul>
-<li>可交换</li>
-<li>纯量阵: 一定可交换</li>
-</ul>
-</li>
-<li>幂</li>
-<li>转置</li>
-<li>行列式</li>
-<li>伴随矩阵</li>
-<li>矩阵多项式</li>
-</ul>
-<h4 id="性质-2"><a href="#性质-2" class="headerlink" title="性质"></a>性质</h4><h5 id="转置性质"><a href="#转置性质" class="headerlink" title="转置性质"></a>转置性质</h5><ul>
-<li>自反性 $(A^{T})^{T}=A$</li>
-<li>线性 $(\lambda A+B)^{T}=\lambda A^{T}+B^{T}$</li>
-<li>嵌套 $(AB)^{T}=B^{T}A^{T}$</li>
-<li>判零 $A^TA=O\Leftrightarrow A=O$</li>
-</ul>
-<h5 id="行列式性质"><a href="#行列式性质" class="headerlink" title="行列式性质"></a>行列式性质</h5><ul>
-<li>常数放大 $\left|\lambda A\right|=\lambda^n\left|A\right|$</li>
-<li>可乘性 $\left|AB\right|=\left|A\right|\left|B\right|$</li>
-</ul>
-<h5 id="伴随矩阵性质"><a href="#伴随矩阵性质" class="headerlink" title="伴随矩阵性质"></a>伴随矩阵性质</h5><ul>
-<li>与转置可交换 $(A^T)^<em>=(A^</em>)^T$</li>
-<li>与逆可交换 $(A^{-1})^<em>=(A^</em>)^{-1}$</li>
-<li>嵌套 $(AB)^<em>=B^</em>A^*$</li>
-<li>常数部分放大 $(\lambda A)^<em>=\lambda^{n-1}A^</em>$</li>
-</ul>
-<h5 id="伴随矩阵的行列式和秩"><a href="#伴随矩阵的行列式和秩" class="headerlink" title="伴随矩阵的行列式和秩"></a>伴随矩阵的行列式和秩</h5><ul>
-<li>$\left|A^*\right|=\left|A\right|^{n-1}$</li>
-<li>$R(A^*)=\begin{cases}n,R(A)=n~(满秩不变)\1,R(A)=n-1~(差1补1)\0,R(A)&lt;n-1~(否则为0)\end{cases}$</li>
-</ul>
-<h3 id="矩阵分块法"><a href="#矩阵分块法" class="headerlink" title="矩阵分块法"></a>矩阵分块法</h3><p>分块矩阵</p>
-<p>子块</p>
-<p>分块对角矩阵</p>
-<ul>
-<li>性质<ul>
-<li>行列式 $\left|A\right|=\left|A_1\right|\left|A_2\right|…\left|A_n\right|$</li>
-<li>逆</li>
-</ul>
-</li>
-</ul>
-<h2 id="3-初等变换与线性方程组"><a href="#3-初等变换与线性方程组" class="headerlink" title="3. 初等变换与线性方程组"></a>3. 初等变换与线性方程组</h2><h3 id="初等变换"><a href="#初等变换" class="headerlink" title="初等变换"></a>初等变换</h3><p>行(列)变换 $\Leftrightarrow$ 左(右)乘同样变化之后的$E$</p>
-<ul>
-<li>对换两行(列)</li>
-<li>缩放某一行(列)加到另一行(列)上去 (源和目标可以一样)</li>
-</ul>
-<p>初等矩阵: 施加一次初等行(列)变换的E</p>
-<h3 id="矩阵等价"><a href="#矩阵等价" class="headerlink" title="矩阵等价"></a>矩阵等价</h3><p>A和B等价: A经若干次初等变化可以变为B</p>
-<p>等价关系: 自反性, 对称性, 传递性</p>
-<p>推论: $A\sim (r)\sim E\Leftrightarrow{A可逆}$</p>
-<h4 id="充要条件"><a href="#充要条件" class="headerlink" title="充要条件"></a>充要条件</h4><p>$A\sim (r)\sim B\Leftrightarrow PA=B (P, Q可逆)$</p>
-<p>$A\sim (c)\sim B\Leftrightarrow AQ=B (P, Q可逆)$</p>
-<p>$A\sim B\Leftrightarrow PAQ=B (P, Q可逆)$</p>
-<h3 id="行阶梯形矩阵"><a href="#行阶梯形矩阵" class="headerlink" title="行阶梯形矩阵"></a>行阶梯形矩阵</h3><p>左下角的0组成了一个从右下到左上的阶梯, 这个阶梯的宽度任意, 但是每一级的高度必定为1(两边不算)</p>
-<p>非零首元: 非零行的首个非零元素</p>
-<script type="math/tex; mode=display">
-\begin{pmatrix}
- x & . & . & . & .\\
- 0 & x & . & . & .\\
- 0 & 0 & x & . & .\\
- 0 & 0 & 0 & x & .
-\end{pmatrix}
-\begin{pmatrix}
- x & . & . & . & .\\
- 0 & 0 & 0 & x & .\\
- 0 & 0 & 0 & 0 & 0\\
- 0 & 0 & 0 & 0 & 0
-\end{pmatrix}</script><h3 id="行最简形矩阵"><a href="#行最简形矩阵" class="headerlink" title="行最简形矩阵"></a>行最简形矩阵</h3><p>在行阶梯型矩阵的基础上, 非零首元都是1, 非零首元的上下都是0, 则为行最简形矩阵</p>
-<script type="math/tex; mode=display">
-\begin{pmatrix}
- 1 & 0 & 0 & 0 & .\\
- 0 & 1 & 0 & 0 & .\\
- 0 & 0 & 1 & 0 & .\\
- 0 & 0 & 0 & 1 & .
-\end{pmatrix}
-\begin{pmatrix}
- 1 & . & . & 0 & .\\
- 0 & 0 & 0 & 1 & .\\
- 0 & 0 & 0 & 0 & 0\\
- 0 & 0 & 0 & 0 & 0
-\end{pmatrix}</script><ul>
-<li>一个矩阵的行最简形矩阵是唯一的</li>
-</ul>
-<h3 id="标准形"><a href="#标准形" class="headerlink" title="标准形"></a>标准形</h3><p>对行最简形矩阵施加初等列变换, 是非零首元依次排列在左边, 右边全0</p>
-<p>特点是左上角是个E</p>
-<script type="math/tex; mode=display">
-\begin{pmatrix}
- 1 & 0 & 0 & 0 & 0\\
- 0 & 1 & 0 & 0 & 0\\
- 0 & 0 & 1 & 0 & 0\\
- 0 & 0 & 0 & 1 & 0
-\end{pmatrix}
-\begin{pmatrix}
- 1 & 0 & 0 & 0 & 0\\
- 0 & 1 & 0 & 0 & 0\\
- 0 & 0 & 0 & 0 & 0\\
- 0 & 0 & 0 & 0 & 0
-\end{pmatrix}</script><h3 id="技巧"><a href="#技巧" class="headerlink" title="技巧"></a>技巧</h3><h4 id="P-A-B-A’-B’"><a href="#P-A-B-A’-B’" class="headerlink" title="$P(A,B)=(A’,B’)$"></a>$P(A,B)=(A’,B’)$</h4><ul>
-<li>$P(A, E)=(E, A^{-1})$, 求A逆常用方法</li>
-<li>$P(A, B)=(E, A^{-1}B)$, 解方程常用方法</li>
-</ul>
-<h3 id="矩阵的秩"><a href="#矩阵的秩" class="headerlink" title="矩阵的秩"></a>矩阵的秩</h3><p>子式: 从行中选出一个子序列, 再从列中选出一个子序列, 得到的结果</p>
-<p>秩: 最高阶非零子式的阶数</p>
-<h4 id="性质-3"><a href="#性质-3" class="headerlink" title="性质"></a>性质</h4><ol>
-<li>秩一定小于行(列)数</li>
-<li>转置不改变秩</li>
-<li>等价矩阵的秩一样: $A\sim B\Leftrightarrow{R(A)=R(B)}$</li>
-<li>乘可逆矩阵不改变秩</li>
-<li>拼接矩阵的秩可能比原秩要大: $max{R(A),R(B)}\le{R(A~~B)}$</li>
-<li>拼接矩阵的秩不会大于原秩之和: $R(A~~B)\le{R(A)+R(B)}$</li>
-<li><hr>
-</li>
-<li>秩和大于和秩(由上一条可证): $R(A+B)\le{R(A)+R(B)}$</li>
-<li>矩阵积的秩不大于任何一个原秩(从变换角度看): $R(AB)\le{min{R(A),R(B)}}$</li>
-<li>$A<em>{m\times n}B</em>{n\times l}=O\Rightarrow{R(A)+R(B)\le{n}}$</li>
-<li><hr>
-<p>列满秩: 秩等于列数, 对应的行最简形矩阵为$\begin{pmatrix}E<em>{n} \ O\end{pmatrix}</em>{m\times n}$</p>
-</li>
-<li><p>乘法消去律: $AB=O, A列满秩\Rightarrow B=O$</p>
-</li>
-</ol>
-<h3 id="秩与线性方程组的解"><a href="#秩与线性方程组的解" class="headerlink" title="秩与线性方程组的解"></a>秩与线性方程组的解</h3><p>相容: 有解</p>
-<p>不相容: 无解</p>
-<p>判断条件$Ax=b$</p>
-<ul>
-<li>$无解\Leftrightarrow{R(A)\lt{R(A~~b)}}$</li>
-<li>$有解\Leftrightarrow{R(A)={R(A~~b)}}$<ul>
-<li>$有唯一解(齐次就是零解)\Leftrightarrow{R(A)=R(A~~b)=n}$</li>
-<li>$有无穷解(齐次有非零解)\Leftrightarrow{R(A)=R(A~~b)\lt n}$</li>
-</ul>
-</li>
-</ul>
-<h2 id="4-向量组-线性相关性"><a href="#4-向量组-线性相关性" class="headerlink" title="4. 向量组, 线性相关性"></a>4. 向量组, 线性相关性</h2><p>n维向量</p>
-<p>实向量</p>
-<p>复向量</p>
-<p>单位坐标向量: E的列向量</p>
-<h3 id="向量组"><a href="#向量组" class="headerlink" title="向量组"></a>向量组</h3><h3 id="线性表示"><a href="#线性表示" class="headerlink" title="线性表示"></a>线性表示</h3><p>线性组合</p>
-<p><strong>线性表示</strong>: 一个向量(组)能被另一个向量组线性表示</p>
-<p>向量组等价: 两个向量组能互相线性表示</p>
-<h4 id="定理"><a href="#定理" class="headerlink" title="定理"></a>定理</h4><ul>
-<li>$向量b能被向量组A线性表示\Leftrightarrow{R(A)=R(A~~b)}$</li>
-<li>$向量组A能被向量组B线性表示\Leftrightarrow R(A)=R(A~~B)$</li>
-<li>$向量组A, B能相互线性表示(等价)\Leftrightarrow{R(A)=R(B)=R(A~~B)}$</li>
-</ul>
-<hr>
-<ul>
-<li>$若AB=C, 则C的列向量组能被A的列向量组线性表示, 表示的系数为B$</li>
-<li><p>$同理, C的行向量组能被B的行向量组线性表示, 表示的系数为A$</p>
-</li>
-<li><p>$向量组B能被向量组A线性表示\Leftrightarrow R(B)=R(B~~A)\Rightarrow{R(B)\le R(A)}$</p>
-</li>
-</ul>
-<h3 id="线性相关"><a href="#线性相关" class="headerlink" title="线性相关"></a>线性相关</h3><p>线性相关: 存在一个系数非全零的线性组合=0的向量组</p>
-<p>线性无关</p>
-<h4 id="性质-4"><a href="#性质-4" class="headerlink" title="性质"></a>性质</h4><ul>
-<li>$线性相关\Leftrightarrow{R(A)\lt m}$</li>
-<li>$线性无关\Leftrightarrow{R(A)=m}$</li>
-<li>$线性相关具有保持性质$</li>
-<li>$秩\lt向量个数\Leftrightarrow{线性相关}$</li>
-<li>$向量维数\lt向量个数\Rightarrow{线性相关}$</li>
-<li>$线性无关向量组A+b变线性相关\Rightarrow{b能被A唯一线性表示}$</li>
-</ul>
-<h3 id="向量组的秩"><a href="#向量组的秩" class="headerlink" title="向量组的秩"></a>向量组的秩</h3><p>向量组</p>
-<p>最大(线性)无关(向量)组</p>
-<p>秩: 最大无关组的向量个数</p>
-<h4 id="性质见上节"><a href="#性质见上节" class="headerlink" title="性质见上节"></a>性质见上节</h4><h3 id="线性方程组解的结构"><a href="#线性方程组解的结构" class="headerlink" title="线性方程组解的结构"></a>线性方程组解的结构</h3><h4 id="齐次的解-Ax-O"><a href="#齐次的解-Ax-O" class="headerlink" title="齐次的解$Ax=O$"></a>齐次的解$Ax=O$</h4><ul>
-<li>齐次: 解的线性组合仍是解</li>
-<li>因此只要找到解集的一个最大无关组即可得出所有解</li>
-</ul>
-<p>基本解系: 齐次的解集的一个最大无关组</p>
-<p>基本解系的秩: </p>
-<ul>
-<li>$对于方程组A_{m\times n}x=0, R_S=n-R(A)$</li>
-</ul>
-<p>求解步骤:</p>
-<ol>
-<li>对A进行行变换变成行最简形矩阵</li>
-<li>得到x之间的关系</li>
-<li>给每个自由变量赋值一个线性无关的向量(一般取单位向量)</li>
-</ol>
-<p>例题:</p>
-<p><img src="linear-algebra/qiutongjie.png" alt=""></p>
-<h5 id="性质-5"><a href="#性质-5" class="headerlink" title="性质"></a>性质</h5><ul>
-<li>$Ax=O和Bx=O同解\Rightarrow R(A)=R(B)$</li>
-</ul>
-<h4 id="非齐次的解-Ax-b"><a href="#非齐次的解-Ax-b" class="headerlink" title="非齐次的解$Ax=b$"></a>非齐次的解$Ax=b$</h4><ul>
-<li>非齐次: 利用齐次</li>
-<li>找到一个特解, 加上齐次的通解即为最终解</li>
-</ul>
-<h3 id="向量空间"><a href="#向量空间" class="headerlink" title="向量空间"></a>向量空间</h3><p>向量空间: 对线性运算封闭的集合</p>
-<p>子空间: 含于另一个向量空间的向量空间</p>
-<p>基: 在向量空间中, 可以线性表示空间中任一向量的线性无关的向量组</p>
-<p>自然基: $R^n$中的单位坐标向量组</p>
-<p>维数: 基的向量个数(固定)</p>
-<p>坐标: 一个向量在某一个基下的表示</p>
-<p><strong>基变换公式</strong>: 用一个基来表示另一个基的坐标(没啥用)</p>
-<script type="math/tex; mode=display">
-B=AP=AA^{-1}B</script><p><strong>过渡矩阵</strong>: 旧基逆乘新基, 可以用初等变换的方法快速求</p>
-<script type="math/tex; mode=display">
-P=A^{-1}B</script><p><strong>坐标变换公式</strong>: 一个向量在两个不同基下的坐标的关系式</p>
-<script type="math/tex; mode=display">
-新坐标~Z=P^{-1}Y</script><h2 id="5-相似矩阵与二次型"><a href="#5-相似矩阵与二次型" class="headerlink" title="5. 相似矩阵与二次型"></a>5. 相似矩阵与二次型</h2><p>内积: 数量积的推广, $[A,B]=A^TB$</p>
-<p>长度(范数): 模的推广, $\left|\left|x\right|\right|=\sqrt{[x,x]}$</p>
-<p>投影: $c=\frac{[a,b]}{[b,b]}b$</p>
-<p>单位向量</p>
-<p>单位化</p>
-<p>夹角: $\theta=\arccos{\frac{[x,y]}{\left|\left|x\right|\right|~\left|\left|y\right|\right|}}$</p>
-<h3 id="正交矩阵"><a href="#正交矩阵" class="headerlink" title="正交矩阵"></a>正交矩阵</h3><p>正交: 夹角为0</p>
-<p>正交向量组: 一组向量两两正交, 必定线性无关</p>
-<p>标准正交基: 单位向量组成的正交向量组</p>
-<p>标准正交化, 施密特正交化</p>
-<p>正交(矩)阵: 单位正交向量组构成的矩阵</p>
-<ul>
-<li>$AA^T=E=A^TA$</li>
-<li>$A^T=A^{-1}$</li>
-<li>$\left|A\right|=1或-1$</li>
-<li>正交矩阵的逆(转置)也是正交矩阵</li>
-<li>正交矩阵的积还是正交矩阵</li>
-</ul>
-<p>正交变换: $若P是正交矩阵, 则线性变换y=Px称为正交变换$</p>
-<ul>
-<li>特性</li>
-<li>变换前后的长度不变 $||y||=\sqrt{y^Ty}=\sqrt{x^TP^TPx}=\sqrt{x^Tx}=||x||$</li>
-</ul>
-<h3 id="特征值和特征向量"><a href="#特征值和特征向量" class="headerlink" title="特征值和特征向量"></a>特征值和特征向量</h3><p>特征多项式: $f(\lambda)=\left|A-\lambda E\right|$</p>
-<p>特征值/特征向量: $A为n阶矩阵, 满足Ax=\lambda x, (A-\lambda E)x=0的\lambda和x$</p>
-<p>个数: $f(\lambda)=0是一元n次方程, \lambda必有n个根, 所以方程有n个解$</p>
-<h4 id="性质-6"><a href="#性质-6" class="headerlink" title="性质"></a>性质</h4><ul>
-<li>特征值之和等于矩阵的迹</li>
-<li>特征值之积等于矩阵的行列式</li>
-<li>矩阵多项式的特征值等于矩阵特征值的多项式: $f(\lambda)是f(A)的特征值$</li>
-<li>$特征值各不相等\Rightarrow特征向量线性无关$</li>
-<li>对角矩阵的对角元就是其特征值</li>
-</ul>
-<h4 id="求法"><a href="#求法" class="headerlink" title="求法"></a>求法</h4><ol>
-<li>根据特征多项式=0求出特征值</li>
-<li>将每个特征值代回原方程, 写出特征向量(个数=n-特征值重数)</li>
-</ol>
-<h3 id="相似矩阵"><a href="#相似矩阵" class="headerlink" title="相似矩阵"></a>相似矩阵</h3><p>相似矩阵: $P^{-1}AP=B$</p>
-<p>相似变换: $P^{-1}AP$</p>
-<h4 id="性质-7"><a href="#性质-7" class="headerlink" title="性质"></a>性质</h4><ul>
-<li>特征多项式($f(\lambda)=\left|A-\lambda E\right|$)相同</li>
-<li>特征值相同</li>
-<li>迹相同</li>
-<li><strong>计算矩阵多项式</strong>: $\varphi(A)=P\varphi(B)P^{-1}$<ul>
-<li>一般B是对角矩阵, 从而可以快速计算B的幂:</li>
-</ul>
-</li>
-</ul>
-<script type="math/tex; mode=display">
-\varphi(\Lambda)=\begin{pmatrix}
-\varphi(\lambda_1)&&&\\
-&\varphi(\lambda_2)&&\\
-&&...&\\
-&&&\varphi(\lambda_n)
-\end{pmatrix}</script><h4 id="对角化"><a href="#对角化" class="headerlink" title="对角化"></a>对角化</h4><p>对角化: 寻找相似变换矩阵P来使$P^{-1}AP=\Lambda$为对角矩阵</p>
-<p>能对角化的条件: $A有n个线性无关的特征向量$</p>
-<h4 id="对称矩阵的对角化"><a href="#对称矩阵的对角化" class="headerlink" title="对称矩阵的对角化"></a>对称矩阵的对角化</h4><p>对称矩阵的性质:</p>
-<ul>
-<li>特征值为实数</li>
-<li>不相等的特征值对应的特征向量正交</li>
-<li>一定存在正交矩阵P使得A<strong>可以被对角化</strong>为以特征值为对角元的对角矩阵</li>
-</ul>
-<p>求法:</p>
-<ol>
-<li>求出A的特征值</li>
-<li>求出所有特征向量</li>
-<li>把这些特征向量正交化, 单位化</li>
-<li>排列得到$P$和$\Lambda$, 注意两者对应</li>
-</ol>
-<p><img src="linear-algebra/duijiaohua.png" alt=""></p>
-<h3 id="二次型-标准形"><a href="#二次型-标准形" class="headerlink" title="二次型, 标准形"></a>二次型, 标准形</h3><p>二次型: 含n个变量的<strong>二次齐次</strong>函数</p>
-<p>$f(x<em>1,x_2,…,x_n)=\sum{a</em>{i,j}x<em>{i}x</em>{j}}$</p>
-<p>标准形(法式): 只含<strong>平方项</strong>的二次型</p>
-<p>$f(x<em>1,x_2,…,x_n)=\sum{k</em>{i}x_{i}^2}$</p>
-<p>规范形: 系数只在-1,0,1中取值的标准形</p>
-<p>二次型的矩阵表示: 二次型可以用系数组成的对称矩阵唯一表示</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-f&=\sum{a_{ij}x_{i}x_{j}}, (a_{ij}=a_{ji})\\
-&=\begin{pmatrix}
-x_1&x_2&...&x_n
-\end{pmatrix}
-\begin{pmatrix}
-a_{11}&a_{12}&...&a_{1n}\\
-a_{21}&a_{22}&...&a_{2n}\\
-...&...&...&...\\
-a_{n1}&a_{n2}&...&a_{nn}
-\end{pmatrix}
-\begin{pmatrix}
-x_1\\
-x_2\\
-...\\
-x_n
-\end{pmatrix}\\
-&=x^TAx
-\end{aligned}</script><p>二次型的秩: 对应矩阵的秩</p>
-<h3 id="合同对角化"><a href="#合同对角化" class="headerlink" title="合同对角化"></a>合同对角化</h3><p><strong>合同</strong>: $若存在可逆矩阵C使得B=C^TAC, 则称B与A合同$</p>
-<p>性质</p>
-<ul>
-<li>对阵矩阵的合同矩阵也对称</li>
-</ul>
-<p><strong>合同对角化</strong>: $寻找可逆矩阵C, 使得C^TAC为对角矩阵, 从而使二次型A通过x=Cy变换成标准形$</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-f&=x^TAx\\
-&=y^T(C^TAC)y
-\end{aligned}</script><p>可以证明(由对称矩阵性质)这个矩阵一定存在, 而且是正交矩阵, 变换后的$C^TAC$由特征值构成</p>
-<h3 id="正定二次型"><a href="#正定二次型" class="headerlink" title="正定二次型"></a>正定二次型</h3><p>惯性定理: 同一个二次型的两种标准化结果中正负系数的个数相同</p>
-<p>正(负)惯性指数: 其中的正(负)系数的个数</p>
-<p>正(负)定二次型, 正(负)定矩阵: 如果二次型的值恒大(小)于零(x=0除外), 则称f为正(负)定二次型, 称A是正(负)定的</p>
-<ul>
-<li>$正定\Leftrightarrow正惯性指数=n\Leftrightarrow特征值全正\\Leftrightarrow各阶主子式都为正\Leftrightarrow存在可逆P,使得P^TAP=E(与E合同)$</li>
-<li>$负定\Leftrightarrow奇数阶主子式为负, 偶数阶为正$</li>
-</ul>
-<h2 id="6-线性空间与线性变换"><a href="#6-线性空间与线性变换" class="headerlink" title="6. 线性空间与线性变换"></a>6. 线性空间与线性变换</h2><p>向量空间(线性空间): 定义了线性运算且封闭, 且满足以下运算规律的非空集合</p>
-<ol>
-<li>加法交换律</li>
-<li>加法结合律</li>
-<li>加法零元</li>
-<li>加法逆元</li>
-<li>乘法单位元</li>
-<li>乘法交换律</li>
-<li>乘法结合律</li>
-<li>乘法对加法分配律</li>
-</ol>
-<p>向量: 线性空间中的元素</p>
-<p>子空间: 线性空间的仍是线性空间的非空子集</p>
-<p>基, 维数, 坐标: 同线性空间</p>
-<p>过渡矩阵 $P=A^{-1}B$</p>
-<p>基变换公式, 坐标变换公式 </p>
-<h3 id="线性变换"><a href="#线性变换" class="headerlink" title="线性变换"></a>线性变换</h3><p>映射(变换): 表示为$\beta=T(\alpha)或\beta=T\alpha$</p>
-<p>定义域A, 值域B, 像集T(A): $T(A)={\beta=T(\alpha)|\alpha\in A} \subseteq B$</p>
-<p>线性映射(线性变换): 从Vn到Um的保持线性组合的对应关系的映射. 特别地, 如果Vn=Um, 称T为线性空间Vn中的线性变换</p>
-<ul>
-<li>$T(a+b)=T(a)+T(b)$</li>
-<li>$T(\lambda b)=\lambda T(b)$</li>
-</ul>
-<p>线性变换的性质:</p>
-<ol>
-<li>T(0)=0</li>
-<li>线性组合的变换等于变换的线性组合</li>
-<li>变换前线性相关=&gt;变换后也线性相关</li>
-<li>像集$T(V_n)$也是线性空间, 称为<strong>像空间</strong></li>
-<li>$N_T={\alpha|\alpha\in V_n, T\alpha=0}$构成线性空间, 称为线性变换T的<strong>核</strong></li>
-</ol>
-<h3 id="线性变换的矩阵表示"><a href="#线性变换的矩阵表示" class="headerlink" title="线性变换的矩阵表示"></a>线性变换的矩阵表示</h3><p>线性变换的矩阵: 在Vn中取定一个基, 这个基的像的线性表示的系数矩阵称为线性变换在这个基下的矩阵, 即</p>
-<script type="math/tex; mode=display">
-\left\{\begin{matrix}
-T(\alpha_1)=\sum_{j=1}^{n}{a_{j1}\alpha_j}\\
-T(\alpha_2)=\sum_{j=1}^{n}{a_{j2}\alpha_j}\\
-...\\
-T(\alpha_n)=\sum_{j=1}^{n}{a_{jn}\alpha_j}
-\end{matrix}\right.</script><p>令</p>
-<script type="math/tex; mode=display">
-A=\begin{pmatrix}
-a_{11}& a_{12}& ...& a_{1n}\\  
-a_{21}& a_{22}& ...& a_{2n}\\  
-:& :& & :\\  
-a_{n1}& a_{n2}& ...& a_{nn}\\  
-\end{pmatrix}\\</script><p>则</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-T(\alpha_1, \alpha_2, ..., \alpha_n)&=(\alpha_1, \alpha_2, ..., \alpha_n)A
-\end{aligned}</script><h4 id="性质-8"><a href="#性质-8" class="headerlink" title="性质"></a>性质</h4><ul>
-<li>同一个变换在不同基下的矩阵<strong>相似</strong>, 且相似变换矩阵就是两个基的过渡矩阵P</li>
-</ul>
-<h4 id="相似-合同与等价"><a href="#相似-合同与等价" class="headerlink" title="相似, 合同与等价"></a>相似, 合同与等价</h4><ul>
-<li><p>等价$\Leftrightarrow$AB秩相同</p>
-</li>
-<li><p>合同=等价+正负惯性系数相同</p>
-</li>
-<li><p>相似=合同+特征值相同+主对角线元素之和相同+矩阵的值相同</p>
-</li>
-</ul>
-<p>由此可见，等价到合同到相似，条件越来越苛刻，AB共同点越来越多</p>
-]]></content>
-      <categories>
-        <category>课程笔记</category>
-        <category>线性代数</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Oracle APEX学习</title>
     <url>/oracle-apex.html</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>什么垃圾软件, 毁我人生!!</p>
@@ -638,144 +187,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&=(\alpha_1, \alpha_2, ..., \alpha_n)A
 ]]></content>
       <categories>
         <category>编程</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>软件工程</title>
-    <url>/software-engineer.html</url>
-    <content><![CDATA[<ol>
-<li>软件的本质<ol>
-<li>软件的本质<ol>
-<li>定义<ol>
-<li>有很多种定义, 以书上(P3)的定义为准, 指令的集合+数据结构+软件描述信息</li>
-</ol>
-</li>
-<li>软件应用的领域<ol>
-<li>以书上为准</li>
-<li>数据计算/业务应用(工业控制)</li>
-</ol>
-</li>
-<li>遗留软件<ol>
-<li>挑战: <ol>
-<li>原有功能质量不符合现代的要求</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>软件的变更本质<ol>
-<li>是生命体, 在生长</li>
-<li>WebApp/移动App/云计算/产品线软件</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>软件工程<ol>
-<li><strong>软件工程的定义</strong><ol>
-<li>以书上为准 IEEE<ol>
-<li>将xxxx(系统化, 规范的, 可量化的)工程化方法应用于软件</li>
-<li>对上述方法的研究</li>
-</ol>
-</li>
-<li><strong>过程/方法/工具</strong><ol>
-<li>过程: </li>
-<li>方法:</li>
-<li>工具: </li>
-</ol>
-</li>
-</ol>
-</li>
-<li>过程框架<ol>
-<li>图3.1</li>
-<li>框架活动: <strong>沟通/策划/建模/构建/部署</strong></li>
-</ol>
-</li>
-<li>定义框架活动</li>
-<li><strong>软件开发神话</strong>: 为什么需要软件工程</li>
-<li>注意思考题</li>
-</ol>
-</li>
-<li>软件过程<ol>
-<li>明确任务集(细胞)<ol>
-<li>注意<a href="3.3.png">3.3信息栏</a></li>
-</ol>
-</li>
-<li>过程模式<ol>
-<li>注意<a href="3.4.png">3.4信息栏</a></li>
-</ol>
-</li>
-</ol>
-</li>
-<li>过程模型: 1,2个, 也可能简答题<ol>
-<li>分类: 传统的/敏捷的</li>
-<li>各种模型的特点</li>
-<li>瀑布模型是基础</li>
-<li>增量模型 <ol>
-<li>特点 <ol>
-<li><strong>第一个增量是核心产品</strong></li>
-</ol>
-</li>
-</ol>
-</li>
-<li>螺旋模型<ol>
-<li>特点<ol>
-<li>风险识别和应对</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>UP统一过程<ol>
-<li><a href="4.7.png">4.7</a></li>
-</ol>
-</li>
-</ol>
-</li>
-<li>敏捷<ol>
-<li>定义</li>
-<li>敏捷宣言</li>
-<li>XP<ol>
-<li>特征<ol>
-<li>CRC</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>Scrum<ol>
-<li>特征<ol>
-<li>backlog</li>
-<li>sprint</li>
-<li>每日站会</li>
-<li>中P168</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>__</li>
-<li>需求工程<ol>
-<li>需求工程过程: 开始/获取/细化/协商/<strong>规格说明(SRS)</strong>/确认/需求管理</li>
-<li>需求的建立: 利益相关者/协同合作</li>
-<li>收集需求 </li>
-<li>开发用例: 编写<strong>用例规约</strong></li>
-<li>构建<strong>分析模型</strong>: 基于场景的元素(活动图)/基于类的元素(类图)/行为元素(状态图)</li>
-</ol>
-</li>
-<li>需求建模: 基于场景</li>
-<li>需求建模: OO类</li>
-<li>需求建模: 行为和模式</li>
-<li>设计</li>
-<li>架构级设计</li>
-<li>构件级设计</li>
-<li>UI设计</li>
-</ol>
-<p>最后一题: UML的五种图 40分</p>
-<p>P165<br>P179 构建细化</p>
-]]></content>
-      <categories>
-        <category>课程笔记</category>
-        <category>软件工程</category>
       </categories>
   </entry>
   <entry>
@@ -2047,6 +1458,802 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
 ]]></content>
       <categories>
         <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>线性代数</title>
+    <url>/linear-algebra/index.html</url>
+    <content><![CDATA[<h1 id="线性代数笔记"><a href="#线性代数笔记" class="headerlink" title="线性代数笔记"></a>线性代数笔记</h1><h2 id="1-行列式"><a href="#1-行列式" class="headerlink" title="1. 行列式"></a>1. 行列式</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>二阶行列式</p>
+<p>三阶行列式</p>
+<p>全排列</p>
+<p>对换</p>
+<p>n阶行列式</p>
+<p>上下三角行列式</p>
+<p>对角行列式</p>
+<p>转置行列式</p>
+<h4 id="性质"><a href="#性质" class="headerlink" title="性质"></a>性质</h4><ul>
+<li>转置行列式, 行列式不变</li>
+<li><strong>对换行(列), 行列式变号</strong><ul>
+<li>两行(列)完全相同, 行列式=0</li>
+<li>两行(列)成比例, 行列式=0</li>
+</ul>
+</li>
+<li>一行(列)乘k = 整体乘k<ul>
+<li><strong>行(列)系数提到外面, 行列式不变</strong></li>
+</ul>
+</li>
+<li>可以按照某一行(列)分成两个行列式相加</li>
+<li><strong>一行乘k加到另一行, 行列式不变</strong></li>
+</ul>
+<h3 id="按行-列-展开"><a href="#按行-列-展开" class="headerlink" title="按行(列)展开"></a>按行(列)展开</h3><ul>
+<li>余子式 $M_{ij}$</li>
+<li>代数余子式 $A<em>{ij}=(-1)^{i+j}{M</em>{ij}}$</li>
+</ul>
+<h4 id="性质-1"><a href="#性质-1" class="headerlink" title="性质"></a>性质</h4><ul>
+<li><p>按行(列)展开法则 $D=\sum<em>{i=1}^{n}{a</em>{ij}A<em>{ij}}, (j=1,2,…,n)=\sum</em>{j=1}^{n}{a<em>{ij}A</em>{ij}}, (i=1,2,…,n)$</p>
+</li>
+<li><p>如果上式中$a$和$A$的$j(i)$错开, 则结果为0</p>
+</li>
+</ul>
+<h4 id="范德蒙德行列式"><a href="#范德蒙德行列式" class="headerlink" title="范德蒙德行列式"></a>范德蒙德行列式</h4><script type="math/tex; mode=display">
+D_n=\begin{vmatrix}
+1&1&...&1 \\
+x_1&x_2&...&x_n \\
+x_1^2&x_2^2&...&x_n^2 \\
+:&:& &: \\
+x_1^{n-1}&x_2^{n-1}&...&x_n^{n-1}
+\end{vmatrix} 
+=\prod_{n\ge i\ge j\ge 1}{(x_i-x_j)}
+(注意顺序)</script><h2 id="2-矩阵及其运算"><a href="#2-矩阵及其运算" class="headerlink" title="2. 矩阵及其运算"></a>2. 矩阵及其运算</h2><p>线性方程组</p>
+<p>非齐次线性方程组</p>
+<p>齐次线性方程组</p>
+<p>齐次线性方程组的零解</p>
+<h3 id="矩阵"><a href="#矩阵" class="headerlink" title="矩阵"></a>矩阵</h3><p>同型矩阵</p>
+<p>系数矩阵</p>
+<p>未知数矩阵</p>
+<p>常数项矩阵</p>
+<p>增广矩阵</p>
+<p>线性变换</p>
+<h4 id="按性质"><a href="#按性质" class="headerlink" title="按性质"></a>按性质</h4><ul>
+<li>非奇异矩阵/可逆矩阵/满秩矩阵</li>
+<li>奇异矩阵/不可逆矩阵/降秩矩阵</li>
+</ul>
+<h4 id="按形状"><a href="#按形状" class="headerlink" title="按形状"></a>按形状</h4><ul>
+<li>对角矩阵</li>
+<li>单位矩阵</li>
+<li>对称矩阵</li>
+</ul>
+<h3 id="矩阵运算"><a href="#矩阵运算" class="headerlink" title="矩阵运算"></a>矩阵运算</h3><ul>
+<li>矩阵加法<ul>
+<li>负矩阵</li>
+</ul>
+</li>
+<li>数乘</li>
+<li>矩阵乘法<ul>
+<li>可交换</li>
+<li>纯量阵: 一定可交换</li>
+</ul>
+</li>
+<li>幂</li>
+<li>转置</li>
+<li>行列式</li>
+<li>伴随矩阵</li>
+<li>矩阵多项式</li>
+</ul>
+<h4 id="性质-2"><a href="#性质-2" class="headerlink" title="性质"></a>性质</h4><h5 id="转置性质"><a href="#转置性质" class="headerlink" title="转置性质"></a>转置性质</h5><ul>
+<li>自反性 $(A^{T})^{T}=A$</li>
+<li>线性 $(\lambda A+B)^{T}=\lambda A^{T}+B^{T}$</li>
+<li>嵌套 $(AB)^{T}=B^{T}A^{T}$</li>
+<li>判零 $A^TA=O\Leftrightarrow A=O$</li>
+</ul>
+<h5 id="行列式性质"><a href="#行列式性质" class="headerlink" title="行列式性质"></a>行列式性质</h5><ul>
+<li>常数放大 $\left|\lambda A\right|=\lambda^n\left|A\right|$</li>
+<li>可乘性 $\left|AB\right|=\left|A\right|\left|B\right|$</li>
+</ul>
+<h5 id="伴随矩阵性质"><a href="#伴随矩阵性质" class="headerlink" title="伴随矩阵性质"></a>伴随矩阵性质</h5><ul>
+<li>与转置可交换 $(A^T)^<em>=(A^</em>)^T$</li>
+<li>与逆可交换 $(A^{-1})^<em>=(A^</em>)^{-1}$</li>
+<li>嵌套 $(AB)^<em>=B^</em>A^*$</li>
+<li>常数部分放大 $(\lambda A)^<em>=\lambda^{n-1}A^</em>$</li>
+</ul>
+<h5 id="伴随矩阵的行列式和秩"><a href="#伴随矩阵的行列式和秩" class="headerlink" title="伴随矩阵的行列式和秩"></a>伴随矩阵的行列式和秩</h5><ul>
+<li>$\left|A^*\right|=\left|A\right|^{n-1}$</li>
+<li>$R(A^<em>)=\begin{cases}n,R(A)=n~(满秩不变)\1,R(A)=n-1~(差1补1)\0,R(A)&lt;n-1~(否则为0, A^</em>=0)\end{cases}$</li>
+</ul>
+<h3 id="矩阵分块法"><a href="#矩阵分块法" class="headerlink" title="矩阵分块法"></a>矩阵分块法</h3><p>分块矩阵</p>
+<p>子块</p>
+<p>分块对角矩阵</p>
+<ul>
+<li>性质<ul>
+<li>行列式 $\left|A\right|=\left|A_1\right|\left|A_2\right|…\left|A_n\right|$</li>
+<li>逆</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-初等变换与线性方程组"><a href="#3-初等变换与线性方程组" class="headerlink" title="3. 初等变换与线性方程组"></a>3. 初等变换与线性方程组</h2><h3 id="初等变换"><a href="#初等变换" class="headerlink" title="初等变换"></a>初等变换</h3><p>行(列)变换 $\Leftrightarrow$ 左(右)乘同样变化之后的$E$</p>
+<ul>
+<li>对换两行(列)</li>
+<li>缩放某一行(列)加到另一行(列)上去 (源和目标可以一样)</li>
+</ul>
+<p>初等矩阵: 施加一次初等行(列)变换的E</p>
+<h3 id="矩阵等价"><a href="#矩阵等价" class="headerlink" title="矩阵等价"></a>矩阵等价</h3><p>A和B等价: A经若干次初等变化可以变为B</p>
+<p>等价关系: 自反性, 对称性, 传递性</p>
+<p>推论: $A\sim (r)\sim E\Leftrightarrow{A可逆}$</p>
+<h4 id="充要条件"><a href="#充要条件" class="headerlink" title="充要条件"></a>充要条件</h4><p>$A\sim (r)\sim B\Leftrightarrow PA=B (P, Q可逆)$</p>
+<p>$A\sim (c)\sim B\Leftrightarrow AQ=B (P, Q可逆)$</p>
+<p>$A\sim B\Leftrightarrow PAQ=B (P, Q可逆)$</p>
+<h3 id="行阶梯形矩阵"><a href="#行阶梯形矩阵" class="headerlink" title="行阶梯形矩阵"></a>行阶梯形矩阵</h3><p>左下角的0组成了一个从右下到左上的阶梯, 这个阶梯的宽度任意, 但是每一级的高度必定为1(两边不算)</p>
+<p>非零首元: 非零行的首个非零元素</p>
+<script type="math/tex; mode=display">
+\begin{pmatrix}
+ x & . & . & . & .\\
+ 0 & x & . & . & .\\
+ 0 & 0 & x & . & .\\
+ 0 & 0 & 0 & x & .
+\end{pmatrix}
+\begin{pmatrix}
+ x & . & . & . & .\\
+ 0 & 0 & 0 & x & .\\
+ 0 & 0 & 0 & 0 & 0\\
+ 0 & 0 & 0 & 0 & 0
+\end{pmatrix}</script><h3 id="行最简形矩阵"><a href="#行最简形矩阵" class="headerlink" title="行最简形矩阵"></a>行最简形矩阵</h3><p>在行阶梯型矩阵的基础上, 非零首元都是1, 非零首元的上下都是0, 则为行最简形矩阵</p>
+<script type="math/tex; mode=display">
+\begin{pmatrix}
+ 1 & 0 & 0 & 0 & .\\
+ 0 & 1 & 0 & 0 & .\\
+ 0 & 0 & 1 & 0 & .\\
+ 0 & 0 & 0 & 1 & .
+\end{pmatrix}
+\begin{pmatrix}
+ 1 & . & . & 0 & .\\
+ 0 & 0 & 0 & 1 & .\\
+ 0 & 0 & 0 & 0 & 0\\
+ 0 & 0 & 0 & 0 & 0
+\end{pmatrix}</script><ul>
+<li>一个矩阵的行最简形矩阵是唯一的</li>
+</ul>
+<h3 id="标准形"><a href="#标准形" class="headerlink" title="标准形"></a>标准形</h3><p>对行最简形矩阵施加初等列变换, 是非零首元依次排列在左边, 右边全0</p>
+<p>特点是左上角是个E</p>
+<script type="math/tex; mode=display">
+\begin{pmatrix}
+ 1 & 0 & 0 & 0 & 0\\
+ 0 & 1 & 0 & 0 & 0\\
+ 0 & 0 & 1 & 0 & 0\\
+ 0 & 0 & 0 & 1 & 0
+\end{pmatrix}
+\begin{pmatrix}
+ 1 & 0 & 0 & 0 & 0\\
+ 0 & 1 & 0 & 0 & 0\\
+ 0 & 0 & 0 & 0 & 0\\
+ 0 & 0 & 0 & 0 & 0
+\end{pmatrix}</script><h3 id="技巧"><a href="#技巧" class="headerlink" title="技巧"></a>技巧</h3><h4 id="P-A-B-A’-B’"><a href="#P-A-B-A’-B’" class="headerlink" title="$P(A,B)=(A’,B’)$"></a>$P(A,B)=(A’,B’)$</h4><ul>
+<li>$P(A, E)=(E, A^{-1})$, 求A逆常用方法</li>
+<li>$P(A, B)=(E, A^{-1}B)$, 解方程常用方法</li>
+</ul>
+<h3 id="矩阵的秩"><a href="#矩阵的秩" class="headerlink" title="矩阵的秩"></a>矩阵的秩</h3><p>子式: 从行中选出一个子序列, 再从列中选出一个子序列, 得到的结果</p>
+<p>秩: 最高阶非零子式的阶数</p>
+<h4 id="性质-3"><a href="#性质-3" class="headerlink" title="性质"></a>性质</h4><ol>
+<li>秩一定小于行(列)数</li>
+<li>转置不改变秩</li>
+<li>等价矩阵的秩一样: $A\sim B\Leftrightarrow{R(A)=R(B)}$</li>
+<li>乘可逆矩阵不改变秩</li>
+<li>拼接矩阵的秩可能比原秩要大: $max{R(A),R(B)}\le{R(A~~B)}$</li>
+<li>拼接矩阵的秩不会大于原秩之和: $R(A~~B)\le{R(A)+R(B)}$</li>
+<li><hr>
+</li>
+<li>秩和大于和秩(由上一条可证): $R(A+B)\le{R(A)+R(B)}$</li>
+<li>矩阵积的秩不大于任何一个原秩(从变换角度看): $R(AB)\le{min{R(A),R(B)}}$</li>
+<li>$A<em>{m\times n}B</em>{n\times l}=O\Rightarrow{R(A)+R(B)\le{n}}$</li>
+<li><hr>
+<p>列满秩: 秩等于列数, 对应的行最简形矩阵为$\begin{pmatrix}E<em>{n} \ O\end{pmatrix}</em>{m\times n}$</p>
+</li>
+<li><p>乘法消去律: $AB=O, A列满秩\Rightarrow B=O$</p>
+</li>
+</ol>
+<h3 id="秩与线性方程组的解"><a href="#秩与线性方程组的解" class="headerlink" title="秩与线性方程组的解"></a>秩与线性方程组的解</h3><p>相容: 有解</p>
+<p>不相容: 无解</p>
+<p>判断条件$Ax=b$</p>
+<ul>
+<li>$无解\Leftrightarrow{R(A)\lt{R(A~~b)}}$</li>
+<li>$有解\Leftrightarrow{R(A)={R(A~~b)}}$<ul>
+<li>$有唯一解(齐次就是零解)\Leftrightarrow{R(A)=R(A~~b)=n}$</li>
+<li>$有无穷解(齐次有非零解)\Leftrightarrow{R(A)=R(A~~b)\lt n}$</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-向量组-线性相关性"><a href="#4-向量组-线性相关性" class="headerlink" title="4. 向量组, 线性相关性"></a>4. 向量组, 线性相关性</h2><p>n维向量</p>
+<p>实向量</p>
+<p>复向量</p>
+<p>单位坐标向量: E的列向量</p>
+<h3 id="向量组"><a href="#向量组" class="headerlink" title="向量组"></a>向量组</h3><h3 id="线性表示"><a href="#线性表示" class="headerlink" title="线性表示"></a>线性表示</h3><p>线性组合</p>
+<p><strong>线性表示</strong>: 一个向量(组)能被另一个向量组线性表示</p>
+<p>向量组等价: 两个向量组能互相线性表示</p>
+<h4 id="定理"><a href="#定理" class="headerlink" title="定理"></a>定理</h4><ul>
+<li>$向量b能被向量组A线性表示\Leftrightarrow{R(A)=R(A~~b)}$</li>
+<li>$向量组A能被向量组B线性表示\Leftrightarrow R(A)=R(A~~B)$</li>
+<li>$向量组A, B能相互线性表示(等价)\Leftrightarrow{R(A)=R(B)=R(A~~B)}$</li>
+</ul>
+<hr>
+<ul>
+<li>$若AB=C, 则C的列向量组能被A的列向量组线性表示, 表示的系数为B$</li>
+<li><p>$同理, C的行向量组能被B的行向量组线性表示, 表示的系数为A$</p>
+</li>
+<li><p>$向量组B能被向量组A线性表示\Leftrightarrow R(B)=R(B~~A)\Rightarrow{R(B)\le R(A)}$</p>
+</li>
+</ul>
+<h3 id="线性相关"><a href="#线性相关" class="headerlink" title="线性相关"></a>线性相关</h3><p>线性相关: 存在一个系数非全零的线性组合=0的向量组</p>
+<p>线性无关</p>
+<h4 id="性质-4"><a href="#性质-4" class="headerlink" title="性质"></a>性质</h4><ul>
+<li>$线性相关\Leftrightarrow{R(A)\lt m}$</li>
+<li>$线性无关\Leftrightarrow{R(A)=m}$</li>
+<li>$线性相关具有保持性质$</li>
+<li>$秩\lt向量个数\Leftrightarrow{线性相关}$</li>
+<li>$向量维数\lt向量个数\Rightarrow{线性相关}$</li>
+<li>$线性无关向量组A+b变线性相关\Rightarrow{b能被A唯一线性表示}$</li>
+</ul>
+<h3 id="向量组的秩"><a href="#向量组的秩" class="headerlink" title="向量组的秩"></a>向量组的秩</h3><p>向量组</p>
+<p>最大(线性)无关(向量)组</p>
+<p>秩: 最大无关组的向量个数</p>
+<h4 id="性质见上节"><a href="#性质见上节" class="headerlink" title="性质见上节"></a>性质见上节</h4><h3 id="线性方程组解的结构"><a href="#线性方程组解的结构" class="headerlink" title="线性方程组解的结构"></a>线性方程组解的结构</h3><h4 id="齐次的解-Ax-O"><a href="#齐次的解-Ax-O" class="headerlink" title="齐次的解$Ax=O$"></a>齐次的解$Ax=O$</h4><ul>
+<li>齐次: 解的线性组合仍是解</li>
+<li>因此只要找到解集的一个最大无关组即可得出所有解</li>
+</ul>
+<p>基本解系: 齐次的解集的一个最大无关组</p>
+<p>基本解系的秩: </p>
+<ul>
+<li>$对于方程组A_{m\times n}x=0, R_S=n-R(A)$</li>
+</ul>
+<p>求解步骤:</p>
+<ol>
+<li>对A进行行变换变成行最简形矩阵</li>
+<li>得到x之间的关系</li>
+<li>给每个自由变量赋值一个线性无关的向量(一般取单位向量)</li>
+</ol>
+<p>例题:</p>
+<p><img src="index/qiutongjie.png" alt=""></p>
+<h5 id="性质-5"><a href="#性质-5" class="headerlink" title="性质"></a>性质</h5><ul>
+<li>$Ax=O和Bx=O同解\Rightarrow R(A)=R(B)$</li>
+</ul>
+<h4 id="非齐次的解-Ax-b"><a href="#非齐次的解-Ax-b" class="headerlink" title="非齐次的解$Ax=b$"></a>非齐次的解$Ax=b$</h4><ul>
+<li>非齐次: 利用齐次</li>
+<li>找到一个特解, 加上齐次的通解即为最终解</li>
+</ul>
+<h3 id="向量空间"><a href="#向量空间" class="headerlink" title="向量空间"></a>向量空间</h3><p>向量空间: 对线性运算封闭的集合</p>
+<p>子空间: 含于另一个向量空间的向量空间</p>
+<p>基: 在向量空间中, 可以线性表示空间中任一向量的线性无关的向量组</p>
+<p>自然基: $R^n$中的单位坐标向量组</p>
+<p>维数: 基的向量个数(固定)</p>
+<p>坐标: 一个向量在某一个基下的表示</p>
+<p><strong>基变换公式</strong>: 用一个基来表示另一个基的坐标(没啥用)</p>
+<script type="math/tex; mode=display">
+B=AP=AA^{-1}B</script><p><strong>过渡矩阵</strong>: 旧基逆乘新基, 可以用初等变换的方法快速求</p>
+<script type="math/tex; mode=display">
+P=A^{-1}B</script><p><strong>坐标变换公式</strong>: 一个向量在两个不同基下的坐标的关系式</p>
+<script type="math/tex; mode=display">
+新坐标~Z=P^{-1}Y</script><h2 id="5-相似矩阵与二次型"><a href="#5-相似矩阵与二次型" class="headerlink" title="5. 相似矩阵与二次型"></a>5. 相似矩阵与二次型</h2><p>内积: 数量积的推广, $[A,B]=A^TB$</p>
+<p>长度(范数): 模的推广, $\left|\left|x\right|\right|=\sqrt{[x,x]}$</p>
+<p>投影: $c=\frac{[a,b]}{[b,b]}b$</p>
+<p>单位向量</p>
+<p>单位化</p>
+<p>夹角: $\theta=\arccos{\frac{[x,y]}{\left|\left|x\right|\right|~\left|\left|y\right|\right|}}$</p>
+<h3 id="正交矩阵"><a href="#正交矩阵" class="headerlink" title="正交矩阵"></a>正交矩阵</h3><p>正交: 夹角为0</p>
+<p>正交向量组: 一组向量两两正交, 必定线性无关</p>
+<p>标准正交基: 单位向量组成的正交向量组</p>
+<p>标准正交化, 施密特正交化</p>
+<p>正交(矩)阵: 单位正交向量组构成的矩阵</p>
+<ul>
+<li>$AA^T=E=A^TA$</li>
+<li>$A^T=A^{-1}$</li>
+<li>$\left|A\right|=1或-1$</li>
+<li>正交矩阵的逆(转置)也是正交矩阵</li>
+<li>正交矩阵的积还是正交矩阵</li>
+</ul>
+<p>正交变换: $若P是正交矩阵, 则线性变换y=Px称为正交变换$</p>
+<ul>
+<li>特性</li>
+<li>变换前后的长度不变 $||y||=\sqrt{y^Ty}=\sqrt{x^TP^TPx}=\sqrt{x^Tx}=||x||$</li>
+</ul>
+<h3 id="特征值和特征向量"><a href="#特征值和特征向量" class="headerlink" title="特征值和特征向量"></a>特征值和特征向量</h3><p>特征多项式: $f(\lambda)=\left|A-\lambda E\right|$</p>
+<p>特征值/特征向量: $A为n阶矩阵, 满足Ax=\lambda x, (A-\lambda E)x=0的\lambda和x$</p>
+<p>个数: $f(\lambda)=0是一元n次方程, \lambda必有n个根, 所以方程有n个解$</p>
+<h4 id="性质-6"><a href="#性质-6" class="headerlink" title="性质"></a>性质</h4><ul>
+<li>特征值之和等于矩阵的迹</li>
+<li>特征值之积等于矩阵的行列式</li>
+<li>矩阵多项式的特征值等于矩阵特征值的多项式: $f(\lambda)是f(A)的特征值$</li>
+<li>$特征值各不相等\Rightarrow特征向量线性无关$</li>
+<li>对角矩阵的对角元就是其特征值</li>
+</ul>
+<h4 id="求法"><a href="#求法" class="headerlink" title="求法"></a>求法</h4><ol>
+<li>根据特征多项式=0求出特征值</li>
+<li>将每个特征值代回原方程, 写出特征向量(个数=n-特征值重数)</li>
+</ol>
+<h3 id="相似矩阵"><a href="#相似矩阵" class="headerlink" title="相似矩阵"></a>相似矩阵</h3><p>相似矩阵: $P^{-1}AP=B$</p>
+<p>相似变换: $P^{-1}AP$</p>
+<h4 id="性质-7"><a href="#性质-7" class="headerlink" title="性质"></a>性质</h4><ul>
+<li>特征多项式($f(\lambda)=\left|A-\lambda E\right|$)相同</li>
+<li>特征值相同</li>
+<li>迹相同</li>
+<li><strong>计算矩阵多项式</strong>: $\varphi(A)=P\varphi(B)P^{-1}$<ul>
+<li>一般B是对角矩阵, 从而可以快速计算B的幂:</li>
+</ul>
+</li>
+</ul>
+<script type="math/tex; mode=display">
+\varphi(\Lambda)=\begin{pmatrix}
+\varphi(\lambda_1)&&&\\
+&\varphi(\lambda_2)&&\\
+&&...&\\
+&&&\varphi(\lambda_n)
+\end{pmatrix}</script><h4 id="对角化"><a href="#对角化" class="headerlink" title="对角化"></a>对角化</h4><p>对角化: 寻找相似变换矩阵P来使$P^{-1}AP=\Lambda$为对角矩阵</p>
+<p>能对角化的条件: $A有n个线性无关的特征向量$</p>
+<ul>
+<li>常用条件:</li>
+<li>$有n个各不相同的特征值$</li>
+<li>$如果特征值有重根, 则可以判断特征矩阵的秩$</li>
+</ul>
+<h4 id="对称矩阵的对角化"><a href="#对称矩阵的对角化" class="headerlink" title="对称矩阵的对角化"></a>对称矩阵的对角化</h4><p>对称矩阵的性质:</p>
+<ul>
+<li>特征值为实数</li>
+<li>不相等的特征值对应的特征向量正交</li>
+<li>一定存在正交矩阵P使得A<strong>可以被对角化</strong>为以特征值为对角元的对角矩阵</li>
+</ul>
+<p>求法:</p>
+<ol>
+<li>求出A的特征值</li>
+<li>求出所有特征向量</li>
+<li>把这些特征向量正交化, 单位化</li>
+<li>排列得到$P$和$\Lambda$, 注意两者对应</li>
+</ol>
+<p><img src="index/duijiaohua.png" alt=""></p>
+<h3 id="二次型-标准形"><a href="#二次型-标准形" class="headerlink" title="二次型, 标准形"></a>二次型, 标准形</h3><p>二次型: 含n个变量的<strong>二次齐次</strong>函数</p>
+<p>$f(x<em>1,x_2,…,x_n)=\sum{a</em>{i,j}x<em>{i}x</em>{j}}$</p>
+<p>标准形(法式): 只含<strong>平方项</strong>的二次型</p>
+<p>$f(x<em>1,x_2,…,x_n)=\sum{k</em>{i}x_{i}^2}$</p>
+<p>规范形: 系数只在-1,0,1中取值的标准形</p>
+<p>二次型的矩阵表示: 二次型可以用系数组成的对称矩阵唯一表示</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+f&=\sum{a_{ij}x_{i}x_{j}}, (a_{ij}=a_{ji})\\
+&=\begin{pmatrix}
+x_1&x_2&...&x_n
+\end{pmatrix}
+\begin{pmatrix}
+a_{11}&a_{12}&...&a_{1n}\\
+a_{21}&a_{22}&...&a_{2n}\\
+...&...&...&...\\
+a_{n1}&a_{n2}&...&a_{nn}
+\end{pmatrix}
+\begin{pmatrix}
+x_1\\
+x_2\\
+...\\
+x_n
+\end{pmatrix}\\
+&=x^TAx
+\end{aligned}</script><p>二次型的秩: 对应矩阵的秩</p>
+<h3 id="合同对角化"><a href="#合同对角化" class="headerlink" title="合同对角化"></a>合同对角化</h3><p><strong>合同</strong>: $若存在可逆矩阵C使得B=C^TAC, 则称B与A合同$</p>
+<p>性质</p>
+<ul>
+<li>对阵矩阵的合同矩阵也对称</li>
+</ul>
+<p><strong>合同对角化</strong>: $寻找可逆矩阵C, 使得C^TAC为对角矩阵, 从而使二次型A通过x=Cy变换成标准形$</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+f&=x^TAx\\
+&=y^T(C^TAC)y
+\end{aligned}</script><p>可以证明(由对称矩阵性质)这个矩阵一定存在, 而且是正交矩阵, 变换后的$C^TAC$由特征值构成</p>
+<h3 id="正定二次型"><a href="#正定二次型" class="headerlink" title="正定二次型"></a>正定二次型</h3><p>惯性定理: 同一个二次型的两种标准化结果中正负系数的个数相同</p>
+<p>正(负)惯性指数: 其中的正(负)系数的个数</p>
+<p>正(负)定二次型, 正(负)定矩阵: 如果二次型的值恒大(小)于零(x=0除外), 则称f为正(负)定二次型, 称A是正(负)定的</p>
+<ul>
+<li>$正定\Leftrightarrow正惯性指数=n\Leftrightarrow特征值全正\\Leftrightarrow各阶主子式都为正\Leftrightarrow存在可逆P,使得P^TAP=E(与E合同)$</li>
+<li>$负定\Leftrightarrow奇数阶主子式为负, 偶数阶为正$</li>
+</ul>
+<h2 id="6-线性空间与线性变换"><a href="#6-线性空间与线性变换" class="headerlink" title="6. 线性空间与线性变换"></a>6. 线性空间与线性变换</h2><p>向量空间(线性空间): 定义了线性运算且封闭, 且满足以下运算规律的非空集合</p>
+<ol>
+<li>加法交换律</li>
+<li>加法结合律</li>
+<li>加法零元</li>
+<li>加法逆元</li>
+<li>乘法单位元</li>
+<li>乘法交换律</li>
+<li>乘法结合律</li>
+<li>乘法对加法分配律</li>
+</ol>
+<p>向量: 线性空间中的元素</p>
+<p>子空间: 线性空间的仍是线性空间的非空子集</p>
+<p>基, 维数, 坐标: 同线性空间</p>
+<p>过渡矩阵 $P=A^{-1}B$</p>
+<p>基变换公式, 坐标变换公式 </p>
+<h3 id="线性变换"><a href="#线性变换" class="headerlink" title="线性变换"></a>线性变换</h3><p>映射(变换): 表示为$\beta=T(\alpha)或\beta=T\alpha$</p>
+<p>定义域A, 值域B, 像集T(A): $T(A)={\beta=T(\alpha)|\alpha\in A} \subseteq B$</p>
+<p>线性映射(线性变换): 从Vn到Um的保持线性组合的对应关系的映射. 特别地, 如果Vn=Um, 称T为线性空间Vn中的线性变换</p>
+<ul>
+<li>$T(a+b)=T(a)+T(b)$</li>
+<li>$T(\lambda b)=\lambda T(b)$</li>
+</ul>
+<p>线性变换的性质:</p>
+<ol>
+<li>T(0)=0</li>
+<li>线性组合的变换等于变换的线性组合</li>
+<li>变换前线性相关=&gt;变换后也线性相关</li>
+<li>像集$T(V_n)$也是线性空间, 称为<strong>像空间</strong></li>
+<li>$N_T={\alpha|\alpha\in V_n, T\alpha=0}$构成线性空间, 称为线性变换T的<strong>核</strong></li>
+</ol>
+<h3 id="线性变换的矩阵表示"><a href="#线性变换的矩阵表示" class="headerlink" title="线性变换的矩阵表示"></a>线性变换的矩阵表示</h3><p>线性变换的矩阵: 在Vn中取定一个基, 这个基的像的线性表示的系数矩阵称为线性变换在这个基下的矩阵, 即</p>
+<script type="math/tex; mode=display">
+\left\{\begin{matrix}
+T(\alpha_1)=\sum_{j=1}^{n}{a_{j1}\alpha_j}\\
+T(\alpha_2)=\sum_{j=1}^{n}{a_{j2}\alpha_j}\\
+...\\
+T(\alpha_n)=\sum_{j=1}^{n}{a_{jn}\alpha_j}
+\end{matrix}\right.</script><p>令</p>
+<script type="math/tex; mode=display">
+A=\begin{pmatrix}
+a_{11}& a_{12}& ...& a_{1n}\\  
+a_{21}& a_{22}& ...& a_{2n}\\  
+:& :& & :\\  
+a_{n1}& a_{n2}& ...& a_{nn}\\  
+\end{pmatrix}\\</script><p>则</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+T(\alpha_1, \alpha_2, ..., \alpha_n)&=(\alpha_1, \alpha_2, ..., \alpha_n)A
+\end{aligned}</script><h4 id="性质-8"><a href="#性质-8" class="headerlink" title="性质"></a>性质</h4><ul>
+<li>同一个变换在不同基下的矩阵<strong>相似</strong>, 且相似变换矩阵就是两个基的过渡矩阵P</li>
+</ul>
+<h4 id="相似-合同与等价"><a href="#相似-合同与等价" class="headerlink" title="相似, 合同与等价"></a>相似, 合同与等价</h4><ul>
+<li><p>等价$\Leftrightarrow$AB秩相同</p>
+</li>
+<li><p>合同=等价+正负惯性系数相同</p>
+</li>
+<li><p>相似=合同+特征值相同+主对角线元素之和相同+矩阵的值相同</p>
+</li>
+</ul>
+<p>由此可见，等价到合同到相似，条件越来越苛刻，AB共同点越来越多</p>
+]]></content>
+      <categories>
+        <category>课程笔记</category>
+        <category>线性代数</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>软件工程</title>
+    <url>/software-engineer/index.html</url>
+    <content><![CDATA[<ol>
+<li>软件的本质<ol>
+<li>软件的本质<ol>
+<li>定义<ol>
+<li>有很多种定义, 以书上(P3)的定义为准, 指令的集合+数据结构+软件描述信息</li>
+</ol>
+</li>
+<li>软件应用的领域<ol>
+<li>系统软件/应用软件/工业软件/嵌入式软件/产品线软件/Web移动应用程序/AI软件</li>
+</ol>
+</li>
+<li>遗留软件<ol>
+<li>挑战: <ol>
+<li>原有功能质量不符合现代的要求</li>
+</ol>
+</li>
+<li>需要演化的情况<ol>
+<li>适应性调整, 满足新的环境/技术</li>
+<li>升级, 实现新的商业需求</li>
+<li>拓展, 与新的系统或数据库互操作</li>
+<li>改建, 适应不断演化的计算环境</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>软件的变更本质<ol>
+<li>是生命体, 在生长</li>
+<li>四大类占主导地位的软件<ol>
+<li>WebApp/移动App/云计算/产品线软件</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>软件失效率曲线<ol>
+<li>理想曲线: 未知的缺陷将在软件生命周期的前期造成高失效率, 但随着错误的纠正, 曲线将趋于平缓, 软件不会磨损, 但是会退化</li>
+<li>事实曲线: 软件会面临变更, 每次变更都会导致失效率陡然上升, 在曲线回到最初的状态前, 新的变化又会再次导致曲线上升, 最终导致最小的失效率点沿斜线的形状逐渐上升</li>
+<li>不断的变更是导致软件失效的根本原因</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>软件工程<ol>
+<li><strong>软件工程的定义</strong><ol>
+<li>以书上为准 IEEE<ol>
+<li>将(系统化, 规范的, 可量化的)工程化方法应用于软件的开发,运行和维护</li>
+<li>对上述方法的研究</li>
+</ol>
+</li>
+<li>软件工程层次<ol>
+<li>工具on方法on过程on质量关注点</li>
+<li>过程process<ol>
+<li>包括<ol>
+<li>活动activities</li>
+<li>动作actions</li>
+<li>任务tasks</li>
+</ol>
+</li>
+<li>过程框架<ol>
+<li><strong>沟通/策划/建模/构建/部署</strong></li>
+<li>软件工程: 过程框架/普适性活动/框架活动i/软件工程动作i.j/任务集</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>方法method:</li>
+<li>工具tool:</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><strong>软件开发神话</strong>: 为什么需要软件工程</li>
+<li>注意思考题</li>
+</ol>
+</li>
+<li>软件过程<ol>
+<li>通用过程框架<ol>
+<li>每个框架活动由一系列动作构成, 每个动作由任务集来定义</li>
+<li>任务集明确了将要完成的工作任务,将要产生的工作产品,需要的质量保证点,用于表明过程状态的里程碑</li>
+</ol>
+</li>
+<li>过程流图<ol>
+<li>线性过程流</li>
+<li>迭代过程流</li>
+<li>演化过程流</li>
+<li>并行过程流</li>
+</ol>
+</li>
+<li>明确任务集(细胞)<ol>
+<li>注意<img src="index/3.3.png" alt="3.3信息栏"></li>
+</ol>
+</li>
+<li>过程模式<ol>
+<li>注意<img src="index/3.4.png" alt="3.4信息栏"></li>
+<li>模板process pattern<ol>
+<li>模式名称</li>
+<li>驱动力</li>
+<li>类型<ol>
+<li>步骤模式</li>
+<li>任务模式</li>
+<li>阶段模式</li>
+</ol>
+</li>
+<li>启动条件</li>
+<li>问题</li>
+<li>解决方案</li>
+<li>结果</li>
+<li>相关模式</li>
+<li>已知应用和实例</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>过程模型: 1,2个, 也可能简答题<ol>
+<li>分类: 传统的/敏捷的</li>
+<li>各种模型的特点</li>
+<li>瀑布模型是基础<ol>
+<li>沟通/策划/建模/构建/部署</li>
+</ol>
+</li>
+<li>V模型</li>
+<li>增量模型<ol>
+<li>特点 <ol>
+<li><strong>第一个增量是核心产品</strong></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>螺旋模型<ol>
+<li>结合原型的选代性质和瀑布模型的可控性和系统性特点</li>
+<li>特点<ol>
+<li>风险识别和应对</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>UP统一过程<ol>
+<li><img src="index/4.7.png" alt="4.7"></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>敏捷<ol>
+<li>定义</li>
+<li>敏捷宣言</li>
+<li>XP<ol>
+<li>特征<ol>
+<li>保持KIS原则</li>
+<li>鼓励使用CRC</li>
+<li>先单元测试后代码</li>
+<li>结对编程</li>
+<li>重构: 以不改变其外部功能或行为而改进设计（或源代码）的内部结构。</li>
+</ol>
+</li>
+<li>用户故事: 描述将要开发的软件所需要的输出, 特征以及功能</li>
+</ol>
+</li>
+<li>Scrum<ol>
+<li>特征<ol>
+<li>待定项backlog</li>
+<li>冲刺sprint</li>
+<li>每日站会</li>
+</ol>
+</li>
+<li>人员<ol>
+<li>Product Owner：杜老师</li>
+<li>Scrum Master：邱博</li>
+<li>Team：三个组员</li>
+</ol>
+</li>
+<li>步骤<ol>
+<li>我们首先要确定一个Product Backlog（按优先顺序排列的一个产品需求列表）</li>
+<li>团队根据product backlog做工作量的估算</li>
+<li>通过Sprint Planning meeting，来从中挑选出一个Story作为本次迭代完成的目标，时间周期是1~4个星期，然后把这个Story进行细化，形成一个Sprint Backlog </li>
+<li>在Sprint backlog再细化成更小的任务，成员领取任务（2天的工作量左右）</li>
+<li>过程中要进行每日站立会议，控制在15分钟左右，汇报昨天完成了什么，今天要做什么，遇到了哪些问题</li>
+<li>做到每日集成，每天都可以有一个成功编译，并且可以演示的版本。</li>
+<li>当一个Story完成，业绩就是Sprint backlog完成，表示一次Sprint的完成，这时，要进行Sprint review meeting。</li>
+<li>最后就是Spring Retrospective Meeting，总结会议，每个人总结并讨论改进，放入到下一次Sprint的产品需求中。</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>__</li>
+<li>指导实践的原则<ol>
+<li>软件工程知识</li>
+<li>核心原则</li>
+<li>指导每个框架活动的原则</li>
+</ol>
+</li>
+<li>需求工程<ol>
+<li>需求工程过程: 开始/获取/细化/协商/<strong>规格说明(SRS)</strong>/确认/需求管理</li>
+<li>需求的建立(开始): 利益相关者/协同合作</li>
+<li>收集需求(获取)</li>
+<li>开发用例: 编写<strong>用例规约</strong></li>
+<li>构建<strong>分析模型</strong>: <ol>
+<li>元素: 基于场景的元素(活动图)/基于类的元素(类图)/行为元素(状态图)<ol>
+<li>状态图: [状态名|状态变量|状态活动]</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>需求建模: 基于场景<ol>
+<li>用例图, 活动图</li>
+<li>泳道图</li>
+</ol>
+</li>
+<li>需求建模: 类<ol>
+<li>识别分析类, 属性, 操作<ol>
+<li>语法分析法<ol>
+<li>名词: 类/属性</li>
+<li>动词: 操作</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>CRC</li>
+</ol>
+</li>
+<li>需求建模: 行为和模式<ol>
+<li>识别行为模型: 相对前面的建模是动态的</li>
+<li>识别用例事件</li>
+<li>状态表达: <ol>
+<li><strong>状态图</strong></li>
+<li>顺序图(序列图)</li>
+</ol>
+</li>
+<li>Web/移动App的需求建模<ol>
+<li>类型: <ol>
+<li>内容模型</li>
+<li>交互模型</li>
+<li>功能模型</li>
+<li>导航模型</li>
+<li>配置模型</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>设计<ol>
+<li>作用<ol>
+<li>产生设计模型: 数据/类设计,体系结构设计,接口设计,构建级设计</li>
+<li><img src="index/12.1.png" alt=""></li>
+</ol>
+</li>
+<li>设计概念定义<ol>
+<li>抽象/体系结构/模式/关注点分离/模块化/信息隐蔽/功能独立/逐步求精/方面/重构/OOP/设计类/依赖倒置/测试设计</li>
+</ol>
+</li>
+<li>设计模型<ol>
+<li>xx设计元素: 数据/体系结构/接口/构建级/部署级</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>架构级设计<ol>
+<li>软件体系结构: 系统的一个或者多个结构，它包括软件构件、构件的外部可见属性以及它们之间的相互关系。</li>
+<li>体系结构环境图ACD</li>
+</ol>
+</li>
+<li>构件级设计<ol>
+<li>构件<ol>
+<li>系统中模块化的, 可部署的和可替换的部件, 该部件封装了实现并对外提供一组接口</li>
+</ol>
+</li>
+<li>设计原则<ol>
+<li>OCP/LSP/DIP/ISP/REP/CCP/CRP</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="最后一题-UML的五类图-40分"><a href="#最后一题-UML的五类图-40分" class="headerlink" title="最后一题: UML的五类图 40分"></a>最后一题: UML的五类图 40分</h2><ol>
+<li>用例图</li>
+<li>静态图<ol>
+<li>类图</li>
+<li>对象图</li>
+<li>包图</li>
+</ol>
+</li>
+<li>行为图<ul>
+<li>状态图和活动图格式完全一样, 起点用黑点, 终点是带圈黑点</li>
+<li>活动图可以带泳道</li>
+</ul>
+<ol>
+<li>状态图<ul>
+<li>仅为那些有多个状态其行为受外界环境的影响并且发生改变的类画状态图</li>
+<li><img src="index/state_diagram.png" alt=""></li>
+</ul>
+</li>
+<li>活动图<ul>
+<li><img src="index/activity_diagram.png" alt=""></li>
+</ul>
+</li>
+</ol>
+</li>
+<li>交互图<ol>
+<li>顺序图(序列图)<ul>
+<li>强调时间和顺序</li>
+<li><img src="index/sequence_diagram.png" alt=""></li>
+</ul>
+</li>
+<li>协作图(通讯图)<ul>
+<li>强调上下级关系</li>
+<li><img src="index/comm_diagram.png" alt=""></li>
+</ul>
+</li>
+</ol>
+</li>
+<li>实现图<ol>
+<li>构件图<ul>
+<li><img src="index/comp_diagram.png" alt=""></li>
+</ul>
+</li>
+<li>配置图<ul>
+<li><img src="index/deploy_diagram.png" alt=""></li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<p>CMM: 一级为初始级，二级为可重复级，三级为已定义级，四级为已管理级，五级为优化级</p>
+<p>P179 构建细化</p>
+]]></content>
+      <categories>
+        <category>课程笔记</category>
+        <category>软件工程</category>
       </categories>
   </entry>
   <entry>
