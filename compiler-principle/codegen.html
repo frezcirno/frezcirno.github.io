@@ -31,7 +31,7 @@
 <meta property="og:description" content="目标代码生成任务中间代码 --&gt; 代码生成器 --&gt; 目标程序                 ^                 |             符号表 目标代码的三种形式: 能立即执行的机器码(所有地址已经定位) 待装配的机器语言模块(连接装入后即可执行) 汇编语言代码(经汇编程序汇编后即可执行)  此处选择汇编语言 目标机器模型此处假设目标计算机:  具有多个通用寄存">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-12-17T02:56:11.000Z">
-<meta property="article:modified_time" content="2021-01-21T16:42:51.927Z">
+<meta property="article:modified_time" content="2021-01-21T17:37:27.249Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="daily">
 <meta name="twitter:card" content="summary">
@@ -347,7 +347,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.3k</span>
+      <span>1.4k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -409,7 +409,9 @@
 <p>修改符号表</p>
 <ul>
 <li>记录待用信息和活跃信息</li>
-<li>表示: (<code>待用信息[i/^]</code>,<code>活跃信息[y/^]</code>)<br>| 变量名 | 待用/活跃信息栏 |<br>| ——— | ———————- |<br>| A      | (…, …)      |<br>| B      | (…, …)      |<br>| …    | (…, …)      |</li>
+<li><p>表示: (<code>待用信息[i/^]</code>,<code>活跃信息[y/^]</code>)</p>
+<p>| 变量名 | 待用/活跃信息栏 |<br>| ——— | ———————- |<br>| A      | (…, …)      |<br>| B      | (…, …)      |<br>| …    | (…, …)      |</p>
+</li>
 </ul>
 <p>计算待用和活跃信息</p>
 <ol>
@@ -473,7 +475,7 @@
 <li>生成store指令?<ol>
 <li>对于<code>Ri</code>中存储的变量M, 如果M不是A<ol>
 <li>如果<code>M</code>仅存储在<code>Ri</code>中, 则要<code>ST Ri, M</code></li>
-<li></li>
+<li>如果<code>M</code>是<code>B</code>, 或者<code>M</code>是<code>C</code>但同时<code>B</code>也在<code>RVALUE[Ri]</code>中, 则令</li>
 </ol>
 </li>
 </ol>

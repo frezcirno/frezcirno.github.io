@@ -45,7 +45,7 @@
 <meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/dfa_simplify.png">
 <meta property="og:image" content="https://frezcirno.github.io/compiler-principle/lex/dfa_simplify_example.png">
 <meta property="article:published_time" content="2020-12-17T02:54:12.000Z">
-<meta property="article:modified_time" content="2021-01-21T16:42:51.931Z">
+<meta property="article:modified_time" content="2021-01-21T17:37:27.253Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="daily">
 <meta name="twitter:card" content="summary">
@@ -428,7 +428,7 @@
 </ul>
 <h3 id="词法规则的表示"><a href="#词法规则的表示" class="headerlink" title="词法规则的表示"></a>词法规则的表示</h3><p>大多数pl中的单词符号的<strong>词法规则</strong>可以用<strong>正规文法</strong>描述</p>
 <p>例如:</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;标识符&gt;→ 字母|&lt;标识符&gt;字母|&lt;标识符&gt;数字</span><br><span class="line">&lt;整数&gt;→数字|&lt;整数&gt;数字</span><br><span class="line">&lt;运算符&gt;→+|－|\times|÷…</span><br><span class="line">&lt;界符&gt;→; |, |( | )|…</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;标识符&gt; -&gt; 字母|&lt;标识符&gt;字母|&lt;标识符&gt;数字</span><br><span class="line">&lt;整数&gt; -&gt; 数字|&lt;整数&gt;数字</span><br><span class="line">&lt;运算符&gt; -&gt; +|-|×|÷…</span><br><span class="line">&lt;界符&gt; -&gt; ;|,|(|)|…</span><br></pre></td></tr></table></figure>
 <p>利用这些规则识别的过程可以用<strong>状态转换图</strong>来表示, 而状态转换图可以方便地用程序实现</p>
 <h3 id="TG"><a href="#TG" class="headerlink" title="TG"></a>TG</h3><p>状态转换图TG: 一个有限有向图, 可用于接受(识别)一定的符号串</p>
 <ul>
@@ -445,10 +445,10 @@
 <p><img src="lex/tg.png" alt=""></p>
 <h2 id="正规表达式和有限自动机"><a href="#正规表达式和有限自动机" class="headerlink" title="正规表达式和有限自动机"></a>正规表达式和有限自动机</h2><h3 id="正规式"><a href="#正规式" class="headerlink" title="正规式"></a>正规式</h3><p>字母表$\Sigma$上的正规式和正规集递归定义如下：</p>
 <ol>
-<li>$\varepsilon$和$\varphi$都是$\Sigma$上的正规式，它们所表示的正规集分别为${\varepsilon}$和$\varphi$。其中：$\varepsilon$为空字符串，$\varphi$为空集</li>
-<li>任意元素$a\in\Sigma$，a是$\Sigma$上的一个正规式，它所表示的正规集是${a}$;</li>
-<li>假定U和V都是$\Sigma$上的正规式，它们所表示的正规集记为L(U)和L(V)，那么（U|V），（U·V）和(U)*都是正规式，他们所表示的正规集分别记为L(U)∪L(V)，L(U)L(V)和(L(U))*。</li>
-<li>仅由有限次使用上述三步而得到的表达式才是$\Sigma$上的正规式，它们所表示的字集才是$\Sigma$上的正规集。</li>
+<li>$\varepsilon$和$\varphi$都是$\Sigma$上的正规式, 它们所表示的正规集分别为${\varepsilon}$和$\varphi$。其中：$\varepsilon$为空字符串, $\varphi$为空集</li>
+<li>任意元素$a\in\Sigma$, a是$\Sigma$上的一个正规式, 它所表示的正规集是${a}$;</li>
+<li>假定U和V都是$\Sigma$上的正规式, 它们所表示的正规集记为L(U)和L(V), 那么(U|V), (U·V)和(U)*都是正规式, 他们所表示的正规集分别记为L(U)∪L(V), L(U)L(V)和(L(U))*。</li>
+<li>仅由有限次使用上述三步而得到的表达式才是$\Sigma$上的正规式, 它们所表示的字集才是$\Sigma$上的正规集。</li>
 </ol>
 <p>运算:</p>
 <ul>
@@ -475,24 +475,24 @@
 <p>有限状态机(FSM)</p>
 <h3 id="DFA"><a href="#DFA" class="headerlink" title="DFA"></a>DFA</h3><p>DFA五元组: $M=(S,\Sigma,\delta,S_0,F)$</p>
 <ul>
-<li>S: 有限的状态集合，每个元素称为一个状态</li>
-<li>$\Sigma$: 有限的输入字母表，每个元素称为一个输入字符</li>
-<li>$\delta: S\times\Sigma → S$: 转换函数(状态转移集合)<ul>
+<li>$S$: 有限的状态集合, 每个元素称为一个状态</li>
+<li>$\Sigma$: 有限的输入字母表, 每个元素称为一个输入字符</li>
+<li>$\delta: S\times\Sigma \rightarrow S$: 转换函数(状态转移集合)<ul>
 <li>$\delta(s, a)=s’$</li>
 </ul>
 </li>
 <li>$S_0\in S$: 初始状态</li>
 <li>$F\subseteq S$: 终止状态集</li>
 </ul>
-<p>状态转换矩阵: DFA可以用一个矩阵表示, 每行表示一个状态, 每列表示一种输入, 矩阵元素表示$\delta$(s,a)的值</p>
+<p>状态转换矩阵: DFA可以用一个矩阵表示, 每行表示一个状态, 每列表示一种输入, 矩阵元素表示$\delta(s,a)$的值</p>
 <p><strong>DFA与状态转换图: DFA可以用TG唯一表示</strong></p>
 <p><img src="lex/dfa_tg.png" alt=""></p>
 <p><strong>拓展转移函数</strong></p>
 <ul>
 <li>接收一个字符串的状态转移函数</li>
-<li>$\delta’: S\times\Sigma^* → S$<ul>
+<li>$\delta’: S\times\Sigma^* \rightarrow S$<ul>
 <li>$\delta’(s, \varepsilon) = s$</li>
-<li>$\delta’(s, \omega a) = \delta(\delta’(s,\omega ),a)$</li>
+<li>$\delta’(s, \omega a) = \delta(\delta’(s,\omega),a)$</li>
 </ul>
 </li>
 </ul>
@@ -502,7 +502,7 @@
 <ul>
 <li>$S$: 同DFA</li>
 <li>$\Sigma$: 同DFA</li>
-<li>$\delta: S\times\Sigma^* → 2^S(幂集)$: 转换函数(状态转移集合)<ul>
+<li>$\delta: S\times\Sigma^* \rightarrow 2^S(幂集)$: 转换函数(状态转移集合)<ul>
 <li>$\delta(s, a)=S’\subseteq S$</li>
 </ul>
 </li>
@@ -534,17 +534,20 @@
 </tbody>
 </table>
 </div>
-<p>NFA的拓展转移函数 $\delta’(\delta: S\times\Sigma^* → 2^S)$</p>
-<ol>
-<li>$\delta’(s, \varepsilon) = {\varepsilon}$</li>
+<p>NFA的拓展转移函数</p>
+<ul>
+<li>$\delta’: S\times\Sigma^* \rightarrow 2^S$<ul>
+<li>$\delta’(s, \varepsilon) = {s}$</li>
 <li>$\delta’(s,\omega a)={p|存在r\in\delta’(s,\omega )\wedge p\in\delta(r,a)}$</li>
-</ol>
+</ul>
+</li>
+</ul>
 <p>NFA接受的字符串</p>
 <p>NFA接受的语言</p>
 <h3 id="DFA和NFA的关系-子集法"><a href="#DFA和NFA的关系-子集法" class="headerlink" title="DFA和NFA的关系 (子集法)"></a>DFA和NFA的关系 (子集法)</h3><p>DFA是NFA的特例, 两者可以相互转化</p>
-<p>$\varepsilon-闭包:$</p>
+<p><strong>ε-闭包</strong>:</p>
 <script type="math/tex; mode=display">
-\varepsilon\_CLOSURE(I)=\{q|q\in I\}\cup\{q'|q经任意条\varepsilon弧可到达q', q\in I\}, I\subseteq M'</script><p><strong>NFA-&gt;DFA之子集法</strong>:</p>
+\varepsilon\_CLOSURE(I)=I\cup\{q'|q经任意条\varepsilon弧可到达q', q\in I\}, I\subseteq M'</script><p><strong>NFA-&gt;DFA之子集法</strong>:</p>
 <ol>
 <li>引进新的初态结点X和终态结点Y, 从X到所有原始态结点连接一条$\varepsilon$弧, 从所有原终态结点到Y连接一条$\varepsilon$弧</li>
 <li><p>对复合的弧进行<strong>分裂</strong></p>
@@ -620,9 +623,9 @@
 </table>
 </div>
 <p><img src="lex/nfa_dfa_example_3.png" alt=""></p>
-<h3 id="正规式和FA的关系"><a href="#正规式和FA的关系" class="headerlink" title="正规式和FA的关系"></a>正规式和FA的关系</h3><blockquote>
-<p>正规式和FA是等价的</p>
-</blockquote>
+<h3 id="正规式和FA的关系"><a href="#正规式和FA的关系" class="headerlink" title="正规式和FA的关系"></a>正规式和FA的关系</h3><ul>
+<li>正规式和FA是等价的</li>
+</ul>
 <h4 id="从NFA构造等价的正规式-简单"><a href="#从NFA构造等价的正规式-简单" class="headerlink" title="从NFA构造等价的正规式 (简单)"></a>从NFA构造等价的正规式 (简单)</h4><ol>
 <li><p>引进新的初态结点X和终态结点Y, 从X到所有原始态结点连接一条$\varepsilon$弧, 从所有原终态结点到Y连接一条$\varepsilon$弧</p>
 </li>

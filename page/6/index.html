@@ -569,7 +569,9 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h1 id="属性文法和语法制导翻译"><a href="#属性文法和语法制导翻译" class="headerlink" title="属性文法和语法制导翻译"></a>属性文法和语法制导翻译</h1><h2 id="属性文法"><a href="#属性文法" class="headerlink" title="属性文法"></a>属性文法</h2><p>属性文法: 在上下文无关文法的基础上给每个文法符号增加若干属性</p>
+          <h1 id="提纲"><a href="#提纲" class="headerlink" title="提纲"></a>提纲</h1><p><img src="ir/index1.png" alt=""></p>
+<p><img src="ir/index2.png" alt=""></p>
+<h1 id="属性文法和语法制导翻译"><a href="#属性文法和语法制导翻译" class="headerlink" title="属性文法和语法制导翻译"></a>属性文法和语法制导翻译</h1><h2 id="属性文法"><a href="#属性文法" class="headerlink" title="属性文法"></a>属性文法</h2><p>属性文法: 在上下文无关文法的基础上给每个文法符号增加若干属性</p>
 <p>语义规则: 对于文法的每个产生式配备了<strong>一组</strong>属性的计算规则</p>
 <ul>
 <li>$b:=f(c_1,c_2,…,c_k)$</li>
@@ -629,7 +631,7 @@
 <li>易于移植</li>
 <li>使编译程序的结构在逻辑上更为简单明确</li>
 </ul>
-<p>常用的中间语言:</p>
+<p>常用的中间语言表示法</p>
 <ul>
 <li>后缀式(逆波兰式)</li>
 <li>图表示<ul>
@@ -674,9 +676,11 @@
 </li>
 <li><p>计算机表示</p>
 <ul>
-<li><p>四元式<br>|     | Op     | arg1 | arg2 | result |<br>| —- | ——— | —— | —— | ——— |<br>| (0) | uminus | c    |      | T1     |<br>| (1) | *      | b    | T1   | T2     |<br>| … | …    | …  | …  | …    |</p>
+<li><p>四元式</p>
+<p>|     | Op     | arg1 | arg2 | result |<br>| —- | ——— | —— | —— | ——— |<br>| (0) | uminus | c    |      | T1     |<br>| (1) | *      | b    | T1   | T2     |<br>| … | …    | …  | …  | …    |</p>
 </li>
-<li><p>三元式<br>|     | Op     | arg1 | arg2 |<br>| —- | ——— | —— | —— |<br>| (0) | uminus | c    |      |<br>| (1) | *      | b    | (0)  |<br>| … | …    | …  | …  |<br>| (4) | +      | (1)  | (3)  |<br>| … | …    | …  | …  |</p>
+<li><p>三元式</p>
+<p>|     | Op     | arg1 | arg2 |<br>| —- | ——— | —— | —— |<br>| (0) | uminus | c    |      |<br>| (1) | *      | b    | (0)  |<br>| … | …    | …  | …  |<br>| (4) | +      | (1)  | (3)  |<br>| … | …    | …  | …  |</p>
 </li>
 <li><p>间接三元式</p>
 <ul>
@@ -840,7 +844,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>4.3k</span>
+      <span>4.4k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -894,8 +898,8 @@
 <p>改写为</p>
 <p>$P\rightarrow\beta_1 P’|\beta_2 P’|…|\beta_n P’$</p>
 <p>$P’\rightarrow\alpha_1 P’|\alpha_2 P’|…|\alpha_m P’|\varepsilon$</p>
-<h3 id="FIRST-FOLLOW"><a href="#FIRST-FOLLOW" class="headerlink" title="FIRST, FOLLOW"></a>FIRST, FOLLOW</h3><p>$终结首符集:FIRST(\alpha)={a|\alpha\Rightarrow^<em>a…,a\in V_T}, \特别地, 如果\alpha\Rightarrow^</em>\varepsilon, 则规定\varepsilon\in FIRST(\alpha)$</p>
-<p>$后继终结符号集:FOLLOW(A)={a|S\Rightarrow^<em>…Aa…,a\in V_T}, \特别地, 如果S\Rightarrow^</em>…A, 则规定#\in FOLLOW(S)$</p>
+<h3 id="FIRST-FOLLOW"><a href="#FIRST-FOLLOW" class="headerlink" title="FIRST, FOLLOW"></a>FIRST, FOLLOW</h3><p>终结首符集: $FIRST(\alpha)={a|\alpha\Rightarrow^<em>a…,a\in V_T}, \特别地, 如果\alpha\Rightarrow^</em>\varepsilon, 则规定\varepsilon\in FIRST(\alpha)$</p>
+<p>后继终结符号集: $FOLLOW(A)={a|S\Rightarrow^<em>…Aa…,a\in V_T}, \特别地, 如果S\Rightarrow^</em>…A, 则规定#\in FOLLOW(S)$</p>
 <h3 id="LL-1-文法"><a href="#LL-1-文法" class="headerlink" title="LL(1)文法"></a>LL(1)文法</h3><p>可以进行无回溯的自上而下分析</p>
 <ul>
 <li>不含左递归</li>
@@ -971,9 +975,9 @@
 </ul>
 <p>ACTION表:</p>
 <ol>
-<li>移进<code>sN</code>: 将N和输入符号a进栈, 读取下一个输入</li>
-<li>规约<code>rN</code>: 用N号产生式$A\Rightarrow\beta$进行规约, 出栈$|\beta|$项, 将GOTO[s.top, A]和A进栈(规约), <strong>输入不动</strong></li>
-<li>接受<code>acc</code>: 分析成功结束</li>
+<li>移进$sN$: 将$N$和输入符号$a$进栈, 读取下一个输入</li>
+<li>规约$rN$: 用$N$号产生式$A\Rightarrow\beta$进行规约, 出栈$|\beta|$项, 将$GOTO[s.top, A]$和$A$进栈(规约), <strong>输入不动</strong></li>
+<li>接受$acc$: 分析成功结束</li>
 <li>报错</li>
 </ol>
 <p>LR文法: 能够构造LR分析表, 使得每个入口都是唯一确定的文法</p>
@@ -995,7 +999,7 @@
 <li>连接非$\varepsilon$弧<ul>
 <li>$状态i为X\rightarrow X<em>1…X</em>{i-1}\cdot X_i…X_n$</li>
 <li>$状态j为X\rightarrow X<em>1…X</em>{i-1}X<em>i\cdot X</em>{i+1}…X_n$</li>
-<li>则连接状态i到状态j, 标志为$X_i$</li>
+<li>则连接状态$i$到状态$j$, 标志为$X_i$</li>
 </ul>
 </li>
 <li><p>连接$\varepsilon$弧</p>
@@ -1013,7 +1017,7 @@
 </li>
 </ul>
 <h4 id="2-LR-0-项目集规范族"><a href="#2-LR-0-项目集规范族" class="headerlink" title="2. LR(0)项目集规范族"></a>2. LR(0)项目集规范族</h4><ul>
-<li><p>识别活前缀的DFA的项目集的全体称为文法的LR(0)目集规范族</p>
+<li><p>识别活前缀的DFA的项目集的全体称为文法的LR(0)项目集规范族</p>
 <ul>
 <li>规约项目: $A\rightarrow\alpha\cdot$</li>
 <li>接受项目: $S\rightarrow\alpha\cdot$</li>
@@ -1037,21 +1041,20 @@
 </li>
 <li>状态转换函数$GO(I,X)$:<ul>
 <li>$GO(I, X)=Closure({A\rightarrow\alpha X\cdot\beta|(A\rightarrow\alpha\cdot X\beta)\in I})$</li>
-<li>若I是对活前缀$\gamma$有效的项目集, 那么$GO(I, X)$就是对$\gamma X$有效的项目集</li>
-<li>接受$X$之后的$Closure$集合</li>
+<li>若$I$是对活前缀$\gamma$有效的项目集, 那么$GO(I, X)$就是对$\gamma X$有效的项目集</li>
+<li>(接受$X$之后的$Closure$集合)</li>
 </ul>
 </li>
-<li>构造DFA算法<pre><code class="lang-pascal"> PROCEDURE ITEMSETS(G&#39;)；
+<li>构造DFA算法<pre><code> PROCEDURE ITEMSETS(G&#39;)
  BEGIN
-   C:=&#123;Closure(&#123;S&#39;\rightarrow\cdot S&#125;)&#125;；
+   C:=&#123;Closure(&#123;S&#39;\rightarrow\cdot S&#125;)&#125;
    REPEAT
      FOR C中每个项目集I和G&#39;的每个符号X DO
        IF GO(I, X)非空且不属于C THEN
          C += GO(I, X)
    UNTIL C 不再增大
  END
-</code></pre>
-</li>
+</code></pre></li>
 </ul>
 <p>LR(0)文法:</p>
 <ul>
@@ -1077,18 +1080,30 @@
 </ul>
 <p><strong>构造LR(0)的ACTION和GOTO</strong>:</p>
 <ul>
-<li>若$A\rightarrow\alpha\cdot a\beta\in I_k$且$GO(I_k, a)=I_j$, 则$ACTION[k, a]=sj$</li>
-<li>若$A\rightarrow\alpha\cdot\in I_k$, 则$ACTION[k, a]=rj$</li>
-<li>若$S’\rightarrow S\in I_k$, 则$ACTION[k, a]=acc$</li>
-<li>若$GOTO(I_k,A)=I_j$, 则$GOTO[k, a]=j$</li>
+<li>若$(A\rightarrow\alpha\cdot a\beta)\in I_k$且$GO(I_k, a)=I_j$, 则$ACTION[k, a]=sj$</li>
+<li>若$(A\rightarrow\alpha\cdot)\in I_k$, 则$ACTION[k, a]=rj$</li>
+<li>若$(S’\rightarrow S)\in I_k$, 则$ACTION[k, a]=acc$</li>
+<li>若$GO(I_k,A)=I_j$, 则$GOTO[k, a]=j$</li>
 <li>其他均为报错</li>
 </ul>
 <p><img src="parser/lr0_table.png" alt=""></p>
-<h3 id="SLR"><a href="#SLR" class="headerlink" title="SLR"></a>SLR</h3><p>LR(0)可能会误判: 即使存在移进-规约, 规约-规约项目冲突, 不一定不合法</p>
-<p>假定LR(0)规范族的一个项目集$I={A_1\rightarrow\alpha\cdot a_1\beta_1, A_2\rightarrow\alpha\cdot a_2\beta_2, …, A_m\rightarrow\alpha\cdot a_m\beta_m, B_1\rightarrow\alpha\cdot , B_2\rightarrow\alpha\cdot , …, B_n\rightarrow\alpha\cdot }$ 如果集合$<br>{a_1, …, a_m}, FOLLOW(B_1), …, FOLLOW(B_n)$两两不相交(<br>包括不得有两个FOLLOW集合有#), 则</p>
+<h3 id="SLR"><a href="#SLR" class="headerlink" title="SLR"></a>SLR</h3><p>LR(0)可能会误判: 即使存在项目冲突, 也不一定不合法</p>
+<p>假定LR(0)规范族的一个项目集</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+I=\{
+&A_1\rightarrow\alpha\cdot a_1\beta_1,\\
+&A_2\rightarrow\alpha\cdot a_2\beta_2,\\
+&...\\
+&A_m\rightarrow\alpha\cdot a_m\beta_m,\\ 
+&B_1\rightarrow\alpha\cdot,\\
+&B_2\rightarrow\alpha\cdot,\\
+&...\\
+&B_n\rightarrow\alpha\cdot\}
+\end{aligned}</script><p>如果集合${a_1, …, a_m}, FOLLOW(B_1), …, FOLLOW(B_n)$两两不相交(包括不得有两个FOLLOW集合有#), 则</p>
 <ol>
-<li>若a是某个ai, i=1,2,…,m, 则移进；</li>
-<li>若$a\in FOLLOW(B_i), i=1,2,…,n$, 则用产生式$B_i\rightarrow\alpha$进行归约；</li>
+<li>若a是某个ai, i=1,2,…,m, 则移进</li>
+<li>若$a\in FOLLOW(B_i), i=1,2,…,n$, 则用产生式$B_i\rightarrow\alpha$进行归约</li>
 <li>此外, 报错。</li>
 </ol>
 <p>冲突性动作的这种解决办法叫做SLR(1)解决办法。上述方法构造出的ACTION与GOTO表如果不含多重入口，则称该文法为<strong>SLR(1)文法</strong></p>
@@ -1258,7 +1273,7 @@
 </ul>
 <h3 id="词法规则的表示"><a href="#词法规则的表示" class="headerlink" title="词法规则的表示"></a>词法规则的表示</h3><p>大多数pl中的单词符号的<strong>词法规则</strong>可以用<strong>正规文法</strong>描述</p>
 <p>例如:</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;标识符&gt;→ 字母|&lt;标识符&gt;字母|&lt;标识符&gt;数字</span><br><span class="line">&lt;整数&gt;→数字|&lt;整数&gt;数字</span><br><span class="line">&lt;运算符&gt;→+|－|\times|÷…</span><br><span class="line">&lt;界符&gt;→; |, |( | )|…</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;标识符&gt; -&gt; 字母|&lt;标识符&gt;字母|&lt;标识符&gt;数字</span><br><span class="line">&lt;整数&gt; -&gt; 数字|&lt;整数&gt;数字</span><br><span class="line">&lt;运算符&gt; -&gt; +|-|×|÷…</span><br><span class="line">&lt;界符&gt; -&gt; ;|,|(|)|…</span><br></pre></td></tr></table></figure>
 <p>利用这些规则识别的过程可以用<strong>状态转换图</strong>来表示, 而状态转换图可以方便地用程序实现</p>
 <h3 id="TG"><a href="#TG" class="headerlink" title="TG"></a>TG</h3><p>状态转换图TG: 一个有限有向图, 可用于接受(识别)一定的符号串</p>
 <ul>
@@ -1275,10 +1290,10 @@
 <p><img src="lex/tg.png" alt=""></p>
 <h2 id="正规表达式和有限自动机"><a href="#正规表达式和有限自动机" class="headerlink" title="正规表达式和有限自动机"></a>正规表达式和有限自动机</h2><h3 id="正规式"><a href="#正规式" class="headerlink" title="正规式"></a>正规式</h3><p>字母表$\Sigma$上的正规式和正规集递归定义如下：</p>
 <ol>
-<li>$\varepsilon$和$\varphi$都是$\Sigma$上的正规式，它们所表示的正规集分别为${\varepsilon}$和$\varphi$。其中：$\varepsilon$为空字符串，$\varphi$为空集</li>
-<li>任意元素$a\in\Sigma$，a是$\Sigma$上的一个正规式，它所表示的正规集是${a}$;</li>
-<li>假定U和V都是$\Sigma$上的正规式，它们所表示的正规集记为L(U)和L(V)，那么（U|V），（U·V）和(U)*都是正规式，他们所表示的正规集分别记为L(U)∪L(V)，L(U)L(V)和(L(U))*。</li>
-<li>仅由有限次使用上述三步而得到的表达式才是$\Sigma$上的正规式，它们所表示的字集才是$\Sigma$上的正规集。</li>
+<li>$\varepsilon$和$\varphi$都是$\Sigma$上的正规式, 它们所表示的正规集分别为${\varepsilon}$和$\varphi$。其中：$\varepsilon$为空字符串, $\varphi$为空集</li>
+<li>任意元素$a\in\Sigma$, a是$\Sigma$上的一个正规式, 它所表示的正规集是${a}$;</li>
+<li>假定U和V都是$\Sigma$上的正规式, 它们所表示的正规集记为L(U)和L(V), 那么(U|V), (U·V)和(U)*都是正规式, 他们所表示的正规集分别记为L(U)∪L(V), L(U)L(V)和(L(U))*。</li>
+<li>仅由有限次使用上述三步而得到的表达式才是$\Sigma$上的正规式, 它们所表示的字集才是$\Sigma$上的正规集。</li>
 </ol>
 <p>运算:</p>
 <ul>
@@ -1305,24 +1320,24 @@
 <p>有限状态机(FSM)</p>
 <h3 id="DFA"><a href="#DFA" class="headerlink" title="DFA"></a>DFA</h3><p>DFA五元组: $M=(S,\Sigma,\delta,S_0,F)$</p>
 <ul>
-<li>S: 有限的状态集合，每个元素称为一个状态</li>
-<li>$\Sigma$: 有限的输入字母表，每个元素称为一个输入字符</li>
-<li>$\delta: S\times\Sigma → S$: 转换函数(状态转移集合)<ul>
+<li>$S$: 有限的状态集合, 每个元素称为一个状态</li>
+<li>$\Sigma$: 有限的输入字母表, 每个元素称为一个输入字符</li>
+<li>$\delta: S\times\Sigma \rightarrow S$: 转换函数(状态转移集合)<ul>
 <li>$\delta(s, a)=s’$</li>
 </ul>
 </li>
 <li>$S_0\in S$: 初始状态</li>
 <li>$F\subseteq S$: 终止状态集</li>
 </ul>
-<p>状态转换矩阵: DFA可以用一个矩阵表示, 每行表示一个状态, 每列表示一种输入, 矩阵元素表示$\delta$(s,a)的值</p>
+<p>状态转换矩阵: DFA可以用一个矩阵表示, 每行表示一个状态, 每列表示一种输入, 矩阵元素表示$\delta(s,a)$的值</p>
 <p><strong>DFA与状态转换图: DFA可以用TG唯一表示</strong></p>
 <p><img src="lex/dfa_tg.png" alt=""></p>
 <p><strong>拓展转移函数</strong></p>
 <ul>
 <li>接收一个字符串的状态转移函数</li>
-<li>$\delta’: S\times\Sigma^* → S$<ul>
+<li>$\delta’: S\times\Sigma^* \rightarrow S$<ul>
 <li>$\delta’(s, \varepsilon) = s$</li>
-<li>$\delta’(s, \omega a) = \delta(\delta’(s,\omega ),a)$</li>
+<li>$\delta’(s, \omega a) = \delta(\delta’(s,\omega),a)$</li>
 </ul>
 </li>
 </ul>
@@ -1332,7 +1347,7 @@
 <ul>
 <li>$S$: 同DFA</li>
 <li>$\Sigma$: 同DFA</li>
-<li>$\delta: S\times\Sigma^* → 2^S(幂集)$: 转换函数(状态转移集合)<ul>
+<li>$\delta: S\times\Sigma^* \rightarrow 2^S(幂集)$: 转换函数(状态转移集合)<ul>
 <li>$\delta(s, a)=S’\subseteq S$</li>
 </ul>
 </li>
@@ -1364,17 +1379,20 @@
 </tbody>
 </table>
 </div>
-<p>NFA的拓展转移函数 $\delta’(\delta: S\times\Sigma^* → 2^S)$</p>
-<ol>
-<li>$\delta’(s, \varepsilon) = {\varepsilon}$</li>
+<p>NFA的拓展转移函数</p>
+<ul>
+<li>$\delta’: S\times\Sigma^* \rightarrow 2^S$<ul>
+<li>$\delta’(s, \varepsilon) = {s}$</li>
 <li>$\delta’(s,\omega a)={p|存在r\in\delta’(s,\omega )\wedge p\in\delta(r,a)}$</li>
-</ol>
+</ul>
+</li>
+</ul>
 <p>NFA接受的字符串</p>
 <p>NFA接受的语言</p>
 <h3 id="DFA和NFA的关系-子集法"><a href="#DFA和NFA的关系-子集法" class="headerlink" title="DFA和NFA的关系 (子集法)"></a>DFA和NFA的关系 (子集法)</h3><p>DFA是NFA的特例, 两者可以相互转化</p>
-<p>$\varepsilon-闭包:$</p>
+<p><strong>ε-闭包</strong>:</p>
 <script type="math/tex; mode=display">
-\varepsilon\_CLOSURE(I)=\{q|q\in I\}\cup\{q'|q经任意条\varepsilon弧可到达q', q\in I\}, I\subseteq M'</script><p><strong>NFA-&gt;DFA之子集法</strong>:</p>
+\varepsilon\_CLOSURE(I)=I\cup\{q'|q经任意条\varepsilon弧可到达q', q\in I\}, I\subseteq M'</script><p><strong>NFA-&gt;DFA之子集法</strong>:</p>
 <ol>
 <li>引进新的初态结点X和终态结点Y, 从X到所有原始态结点连接一条$\varepsilon$弧, 从所有原终态结点到Y连接一条$\varepsilon$弧</li>
 <li><p>对复合的弧进行<strong>分裂</strong></p>
@@ -1450,9 +1468,9 @@
 </table>
 </div>
 <p><img src="lex/nfa_dfa_example_3.png" alt=""></p>
-<h3 id="正规式和FA的关系"><a href="#正规式和FA的关系" class="headerlink" title="正规式和FA的关系"></a>正规式和FA的关系</h3><blockquote>
-<p>正规式和FA是等价的</p>
-</blockquote>
+<h3 id="正规式和FA的关系"><a href="#正规式和FA的关系" class="headerlink" title="正规式和FA的关系"></a>正规式和FA的关系</h3><ul>
+<li>正规式和FA是等价的</li>
+</ul>
 <h4 id="从NFA构造等价的正规式-简单"><a href="#从NFA构造等价的正规式-简单" class="headerlink" title="从NFA构造等价的正规式 (简单)"></a>从NFA构造等价的正规式 (简单)</h4><ol>
 <li><p>引进新的初态结点X和终态结点Y, 从X到所有原始态结点连接一条$\varepsilon$弧, 从所有原终态结点到Y连接一条$\varepsilon$弧</p>
 </li>

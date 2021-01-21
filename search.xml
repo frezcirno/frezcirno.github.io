@@ -348,6 +348,18 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
       </categories>
   </entry>
   <entry>
+    <title>1115. Counting Nodes in a BST</title>
+    <url>/PTA/1115.html</url>
+    <content><![CDATA[<p>按给定序列构造一个二叉搜索树, 分别计算最低两层的节点数量</p>
+<p>思路: 如题, 考基本功</p>
+<p>注意: 一种新奇的写法, 获取倒数第n个元素 (想到了Python是不是XD)<br><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// vector&lt;int&gt; x;</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; x.end()[-n] &lt;&lt; <span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure></p>
+<p>代码(有内存泄漏):<br><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">node</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    node *left, *right, *parent;</span><br><span class="line">&#125; root;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">insert</span><span class="params">(<span class="keyword">int</span> x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!root.parent) &#123;</span><br><span class="line">        <span class="comment">// is the first root</span></span><br><span class="line">        root.parent = &amp;root;</span><br><span class="line">        root.val = x;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    node *p = &amp;root;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (x &lt;= p-&gt;val) &#123;</span><br><span class="line">            <span class="keyword">if</span> (p-&gt;left) &#123;</span><br><span class="line">                p = p-&gt;left;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (p-&gt;right) &#123;</span><br><span class="line">                p = p-&gt;right;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (x &gt; p-&gt;val) &#123;</span><br><span class="line">        p-&gt;right = <span class="keyword">new</span> node();</span><br><span class="line">        p-&gt;right-&gt;val = x;</span><br><span class="line">        p-&gt;right-&gt;parent = p;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        p-&gt;left = <span class="keyword">new</span> node();</span><br><span class="line">        p-&gt;left-&gt;val = x;</span><br><span class="line">        p-&gt;left-&gt;parent = p;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">trav</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">queue</span>&lt;node *&gt; Q;</span><br><span class="line">    <span class="keyword">if</span> (root.parent) &#123;</span><br><span class="line">        Q.push(&amp;root);</span><br><span class="line">    &#125;</span><br><span class="line">    Q.push(<span class="literal">nullptr</span>);</span><br><span class="line">    <span class="keyword">int</span> lcount = <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; counts;</span><br><span class="line">    <span class="keyword">while</span> (Q.size() &gt; <span class="number">1</span>) &#123;</span><br><span class="line">        node *x = Q.front();</span><br><span class="line">        Q.pop();</span><br><span class="line">        <span class="keyword">if</span> (x == <span class="literal">nullptr</span>) &#123;</span><br><span class="line">            counts.push_back(lcount);</span><br><span class="line">            lcount = <span class="number">0</span>;</span><br><span class="line">            Q.push(<span class="literal">nullptr</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        lcount++;</span><br><span class="line">        <span class="keyword">if</span> (x-&gt;left)</span><br><span class="line">            Q.push(x-&gt;left);</span><br><span class="line">        <span class="keyword">if</span> (x-&gt;right)</span><br><span class="line">            Q.push(x-&gt;right);</span><br><span class="line">    &#125;</span><br><span class="line">    counts.push_back(lcount);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> back = counts.size() ? counts.back() : <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> back2 = counts.size() &gt; <span class="number">2</span> ? counts.end()[<span class="number">-2</span>] : <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; back &lt;&lt; <span class="string">&quot; + &quot;</span> &lt;&lt; back2 &lt;&lt; <span class="string">&quot; = &quot;</span> &lt;&lt; back + back2 &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; x;</span><br><span class="line">        insert(x);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    trav();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+]]></content>
+      <categories>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
     <title>1123. Is It a Complete AVL Tree</title>
     <url>/PTA/1123.html</url>
     <content><![CDATA[<h2 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h2><p>按输入序列构造AVL树, 输出层次序遍历的结果, 和AVL树是否为完全二叉树</p>
@@ -442,7 +454,9 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
 <p>修改符号表</p>
 <ul>
 <li>记录待用信息和活跃信息</li>
-<li>表示: (<code>待用信息[i/^]</code>,<code>活跃信息[y/^]</code>)<br>| 变量名 | 待用/活跃信息栏 |<br>| ——— | ———————- |<br>| A      | (…, …)      |<br>| B      | (…, …)      |<br>| …    | (…, …)      |</li>
+<li><p>表示: (<code>待用信息[i/^]</code>,<code>活跃信息[y/^]</code>)</p>
+<p>| 变量名 | 待用/活跃信息栏 |<br>| ——— | ———————- |<br>| A      | (…, …)      |<br>| B      | (…, …)      |<br>| …    | (…, …)      |</p>
+</li>
 </ul>
 <p>计算待用和活跃信息</p>
 <ol>
@@ -506,7 +520,7 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
 <li>生成store指令?<ol>
 <li>对于<code>Ri</code>中存储的变量M, 如果M不是A<ol>
 <li>如果<code>M</code>仅存储在<code>Ri</code>中, 则要<code>ST Ri, M</code></li>
-<li></li>
+<li>如果<code>M</code>是<code>B</code>, 或者<code>M</code>是<code>C</code>但同时<code>B</code>也在<code>RVALUE[Ri]</code>中, 则令</li>
 </ol>
 </li>
 </ol>
@@ -619,7 +633,9 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
   <entry>
     <title>语义分析和中间代码生成</title>
     <url>/compiler-principle/ir.html</url>
-    <content><![CDATA[<h1 id="属性文法和语法制导翻译"><a href="#属性文法和语法制导翻译" class="headerlink" title="属性文法和语法制导翻译"></a>属性文法和语法制导翻译</h1><h2 id="属性文法"><a href="#属性文法" class="headerlink" title="属性文法"></a>属性文法</h2><p>属性文法: 在上下文无关文法的基础上给每个文法符号增加若干属性</p>
+    <content><![CDATA[<h1 id="提纲"><a href="#提纲" class="headerlink" title="提纲"></a>提纲</h1><p><img src="ir/index1.png" alt=""></p>
+<p><img src="ir/index2.png" alt=""></p>
+<h1 id="属性文法和语法制导翻译"><a href="#属性文法和语法制导翻译" class="headerlink" title="属性文法和语法制导翻译"></a>属性文法和语法制导翻译</h1><h2 id="属性文法"><a href="#属性文法" class="headerlink" title="属性文法"></a>属性文法</h2><p>属性文法: 在上下文无关文法的基础上给每个文法符号增加若干属性</p>
 <p>语义规则: 对于文法的每个产生式配备了<strong>一组</strong>属性的计算规则</p>
 <ul>
 <li>$b:=f(c_1,c_2,…,c_k)$</li>
@@ -679,7 +695,7 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
 <li>易于移植</li>
 <li>使编译程序的结构在逻辑上更为简单明确</li>
 </ul>
-<p>常用的中间语言:</p>
+<p>常用的中间语言表示法</p>
 <ul>
 <li>后缀式(逆波兰式)</li>
 <li>图表示<ul>
@@ -724,9 +740,11 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
 </li>
 <li><p>计算机表示</p>
 <ul>
-<li><p>四元式<br>|     | Op     | arg1 | arg2 | result |<br>| —- | ——— | —— | —— | ——— |<br>| (0) | uminus | c    |      | T1     |<br>| (1) | *      | b    | T1   | T2     |<br>| … | …    | …  | …  | …    |</p>
+<li><p>四元式</p>
+<p>|     | Op     | arg1 | arg2 | result |<br>| —- | ——— | —— | —— | ——— |<br>| (0) | uminus | c    |      | T1     |<br>| (1) | *      | b    | T1   | T2     |<br>| … | …    | …  | …  | …    |</p>
 </li>
-<li><p>三元式<br>|     | Op     | arg1 | arg2 |<br>| —- | ——— | —— | —— |<br>| (0) | uminus | c    |      |<br>| (1) | *      | b    | (0)  |<br>| … | …    | …  | …  |<br>| (4) | +      | (1)  | (3)  |<br>| … | …    | …  | …  |</p>
+<li><p>三元式</p>
+<p>|     | Op     | arg1 | arg2 |<br>| —- | ——— | —— | —— |<br>| (0) | uminus | c    |      |<br>| (1) | *      | b    | (0)  |<br>| … | …    | …  | …  |<br>| (4) | +      | (1)  | (3)  |<br>| … | …    | …  | …  |</p>
 </li>
 <li><p>间接三元式</p>
 <ul>
@@ -809,292 +827,6 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
       </categories>
   </entry>
   <entry>
-    <title>词法分析</title>
-    <url>/compiler-principle/lex.html</url>
-    <content><![CDATA[<h2 id="提纲"><a href="#提纲" class="headerlink" title="提纲"></a>提纲</h2><p><img src="lex/index.png" alt=""></p>
-<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
-<li>单词级别分析和翻译源程序</li>
-<li>任务: 作为<strong>字符串</strong>的源程序-&gt;<strong>单词符号串</strong></li>
-</ul>
-<h2 id="词法分析器的要求"><a href="#词法分析器的要求" class="headerlink" title="词法分析器的要求"></a>词法分析器的要求</h2><p>单词符号表示通常使用二元式 (单词种别, 单词符号的属性值)</p>
-<ul>
-<li>单词种别: 语法分析需要的信息, 通常使用整数编码</li>
-<li>单词(符号属性)值: 编译其他阶段使用</li>
-</ul>
-<p>单词如何分类取决于处理上的方便:</p>
-<ul>
-<li>标识符: 一般通归为一种</li>
-<li>常数: 按类型分种</li>
-<li>关键字: 可全体为一种, 也可一字一种(更方便)</li>
-<li>运算符: 一般一符一种, 可以把具有一定共性的视为一类</li>
-<li>界符: 一般一符一种</li>
-</ul>
-<p>单词符号的属性:</p>
-<ul>
-<li>标识符: 存放它<strong>符号表</strong>项的指针/内部字符串</li>
-<li>常数: 存放它<strong>常数表</strong>项的指针/二进制形式</li>
-<li>关键字/运算符/界符: 不需要属性</li>
-</ul>
-<p><img src="lex/lex.png" alt=""></p>
-<p>实现方式:</p>
-<ul>
-<li>完全独立: lex作为单独一遍<ul>
-<li>结构简洁, 清晰, 条理化</li>
-</ul>
-</li>
-<li>相对独立: 作为parser的一个独立子程序, 需要新符号时调用<ul>
-<li>避免中间文件, 提高效率</li>
-</ul>
-</li>
-</ul>
-<h2 id="词法分析器设计"><a href="#词法分析器设计" class="headerlink" title="词法分析器设计"></a>词法分析器设计</h2><h3 id="lexer的结构"><a href="#lexer的结构" class="headerlink" title="lexer的结构"></a>lexer的结构</h3><p>源程序 -&gt; 输入缓冲区/预处理子程序/扫描缓冲区/扫描器 -&gt; 单词符号</p>
-<p>预处理子程序: 处理空白符等编辑性字符, 删除注释等</p>
-<p>输入缓冲区: 存放源程序文本输入串的缓冲区</p>
-<p>扫描缓冲区: 设定两个指示器</p>
-<h3 id="单词符号的识别-超前搜索"><a href="#单词符号的识别-超前搜索" class="headerlink" title="单词符号的识别: 超前搜索"></a>单词符号的识别: 超前搜索</h3><ul>
-<li>关键字识别</li>
-<li>标识符识别: 一般是字母开头的字母数字串, 一般都跟着算符或者界符, 不难识别</li>
-<li>常数的识别: 有些语言需要使用超前搜索</li>
-<li>算符和界符: 对于c++中的++,—等需要超前搜索</li>
-</ul>
-<h3 id="词法规则的表示"><a href="#词法规则的表示" class="headerlink" title="词法规则的表示"></a>词法规则的表示</h3><p>大多数pl中的单词符号的<strong>词法规则</strong>可以用<strong>正规文法</strong>描述</p>
-<p>例如:</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">&lt;标识符&gt;→ 字母|&lt;标识符&gt;字母|&lt;标识符&gt;数字</span><br><span class="line">&lt;整数&gt;→数字|&lt;整数&gt;数字</span><br><span class="line">&lt;运算符&gt;→+|－|\times|÷…</span><br><span class="line">&lt;界符&gt;→; |, |( | )|…</span><br></pre></td></tr></table></figure>
-<p>利用这些规则识别的过程可以用<strong>状态转换图</strong>来表示, 而状态转换图可以方便地用程序实现</p>
-<h3 id="TG"><a href="#TG" class="headerlink" title="TG"></a>TG</h3><p>状态转换图TG: 一个有限有向图, 可用于接受(识别)一定的符号串</p>
-<ul>
-<li>结点表示状态, 用圆圈表示<ul>
-<li>初态: 通常只有一个, 用一条输入弧表示</li>
-<li>终态: <strong>至少有一个</strong>, 用双圈表示</li>
-</ul>
-</li>
-<li>方向弧表示状态转换, 弧上的标记表示接受的输入字符或字符类</li>
-</ul>
-<p>路: 在状态转换图中从初态到某一个终态的弧上的标记序列</p>
-<p>接受(识别): 若存在一条路产生$\beta$, 则称状态转换图接受符号串$\beta$</p>
-<p>状态转换图能识别的语言: L(TG)能别TG接受的符号串的集合</p>
-<p><img src="lex/tg.png" alt=""></p>
-<h2 id="正规表达式和有限自动机"><a href="#正规表达式和有限自动机" class="headerlink" title="正规表达式和有限自动机"></a>正规表达式和有限自动机</h2><h3 id="正规式"><a href="#正规式" class="headerlink" title="正规式"></a>正规式</h3><p>字母表$\Sigma$上的正规式和正规集递归定义如下：</p>
-<ol>
-<li>$\varepsilon$和$\varphi$都是$\Sigma$上的正规式，它们所表示的正规集分别为${\varepsilon}$和$\varphi$。其中：$\varepsilon$为空字符串，$\varphi$为空集</li>
-<li>任意元素$a\in\Sigma$，a是$\Sigma$上的一个正规式，它所表示的正规集是${a}$;</li>
-<li>假定U和V都是$\Sigma$上的正规式，它们所表示的正规集记为L(U)和L(V)，那么（U|V），（U·V）和(U)*都是正规式，他们所表示的正规集分别记为L(U)∪L(V)，L(U)L(V)和(L(U))*。</li>
-<li>仅由有限次使用上述三步而得到的表达式才是$\Sigma$上的正规式，它们所表示的字集才是$\Sigma$上的正规集。</li>
-</ol>
-<p>运算:</p>
-<ul>
-<li>闭包<code>*</code></li>
-<li>连接<code>.</code> (可省略)</li>
-<li>或<code>|</code></li>
-</ul>
-<p>运算律:</p>
-<ul>
-<li>或交换律</li>
-<li>或结合律</li>
-<li>连接结合律</li>
-<li>或对连接分配律</li>
-<li>$\varepsilon U=U \varepsilon=U$</li>
-</ul>
-<p>例:</p>
-<ul>
-<li>以01结尾的二进制数串的正规式: <code>(0|1)*01</code></li>
-<li>能被5整除的十进制整数: <code>0|5|(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*(0|5)</code></li>
-</ul>
-<h3 id="FA"><a href="#FA" class="headerlink" title="FA"></a>FA</h3><p>自动机: 具有离散输入输出的数学模型</p>
-<pre><code>状态 + 输入 + 规则 -&gt; 状态迁移
-</code></pre><p>有限自动机(FA)</p>
-<p>有限状态机(FSM)</p>
-<h3 id="DFA"><a href="#DFA" class="headerlink" title="DFA"></a>DFA</h3><p>DFA五元组: $M=(S,\Sigma,\delta,S_0,F)$</p>
-<ul>
-<li>S: 有限的状态集合，每个元素称为一个状态</li>
-<li>$\Sigma$: 有限的输入字母表，每个元素称为一个输入字符</li>
-<li>$\delta: S\times\Sigma → S$: 转换函数(状态转移集合)<ul>
-<li>$\delta(s, a)=s’$</li>
-</ul>
-</li>
-<li>$S_0\in S$: 初始状态</li>
-<li>$F\subseteq S$: 终止状态集</li>
-</ul>
-<p>状态转换矩阵: DFA可以用一个矩阵表示, 每行表示一个状态, 每列表示一种输入, 矩阵元素表示$\delta$(s,a)的值</p>
-<p><strong>DFA与状态转换图: DFA可以用TG唯一表示</strong></p>
-<p><img src="lex/dfa_tg.png" alt=""></p>
-<p><strong>拓展转移函数</strong></p>
-<ul>
-<li>接收一个字符串的状态转移函数</li>
-<li>$\delta’: S\times\Sigma^* → S$<ul>
-<li>$\delta’(s, \varepsilon) = s$</li>
-<li>$\delta’(s, \omega a) = \delta(\delta’(s,\omega ),a)$</li>
-</ul>
-</li>
-</ul>
-<p>DFA接受的字符串</p>
-<p>DFA接受的语言: $L(M)={α|\delta’(s,α)\in F}$</p>
-<h3 id="NFA"><a href="#NFA" class="headerlink" title="NFA"></a>NFA</h3><p>NFA五元组: $M=(S,\Sigma,\delta,S_0,F)$</p>
-<ul>
-<li>$S$: 同DFA</li>
-<li>$\Sigma$: 同DFA</li>
-<li>$\delta: S\times\Sigma^* → 2^S(幂集)$: 转换函数(状态转移集合)<ul>
-<li>$\delta(s, a)=S’\subseteq S$</li>
-</ul>
-</li>
-<li>$S_0\subseteq S$: 非空初态集</li>
-<li>$F\subseteq S$: 终止状态集</li>
-</ul>
-<p><strong>NFA也可以用TG和转换矩阵表示</strong></p>
-<p><strong>NFA的状态是一个集合</strong></p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>比较</th>
-<th>DFA</th>
-<th>NFA</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>输入字母</td>
-<td>每个(状态,输入)都有一个$\delta$</td>
-<td>可能没有$\delta$/是空转换</td>
-</tr>
-<tr>
-<td>转移状态</td>
-<td>确定的</td>
-<td>不确定的, 可能有多个</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>NFA的拓展转移函数 $\delta’(\delta: S\times\Sigma^* → 2^S)$</p>
-<ol>
-<li>$\delta’(s, \varepsilon) = {\varepsilon}$</li>
-<li>$\delta’(s,\omega a)={p|存在r\in\delta’(s,\omega )\wedge p\in\delta(r,a)}$</li>
-</ol>
-<p>NFA接受的字符串</p>
-<p>NFA接受的语言</p>
-<h3 id="DFA和NFA的关系-子集法"><a href="#DFA和NFA的关系-子集法" class="headerlink" title="DFA和NFA的关系 (子集法)"></a>DFA和NFA的关系 (子集法)</h3><p>DFA是NFA的特例, 两者可以相互转化</p>
-<p>$\varepsilon-闭包:$</p>
-<script type="math/tex; mode=display">
-\varepsilon\_CLOSURE(I)=\{q|q\in I\}\cup\{q'|q经任意条\varepsilon弧可到达q', q\in I\}, I\subseteq M'</script><p><strong>NFA-&gt;DFA之子集法</strong>:</p>
-<ol>
-<li>引进新的初态结点X和终态结点Y, 从X到所有原始态结点连接一条$\varepsilon$弧, 从所有原终态结点到Y连接一条$\varepsilon$弧</li>
-<li><p>对复合的弧进行<strong>分裂</strong></p>
-<p> <img src="lex/nfa_dfa.png" alt=""> </p>
-</li>
-<li><p>构造状态矩阵<br> | I                           | $I_{\Sigma_i}$ | … |<br> | —————————————- | ——————— | —- |<br> | $\varepsilon_CLOSURE({X})$ | …            | … |<br> | …                         | …            | … |</p>
-</li>
-<li><p>合并相同状态, 重新命名得到新的状态转换矩阵</p>
-<ul>
-<li>第一行第一列的状态为始态</li>
-<li>包含Y的状态为终态</li>
-</ul>
-</li>
-<li>画出状态转换图</li>
-</ol>
-<p>例:</p>
-<p><img src="lex/nfa_dfa_example_1.png" alt=""></p>
-<p><img src="lex/nfa_dfa_example_2.png" alt=""></p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>I</th>
-<th>$I_{a}$</th>
-<th>$I_{b}$</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>{X, 0, Y}</td>
-<td>{1}</td>
-<td>{1}</td>
-</tr>
-<tr>
-<td>{1}</td>
-<td>{0,Y}</td>
-<td>-</td>
-</tr>
-<tr>
-<td>{0,Y}</td>
-<td>{1}</td>
-<td>{1}</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>I</th>
-<th>$I_{a}$</th>
-<th>$I_{b}$</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>2</td>
-<td>2</td>
-</tr>
-<tr>
-<td>2</td>
-<td>3</td>
-<td>-</td>
-</tr>
-<tr>
-<td>3</td>
-<td>2</td>
-<td>2</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p><img src="lex/nfa_dfa_example_3.png" alt=""></p>
-<h3 id="正规式和FA的关系"><a href="#正规式和FA的关系" class="headerlink" title="正规式和FA的关系"></a>正规式和FA的关系</h3><blockquote>
-<p>正规式和FA是等价的</p>
-</blockquote>
-<h4 id="从NFA构造等价的正规式-简单"><a href="#从NFA构造等价的正规式-简单" class="headerlink" title="从NFA构造等价的正规式 (简单)"></a>从NFA构造等价的正规式 (简单)</h4><ol>
-<li><p>引进新的初态结点X和终态结点Y, 从X到所有原始态结点连接一条$\varepsilon$弧, 从所有原终态结点到Y连接一条$\varepsilon$弧</p>
-</li>
-<li><p>对复合的弧进行<strong>合并</strong></p>
-<p> <img src="lex/nfa_regex.png" alt=""></p>
-</li>
-<li><p>得到regex</p>
-</li>
-</ol>
-<h4 id="从正规式构造等价的NFA-Thompson算法"><a href="#从正规式构造等价的NFA-Thompson算法" class="headerlink" title="从正规式构造等价的NFA (Thompson算法)"></a><strong>从正规式构造等价的NFA (Thompson算法)</strong></h4><p><img src="lex/regex_nfa_1.png" alt=""><br><img src="lex/regex_nfa_2.png" alt=""></p>
-<p>例:</p>
-<p><img src="lex/regex_nfa_example.png" alt=""></p>
-<h3 id="DFA的化简-等价状态法"><a href="#DFA的化简-等价状态法" class="headerlink" title="DFA的化简 (等价状态法)"></a><strong>DFA的化简 (等价状态法)</strong></h3><p>将状态集$S$根据能否被输入区分划分为更细的集合</p>
-<ol>
-<li>初始划分: $\Pi={终态集I^{(1)}, 非终态集I^{(2)}}$</li>
-<li>检查能否再分<ol>
-<li>如果对输入字符$a$, 存在$I^{(k)}$接受$a$后不全落在现行$\Pi$的某一个子集中</li>
-<li>就把$I^{(k)}$分成多个组, 使得每个组接受$a$后都落在$\Pi$的同一个子集中</li>
-</ol>
-</li>
-<li>重复直到子集数不再增加</li>
-</ol>
-<p><img src="lex/dfa_simplify.png" alt=""></p>
-<p>例题:</p>
-<p><img src="lex/dfa_simplify_example.png" alt=""></p>
-<p>初始划分$\Pi_0={\left{A,B,C,D\right},{E}}$</p>
-<p>考察${A,B,C,D}_a={B}\subseteq {A,B,C,D}$</p>
-<p>${A,B,C,D}_b={C,D,E}$, 需要划分, 其中${A,B,C}_b={C,D}$, ${D}_b={E}$</p>
-<p>将${A,B,C,D}$分成${A,B,C}$和${D}$, 得$\Pi_1={\left{A,B,C\right},{D},{E}}$</p>
-<p>考察${A,B,C}_b={C,D}$, 需要划分, 其中${A,C}_b={C}$, ${B}_b={D}$</p>
-<p>将${A,B,C}$分为${A,C}$和${B}$, 得$\Pi_2={\left{A,C\right},{B},{D},{E}}$</p>
-<h3 id="正规文法和FA的关系"><a href="#正规文法和FA的关系" class="headerlink" title="正规文法和FA的关系"></a>正规文法和FA的关系</h3><p>FA和左(右)线性正规文法等价</p>
-<p>将FA的状态和右线性正规文法的非终结符作为桥梁, 两者等价</p>
-<h2 id="词法分析器的自动生成"><a href="#词法分析器的自动生成" class="headerlink" title="词法分析器的自动生成"></a>词法分析器的自动生成</h2><p>略</p>
-]]></content>
-      <categories>
-        <category>课程笔记</category>
-        <category>编译原理</category>
-      </categories>
-  </entry>
-  <entry>
     <title>语法分析</title>
     <url>/compiler-principle/parser.html</url>
     <content><![CDATA[<h2 id="提纲"><a href="#提纲" class="headerlink" title="提纲"></a>提纲</h2><p><img src="parser/index1.png" alt=""></p>
@@ -1133,8 +865,8 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
 <p>改写为</p>
 <p>$P\rightarrow\beta_1 P’|\beta_2 P’|…|\beta_n P’$</p>
 <p>$P’\rightarrow\alpha_1 P’|\alpha_2 P’|…|\alpha_m P’|\varepsilon$</p>
-<h3 id="FIRST-FOLLOW"><a href="#FIRST-FOLLOW" class="headerlink" title="FIRST, FOLLOW"></a>FIRST, FOLLOW</h3><p>$终结首符集:FIRST(\alpha)={a|\alpha\Rightarrow^<em>a…,a\in V_T}, \特别地, 如果\alpha\Rightarrow^</em>\varepsilon, 则规定\varepsilon\in FIRST(\alpha)$</p>
-<p>$后继终结符号集:FOLLOW(A)={a|S\Rightarrow^<em>…Aa…,a\in V_T}, \特别地, 如果S\Rightarrow^</em>…A, 则规定#\in FOLLOW(S)$</p>
+<h3 id="FIRST-FOLLOW"><a href="#FIRST-FOLLOW" class="headerlink" title="FIRST, FOLLOW"></a>FIRST, FOLLOW</h3><p>终结首符集: $FIRST(\alpha)={a|\alpha\Rightarrow^<em>a…,a\in V_T}, \特别地, 如果\alpha\Rightarrow^</em>\varepsilon, 则规定\varepsilon\in FIRST(\alpha)$</p>
+<p>后继终结符号集: $FOLLOW(A)={a|S\Rightarrow^<em>…Aa…,a\in V_T}, \特别地, 如果S\Rightarrow^</em>…A, 则规定#\in FOLLOW(S)$</p>
 <h3 id="LL-1-文法"><a href="#LL-1-文法" class="headerlink" title="LL(1)文法"></a>LL(1)文法</h3><p>可以进行无回溯的自上而下分析</p>
 <ul>
 <li>不含左递归</li>
@@ -1210,9 +942,9 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
 </ul>
 <p>ACTION表:</p>
 <ol>
-<li>移进<code>sN</code>: 将N和输入符号a进栈, 读取下一个输入</li>
-<li>规约<code>rN</code>: 用N号产生式$A\Rightarrow\beta$进行规约, 出栈$|\beta|$项, 将GOTO[s.top, A]和A进栈(规约), <strong>输入不动</strong></li>
-<li>接受<code>acc</code>: 分析成功结束</li>
+<li>移进$sN$: 将$N$和输入符号$a$进栈, 读取下一个输入</li>
+<li>规约$rN$: 用$N$号产生式$A\Rightarrow\beta$进行规约, 出栈$|\beta|$项, 将$GOTO[s.top, A]$和$A$进栈(规约), <strong>输入不动</strong></li>
+<li>接受$acc$: 分析成功结束</li>
 <li>报错</li>
 </ol>
 <p>LR文法: 能够构造LR分析表, 使得每个入口都是唯一确定的文法</p>
@@ -1234,7 +966,7 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
 <li>连接非$\varepsilon$弧<ul>
 <li>$状态i为X\rightarrow X<em>1…X</em>{i-1}\cdot X_i…X_n$</li>
 <li>$状态j为X\rightarrow X<em>1…X</em>{i-1}X<em>i\cdot X</em>{i+1}…X_n$</li>
-<li>则连接状态i到状态j, 标志为$X_i$</li>
+<li>则连接状态$i$到状态$j$, 标志为$X_i$</li>
 </ul>
 </li>
 <li><p>连接$\varepsilon$弧</p>
@@ -1252,7 +984,7 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
 </li>
 </ul>
 <h4 id="2-LR-0-项目集规范族"><a href="#2-LR-0-项目集规范族" class="headerlink" title="2. LR(0)项目集规范族"></a>2. LR(0)项目集规范族</h4><ul>
-<li><p>识别活前缀的DFA的项目集的全体称为文法的LR(0)目集规范族</p>
+<li><p>识别活前缀的DFA的项目集的全体称为文法的LR(0)项目集规范族</p>
 <ul>
 <li>规约项目: $A\rightarrow\alpha\cdot$</li>
 <li>接受项目: $S\rightarrow\alpha\cdot$</li>
@@ -1276,21 +1008,20 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
 </li>
 <li>状态转换函数$GO(I,X)$:<ul>
 <li>$GO(I, X)=Closure({A\rightarrow\alpha X\cdot\beta|(A\rightarrow\alpha\cdot X\beta)\in I})$</li>
-<li>若I是对活前缀$\gamma$有效的项目集, 那么$GO(I, X)$就是对$\gamma X$有效的项目集</li>
-<li>接受$X$之后的$Closure$集合</li>
+<li>若$I$是对活前缀$\gamma$有效的项目集, 那么$GO(I, X)$就是对$\gamma X$有效的项目集</li>
+<li>(接受$X$之后的$Closure$集合)</li>
 </ul>
 </li>
-<li>构造DFA算法<pre><code class="lang-pascal"> PROCEDURE ITEMSETS(G&#39;)；
+<li>构造DFA算法<pre><code> PROCEDURE ITEMSETS(G&#39;)
  BEGIN
-   C:=&#123;Closure(&#123;S&#39;\rightarrow\cdot S&#125;)&#125;；
+   C:=&#123;Closure(&#123;S&#39;\rightarrow\cdot S&#125;)&#125;
    REPEAT
      FOR C中每个项目集I和G&#39;的每个符号X DO
        IF GO(I, X)非空且不属于C THEN
          C += GO(I, X)
    UNTIL C 不再增大
  END
-</code></pre>
-</li>
+</code></pre></li>
 </ul>
 <p>LR(0)文法:</p>
 <ul>
@@ -1316,18 +1047,30 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
 </ul>
 <p><strong>构造LR(0)的ACTION和GOTO</strong>:</p>
 <ul>
-<li>若$A\rightarrow\alpha\cdot a\beta\in I_k$且$GO(I_k, a)=I_j$, 则$ACTION[k, a]=sj$</li>
-<li>若$A\rightarrow\alpha\cdot\in I_k$, 则$ACTION[k, a]=rj$</li>
-<li>若$S’\rightarrow S\in I_k$, 则$ACTION[k, a]=acc$</li>
-<li>若$GOTO(I_k,A)=I_j$, 则$GOTO[k, a]=j$</li>
+<li>若$(A\rightarrow\alpha\cdot a\beta)\in I_k$且$GO(I_k, a)=I_j$, 则$ACTION[k, a]=sj$</li>
+<li>若$(A\rightarrow\alpha\cdot)\in I_k$, 则$ACTION[k, a]=rj$</li>
+<li>若$(S’\rightarrow S)\in I_k$, 则$ACTION[k, a]=acc$</li>
+<li>若$GO(I_k,A)=I_j$, 则$GOTO[k, a]=j$</li>
 <li>其他均为报错</li>
 </ul>
 <p><img src="parser/lr0_table.png" alt=""></p>
-<h3 id="SLR"><a href="#SLR" class="headerlink" title="SLR"></a>SLR</h3><p>LR(0)可能会误判: 即使存在移进-规约, 规约-规约项目冲突, 不一定不合法</p>
-<p>假定LR(0)规范族的一个项目集$I={A_1\rightarrow\alpha\cdot a_1\beta_1, A_2\rightarrow\alpha\cdot a_2\beta_2, …, A_m\rightarrow\alpha\cdot a_m\beta_m, B_1\rightarrow\alpha\cdot , B_2\rightarrow\alpha\cdot , …, B_n\rightarrow\alpha\cdot }$ 如果集合$<br>{a_1, …, a_m}, FOLLOW(B_1), …, FOLLOW(B_n)$两两不相交(<br>包括不得有两个FOLLOW集合有#), 则</p>
+<h3 id="SLR"><a href="#SLR" class="headerlink" title="SLR"></a>SLR</h3><p>LR(0)可能会误判: 即使存在项目冲突, 也不一定不合法</p>
+<p>假定LR(0)规范族的一个项目集</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+I=\{
+&A_1\rightarrow\alpha\cdot a_1\beta_1,\\
+&A_2\rightarrow\alpha\cdot a_2\beta_2,\\
+&...\\
+&A_m\rightarrow\alpha\cdot a_m\beta_m,\\ 
+&B_1\rightarrow\alpha\cdot,\\
+&B_2\rightarrow\alpha\cdot,\\
+&...\\
+&B_n\rightarrow\alpha\cdot\}
+\end{aligned}</script><p>如果集合${a_1, …, a_m}, FOLLOW(B_1), …, FOLLOW(B_n)$两两不相交(包括不得有两个FOLLOW集合有#), 则</p>
 <ol>
-<li>若a是某个ai, i=1,2,…,m, 则移进；</li>
-<li>若$a\in FOLLOW(B_i), i=1,2,…,n$, 则用产生式$B_i\rightarrow\alpha$进行归约；</li>
+<li>若a是某个ai, i=1,2,…,m, 则移进</li>
+<li>若$a\in FOLLOW(B_i), i=1,2,…,n$, 则用产生式$B_i\rightarrow\alpha$进行归约</li>
 <li>此外, 报错。</li>
 </ol>
 <p>冲突性动作的这种解决办法叫做SLR(1)解决办法。上述方法构造出的ACTION与GOTO表如果不含多重入口，则称该文法为<strong>SLR(1)文法</strong></p>
@@ -1343,6 +1086,295 @@ S&=\sum_{i=1}^{n}{C_{i}a_{i}}\\
 <ol>
 <li>使用文法以外信息来解决分析动作冲突</li>
 </ol>
+]]></content>
+      <categories>
+        <category>课程笔记</category>
+        <category>编译原理</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>词法分析</title>
+    <url>/compiler-principle/lex.html</url>
+    <content><![CDATA[<h2 id="提纲"><a href="#提纲" class="headerlink" title="提纲"></a>提纲</h2><p><img src="lex/index.png" alt=""></p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
+<li>单词级别分析和翻译源程序</li>
+<li>任务: 作为<strong>字符串</strong>的源程序-&gt;<strong>单词符号串</strong></li>
+</ul>
+<h2 id="词法分析器的要求"><a href="#词法分析器的要求" class="headerlink" title="词法分析器的要求"></a>词法分析器的要求</h2><p>单词符号表示通常使用二元式 (单词种别, 单词符号的属性值)</p>
+<ul>
+<li>单词种别: 语法分析需要的信息, 通常使用整数编码</li>
+<li>单词(符号属性)值: 编译其他阶段使用</li>
+</ul>
+<p>单词如何分类取决于处理上的方便:</p>
+<ul>
+<li>标识符: 一般通归为一种</li>
+<li>常数: 按类型分种</li>
+<li>关键字: 可全体为一种, 也可一字一种(更方便)</li>
+<li>运算符: 一般一符一种, 可以把具有一定共性的视为一类</li>
+<li>界符: 一般一符一种</li>
+</ul>
+<p>单词符号的属性:</p>
+<ul>
+<li>标识符: 存放它<strong>符号表</strong>项的指针/内部字符串</li>
+<li>常数: 存放它<strong>常数表</strong>项的指针/二进制形式</li>
+<li>关键字/运算符/界符: 不需要属性</li>
+</ul>
+<p><img src="lex/lex.png" alt=""></p>
+<p>实现方式:</p>
+<ul>
+<li>完全独立: lex作为单独一遍<ul>
+<li>结构简洁, 清晰, 条理化</li>
+</ul>
+</li>
+<li>相对独立: 作为parser的一个独立子程序, 需要新符号时调用<ul>
+<li>避免中间文件, 提高效率</li>
+</ul>
+</li>
+</ul>
+<h2 id="词法分析器设计"><a href="#词法分析器设计" class="headerlink" title="词法分析器设计"></a>词法分析器设计</h2><h3 id="lexer的结构"><a href="#lexer的结构" class="headerlink" title="lexer的结构"></a>lexer的结构</h3><p>源程序 -&gt; 输入缓冲区/预处理子程序/扫描缓冲区/扫描器 -&gt; 单词符号</p>
+<p>预处理子程序: 处理空白符等编辑性字符, 删除注释等</p>
+<p>输入缓冲区: 存放源程序文本输入串的缓冲区</p>
+<p>扫描缓冲区: 设定两个指示器</p>
+<h3 id="单词符号的识别-超前搜索"><a href="#单词符号的识别-超前搜索" class="headerlink" title="单词符号的识别: 超前搜索"></a>单词符号的识别: 超前搜索</h3><ul>
+<li>关键字识别</li>
+<li>标识符识别: 一般是字母开头的字母数字串, 一般都跟着算符或者界符, 不难识别</li>
+<li>常数的识别: 有些语言需要使用超前搜索</li>
+<li>算符和界符: 对于c++中的++,—等需要超前搜索</li>
+</ul>
+<h3 id="词法规则的表示"><a href="#词法规则的表示" class="headerlink" title="词法规则的表示"></a>词法规则的表示</h3><p>大多数pl中的单词符号的<strong>词法规则</strong>可以用<strong>正规文法</strong>描述</p>
+<p>例如:</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">&lt;标识符&gt; -&gt; 字母|&lt;标识符&gt;字母|&lt;标识符&gt;数字</span><br><span class="line">&lt;整数&gt; -&gt; 数字|&lt;整数&gt;数字</span><br><span class="line">&lt;运算符&gt; -&gt; +|-|×|÷…</span><br><span class="line">&lt;界符&gt; -&gt; ;|,|(|)|…</span><br></pre></td></tr></table></figure>
+<p>利用这些规则识别的过程可以用<strong>状态转换图</strong>来表示, 而状态转换图可以方便地用程序实现</p>
+<h3 id="TG"><a href="#TG" class="headerlink" title="TG"></a>TG</h3><p>状态转换图TG: 一个有限有向图, 可用于接受(识别)一定的符号串</p>
+<ul>
+<li>结点表示状态, 用圆圈表示<ul>
+<li>初态: 通常只有一个, 用一条输入弧表示</li>
+<li>终态: <strong>至少有一个</strong>, 用双圈表示</li>
+</ul>
+</li>
+<li>方向弧表示状态转换, 弧上的标记表示接受的输入字符或字符类</li>
+</ul>
+<p>路: 在状态转换图中从初态到某一个终态的弧上的标记序列</p>
+<p>接受(识别): 若存在一条路产生$\beta$, 则称状态转换图接受符号串$\beta$</p>
+<p>状态转换图能识别的语言: L(TG)能别TG接受的符号串的集合</p>
+<p><img src="lex/tg.png" alt=""></p>
+<h2 id="正规表达式和有限自动机"><a href="#正规表达式和有限自动机" class="headerlink" title="正规表达式和有限自动机"></a>正规表达式和有限自动机</h2><h3 id="正规式"><a href="#正规式" class="headerlink" title="正规式"></a>正规式</h3><p>字母表$\Sigma$上的正规式和正规集递归定义如下：</p>
+<ol>
+<li>$\varepsilon$和$\varphi$都是$\Sigma$上的正规式, 它们所表示的正规集分别为${\varepsilon}$和$\varphi$。其中：$\varepsilon$为空字符串, $\varphi$为空集</li>
+<li>任意元素$a\in\Sigma$, a是$\Sigma$上的一个正规式, 它所表示的正规集是${a}$;</li>
+<li>假定U和V都是$\Sigma$上的正规式, 它们所表示的正规集记为L(U)和L(V), 那么(U|V), (U·V)和(U)*都是正规式, 他们所表示的正规集分别记为L(U)∪L(V), L(U)L(V)和(L(U))*。</li>
+<li>仅由有限次使用上述三步而得到的表达式才是$\Sigma$上的正规式, 它们所表示的字集才是$\Sigma$上的正规集。</li>
+</ol>
+<p>运算:</p>
+<ul>
+<li>闭包<code>*</code></li>
+<li>连接<code>.</code> (可省略)</li>
+<li>或<code>|</code></li>
+</ul>
+<p>运算律:</p>
+<ul>
+<li>或交换律</li>
+<li>或结合律</li>
+<li>连接结合律</li>
+<li>或对连接分配律</li>
+<li>$\varepsilon U=U \varepsilon=U$</li>
+</ul>
+<p>例:</p>
+<ul>
+<li>以01结尾的二进制数串的正规式: <code>(0|1)*01</code></li>
+<li>能被5整除的十进制整数: <code>0|5|(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*(0|5)</code></li>
+</ul>
+<h3 id="FA"><a href="#FA" class="headerlink" title="FA"></a>FA</h3><p>自动机: 具有离散输入输出的数学模型</p>
+<pre><code>状态 + 输入 + 规则 -&gt; 状态迁移
+</code></pre><p>有限自动机(FA)</p>
+<p>有限状态机(FSM)</p>
+<h3 id="DFA"><a href="#DFA" class="headerlink" title="DFA"></a>DFA</h3><p>DFA五元组: $M=(S,\Sigma,\delta,S_0,F)$</p>
+<ul>
+<li>$S$: 有限的状态集合, 每个元素称为一个状态</li>
+<li>$\Sigma$: 有限的输入字母表, 每个元素称为一个输入字符</li>
+<li>$\delta: S\times\Sigma \rightarrow S$: 转换函数(状态转移集合)<ul>
+<li>$\delta(s, a)=s’$</li>
+</ul>
+</li>
+<li>$S_0\in S$: 初始状态</li>
+<li>$F\subseteq S$: 终止状态集</li>
+</ul>
+<p>状态转换矩阵: DFA可以用一个矩阵表示, 每行表示一个状态, 每列表示一种输入, 矩阵元素表示$\delta(s,a)$的值</p>
+<p><strong>DFA与状态转换图: DFA可以用TG唯一表示</strong></p>
+<p><img src="lex/dfa_tg.png" alt=""></p>
+<p><strong>拓展转移函数</strong></p>
+<ul>
+<li>接收一个字符串的状态转移函数</li>
+<li>$\delta’: S\times\Sigma^* \rightarrow S$<ul>
+<li>$\delta’(s, \varepsilon) = s$</li>
+<li>$\delta’(s, \omega a) = \delta(\delta’(s,\omega),a)$</li>
+</ul>
+</li>
+</ul>
+<p>DFA接受的字符串</p>
+<p>DFA接受的语言: $L(M)={α|\delta’(s,α)\in F}$</p>
+<h3 id="NFA"><a href="#NFA" class="headerlink" title="NFA"></a>NFA</h3><p>NFA五元组: $M=(S,\Sigma,\delta,S_0,F)$</p>
+<ul>
+<li>$S$: 同DFA</li>
+<li>$\Sigma$: 同DFA</li>
+<li>$\delta: S\times\Sigma^* \rightarrow 2^S(幂集)$: 转换函数(状态转移集合)<ul>
+<li>$\delta(s, a)=S’\subseteq S$</li>
+</ul>
+</li>
+<li>$S_0\subseteq S$: 非空初态集</li>
+<li>$F\subseteq S$: 终止状态集</li>
+</ul>
+<p><strong>NFA也可以用TG和转换矩阵表示</strong></p>
+<p><strong>NFA的状态是一个集合</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>比较</th>
+<th>DFA</th>
+<th>NFA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入字母</td>
+<td>每个(状态,输入)都有一个$\delta$</td>
+<td>可能没有$\delta$/是空转换</td>
+</tr>
+<tr>
+<td>转移状态</td>
+<td>确定的</td>
+<td>不确定的, 可能有多个</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>NFA的拓展转移函数</p>
+<ul>
+<li>$\delta’: S\times\Sigma^* \rightarrow 2^S$<ul>
+<li>$\delta’(s, \varepsilon) = {s}$</li>
+<li>$\delta’(s,\omega a)={p|存在r\in\delta’(s,\omega )\wedge p\in\delta(r,a)}$</li>
+</ul>
+</li>
+</ul>
+<p>NFA接受的字符串</p>
+<p>NFA接受的语言</p>
+<h3 id="DFA和NFA的关系-子集法"><a href="#DFA和NFA的关系-子集法" class="headerlink" title="DFA和NFA的关系 (子集法)"></a>DFA和NFA的关系 (子集法)</h3><p>DFA是NFA的特例, 两者可以相互转化</p>
+<p><strong>ε-闭包</strong>:</p>
+<script type="math/tex; mode=display">
+\varepsilon\_CLOSURE(I)=I\cup\{q'|q经任意条\varepsilon弧可到达q', q\in I\}, I\subseteq M'</script><p><strong>NFA-&gt;DFA之子集法</strong>:</p>
+<ol>
+<li>引进新的初态结点X和终态结点Y, 从X到所有原始态结点连接一条$\varepsilon$弧, 从所有原终态结点到Y连接一条$\varepsilon$弧</li>
+<li><p>对复合的弧进行<strong>分裂</strong></p>
+<p> <img src="lex/nfa_dfa.png" alt=""> </p>
+</li>
+<li><p>构造状态矩阵<br> | I                           | $I_{\Sigma_i}$ | … |<br> | —————————————- | ——————— | —- |<br> | $\varepsilon_CLOSURE({X})$ | …            | … |<br> | …                         | …            | … |</p>
+</li>
+<li><p>合并相同状态, 重新命名得到新的状态转换矩阵</p>
+<ul>
+<li>第一行第一列的状态为始态</li>
+<li>包含Y的状态为终态</li>
+</ul>
+</li>
+<li>画出状态转换图</li>
+</ol>
+<p>例:</p>
+<p><img src="lex/nfa_dfa_example_1.png" alt=""></p>
+<p><img src="lex/nfa_dfa_example_2.png" alt=""></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>I</th>
+<th>$I_{a}$</th>
+<th>$I_{b}$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{X, 0, Y}</td>
+<td>{1}</td>
+<td>{1}</td>
+</tr>
+<tr>
+<td>{1}</td>
+<td>{0,Y}</td>
+<td>-</td>
+</tr>
+<tr>
+<td>{0,Y}</td>
+<td>{1}</td>
+<td>{1}</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>I</th>
+<th>$I_{a}$</th>
+<th>$I_{b}$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><img src="lex/nfa_dfa_example_3.png" alt=""></p>
+<h3 id="正规式和FA的关系"><a href="#正规式和FA的关系" class="headerlink" title="正规式和FA的关系"></a>正规式和FA的关系</h3><ul>
+<li>正规式和FA是等价的</li>
+</ul>
+<h4 id="从NFA构造等价的正规式-简单"><a href="#从NFA构造等价的正规式-简单" class="headerlink" title="从NFA构造等价的正规式 (简单)"></a>从NFA构造等价的正规式 (简单)</h4><ol>
+<li><p>引进新的初态结点X和终态结点Y, 从X到所有原始态结点连接一条$\varepsilon$弧, 从所有原终态结点到Y连接一条$\varepsilon$弧</p>
+</li>
+<li><p>对复合的弧进行<strong>合并</strong></p>
+<p> <img src="lex/nfa_regex.png" alt=""></p>
+</li>
+<li><p>得到regex</p>
+</li>
+</ol>
+<h4 id="从正规式构造等价的NFA-Thompson算法"><a href="#从正规式构造等价的NFA-Thompson算法" class="headerlink" title="从正规式构造等价的NFA (Thompson算法)"></a><strong>从正规式构造等价的NFA (Thompson算法)</strong></h4><p><img src="lex/regex_nfa_1.png" alt=""><br><img src="lex/regex_nfa_2.png" alt=""></p>
+<p>例:</p>
+<p><img src="lex/regex_nfa_example.png" alt=""></p>
+<h3 id="DFA的化简-等价状态法"><a href="#DFA的化简-等价状态法" class="headerlink" title="DFA的化简 (等价状态法)"></a><strong>DFA的化简 (等价状态法)</strong></h3><p>将状态集$S$根据能否被输入区分划分为更细的集合</p>
+<ol>
+<li>初始划分: $\Pi={终态集I^{(1)}, 非终态集I^{(2)}}$</li>
+<li>检查能否再分<ol>
+<li>如果对输入字符$a$, 存在$I^{(k)}$接受$a$后不全落在现行$\Pi$的某一个子集中</li>
+<li>就把$I^{(k)}$分成多个组, 使得每个组接受$a$后都落在$\Pi$的同一个子集中</li>
+</ol>
+</li>
+<li>重复直到子集数不再增加</li>
+</ol>
+<p><img src="lex/dfa_simplify.png" alt=""></p>
+<p>例题:</p>
+<p><img src="lex/dfa_simplify_example.png" alt=""></p>
+<p>初始划分$\Pi_0={\left{A,B,C,D\right},{E}}$</p>
+<p>考察${A,B,C,D}_a={B}\subseteq {A,B,C,D}$</p>
+<p>${A,B,C,D}_b={C,D,E}$, 需要划分, 其中${A,B,C}_b={C,D}$, ${D}_b={E}$</p>
+<p>将${A,B,C,D}$分成${A,B,C}$和${D}$, 得$\Pi_1={\left{A,B,C\right},{D},{E}}$</p>
+<p>考察${A,B,C}_b={C,D}$, 需要划分, 其中${A,C}_b={C}$, ${B}_b={D}$</p>
+<p>将${A,B,C}$分为${A,C}$和${B}$, 得$\Pi_2={\left{A,C\right},{B},{D},{E}}$</p>
+<h3 id="正规文法和FA的关系"><a href="#正规文法和FA的关系" class="headerlink" title="正规文法和FA的关系"></a>正规文法和FA的关系</h3><p>FA和左(右)线性正规文法等价</p>
+<p>将FA的状态和右线性正规文法的非终结符作为桥梁, 两者等价</p>
+<h2 id="词法分析器的自动生成"><a href="#词法分析器的自动生成" class="headerlink" title="词法分析器的自动生成"></a>词法分析器的自动生成</h2><p>略</p>
 ]]></content>
       <categories>
         <category>课程笔记</category>
@@ -2571,18 +2603,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&=(\alpha_1, \alpha_2, ..., \alpha_n)A
     <content><![CDATA[<h1 id="每日上报自动打卡程序"><a href="#每日上报自动打卡程序" class="headerlink" title="每日上报自动打卡程序"></a>每日上报自动打卡程序</h1><figure class="highlight python"><figcaption><span>auto_check.py</span><a href="/downloads/code/auto_check.py">view raw</a></figcaption><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">from</span> urllib <span class="keyword">import</span> request, parse, error</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check</span>(<span class="params">token, param: <span class="built_in">dict</span> = {}</span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;每日上报&#x27;&#x27;&#x27;</span></span><br><span class="line">    req = request.Request(<span class="string">&#x27;https://tjxsfw.chisai.tech/api/school_tjxsfw_student/yqfkLogDailyreport/v2&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    req.add_header(<span class="string">&#x27;User-Agent&#x27;</span>, <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0&#x27;</span>)</span><br><span class="line">    req.add_header(<span class="string">&#x27;Accept-Language&#x27;</span>, <span class="string">&#x27;zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2&#x27;</span>)</span><br><span class="line">    req.add_header(<span class="string">&#x27;Host&#x27;</span>, <span class="string">&#x27;tjxsfw.chisai.tech&#x27;</span>)</span><br><span class="line">    req.add_header(<span class="string">&#x27;Referer&#x27;</span>, <span class="string">&#x27;https://servicewechat.com/wx427cf6b5481c866a/27/page-frame.html&#x27;</span>)</span><br><span class="line">    req.add_header(<span class="string">&#x27;Authorization&#x27;</span>, <span class="string">f&#x27;Bearer <span class="subst">{token}</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    payload = parse.urlencode([</span><br><span class="line">        (<span class="string">&#x27;studentPid&#x27;</span>, param.get(<span class="string">&#x27;studentPid&#x27;</span>)),  <span class="comment"># pid</span></span><br><span class="line">        (<span class="string">&#x27;studentName&#x27;</span>, param.get(<span class="string">&#x27;studentName&#x27;</span>)),  <span class="comment"># 姓名</span></span><br><span class="line">        (<span class="string">&#x27;studentStudentno&#x27;</span>, param.get(<span class="string">&#x27;studentStudentno&#x27;</span>)),  <span class="comment"># 学号</span></span><br><span class="line">        (<span class="string">&#x27;studentCollege&#x27;</span>, param.get(<span class="string">&#x27;studentCollege&#x27;</span>, <span class="string">&#x27;软件学院&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locLat&#x27;</span>, param.get(<span class="string">&#x27;locLat&#x27;</span>, <span class="string">&#x27;31.37482&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locLng&#x27;</span>, param.get(<span class="string">&#x27;locLng&#x27;</span>, <span class="string">&#x27;121.26621&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locNation&#x27;</span>, param.get(<span class="string">&#x27;locNation&#x27;</span>, <span class="string">&#x27;中国&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locProvince&#x27;</span>, param.get(<span class="string">&#x27;locProvince&#x27;</span>, <span class="string">&#x27;上海市&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locCity&#x27;</span>, param.get(<span class="string">&#x27;locCity&#x27;</span>, <span class="string">&#x27;上海市&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locDistrict&#x27;</span>, param.get(<span class="string">&#x27;locDistrict&#x27;</span>, <span class="string">&#x27;嘉定区&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;healthy&#x27;</span>, param.get(<span class="string">&#x27;healthy&#x27;</span>, <span class="string">&#x27;0&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;source&#x27;</span>, param.get(<span class="string">&#x27;source&#x27;</span>, <span class="string">&#x27;weixin,windows&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;reportDatetime&#x27;</span>, datetime.strftime(datetime.now(), <span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>)),</span><br><span class="line">        (<span class="string">&#x27;hasMoved&#x27;</span>, param.get(<span class="string">&#x27;hasMoved&#x27;</span>, <span class="string">&#x27;false&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;leaveReason&#x27;</span>, param.get(<span class="string">&#x27;leaveReason&#x27;</span>, <span class="string">&#x27;&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locNation1&#x27;</span>, param.get(<span class="string">&#x27;locNation1&#x27;</span>, <span class="string">&#x27;中国&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locProvince1&#x27;</span>, param.get(<span class="string">&#x27;locProvince1&#x27;</span>, <span class="string">&#x27;上海市&#x27;</span>)),</span><br><span class="line">        (<span class="string">&#x27;locCity1&#x27;</span>, param.get(<span class="string">&#x27;locCity1&#x27;</span>, <span class="string">&#x27;上海市&#x27;</span>))</span><br><span class="line">    ])</span><br><span class="line"></span><br><span class="line">    res = <span class="literal">None</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> request.urlopen(req, data=payload.encode()) <span class="keyword">as</span> f:</span><br><span class="line">            res = json.loads(f.read()) <span class="keyword">if</span> f.status == <span class="number">200</span> <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line">    <span class="keyword">except</span> error.HTTPError <span class="keyword">as</span> e:</span><br><span class="line">        print(<span class="string">&quot;请求失败&quot;</span>, e)</span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    token = <span class="string">&#x27;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEyMzQ1Njc4OSwidXNlcl9uYW1lIjoic3dpZDB4eHh4eHh4eDZjNiIsImF1dGhvcml0aWVzIjpbImFwcF91c2VyIl0sImp0aSI6ImVjY3h4eHgteHh4eC14eHh4LTllN2IteHh4eHhkODRmYjgiLCJjbGllbnRfaWQiOiJhcHAiLCJzY29wZSI6WyJhbGwiXX0.xxxxxxxxxxxxxxxxxxxxxxxxr6d8D4&#x27;</span></span><br><span class="line"></span><br><span class="line">    param = {</span><br><span class="line">        <span class="string">&#x27;studentPid&#x27;</span>: <span class="string">&#x27;9999999&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;studentName&#x27;</span>: <span class="string">&#x27;张三&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;studentStudentno&#x27;</span>: <span class="string">&#x27;1888888&#x27;</span></span><br><span class="line">    }</span><br><span class="line">    res = check(token, param)</span><br><span class="line"></span><br><span class="line">    print(res)</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>tools</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>1115. Counting Nodes in a BST</title>
-    <url>/PTA/1115.html</url>
-    <content><![CDATA[<p>按给定序列构造一个二叉搜索树, 分别计算最低两层的节点数量</p>
-<p>思路: 如题, 考基本功</p>
-<p>注意: 一种新奇的写法, 获取倒数第n个元素 (想到了Python是不是XD)<br><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// vector&lt;int&gt; x;</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; x.end()[-n] &lt;&lt; <span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure></p>
-<p>代码(有内存泄漏):<br><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">node</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    node *left, *right, *parent;</span><br><span class="line">&#125; root;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">insert</span><span class="params">(<span class="keyword">int</span> x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!root.parent) &#123;</span><br><span class="line">        <span class="comment">// is the first root</span></span><br><span class="line">        root.parent = &amp;root;</span><br><span class="line">        root.val = x;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    node *p = &amp;root;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (x &lt;= p-&gt;val) &#123;</span><br><span class="line">            <span class="keyword">if</span> (p-&gt;left) &#123;</span><br><span class="line">                p = p-&gt;left;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (p-&gt;right) &#123;</span><br><span class="line">                p = p-&gt;right;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (x &gt; p-&gt;val) &#123;</span><br><span class="line">        p-&gt;right = <span class="keyword">new</span> node();</span><br><span class="line">        p-&gt;right-&gt;val = x;</span><br><span class="line">        p-&gt;right-&gt;parent = p;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        p-&gt;left = <span class="keyword">new</span> node();</span><br><span class="line">        p-&gt;left-&gt;val = x;</span><br><span class="line">        p-&gt;left-&gt;parent = p;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">trav</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">queue</span>&lt;node *&gt; Q;</span><br><span class="line">    <span class="keyword">if</span> (root.parent) &#123;</span><br><span class="line">        Q.push(&amp;root);</span><br><span class="line">    &#125;</span><br><span class="line">    Q.push(<span class="literal">nullptr</span>);</span><br><span class="line">    <span class="keyword">int</span> lcount = <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; counts;</span><br><span class="line">    <span class="keyword">while</span> (Q.size() &gt; <span class="number">1</span>) &#123;</span><br><span class="line">        node *x = Q.front();</span><br><span class="line">        Q.pop();</span><br><span class="line">        <span class="keyword">if</span> (x == <span class="literal">nullptr</span>) &#123;</span><br><span class="line">            counts.push_back(lcount);</span><br><span class="line">            lcount = <span class="number">0</span>;</span><br><span class="line">            Q.push(<span class="literal">nullptr</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        lcount++;</span><br><span class="line">        <span class="keyword">if</span> (x-&gt;left)</span><br><span class="line">            Q.push(x-&gt;left);</span><br><span class="line">        <span class="keyword">if</span> (x-&gt;right)</span><br><span class="line">            Q.push(x-&gt;right);</span><br><span class="line">    &#125;</span><br><span class="line">    counts.push_back(lcount);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> back = counts.size() ? counts.back() : <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> back2 = counts.size() &gt; <span class="number">2</span> ? counts.end()[<span class="number">-2</span>] : <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; back &lt;&lt; <span class="string">&quot; + &quot;</span> &lt;&lt; back2 &lt;&lt; <span class="string">&quot; = &quot;</span> &lt;&lt; back + back2 &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="built_in">cin</span> &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line">        <span class="built_in">cin</span> &gt;&gt; x;</span><br><span class="line">        insert(x);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    trav();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-]]></content>
-      <categories>
-        <category>PTA</category>
       </categories>
   </entry>
   <entry>
