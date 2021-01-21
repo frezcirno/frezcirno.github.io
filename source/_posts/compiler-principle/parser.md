@@ -53,9 +53,9 @@ $P'\rightarrow\alpha_1 P'|\alpha_2 P'|...|\alpha_m P'|\varepsilon$
 
 ### FIRST, FOLLOW
 
-$终结首符集:FIRST(\alpha)=\{a|\alpha\Rightarrow^*a...,a\in V_T\}, \\特别地, 如果\alpha\Rightarrow^*\varepsilon, 则规定\varepsilon\in FIRST(\alpha)$
+终结首符集: $FIRST(\alpha)=\{a|\alpha\Rightarrow^*a...,a\in V_T\}, \\特别地, 如果\alpha\Rightarrow^*\varepsilon, 则规定\varepsilon\in FIRST(\alpha)$
 
-$后继终结符号集:FOLLOW(A)=\{a|S\Rightarrow^*...Aa...,a\in V_T\}, \\特别地, 如果S\Rightarrow^*...A, 则规定\#\in FOLLOW(S)$
+后继终结符号集: $FOLLOW(A)=\{a|S\Rightarrow^*...Aa...,a\in V_T\}, \\特别地, 如果S\Rightarrow^*...A, 则规定\#\in FOLLOW(S)$
 
 
 ### LL(1)文法
@@ -157,9 +157,9 @@ LR分析法是严格的规范规约
   - LALR表: 向前LR表, 介于SLR和规范LR之间
 
 ACTION表:
-1. 移进`sN`: 将N和输入符号a进栈, 读取下一个输入
-2. 规约`rN`: 用N号产生式$A\Rightarrow\beta$进行规约, 出栈$|\beta|$项, 将GOTO[s.top, A]和A进栈(规约), **输入不动**
-3. 接受`acc`: 分析成功结束
+1. 移进$sN$: 将$N$和输入符号$a$进栈, 读取下一个输入
+2. 规约$rN$: 用$N$号产生式$A\Rightarrow\beta$进行规约, 出栈$|\beta|$项, 将$GOTO[s.top, A]$和$A$进栈(规约), **输入不动**
+3. 接受$acc$: 分析成功结束
 4. 报错
 
 LR文法: 能够构造LR分析表, 使得每个入口都是唯一确定的文法
@@ -181,7 +181,7 @@ LR(0)项目: 在文法产生式右部中间间隔处加一个圆点
 - 连接非$\varepsilon$弧
   - $状态i为X\rightarrow X_1...X_{i-1}\cdot X_i...X_n$
   - $状态j为X\rightarrow X_1...X_{i-1}X_i\cdot X_{i+1}...X_n$
-  - 则连接状态i到状态j, 标志为$X_i$
+  - 则连接状态$i$到状态$j$, 标志为$X_i$
 - 连接$\varepsilon$弧
   - $状态i为X\rightarrow \alpha\cdot A\beta$
   - 则连接状态$i$到所有状态$A\rightarrow\cdot\gamma$, 标志为$\varepsilon$
@@ -194,7 +194,7 @@ LR(0)项目: 在文法产生式右部中间间隔处加一个圆点
   ![](parser/huoqianzhui2.png)
 
 #### 2. LR(0)项目集规范族
-- 识别活前缀的DFA的项目集的全体称为文法的LR(0)目集规范族
+- 识别活前缀的DFA的项目集的全体称为文法的LR(0)项目集规范族
   - 规约项目: $A\rightarrow\alpha\cdot$
   - 接受项目: $S\rightarrow\alpha\cdot$
   - 移进项目: $A\rightarrow\alpha\cdot a\beta$
@@ -211,13 +211,13 @@ LR(0)项目: 在文法产生式右部中间间隔处加一个圆点
   - 与$I$同状态的项目集合, 包括子项目
 - 状态转换函数$GO(I,X)$:
   - $GO(I, X)=Closure(\{A\rightarrow\alpha X\cdot\beta|(A\rightarrow\alpha\cdot X\beta)\in I\})$
-  - 若I是对活前缀$\gamma$有效的项目集, 那么$GO(I, X)$就是对$\gamma X$有效的项目集
-  - 接受$X$之后的$Closure$集合
+  - 若$I$是对活前缀$\gamma$有效的项目集, 那么$GO(I, X)$就是对$\gamma X$有效的项目集
+  - (接受$X$之后的$Closure$集合)
 - 构造DFA算法
-   ```pascal
-   PROCEDURE ITEMSETS(G')；
+   ```
+   PROCEDURE ITEMSETS(G')
    BEGIN
-     C:={Closure({S'\rightarrow\cdot S})}；
+     C:={Closure({S'\rightarrow\cdot S})}
      REPEAT
        FOR C中每个项目集I和G'的每个符号X DO
          IF GO(I, X)非空且不属于C THEN
@@ -242,23 +242,36 @@ LR(0)文法:
 - 包含$S'\rightarrow\cdot S$的集合为初态
 
 **构造LR(0)的ACTION和GOTO**:
-- 若$A\rightarrow\alpha\cdot a\beta\in I_k$且$GO(I_k, a)=I_j$, 则$ACTION[k, a]=sj$
-- 若$A\rightarrow\alpha\cdot\in I_k$, 则$ACTION[k, a]=rj$
-- 若$S'\rightarrow S\in I_k$, 则$ACTION[k, a]=acc$
-- 若$GOTO(I_k,A)=I_j$, 则$GOTO[k, a]=j$
+- 若$(A\rightarrow\alpha\cdot a\beta)\in I_k$且$GO(I_k, a)=I_j$, 则$ACTION[k, a]=sj$
+- 若$(A\rightarrow\alpha\cdot)\in I_k$, 则$ACTION[k, a]=rj$
+- 若$(S'\rightarrow S)\in I_k$, 则$ACTION[k, a]=acc$
+- 若$GO(I_k,A)=I_j$, 则$GOTO[k, a]=j$
 - 其他均为报错
 
 ![](parser/lr0_table.png)
 
 ### SLR
 
-LR(0)可能会误判: 即使存在移进-规约, 规约-规约项目冲突, 不一定不合法
+LR(0)可能会误判: 即使存在项目冲突, 也不一定不合法
 
-假定LR(0)规范族的一个项目集$I=\{A_1\rightarrow\alpha\cdot a_1\beta_1, A_2\rightarrow\alpha\cdot a_2\beta_2, ..., A_m\rightarrow\alpha\cdot a_m\beta_m, B_1\rightarrow\alpha\cdot , B_2\rightarrow\alpha\cdot , ..., B_n\rightarrow\alpha\cdot \}$ 如果集合$
-\{a_1, ..., a_m\}, FOLLOW(B_1), ..., FOLLOW(B_n)$两两不相交(
-包括不得有两个FOLLOW集合有#), 则
-1. 若a是某个ai, i=1,2,...,m, 则移进；
-2. 若$a\in FOLLOW(B_i), i=1,2,...,n$, 则用产生式$B_i\rightarrow\alpha$进行归约；
+假定LR(0)规范族的一个项目集
+$$
+\begin{aligned}
+I=\{
+&A_1\rightarrow\alpha\cdot a_1\beta_1,\\
+&A_2\rightarrow\alpha\cdot a_2\beta_2,\\
+&...\\
+&A_m\rightarrow\alpha\cdot a_m\beta_m,\\ 
+&B_1\rightarrow\alpha\cdot,\\
+&B_2\rightarrow\alpha\cdot,\\
+&...\\
+&B_n\rightarrow\alpha\cdot\}
+\end{aligned}
+$$
+
+如果集合$\{a_1, ..., a_m\}, FOLLOW(B_1), ..., FOLLOW(B_n)$两两不相交(包括不得有两个FOLLOW集合有#), 则
+1. 若a是某个ai, i=1,2,...,m, 则移进
+2. 若$a\in FOLLOW(B_i), i=1,2,...,n$, 则用产生式$B_i\rightarrow\alpha$进行归约
 3. 此外, 报错。
    
 冲突性动作的这种解决办法叫做SLR(1)解决办法。上述方法构造出的ACTION与GOTO表如果不含多重入口，则称该文法为**SLR(1)文法**

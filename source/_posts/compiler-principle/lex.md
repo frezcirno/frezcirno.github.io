@@ -70,10 +70,10 @@ mathjax: true
 例如:
 
 ```js
-<标识符>→ 字母|<标识符>字母|<标识符>数字
-<整数>→数字|<整数>数字
-<运算符>→+|－|\times|÷…
-<界符>→; |, |( | )|…
+<标识符> -> 字母|<标识符>字母|<标识符>数字
+<整数> -> 数字|<整数>数字
+<运算符> -> +|-|×|÷…
+<界符> -> ;|,|(|)|…
 ```
 
 利用这些规则识别的过程可以用**状态转换图**来表示, 而状态转换图可以方便地用程序实现
@@ -100,10 +100,10 @@ mathjax: true
 ### 正规式
 
 字母表$\Sigma$上的正规式和正规集递归定义如下：
-1. $\varepsilon$和$\varphi$都是$\Sigma$上的正规式，它们所表示的正规集分别为$\{\varepsilon\}$和$\varphi$。其中：$\varepsilon$为空字符串，$\varphi$为空集
-2. 任意元素$a\in\Sigma$，a是$\Sigma$上的一个正规式，它所表示的正规集是$\{a\}$;
-3. 假定U和V都是$\Sigma$上的正规式，它们所表示的正规集记为L(U)和L(V)，那么（U|V），（U·V）和(U)\*都是正规式，他们所表示的正规集分别记为L(U)∪L(V)，L(U)L(V)和(L(U))\*。
-4. 仅由有限次使用上述三步而得到的表达式才是$\Sigma$上的正规式，它们所表示的字集才是$\Sigma$上的正规集。
+1. $\varepsilon$和$\varphi$都是$\Sigma$上的正规式, 它们所表示的正规集分别为$\{\varepsilon\}$和$\varphi$。其中：$\varepsilon$为空字符串, $\varphi$为空集
+2. 任意元素$a\in\Sigma$, a是$\Sigma$上的一个正规式, 它所表示的正规集是$\{a\}$;
+3. 假定U和V都是$\Sigma$上的正规式, 它们所表示的正规集记为L(U)和L(V), 那么(U|V), (U·V)和(U)\*都是正规式, 他们所表示的正规集分别记为L(U)∪L(V), L(U)L(V)和(L(U))\*。
+4. 仅由有限次使用上述三步而得到的表达式才是$\Sigma$上的正规式, 它们所表示的字集才是$\Sigma$上的正规集。
 
 运算:
 - 闭包`*`
@@ -134,14 +134,14 @@ mathjax: true
 ### DFA
 
 DFA五元组: $M=(S,\Sigma,\delta,S_0,F)$
-- S: 有限的状态集合，每个元素称为一个状态
-- $\Sigma$: 有限的输入字母表，每个元素称为一个输入字符
-- $\delta: S\times\Sigma → S$: 转换函数(状态转移集合)
+- $S$: 有限的状态集合, 每个元素称为一个状态
+- $\Sigma$: 有限的输入字母表, 每个元素称为一个输入字符
+- $\delta: S\times\Sigma \rightarrow S$: 转换函数(状态转移集合)
   - $\delta(s, a)=s'$
 - $S_0\in S$: 初始状态
 - $F\subseteq S$: 终止状态集
 
-状态转换矩阵: DFA可以用一个矩阵表示, 每行表示一个状态, 每列表示一种输入, 矩阵元素表示$\delta$(s,a)的值
+状态转换矩阵: DFA可以用一个矩阵表示, 每行表示一个状态, 每列表示一种输入, 矩阵元素表示$\delta(s,a)$的值
 
 **DFA与状态转换图: DFA可以用TG唯一表示**
 
@@ -149,9 +149,9 @@ DFA五元组: $M=(S,\Sigma,\delta,S_0,F)$
 
 **拓展转移函数**
 - 接收一个字符串的状态转移函数
-- $\delta': S\times\Sigma^* → S$
+- $\delta': S\times\Sigma^* \rightarrow S$
   - $\delta'(s, \varepsilon) = s$
-  - $\delta'(s, \omega a) = \delta(\delta'(s,\omega ),a)$
+  - $\delta'(s, \omega a) = \delta(\delta'(s,\omega),a)$
 
 DFA接受的字符串
 
@@ -162,7 +162,7 @@ DFA接受的语言: $L(M)=\{α|\delta'(s,α)\in F\}$
 NFA五元组: $M=(S,\Sigma,\delta,S_0,F)$
 - $S$: 同DFA
 - $\Sigma$: 同DFA
-- $\delta: S\times\Sigma^* → 2^S(幂集)$: 转换函数(状态转移集合)
+- $\delta: S\times\Sigma^* \rightarrow 2^S(幂集)$: 转换函数(状态转移集合)
   - $\delta(s, a)=S'\subseteq S$
 - $S_0\subseteq S$: 非空初态集
 - $F\subseteq S$: 终止状态集
@@ -176,10 +176,10 @@ NFA五元组: $M=(S,\Sigma,\delta,S_0,F)$
 | 输入字母 | 每个(状态,输入)都有一个$\delta$ | 可能没有$\delta$/是空转换 |
 | 转移状态 | 确定的                          | 不确定的, 可能有多个      |
 
-NFA的拓展转移函数 $\delta'(\delta: S\times\Sigma^* → 2^S)$
-1. $\delta'(s, \varepsilon) = \{\varepsilon\}$
-2. $\delta'(s,\omega a)=\{p|存在r\in\delta'(s,\omega )\wedge p\in\delta(r,a)\}$
-
+NFA的拓展转移函数
+- $\delta': S\times\Sigma^* \rightarrow 2^S$
+  - $\delta'(s, \varepsilon) = \{s\}$
+  - $\delta'(s,\omega a)=\{p|存在r\in\delta'(s,\omega )\wedge p\in\delta(r,a)\}$
 
 NFA接受的字符串
 
@@ -189,9 +189,9 @@ NFA接受的语言
 
 DFA是NFA的特例, 两者可以相互转化
 
-$\varepsilon-闭包:$
+**ε-闭包**:
 $$
-\varepsilon\_CLOSURE(I)=\{q|q\in I\}\cup\{q'|q经任意条\varepsilon弧可到达q', q\in I\}, I\subseteq M'
+\varepsilon\_CLOSURE(I)=I\cup\{q'|q经任意条\varepsilon弧可到达q', q\in I\}, I\subseteq M'
 $$
 
 **NFA->DFA之子集法**:
@@ -234,7 +234,7 @@ $$
 
 ### 正规式和FA的关系
 
-> 正规式和FA是等价的
+- 正规式和FA是等价的
 
 #### 从NFA构造等价的正规式 (简单)
 
