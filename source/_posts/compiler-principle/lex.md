@@ -150,7 +150,6 @@ DFA五元组: $M=(S,\Sigma,\delta,S_0,F)$
 **拓展转移函数**
 - 接收一个字符串的状态转移函数
 - $\delta': S\times\Sigma^* → S$
-- 定义
   - $\delta'(s, \varepsilon) = s$
   - $\delta'(s, \omega a) = \delta(\delta'(s,\omega ),a)$
 
@@ -237,7 +236,7 @@ $$
 
 > 正规式和FA是等价的
 
-#### 从 NFA 构造等价的正规式 (简单)
+#### 从NFA构造等价的正规式 (简单)
 
 1. 引进新的初态结点X和终态结点Y, 从X到所有原始态结点连接一条$\varepsilon$弧, 从所有原终态结点到Y连接一条$\varepsilon$弧
 
@@ -247,7 +246,7 @@ $$
 
 3. 得到regex
 
-#### 从正规式构造等价的NFA (Thompson算法)
+#### **从正规式构造等价的NFA (Thompson算法)**
 
 ![](lex/regex_nfa_1.png)
 ![](lex/regex_nfa_2.png)
@@ -256,7 +255,7 @@ $$
 
 ![](lex/regex_nfa_example.png)
 
-### DFA的化简 (等价状态法)
+### **DFA的化简 (等价状态法)**
 
 将状态集$S$根据能否被输入区分划分为更细的集合
 
