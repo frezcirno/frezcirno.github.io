@@ -1262,7 +1262,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle/5.html">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle/codegen.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -1275,7 +1275,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/compiler-principle/5.html" class="post-title-link" itemprop="url">目标代码生成</a>
+          <a href="/compiler-principle/codegen.html" class="post-title-link" itemprop="url">目标代码生成</a>
         </h2>
 
         <div class="post-meta-container">
@@ -1311,8 +1311,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/compiler-principle/5.html#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="compiler-principle/5.html" itemprop="commentCount"></span>
+    <a title="disqus" href="/compiler-principle/codegen.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="compiler-principle/codegen.html" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -1324,7 +1324,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>428</span>
+      <span>1.3k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -1371,11 +1371,94 @@
 <p>OP可以是ADD,SUB,MUL,DIV等</p>
 <h2 id="简单代码生成器"><a href="#简单代码生成器" class="headerlink" title="简单代码生成器"></a>简单代码生成器</h2><p>思路: 代码生成器在生成每一条指令时, 必须要知道每个寄存器中存储的是什么, 以及每个变量存储到什么位置<br>方法: </p>
 <ol>
-<li>引入待用信息</li>
+<li>引入<strong>待用信息</strong></li>
 <li>寄存器描述数组</li>
 <li>变量地址描述数组</li>
 </ol>
-<h2 id="待用信息"><a href="#待用信息" class="headerlink" title="待用信息"></a>待用信息</h2>
+<h2 id="待用信息"><a href="#待用信息" class="headerlink" title="待用信息"></a>待用信息</h2><p>待用信息</p>
+<ul>
+<li>在基本块中, 四元式i对A定值, 四元式j对A取值, 且i,j之间无再对A定值, 则称j是i的变量A的待用信息</li>
+</ul>
+<p>活跃信息</p>
+<ul>
+<li>基本块中的一个名字在某个给定点之后仍被引用, 则称该名字在给定点是活跃的</li>
+</ul>
+<p>修改符号表</p>
+<ul>
+<li>记录待用信息和活跃信息</li>
+<li>表示: (<code>待用信息[i/^]</code>,<code>活跃信息[y/^]</code>)<br>| 变量名 | 待用/活跃信息栏 |<br>| ——— | ———————- |<br>| A      | (…, …)      |<br>| B      | (…, …)      |<br>| …    | (…, …)      |</li>
+</ul>
+<p>计算待用和活跃信息</p>
+<ol>
+<li>开始时, 所有变量均为<code>非待用</code>, 根据基本块之后是否活跃填写<code>活跃</code>或<code>非活跃</code></li>
+<li>逆序遍历每个四元式<code>i</code><ol>
+<li>把<code>A</code>的信息附加到四元式<code>i</code>上</li>
+<li><code>A</code>的信息改成<code>非待用</code>和<code>非活跃</code></li>
+<li>把<code>B</code>,<code>C</code>的信息附加到四元式<code>i</code>上</li>
+<li><code>B</code>,<code>C</code>的信息改成<code>i</code>和<code>活跃</code></li>
+</ol>
+</li>
+</ol>
+<h2 id="寄存器分配算法"><a href="#寄存器分配算法" class="headerlink" title="寄存器分配算法"></a>寄存器分配算法</h2><p>寄存器描述和地址描述</p>
+<ul>
+<li>寄存器描述数组<code>RVALUE</code><ul>
+<li>记录寄存器内存储的变量, 可以是多个</li>
+<li><code>RVALUE[R1]=&#123;A,B&#125;</code></li>
+</ul>
+</li>
+<li>变量地址描述数组<code>AVALUE</code><ul>
+<li>记录变量存储的位置(寄存器/内存)</li>
+<li><code>AVALUE[A]=&#123;R1,R2,A&#125;</code></li>
+</ul>
+</li>
+</ul>
+<p>代码生成算法</p>
+<ul>
+<li>对于四元式<code>A:=B op C</code>, 依次执行</li>
+</ul>
+<ol>
+<li>调用<code>GETREG(i: A:=B op C)</code>获取一个寄存器<code>R</code></li>
+<li>查询<code>AVALUE[B]</code>和<code>AVALUE[C]</code>, 如果在寄存器中, 假设是<code>B&#39;</code>和<code>C&#39;</code></li>
+<li>如果<code>B&#39;≠R</code>, 先把<code>B</code>加载到<code>R</code>中, 生成代码: <code>LD R,B&#39;</code></li>
+<li>进行运算, 生成代码: <code>op R,C&#39;</code></li>
+<li>更新描述信息<ol>
+<li>如果<code>B&#39;</code>或<code>C&#39;</code>是<code>R</code>, 就要把<code>AVALUE</code>中的记录删除</li>
+<li>设置<code>AVALUE[A]=&#123;R&#125;, RVALUE[R]=&#123;A&#125;</code></li>
+</ol>
+</li>
+<li>如果<code>B</code>或<code>C</code>仍存储在某个寄存器中, 但后续不再被引用且不再活跃, 就从<code>AVALUE</code>和<code>RVALUE</code>中删除<code>B</code>和<code>C</code>的记录</li>
+</ol>
+<p>寄存器分配原则</p>
+<ul>
+<li>尽可能用B独占的寄存器</li>
+<li>尽可能用空闲的寄存器</li>
+<li>抢占用非空闲寄存器</li>
+</ul>
+<p>寄存器分配算法</p>
+<ol>
+<li>如果B独占某个寄存器<ul>
+<li>如果<code>AB</code>是同一个标识符或者B在后面不会再引用<ul>
+<li>返回B所在的寄存器</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>如果有空闲寄存器, 返回空闲寄存器</li>
+<li>抢占一个寄存器<code>Ri</code><ol>
+<li><code>Ri</code>也存储在内存中</li>
+<li><code>Ri</code>最远才会用到</li>
+<li>生成store指令?<ol>
+<li>对于<code>Ri</code>中存储的变量M, 如果M不是A<ol>
+<li>如果<code>M</code>仅存储在<code>Ri</code>中, 则要<code>ST Ri, M</code></li>
+<li></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+
       
     </div>
 
@@ -1439,13 +1522,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">87k</span>
+    <span title="站点总字数">89k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:19</span>
+    <span title="站点阅读时长">1:21</span>
   </span>
 </div>
 <div class="busuanzi-count">

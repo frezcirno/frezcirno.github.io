@@ -23,21 +23,25 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
-<meta name="description" content="目标代码生成任务中间代码 --&gt; 代码生成器 --&gt; 目标程序                 ^                 |             符号表 目标代码的三种形式: 能立即执行的机器码(所有地址已经定位) 待装配的机器语言模块(连接装入后即可执行) 汇编语言代码(经汇编程序汇编后即可执行)  此处选择汇编语言 目标机器模型此处假设目标计算机:  具有多个通用寄存">
+<meta name="description" content="提纲 概述优化：对程序进行各种等价变换，使得从变换后的程序出发，能生成更有效的目标代码。 原则  等价 有效 合算  级别  局部优化 循环优化 全局优化  种类  删除公用子表达式 复写传播 删除无用赋值 代码外提 强度削弱 变换循环控制条件 合并已知量  局部优化基本块基本块  指程序中一顺序执行语句序列，其中只有一个入口和一个出口。入口就是其中第一个语句，出口就是其中最后一个语句。  活跃">
 <meta property="og:type" content="article">
-<meta property="og:title" content="目标代码生成">
-<meta property="og:url" content="https://frezcirno.github.io/compiler-principle/5.html">
+<meta property="og:title" content="优化">
+<meta property="og:url" content="https://frezcirno.github.io/compiler-principle/profile.html">
 <meta property="og:site_name" content="frezcirno&#39;s blog">
-<meta property="og:description" content="目标代码生成任务中间代码 --&gt; 代码生成器 --&gt; 目标程序                 ^                 |             符号表 目标代码的三种形式: 能立即执行的机器码(所有地址已经定位) 待装配的机器语言模块(连接装入后即可执行) 汇编语言代码(经汇编程序汇编后即可执行)  此处选择汇编语言 目标机器模型此处假设目标计算机:  具有多个通用寄存">
+<meta property="og:description" content="提纲 概述优化：对程序进行各种等价变换，使得从变换后的程序出发，能生成更有效的目标代码。 原则  等价 有效 合算  级别  局部优化 循环优化 全局优化  种类  删除公用子表达式 复写传播 删除无用赋值 代码外提 强度削弱 变换循环控制条件 合并已知量  局部优化基本块基本块  指程序中一顺序执行语句序列，其中只有一个入口和一个出口。入口就是其中第一个语句，出口就是其中最后一个语句。  活跃">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-12-17T02:56:11.000Z">
-<meta property="article:modified_time" content="2021-01-21T09:24:25.255Z">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/profile/index.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/profile/basic_block.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/profile/program_flow.png">
+<meta property="article:published_time" content="2020-12-17T02:56:07.000Z">
+<meta property="article:modified_time" content="2021-01-21T16:42:51.939Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="daily">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://frezcirno.github.io/compiler-principle/profile/index.png">
 
 
-<link rel="canonical" href="https://frezcirno.github.io/compiler-principle/5.html">
+<link rel="canonical" href="https://frezcirno.github.io/compiler-principle/profile.html">
 
 
 <script class="page-configurations">
@@ -49,7 +53,7 @@
     lang   : 'zh-CN'
   };
 </script>
-<title>目标代码生成 | frezcirno's blog</title>
+<title>优化 | frezcirno's blog</title>
   
 
 
@@ -202,7 +206,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <section class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-text">目标代码生成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1"><span class="nav-text">任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E4%BB%A3%E7%A0%81%E7%9A%84%E4%B8%89%E7%A7%8D%E5%BD%A2%E5%BC%8F"><span class="nav-text">目标代码的三种形式:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E6%9C%BA%E5%99%A8%E6%A8%A1%E5%9E%8B"><span class="nav-text">目标机器模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E5%99%A8"><span class="nav-text">简单代码生成器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BE%85%E7%94%A8%E4%BF%A1%E6%81%AF"><span class="nav-text">待用信息</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E7%BA%B2"><span class="nav-text">提纲</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E4%BC%98%E5%8C%96"><span class="nav-text">局部优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%9D%97"><span class="nav-text">基本块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E5%9B%BE"><span class="nav-text">流图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%9D%97%E7%9A%84DAG%E8%A1%A8%E7%A4%BA"><span class="nav-text">基本块的DAG表示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%9D%97%E7%9A%84DAG%E4%BC%98%E5%8C%96%E7%AE%97%E6%B3%95"><span class="nav-text">基本块的DAG优化算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E4%BC%98%E5%8C%96"><span class="nav-text">循环优化</span></a></li></ol></div>
         </section>
         <!--/noindex-->
 
@@ -278,7 +282,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle/5.html">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle/profile.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -291,7 +295,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          目标代码生成
+          优化
         </h1>
 
         <div class="post-meta-container">
@@ -302,7 +306,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2020-12-17 10:56:11" itemprop="dateCreated datePublished" datetime="2020-12-17T10:56:11+08:00">2020-12-17</time>
+      <time title="创建时间：2020-12-17 10:56:07" itemprop="dateCreated datePublished" datetime="2020-12-17T10:56:07+08:00">2020-12-17</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -334,8 +338,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/compiler-principle/5.html#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="compiler-principle/5.html" itemprop="commentCount"></span>
+    <a title="disqus" href="/compiler-principle/profile.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="compiler-principle/profile.html" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -347,7 +351,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>428</span>
+      <span>934</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -365,40 +369,116 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="目标代码生成"><a href="#目标代码生成" class="headerlink" title="目标代码生成"></a>目标代码生成</h1><h2 id="任务"><a href="#任务" class="headerlink" title="任务"></a>任务</h2><pre><code>中间代码 --&gt; 代码生成器 --&gt; 目标程序
-                ^
-                |
-            符号表
-</code></pre><h2 id="目标代码的三种形式"><a href="#目标代码的三种形式" class="headerlink" title="目标代码的三种形式:"></a>目标代码的三种形式:</h2><ol>
-<li>能立即执行的机器码(所有地址已经定位)</li>
-<li>待装配的机器语言模块(连接装入后即可执行)</li>
-<li>汇编语言代码(经汇编程序汇编后即可执行)</li>
-</ol>
-<p>此处选择汇编语言</p>
-<h2 id="目标机器模型"><a href="#目标机器模型" class="headerlink" title="目标机器模型"></a>目标机器模型</h2><p>此处假设目标计算机:</p>
+        <h2 id="提纲"><a href="#提纲" class="headerlink" title="提纲"></a>提纲</h2><p><img src="profile/index.png" alt=""></p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>优化：对程序进行各种等价变换，使得从变换后的程序出发，能生成更有效的目标代码。</p>
+<p>原则</p>
+<ul>
+<li>等价</li>
+<li>有效</li>
+<li>合算</li>
+</ul>
+<p>级别</p>
+<ul>
+<li>局部优化</li>
+<li>循环优化</li>
+<li>全局优化</li>
+</ul>
+<p>种类</p>
+<ul>
+<li>删除公用子表达式</li>
+<li>复写传播</li>
+<li>删除无用赋值</li>
+<li>代码外提</li>
+<li>强度削弱</li>
+<li>变换循环控制条件</li>
+<li>合并已知量</li>
+</ul>
+<h2 id="局部优化"><a href="#局部优化" class="headerlink" title="局部优化"></a>局部优化</h2><h3 id="基本块"><a href="#基本块" class="headerlink" title="基本块"></a>基本块</h3><p>基本块</p>
+<ul>
+<li>指程序中一顺序执行语句序列，其中只有一个入口和一个出口。入口就是其中第一个语句，出口就是其中最后一个语句。</li>
+</ul>
+<p>活跃</p>
+<ul>
+<li>基本块中的一个名字在某个给定点之后仍被引用, 则称该名字在给定点是活跃的</li>
+</ul>
+<p>局部优化</p>
+<ul>
+<li>局限在基本块范围内的优化</li>
+</ul>
+<p>划分基本块</p>
+<ul>
+<li>基本块入口<ul>
+<li>程序第一条语句</li>
+<li><strong>能</strong>转移到的语句</li>
+<li>转移语句后面的语句</li>
+</ul>
+</li>
+<li>基本块的出口(包括)<ul>
+<li>基本块入口的前一条语句</li>
+<li>转移语句(包括)</li>
+<li>停语句(包括)</li>
+</ul>
+</li>
+<li>不在基本块中的语句可以从程序中删除</li>
+</ul>
+<p><img src="profile/basic_block.png" alt=""></p>
+<p>基本块中的优化</p>
+<ul>
+<li>删除公用子表达式</li>
+<li>删除无用赋值</li>
+<li>合并已知量: <code>T1=2; T2=4*T1;</code> =&gt; <code>T2=8;</code></li>
+<li>临时变量改名</li>
+<li>交换语句的位置</li>
+<li>代数变换: 删除<code>x=x+0; x=x*1;</code>, <code>x=y^2;</code> =&gt; <code>x=y*y;</code></li>
+</ul>
+<h3 id="流图"><a href="#流图" class="headerlink" title="流图"></a>流图</h3><ul>
+<li>把基本块编号后按执行顺序连接成一张图</li>
+<li>入口语句是流图的首结点</li>
+</ul>
+<p>前驱和后继</p>
+<ul>
+<li>在程序序列中, 若A,B相邻而且A最后一条语句不是无条件跳转, 则称A是B的前驱, B为A的后继</li>
+</ul>
+<p><img src="profile/program_flow.png" alt=""></p>
+<h3 id="基本块的DAG表示"><a href="#基本块的DAG表示" class="headerlink" title="基本块的DAG表示"></a>基本块的DAG表示</h3><ul>
+<li>用带有标记或附加信息的DAG来表示变量间的关系</li>
+<li>叶结点: 以<strong>标识符或常数</strong>作为标记</li>
+<li>内部结点: 以<strong>运算符</strong>作为标记</li>
+<li>每个结点可以有<strong>附加标识符</strong>: 表示附加标识符具有相同的值</li>
+</ul>
+<h3 id="基本块的DAG优化算法"><a href="#基本块的DAG优化算法" class="headerlink" title="基本块的DAG优化算法"></a>基本块的DAG优化算法</h3><p>基本块代码分类</p>
+<ul>
+<li>0型: 单纯赋值语句<code>A:=B</code></li>
+<li>1型: 一元运算赋值<code>A:=op B</code></li>
+<li>2型: 二元运算赋值<code>A:=B op C</code>/数组取值赋值<code>A:=B[C]</code></li>
+</ul>
+<p>对基本块中每一四元式，依次执行以下步骤:</p>
 <ol>
-<li>具有多个通用寄存器, 可以用来运算, 也可以用来取地址</li>
-<li>支持四种指令形式<ol>
-<li>直接地址型 <code>OP R, M</code> - <code>R OP M =&gt; R</code></li>
-<li>寄存器型 <code>OP Ri, Rj</code> - <code>Ri OP Rj =&gt; Ri</code></li>
-<li>变址型 <code>OP Ri, c(Rj)</code> - <code>Ri OP (Rj+c) =&gt; Ri</code></li>
-<li>间接型<ol>
-<li><code>OP Ri, (M)</code> - <code>R OP (M) =&gt; R</code></li>
-<li><code>OP Ri, (Rj)</code> - <code>Ri OP (Rj) =&gt; Ri</code></li>
-<li><code>OP Ri, (c(Rj))</code> - <code>Ri OP ((Rj+c)) =&gt; Ri</code></li>
+<li>如果是0型, 记<code>NODE(B)</code>的值为<code>n</code>, 转4</li>
+<li>如果存在任意一个操作数无定义, 则构造该操作数结点</li>
+<li>如果所有操作数都是常数<ol>
+<li>如果<code>NODE(B)</code>(或<code>NODE(C)</code>)是新构造的结点, 删除</li>
+<li>计算<code>op</code>, 记为<code>P</code></li>
+<li>如果<code>NODE(P)</code>无定义, 构造之, 记为<code>n</code></li>
+</ol>
+</li>
+<li>否则<ol>
+<li>检查DAG中是否已经存在结点<code>op</code>, 如果没有则构造之, 记为<code>n</code></li>
+</ol>
+</li>
+<li>删除无用赋值<ol>
+<li>如果<code>A</code>已经在某个结点处定义, 删除之, 把<code>A</code>附在<code>n</code>结点上, 令<code>NODE(A)=n</code></li>
 </ol>
 </li>
 </ol>
-</li>
-</ol>
-<p>OP可以是ADD,SUB,MUL,DIV等</p>
-<h2 id="简单代码生成器"><a href="#简单代码生成器" class="headerlink" title="简单代码生成器"></a>简单代码生成器</h2><p>思路: 代码生成器在生成每一条指令时, 必须要知道每个寄存器中存储的是什么, 以及每个变量存储到什么位置<br>方法: </p>
-<ol>
-<li>引入待用信息</li>
-<li>寄存器描述数组</li>
-<li>变量地址描述数组</li>
-</ol>
-<h2 id="待用信息"><a href="#待用信息" class="headerlink" title="待用信息"></a>待用信息</h2>
+<p>DAG优化算法</p>
+<ul>
+<li>执行上述算法</li>
+<li>在基本块外被定值的标识符作为叶子结点上的标识符</li>
+<li>在基本块内被定值且在基本块后被引用的标识符作为结点上的附加标识符</li>
+</ul>
+<h2 id="循环优化"><a href="#循环优化" class="headerlink" title="循环优化"></a>循环优化</h2><p>不考, 略</p>
+
     </div>
 
     
@@ -408,7 +488,7 @@
   <div class="popular-posts-header">推荐文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/compiler-principle/4.html" rel="bookmark">4</a></div>
+      <div class="popular-posts-title"><a href="/compiler-principle/codegen.html" rel="bookmark">目标代码生成</a></div>
     </li>
     <li class="popular-posts-item">
       <div class="popular-posts-title"><a href="/compiler-principle/index.html" rel="bookmark">编译原理笔记</a></div>
@@ -422,13 +502,13 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/compiler-principle/4.html" rel="prev" title="4">
-                  <i class="fa fa-chevron-left"></i> 4
+                <a href="/compiler-principle/ir.html" rel="prev" title="语义分析和中间代码生成">
+                  <i class="fa fa-chevron-left"></i> 语义分析和中间代码生成
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/daily/2020/12/17.html" rel="next" title="每日小结">
-                  每日小结 <i class="fa fa-chevron-right"></i>
+                <a href="/compiler-principle/codegen.html" rel="next" title="目标代码生成">
+                  目标代码生成 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>
@@ -490,13 +570,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">87k</span>
+    <span title="站点总字数">89k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:19</span>
+    <span title="站点阅读时长">1:21</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -558,9 +638,9 @@
 </script>
 <script>
   var disqus_config = function() {
-    this.page.url = "https://frezcirno.github.io/compiler-principle/5.html";
-    this.page.identifier = "compiler-principle/5.html";
-    this.page.title = "目标代码生成";
+    this.page.url = "https://frezcirno.github.io/compiler-principle/profile.html";
+    this.page.identifier = "compiler-principle/profile.html";
+    this.page.title = "优化";
     };
   NexT.utils.loadComments('#disqus_thread', () => {
     if (window.DISQUS) {

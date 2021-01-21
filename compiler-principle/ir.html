@@ -36,8 +36,14 @@
 <meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/assign_example.png">
 <meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/assign_example_solution.png">
 <meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/bool_example.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/bool1.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/bool2.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/control.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/while.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/list.png">
+<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/block.png">
 <meta property="article:published_time" content="2020-12-17T02:55:55.000Z">
-<meta property="article:modified_time" content="2021-01-21T09:24:25.255Z">
+<meta property="article:modified_time" content="2021-01-21T16:42:51.927Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="daily">
 <meta name="twitter:card" content="summary">
@@ -209,7 +215,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <section class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95%E5%92%8C%E8%AF%AD%E6%B3%95%E5%88%B6%E5%AF%BC%E7%BF%BB%E8%AF%91"><span class="nav-text">属性文法和语法制导翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95"><span class="nav-text">属性文法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#S-%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95"><span class="nav-text">S-属性文法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#L-%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95"><span class="nav-text">L-属性文法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E5%88%B6%E5%AF%BC%E7%BF%BB%E8%AF%91"><span class="nav-text">语法制导翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E5%9B%BE"><span class="nav-text">依赖图</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90%E5%92%8C%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-text">语义分析和中间代码生成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90"><span class="nav-text">语义分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%AD%E9%97%B4%E8%AF%AD%E8%A8%80"><span class="nav-text">中间语言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B4%E6%98%8E%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">说明语句的翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%8B%E5%80%BC%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">赋值语句的翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%83%E5%B0%94%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">布尔表达式的翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E8%BF%90%E7%AE%97%E7%BF%BB%E8%AF%91"><span class="nav-text">逻辑运算翻译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E6%8E%A7%E5%88%B6%E7%BF%BB%E8%AF%91"><span class="nav-text">条件控制翻译</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">控制语句的翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E7%A8%8B%E8%B0%83%E7%94%A8%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">过程调用的翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-text"> </span></a></li></ol></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95%E5%92%8C%E8%AF%AD%E6%B3%95%E5%88%B6%E5%AF%BC%E7%BF%BB%E8%AF%91"><span class="nav-text">属性文法和语法制导翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95"><span class="nav-text">属性文法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#S-%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95"><span class="nav-text">S-属性文法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#L-%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95"><span class="nav-text">L-属性文法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E5%88%B6%E5%AF%BC%E7%BF%BB%E8%AF%91"><span class="nav-text">语法制导翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E5%9B%BE"><span class="nav-text">依赖图</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90%E5%92%8C%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-text">语义分析和中间代码生成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90"><span class="nav-text">语义分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%AD%E9%97%B4%E8%AF%AD%E8%A8%80"><span class="nav-text">中间语言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B4%E6%98%8E%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">说明语句的翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%8B%E5%80%BC%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">赋值语句的翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%83%E5%B0%94%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">布尔表达式的翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E8%BF%90%E7%AE%97%E4%B8%AD%E7%9A%84%E5%B8%83%E5%B0%94%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%BF%BB%E8%AF%91"><span class="nav-text">逻辑运算中的布尔表达式翻译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5%E4%B8%AD%E7%9A%84%E5%B8%83%E5%B0%94%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%BF%BB%E8%AF%91"><span class="nav-text">条件控制语句中的布尔表达式翻译</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">控制语句的翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E8%AF%AD%E5%8F%A5"><span class="nav-text">条件语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E8%AF%AD%E5%8F%A5-while"><span class="nav-text">循环语句(while)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E5%8F%A5%E5%88%97%E8%A1%A8%E5%92%8C%E8%AF%AD%E5%8F%A5%E5%9D%97"><span class="nav-text">语句列表和语句块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E5%8F%B7%E4%B8%8Egoto%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">标号与goto语句的翻译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#case%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">case语句的翻译</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E7%A8%8B%E8%B0%83%E7%94%A8%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">过程调用的翻译</span></a></li></ol></li></ol></div>
         </section>
         <!--/noindex-->
 
@@ -354,14 +360,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.6k</span>
+      <span>2.1k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>1 分钟</span>
+      <span>2 分钟</span>
     </span>
 </div>
 
@@ -508,10 +514,54 @@
 <li>算数方式</li>
 <li>短路计算</li>
 </ul>
-<h3 id="逻辑运算翻译"><a href="#逻辑运算翻译" class="headerlink" title="逻辑运算翻译"></a>逻辑运算翻译</h3><p><img src="ir/bool_example.png" alt=""></p>
+<h3 id="逻辑运算中的布尔表达式翻译"><a href="#逻辑运算中的布尔表达式翻译" class="headerlink" title="逻辑运算中的布尔表达式翻译"></a>逻辑运算中的布尔表达式翻译</h3><p><img src="ir/bool_example.png" alt=""></p>
 <p>答案:</p>
 <p>三地址代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">0: if a&gt;b goto 3</span><br><span class="line">1: T1:&#x3D;0</span><br><span class="line">2: goto 4</span><br><span class="line">3: T1:&#x3D;1</span><br><span class="line">4: if a&gt;b goto 7</span><br><span class="line">5: T1:&#x3D;0</span><br><span class="line">6: goto 8</span><br><span class="line">7: T1:&#x3D;1</span><br><span class="line">8: T3&#x3D;T1 and T2</span><br></pre></td></tr></table></figure></p>
-<h3 id="条件控制翻译"><a href="#条件控制翻译" class="headerlink" title="条件控制翻译"></a>条件控制翻译</h3><h2 id="控制语句的翻译"><a href="#控制语句的翻译" class="headerlink" title="控制语句的翻译"></a>控制语句的翻译</h2><h2 id="过程调用的翻译"><a href="#过程调用的翻译" class="headerlink" title="过程调用的翻译"></a>过程调用的翻译</h2><h3 id=""><a href="#" class="headerlink" title=" "></a> </h3>
+<h3 id="条件控制语句中的布尔表达式翻译"><a href="#条件控制语句中的布尔表达式翻译" class="headerlink" title="条件控制语句中的布尔表达式翻译"></a>条件控制语句中的布尔表达式翻译</h3><p>两种出口: 一真一假</p>
+<p>改写产生式</p>
+<ul>
+<li><code>E -&gt; E and M E</code></li>
+<li><code>E -&gt; E or M E</code></li>
+<li><code>M -&gt; epsilon</code></li>
+</ul>
+<p>增加属性</p>
+<ul>
+<li><code>truelist</code>/<code>falselist</code>: 布尔表达式中需要回填地址的四元式构成的(反向)列表, 从最后的需要回填地址四元式指向更靠前的四元式</li>
+<li><code>nextquad</code>: 下一条即将产生的四元式的地址, 如果是emit过程中包含那么就是该条语句的地址</li>
+</ul>
+<p>增加过程</p>
+<ul>
+<li><code>makelist(i)</code>: 创建一个新链表<code>-&gt;i</code></li>
+<li><code>merge(p1,p2)</code>: 合并两个链表</li>
+<li><code>backpatch(p,t)</code>: 回填地址</li>
+</ul>
+<p><img src="ir/bool1.png" alt=""></p>
+<p><img src="ir/bool2.png" alt=""></p>
+<p>例: 写出布尔式A or (B and not (C or D))的四元式序列</p>
+<p>答案:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0: jnz,A,-,0</span><br><span class="line">1: j,-,-,2</span><br><span class="line">2: jnz,B,-,4</span><br><span class="line">3: j,-,-,0</span><br><span class="line">4: jnz,C,-,0</span><br><span class="line">5: j,-,-,6</span><br><span class="line">6: jnz,D,-,0</span><br><span class="line">7: j,-,-,0</span><br></pre></td></tr></table></figure>
+<h2 id="控制语句的翻译"><a href="#控制语句的翻译" class="headerlink" title="控制语句的翻译"></a>控制语句的翻译</h2><h3 id="条件语句"><a href="#条件语句" class="headerlink" title="条件语句"></a>条件语句</h3><p>改写产生式</p>
+<ul>
+<li><code>S -&gt; if E then M S</code></li>
+<li><code>S -&gt; if E then M S N else M S</code></li>
+<li><code>M -&gt; epsilon</code></li>
+<li><code>N -&gt; epsilon</code></li>
+</ul>
+<p>增加属性:</p>
+<ul>
+<li><code>nextlist</code>: 下一条执行语句的地址, 引入此变量是为了优化连续多次跳转</li>
+</ul>
+<p><img src="ir/control.png" alt=""></p>
+<h3 id="循环语句-while"><a href="#循环语句-while" class="headerlink" title="循环语句(while)"></a>循环语句(while)</h3><p><img src="ir/while.png" alt=""></p>
+<h3 id="语句列表和语句块"><a href="#语句列表和语句块" class="headerlink" title="语句列表和语句块"></a>语句列表和语句块</h3><p>改写产生式</p>
+<ul>
+<li><code>L -&gt; L; M S</code></li>
+<li><code>M -&gt; epsilon</code></li>
+</ul>
+<p><img src="ir/list.png" alt=""></p>
+<p><img src="ir/block.png" alt=""></p>
+<h3 id="标号与goto语句的翻译"><a href="#标号与goto语句的翻译" class="headerlink" title="标号与goto语句的翻译"></a>标号与goto语句的翻译</h3><h3 id="case语句的翻译"><a href="#case语句的翻译" class="headerlink" title="case语句的翻译"></a>case语句的翻译</h3><h2 id="过程调用的翻译"><a href="#过程调用的翻译" class="headerlink" title="过程调用的翻译"></a>过程调用的翻译</h2><p>不考, 略</p>
+
     </div>
 
     
@@ -521,10 +571,10 @@
   <div class="popular-posts-header">推荐文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/compiler-principle/4.html" rel="bookmark">4</a></div>
+      <div class="popular-posts-title"><a href="/compiler-principle/codegen.html" rel="bookmark">目标代码生成</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/compiler-principle/5.html" rel="bookmark">目标代码生成</a></div>
+      <div class="popular-posts-title"><a href="/compiler-principle/index.html" rel="bookmark">编译原理笔记</a></div>
     </li>
   </ul>
 
@@ -540,8 +590,8 @@
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/compiler-principle/4.html" rel="next" title="4">
-                  4 <i class="fa fa-chevron-right"></i>
+                <a href="/compiler-principle/profile.html" rel="next" title="优化">
+                  优化 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>
@@ -603,13 +653,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">87k</span>
+    <span title="站点总字数">89k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:19</span>
+    <span title="站点阅读时长">1:21</span>
   </span>
 </div>
 <div class="busuanzi-count">
