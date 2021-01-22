@@ -31,7 +31,7 @@
 <meta property="og:description" content="目标代码生成任务中间代码 --&gt; 代码生成器 --&gt; 目标程序                 ^                 |             符号表 目标代码的三种形式: 能立即执行的机器码(所有地址已经定位) 待装配的机器语言模块(连接装入后即可执行) 汇编语言代码(经汇编程序汇编后即可执行)  此处选择汇编语言 目标机器模型此处假设目标计算机:  具有多个通用寄存">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-12-17T02:56:11.000Z">
-<meta property="article:modified_time" content="2021-01-21T17:37:27.249Z">
+<meta property="article:modified_time" content="2021-01-22T02:07:24.266Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="daily">
 <meta name="twitter:card" content="summary">
@@ -347,14 +347,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.4k</span>
+      <span>3k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>1 分钟</span>
+      <span>3 分钟</span>
     </span>
 </div>
 
@@ -417,13 +417,132 @@
 <ol>
 <li>开始时, 所有变量均为<code>非待用</code>, 根据基本块之后是否活跃填写<code>活跃</code>或<code>非活跃</code></li>
 <li>逆序遍历每个四元式<code>i</code><ol>
-<li>把<code>A</code>的信息附加到四元式<code>i</code>上</li>
-<li><code>A</code>的信息改成<code>非待用</code>和<code>非活跃</code></li>
-<li>把<code>B</code>,<code>C</code>的信息附加到四元式<code>i</code>上</li>
-<li><code>B</code>,<code>C</code>的信息改成<code>i</code>和<code>活跃</code></li>
+<li>把<code>A</code>的引用信息附加到四元式<code>i</code>左值上</li>
+<li><code>A</code>的引用信息附加<code>(^,^)</code></li>
+<li>把<code>B</code>,<code>C</code>的引用信息附加到四元式<code>i</code>上</li>
+<li><code>B</code>,<code>C</code>的引用信息附加<code>(^,^)</code></li>
 </ol>
 </li>
 </ol>
+<p>例:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">T1:&#x3D;B-C</span><br><span class="line">T2:&#x3D;A*T1</span><br><span class="line">T3:&#x3D;D+1</span><br><span class="line">T4:&#x3D;E-F</span><br><span class="line">T5:&#x3D;T3*T4</span><br><span class="line">W:&#x3D;T2&#x2F;T5</span><br></pre></td></tr></table></figure>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>四元式</th>
+<th>左值</th>
+<th>左操作数</th>
+<th>右操作数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(6)</td>
+<td>W:=T2/T5</td>
+<td>(^,y)</td>
+<td>(^,^)</td>
+<td>(^,^)</td>
+</tr>
+<tr>
+<td>(5)</td>
+<td>T5:=T3*T4</td>
+<td>(6,y)</td>
+<td>(^,^)</td>
+<td>(^,^)</td>
+</tr>
+<tr>
+<td>(4)</td>
+<td>T4:=E-F</td>
+<td>(3,y)</td>
+<td>(^,^)</td>
+<td>(^,^)</td>
+</tr>
+<tr>
+<td>(3)</td>
+<td>T3:=D+1</td>
+<td>(3,y)</td>
+<td>(^,^)</td>
+<td>(^,^)</td>
+</tr>
+<tr>
+<td>(2)</td>
+<td>T2:=A*T1</td>
+<td>(6,y)</td>
+<td>(^,^)</td>
+<td>(^,^)</td>
+</tr>
+<tr>
+<td>(1)</td>
+<td>T1:=B-C</td>
+<td>(2,y)</td>
+<td>(^,^)</td>
+<td>(^,^)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>待用/活跃信息栏</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T5</td>
+<td>(^,^)-&gt;(6,y)-&gt;(^,^)</td>
+</tr>
+<tr>
+<td>T4</td>
+<td>(^,^)-&gt;(3,y)-&gt;(^,^)</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>(^,^)-&gt;(3,y)-&gt;(^,^)</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>(^,^)-&gt;(6,y)-&gt;(^,^)</td>
+</tr>
+<tr>
+<td>T1</td>
+<td>(^,^)-&gt;(2,y)-&gt;(^,^)</td>
+</tr>
+<tr>
+<td>W</td>
+<td>(^,y)-&gt;(^,^)</td>
+</tr>
+<tr>
+<td>F</td>
+<td>(^,^)-&gt;(4,y)</td>
+</tr>
+<tr>
+<td>E</td>
+<td>(^,^)-&gt;(4,y)</td>
+</tr>
+<tr>
+<td>D</td>
+<td>(^,^)-&gt;(3,y)</td>
+</tr>
+<tr>
+<td>C</td>
+<td>(^,^)-&gt;(1,y)</td>
+</tr>
+<tr>
+<td>B</td>
+<td>(^,^)-&gt;(1,y)</td>
+</tr>
+<tr>
+<td>A</td>
+<td>(^,^)-&gt;(2,y)</td>
+</tr>
+</tbody>
+</table>
+</div>
 <h2 id="寄存器分配算法"><a href="#寄存器分配算法" class="headerlink" title="寄存器分配算法"></a>寄存器分配算法</h2><p>寄存器描述和地址描述</p>
 <ul>
 <li>寄存器描述数组<code>RVALUE</code><ul>
@@ -457,33 +576,43 @@
 <ul>
 <li>尽可能用B独占的寄存器</li>
 <li>尽可能用空闲的寄存器</li>
-<li>抢占用非空闲寄存器</li>
+<li>抢占用非空闲寄存器<ul>
+<li><code>Ri</code>的值也存储在内存中</li>
+<li><code>Ri</code>最远才会用到</li>
 </ul>
-<p>寄存器分配算法</p>
+</li>
+</ul>
+<p>寄存器分配算法<code>GETREG(i: A:=B op C)</code></p>
 <ol>
 <li>如果B独占某个寄存器<ul>
-<li>如果<code>AB</code>是同一个标识符或者B在后面不会再引用<ul>
-<li>返回B所在的寄存器</li>
+<li>如果<code>AB</code>是同一个标识符(即修改B的指令<code>B:=B op C</code>)<ul>
+<li>返回<code>B</code>所在的寄存器</li>
+</ul>
+</li>
+<li>如果<code>B</code>在后面不会再引用(非待用, 非活跃)<ul>
+<li>返回<code>B</code>所在的寄存器</li>
 </ul>
 </li>
 </ul>
 </li>
 <li>如果有空闲寄存器, 返回空闲寄存器</li>
-<li>抢占一个寄存器<code>Ri</code><ol>
-<li><code>Ri</code>也存储在内存中</li>
-<li><code>Ri</code>最远才会用到</li>
-<li>生成store指令?<ol>
-<li>对于<code>Ri</code>中存储的变量M, 如果M不是A<ol>
-<li>如果<code>M</code>仅存储在<code>Ri</code>中, 则要<code>ST Ri, M</code></li>
-<li>如果<code>M</code>是<code>B</code>, 或者<code>M</code>是<code>C</code>但同时<code>B</code>也在<code>RVALUE[Ri]</code>中, 则令</li>
+<li>抢占一个寄存器<code>Ri</code>, <ol>
+<li>对于<code>Ri</code>中存储的每一个变量<code>M</code>, 如果存储的不是<code>A</code>, 或者存储的是<code>A == C != B</code>且<code>Ri</code>中不存储<code>B</code>.(<code>M==A &amp;&amp; M==C &amp;&amp; M!=B &amp;&amp; B not in RVALUE[Ri]</code>)<ol>
+<li>如果<code>M</code>仅存储在<code>Ri</code>, 则要存到内存中: <code>ST Ri, M</code></li>
+<li>如果<code>M == B</code>, 或者<code>M == C &amp;&amp; B in RVALUE[Ri]</code>中, 则令<code>AVALUE[M]=&#123;M,R&#125;</code>, 否则令<code>AVALUE[M]=&#123;M&#125;</code></li>
+<li>删除<code>M</code>在<code>Ri</code>中的记录, <code>RVALUE[Ri].reLD e(M)</code></li>
+<li>返回<code>R</code></li>
 </ol>
 </li>
 </ol>
 </li>
 </ol>
-</li>
-</ol>
-
+<p>例:</p>
+<p>寄存器: R0, R1, </p>
+<p>基本块出口活跃变量: W</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">T1:&#x3D;B-C</span><br><span class="line">T2:&#x3D;A*T1</span><br><span class="line">T3:&#x3D;D+1</span><br><span class="line">T4:&#x3D;E-F</span><br><span class="line">T5:&#x3D;T3*T4</span><br><span class="line">W:&#x3D;T2&#x2F;T5</span><br></pre></td></tr></table></figure>
+<p>答案:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">【解答】该基本块的目标代码如下(指令后面为相应的注释)：</span><br><span class="line">LD  R0, B  <span class="comment">/* 取第一个空闲寄存器 R0 */</span> </span><br><span class="line">SUB R0, C  <span class="comment">/* 运算结束后R0中为T1结果，内存中无该结果 */</span> </span><br><span class="line">LD  R1, A  <span class="comment">/* 取一个空闲寄存器R1 */</span> </span><br><span class="line">MUL R1, R0 <span class="comment">/* 运算结束后R1中为T2结果，内存中无该结果 */</span> </span><br><span class="line">LD  R0,D  <span class="comment">/* 此时R0中结果T1已经没有引用点，且临时单元T1是非活跃的，所以，寄存器R0可作为空闲寄存器使用 */</span> </span><br><span class="line">ADD R0, <span class="number">1</span> <span class="comment">/* 运算结束后R0中为T3结果，内存中无该结果 */</span> </span><br><span class="line">ST  R1, T2  <span class="comment">/*翻译四元式T4=E-F时，所有寄存器已经分配完毕，寄存器R0中存的T3和寄存器R1中存的T2都是有用的。由于T2的下一个引用点较T3的下一个引用点更远，所以暂时可将寄存器R1中的结果存回到内存的变量T2中，从而将寄存器R1空闲以备使用*/</span> </span><br><span class="line">LD  R1, E     </span><br><span class="line">SUB R1, F  <span class="comment">/*运算结束后R1中为T4结果，内存中无该结果*/</span>  </span><br><span class="line">MUL R0, R1 <span class="comment">/*运算结束后R0中为T5结果，内存中无该结果。注意，该指令将寄存器R0中原来的结果T3冲掉了。可以这么做的原因是，T3在该指令后不再有引用点，且是非活跃变量*/</span> </span><br><span class="line">LD  R1, T2 <span class="comment">/*此时R1中结果T4已经没有引用点，且临时单元T4是非活跃的，因此寄存器R1可作为空闲寄存器使用*/</span> </span><br><span class="line">DIV R1, R0  </span><br><span class="line"><span class="comment">/*运算结束后R1中为W结果，内存中无该结果。此时所有指令部分已经翻译完毕*/</span> </span><br><span class="line">ST  R1, W </span><br><span class="line"><span class="comment">/*指令翻译完毕时，寄存器中存有最新的计算结果，必须将它们存回到内存相应的单元中去，否则，在翻译下一个基本块时，所有的寄存器被当成空闲的寄存器使用，从而造成计算结果的丢失。考虑到寄存器R0中的T5和寄存器R1中的W，临时单元T5是非活跃的，因此只要将结果W存回对应单元即可*/</span> </span><br></pre></td></tr></table></figure>
     </div>
 
     
@@ -575,13 +704,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">89k</span>
+    <span title="站点总字数">91k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:21</span>
+    <span title="站点阅读时长">1:23</span>
   </span>
 </div>
 <div class="busuanzi-count">
