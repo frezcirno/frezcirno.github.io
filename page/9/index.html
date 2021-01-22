@@ -141,7 +141,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">85</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">88</span></a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -215,7 +215,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">85</span>
+          <span class="site-state-item-count">88</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -265,6 +265,683 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/4.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人博客, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/daily/2020/12/4.html" class="post-title-link" itemprop="url">每日小结</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-04 10:17:02" itemprop="dateCreated datePublished" datetime="2020-12-04T10:17:02+08:00">2020-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/daily/2020/12/4.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/4.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+      </div>
+      <div class="post-meta">
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="Java-包-Package-Jar和模块-Module-的区别"><a href="#Java-包-Package-Jar和模块-Module-的区别" class="headerlink" title="Java 包(Package), Jar和模块(Module)的区别"></a>Java 包(Package), Jar和模块(Module)的区别</h1><ul>
+<li><p>包 (Package)</p>
+<ul>
+<li><p>是Java源文件的集合, 包含Class/Interface/Annotation的定义</p>
+</li>
+<li><p>与文件系统中的目录对应</p>
+</li>
+<li><p>主要目的是<em>防止命名冲突</em></p>
+</li>
+</ul>
+</li>
+<li><p>Jar (Java Archive File)</p>
+<ul>
+<li><p>是编译后的Java代码(<code>.class</code>)的压缩包</p>
+</li>
+<li><p>实际上是一个zip格式文件</p>
+</li>
+<li><p>对Jar的操作用<code>jar</code>命令, 其语法类似Linux下的<code>tar</code></p>
+<ul>
+<li><p>创建Jar包: <code>jar cvf test.jar test</code></p>
+</li>
+<li><p>解压Jar包: <code>jar xvf test.jar</code></p>
+</li>
+<li><p>列举Jar包的内容: <code>jar tvf test.jar</code></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>模块 (Module)</p>
+<ul>
+<li><p>是Java语言内置的一种管理组件之间依赖关系的方法, 在Java 9被引入</p>
+</li>
+<li><p>Module 解决的问题:</p>
+<ul>
+<li><p>在Java 9之前, <strong>主要使用package作为封装方式，使用Jar作为模块, 封装方式由 package和访问修饰符 (private, protected, public,包私有) 控制</strong></p>
+<ul>
+<li><p>任何模块都能访问其他模块的public的代码，不同Jar下的同名包可以相互访问包私有的代码。</p>
+</li>
+<li><p>无法控制非平台开发者对平台内部包的访问，如应用代码可以访问sun.misc、com.sun.security这样和具体平台绑定的包。</p>
+</li>
+<li><p>没有明确的依赖信息，模块开发者无法设置必须的依赖，模块使用者不清楚该模块必须依赖哪些模块。只能使用外部的工具，如Maven、Gradle、OSGI等。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Module 的优势</p>
+<ul>
+<li><p>明确的依赖配置，JPMS会在编译和运行之前检查当前环境是否满足依赖的要求。JPMS会检查版本冲突，即当有两个模块暴露了相同的包名时，系统会抛出异常。JPMS支持传递性依赖。</p>
+</li>
+<li><p>强大的封装，模块可以明确指定哪些包能暴露给哪些模块，JPMS不允许代码使用反射的方式访问不对外开放的包。</p>
+</li>
+<li><p>性能优化，JPMS完全清楚哪些模块是需要的，所以不需要的模块不会被JVM载入。</p>
+</li>
+</ul>
+</li>
+<li><p>Module 的不足:</p>
+<ul>
+<li>缺乏对模块的版本的支持</li>
+</ul>
+</li>
+<li><p>特点:</p>
+<p>  <img src="4/java-module.jpg" alt=""></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="Linux-Ubuntu-硬件管理"><a href="#Linux-Ubuntu-硬件管理" class="headerlink" title="Linux (Ubuntu) 硬件管理"></a>Linux (Ubuntu) 硬件管理</h1><ul>
+<li><p>通用</p>
+<ul>
+<li><code>lshw -short</code>: 列举所有硬件信息</li>
+</ul>
+</li>
+<li><p>CPU</p>
+<ul>
+<li><p><code>lscpu</code>: 查看CPU信息</p>
+</li>
+<li><p><code>cat /proc/cpuinfo</code>: 查看每个CPU的信息</p>
+</li>
+</ul>
+</li>
+<li><p>内存</p>
+<ul>
+<li><p><code>free [-m|-g|-k|-b|-h]</code>: 查看内存使用情况</p>
+</li>
+<li><p><code>cat /proc/meminfo</code>: 查看内存详细使用情况</p>
+</li>
+<li><p><code>dmidecode -t memory</code>: 查看内存硬件信息</p>
+</li>
+</ul>
+</li>
+<li><p>硬盘</p>
+<ul>
+<li><p><code>lsblk</code>: 查看硬盘和分区信息</p>
+</li>
+<li><p><code>fdisk -l</code>: 查看详细分区表</p>
+</li>
+<li><p><code>df -h</code>: 查看硬盘剩余空间</p>
+</li>
+</ul>
+</li>
+<li><p>主板 BIOS</p>
+<ul>
+<li><code>dmidecode -t bios</code>: 查看bios信息</li>
+</ul>
+</li>
+<li><p>PCI设备</p>
+<ul>
+<li><code>lspci</code></li>
+</ul>
+</li>
+<li><p>网卡</p>
+<ul>
+<li><p><code>lspci | grep -i &#39;Ethernet&#39;</code>: 查看网卡硬件信息 (Ethernet 以太网)</p>
+</li>
+<li><p><code>lspci | grep -i &#39;Wireless&#39;</code>: 查看无线网卡硬件信息</p>
+</li>
+<li><p><code>ifconfig -a</code>: 查看系统的所有网络接口</p>
+</li>
+</ul>
+</li>
+<li><p>USB 设备</p>
+<ul>
+<li><code>lsusb</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="apt-remove-与-apt-purge-的区别"><a href="#apt-remove-与-apt-purge-的区别" class="headerlink" title="apt remove 与 apt purge 的区别"></a>apt remove 与 apt purge 的区别</h1><ul>
+<li>purge会删除配置文件, 而remove只会删除程序文件</li>
+</ul>
+<h1 id="Java-学习"><a href="#Java-学习" class="headerlink" title="Java 学习"></a>Java 学习</h1><ul>
+<li><p>Java多线程</p>
+<ul>
+<li>interrupt() 向该进程发送中断信号, 具体怎么处理由该进程实现</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/oracledb.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人博客, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/oracledb.html" class="post-title-link" itemprop="url">Oracle数据库学习</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-03 12:59:18" itemprop="dateCreated datePublished" datetime="2020-12-03T12:59:18+08:00">2020-12-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">编程</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/oracledb.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="oracledb.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+      </div>
+      <div class="post-meta">
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>3 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考资料:</p>
+<p><a target="_blank" rel="noopener" href="https://docs.oracle.com/en/database/oracle/oracle-database/index.html">Oracle官方文档</a></p>
+<h1 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h1><p>Schema是表, 索引, 存储过程等等数据库对象(DB Object)的存储容器</p>
+<p>用户与Schema之间是<strong>一对一</strong>的关系</p>
+<p>例如: 访问用户A的xxx对象就通过 <code>A.xxx</code></p>
+<p><img src="oracledb/user-schema-tables.png" alt=""></p>
+<h1 id="Oracle-表空间"><a href="#Oracle-表空间" class="headerlink" title="Oracle 表空间"></a>Oracle 表空间</h1><p>表空间是逻辑上, 存放数据表的容器</p>
+<p>每张表一定属于某个表空间</p>
+<p>每个用户(Schema)可以拥有多个表空间, 而且都有一个默认表空间</p>
+<p>用户之间可以通过共享表空间的方式共享数据表</p>
+<p>物理上, 表空间的存储可能不是连续的</p>
+<h1 id="PL-SQL"><a href="#PL-SQL" class="headerlink" title="PL/SQL"></a>PL/SQL</h1><ul>
+<li>A primary benefit of PL/SQL is the ability to store application logic in the database itself.</li>
+</ul>
+<h1 id="Oracle-体系结构-重要"><a href="#Oracle-体系结构-重要" class="headerlink" title="Oracle 体系结构 (重要)"></a>Oracle 体系结构 (重要)</h1><ul>
+<li>Oracle Server = Oracle Instance + Oracle Database</li>
+</ul>
+<h2 id="1-Oracle实例-Oracle-Instance"><a href="#1-Oracle实例-Oracle-Instance" class="headerlink" title="1. Oracle实例 (Oracle Instance)"></a>1. Oracle实例 (Oracle Instance)</h2><p>Oracle Instance = SGA(system global area) + Background Process</p>
+<p>是一组<strong>OS进程(线程)和一些内存(SGA)</strong>的总称</p>
+<p>可以用来mount和open一个数据库</p>
+<p>一个实例在其生存期中最多只能装载和打开一个数据库。要想再打开这个（或其他）数据库，必须先丢弃这个实例，并创建一个新的实例。</p>
+<p>一个数据库实例的状态分为以下几种</p>
+<ul>
+<li><p><code>started</code></p>
+</li>
+<li><p><code>mounted</code></p>
+</li>
+<li><p><code>open</code></p>
+</li>
+<li><p><code>close</code></p>
+</li>
+<li><p><code>mounted</code></p>
+</li>
+<li><p><code>open</code></p>
+</li>
+</ul>
+<h3 id="started-状态"><a href="#started-状态" class="headerlink" title="started 状态"></a><code>started</code> 状态</h3><p>在执行<code>startup nomount</code>命令后, Oracle会执行以下操作, 之后实例会进入<code>started</code>状态, 此时实例还未绑定数据库</p>
+<ul>
+<li><p>读取配置文件</p>
+</li>
+<li><p>分配<code>SGA</code></p>
+</li>
+<li><p>启动后台进程</p>
+</li>
+<li><p>打开一些用于记录的文件</p>
+</li>
+</ul>
+<h3 id="mounted-状态"><a href="#mounted-状态" class="headerlink" title="mounted 状态"></a><code>mounted</code> 状态</h3><p>在执行<code>startup mount</code>或者<code>alter database mount</code>命令后, 实例会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
+<p>数据库打开后, 执行<code>alter database close</code>命令后, 实例也会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
+<p>此时实例与数据库建立了联系, 但是只有DBA能够访问数据库。</p>
+<h3 id="open-状态"><a href="#open-状态" class="headerlink" title="open 状态"></a><code>open</code> 状态</h3><p>在执行<code>startup</code>或者<code>alter database open</code>命令后, 实例会进入<code>open</code>状态。</p>
+<p>此时实例与数据库建立了联系, 数据库完全启动, 普通用户也可以访问数据库。</p>
+<h2 id="2-Oracle数据库-Oracle-Database"><a href="#2-Oracle数据库-Oracle-Database" class="headerlink" title="2. Oracle数据库 (Oracle Database)"></a>2. Oracle数据库 (Oracle Database)</h2><p>Oracle Database = Controlfile + datafile + logfile + spfile + …</p>
+<p>是存储在<strong>磁盘</strong>上的<strong>一组数据文件</strong>的集合</p>
+<p>一般来说, 一个数据库上只有一个实例对其进行操作</p>
+<p>但是也有例外: RAC（Real Application Clusters）就允许在集群环境中的多台计算机上操作，这样就可以有多台实例同时装载并打开一个数据库（位于一组共享物理磁盘上）</p>
+<p>例外2: 容器式数据库</p>
+<h2 id="3-Oracle数据库和Oracle实例的关系"><a href="#3-Oracle数据库和Oracle实例的关系" class="headerlink" title="3. Oracle数据库和Oracle实例的关系"></a>3. <em>Oracle数据库</em>和<em>Oracle实例</em>的关系</h2><ol>
+<li><p>一个实例一生只能够装载及打开一个数据库  </p>
+</li>
+<li><p>一个数据库能够被多个实例装载并打开(RAC)</p>
+</li>
+<li><p>每个运行着的数据库一定与至少一个实例关联</p>
+</li>
+</ol>
+<p><img src="oracledb/instance-and-database.png" alt=""></p>
+<p>Oracle数据库与实例的启动过程</p>
+<p><img src="oracledb/startup-sequence.png" alt=""></p>
+<p>Oracle数据库与实例的关闭过程</p>
+<p><img src="oracledb/shutdown-sequence.png" alt=""></p>
+<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><ul>
+<li><p>名称, 版本信息查看</p>
+<ul>
+<li><p>查询数据库版本信息</p>
+<p>  <code>SQL&gt; select * from v$version;</code></p>
+</li>
+<li><p>查看数据库名称</p>
+<p>  <code>SQL&gt; show parameter db_name;</code></p>
+</li>
+<li><p>查看数据库服务名</p>
+<p>  <code>SQL&gt; show parameter service_names;</code></p>
+</li>
+<li><p>查询全局数据库名称</p>
+<p>  <code>SQL&gt; select * from global_name;</code></p>
+</li>
+</ul>
+</li>
+<li><p>数据库实例 (Instance)</p>
+<ul>
+<li><p>查询当前数据库实例名称</p>
+<p>  <code>SQL&gt; select instance_name from v$instance;</code></p>
+</li>
+<li><p>查看当前数据库实例状态(open/mount等)</p>
+<p>  <code>SQL&gt; select status from v$instance;</code></p>
+</li>
+<li><p>查看数据库实例启动时间</p>
+<p>  <code>SQL&gt; SELECT TO_CHAR(STARTUP_TIME,&#39;MON-DD-RR HH24:MI:SS&#39;) AS &quot;Inst Start Time&quot; FROM V$INSTANCE;</code></p>
+</li>
+<li><p>创建一个新的数据库实例、加载数据库、打开数据库 (需要DBA权限)</p>
+<p>  <code>SQL&gt; startup [nomount | mount | open];</code></p>
+</li>
+<li><p>关闭实例绑定的数据库、卸载数据库、结束当前实例 (需要DBA权限)</p>
+<p>  <code>SQL&gt; shutdown [normal | transactional | immediate];</code></p>
+</li>
+<li><p>关闭实例绑定的数据库、卸载数据库</p>
+<p>  <code>SQL&gt; alter database close;</code></p>
+</li>
+<li><p>加载数据库/打开数据库</p>
+<p>  <code>SQL&gt; alter database [mount | open];</code></p>
+</li>
+</ul>
+</li>
+<li><p>数据库设置, 统计信息等</p>
+<ul>
+<li><p>查询数据库打开模式(mounted/open/read write)</p>
+<p>  <code>SQL&gt; select open_mode from v$database;</code></p>
+</li>
+<li><p>查看数据库DBF文件位置</p>
+<p>  <code>SQL&gt; select name from v$datafile;</code></p>
+</li>
+<li><p>查询数据文件状态</p>
+<p>  <code>SQL&gt; select file#,name,status,enabled,checkpoint_change# from v$datafile;</code></p>
+</li>
+<li><p>查询数据文件位置</p>
+<p>  <code>SQL&gt; select name from v$datafile;</code></p>
+</li>
+<li><p>查询数据文件（表空间）大小</p>
+<p>  <code>SQL&gt; select sum(bytes)/1024/1024/1024 as GB from v$datafile;</code></p>
+</li>
+<li><p>查询有效数据大小</p>
+<p>  <code>SQL&gt; select sum(bytes)/1024/1024/1024 as GB from dba_segments;</code></p>
+</li>
+<li><p>查看当前库的所有数据表</p>
+<p>  <code>SQL&gt; select TABLE_NAME from all_tables;</code></p>
+</li>
+</ul>
+</li>
+<li><p>可插拔数据库 (PDB) 管理</p>
+<ul>
+<li><p>查看数据库是CDB还是传统DB</p>
+<p>  <code>SQL&gt; select name, cdb, open_mode, con_id from v$database;</code></p>
+</li>
+<li><p>查看当前容器 (CDB) 名</p>
+<p>  <code>SQL&gt; show con_name;</code></p>
+</li>
+<li><p>列举当前容器中的所有PDB以及状态</p>
+<p>  <code>SQL&gt; select con_id, dbid, guid, name, open_mode from v$pdbs;</code></p>
+</li>
+<li><p>切换到某个PDB</p>
+<p>  <code>SQL&gt; alter session set container=&lt;PDB&gt;;</code></p>
+</li>
+<li><p>启动PDB数据库</p>
+<p>  <code>SQL&gt; alter pluggable database &lt;PDB&gt; open;</code></p>
+<p>  或者</p>
+<p>  <code>SQL&gt; alter session set container=&lt;PDB&gt;;</code><br>  <code>SQL&gt; startup</code></p>
+</li>
+<li><p>关闭PDB数据库</p>
+<p>  <code>SQL&gt; alter pluggable database &lt;PDB&gt; close;</code></p>
+</li>
+</ul>
+</li>
+<li><p>用户管理</p>
+<ul>
+<li>创建用户</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/3.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="frezcirno的个人博客, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="frezcirno's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/daily/2020/12/3.html" class="post-title-link" itemprop="url">每日小结</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-03 12:52:43" itemprop="dateCreated datePublished" datetime="2020-12-03T12:52:43+08:00">2020-12-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/daily/2020/12/3.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/3.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+      </div>
+      <div class="post-meta">
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>2 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="秘书问题"><a href="#秘书问题" class="headerlink" title="秘书问题"></a>秘书问题</h1><ul>
+<li><p>又称相亲问题、止步问题、见好就收问题、苏丹的嫁妆问题、挑剔的求婚者问题等</p>
+</li>
+<li><p>要聘请一名秘书，有 n 个应聘者。每次面试一人，面试后就要及时决定是否聘他，如果当时决定不聘他，他便不会回来。面试后总能清楚了解应聘者的合适程度，并能和之前的每个人做比较。问什么样的策略，才使最佳人选被选中的概率最大。 </p>
+</li>
+<li><p>答案:</p>
+  <details>
+  <summary>展开</summary>
+
+  - 这个问题的最优解是一个停止规则。在这个规则里，面试官会拒绝头 r - 1 个应聘者 (令他们中的最佳人选为 应聘者 M)，然后选出第一个比 M 好的应聘者。可见最优策略包含于这个系列的策略中。 (如果M在所有n个应聘者中也是最好的一个，那么这个策略将选不出任何人选)对于任意的截断值 r，最佳人选被选中的概率是： 
+
+      $${\displaystyle {\begin{aligned}P(r)&=\sum _{i=1}^{n}P\left({\text{applicant }}i{\text{ is selected}}\cap {\text{applicant }}i{\text{ is the best}}\right)\\&=\sum _{i=1}^{n}P\left({\text{applicant }}i{\text{ is selected}}|{\text{applicant }}i{\text{ is the best}}\right)\cdot P\left({\text{applicant }}i{\text{ is the best}}\right)\\&=\left[\sum _{i=1}^{r-1}0+\sum _{i=r}^{n}P\left(\left.{\begin{array}{l}{\text{the best of the first }}i-1{\text{ applicants}}\\{\text{is in the first }}r-1{\text{ applicants}}\end{array}}\right|{\text{applicant }}i{\text{ is the best}}\right)\right]\cdot {\frac {1}{n}}\\&=\left[\sum _{i=r}^{n}{\frac {r-1}{i-1}}\right]\cdot {\frac {1}{n}}\quad =\quad {\frac {r-1}{n}}\sum _{i=r}^{n}{\frac {1}{i-1}}.\end{aligned}}}$$
+
+  - 当n趋近于无穷大时
+
+      $${\displaystyle P(x)=x\int _{x}^{1}{\frac {1}{t}}\,dt=-x\ln(x).}$$
+
+  - 求出最优的x值为
+
+      $$\frac {1}{e}$$
+
+  </details>
+
+
+</li>
+</ul>
+<h1 id="Nginx-配置"><a href="#Nginx-配置" class="headerlink" title="Nginx 配置"></a>Nginx 配置</h1><ul>
+<li><p>root: 表示去哪个目录下寻找对应url的文件, 实际上是添加前缀</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location &#x2F;aaaa&#x2F; &#123;</span><br><span class="line">    root &#x2F;home&#x2F;tom&#x2F;www&#x2F;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>请求: <a target="_blank" rel="noopener" href="http://(hostname">http://(hostname</a>)<span style="background-color: yellow;">/aaaa/</span>hello.txt</p>
+</li>
+<li><p>返回: <span style="background-color: #cdffd8;">/home/tom/www</span><span style="background-color: yellow;">/aaaa/</span>hello.txt</p>
+</li>
+</ul>
+</li>
+<li><p>alias: 表示把匹配成功的路径<strong>替换</strong>成alias</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location &#x2F;aaaa&#x2F; &#123;</span><br><span class="line">    alias &#x2F;home&#x2F;tom&#x2F;www&#x2F;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>请求: <a target="_blank" rel="noopener" href="http://(hostname">http://(hostname</a>)<span style="background-color: yellow;">/aaaa/</span>hello.txt </p>
+</li>
+<li><p>返回: <span style="background-color: #cdffd8;">/home/tom/www/</span>hello.txt</p>
+</li>
+</ul>
+</li>
+<li><p>PS: Nginx会自动将两个连续的斜杠替换成一个</p>
+</li>
+</ul>
+<h1 id="Flask-嵌套路由配置"><a href="#Flask-嵌套路由配置" class="headerlink" title="Flask 嵌套路由配置"></a>Flask 嵌套路由配置</h1><ul>
+<li><p>使用<code>register_blueprint</code>时的<code>url_prefix</code>参数</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># create app, blueprints, etc.</span></span><br><span class="line">app.register_blueprint(myblueprint, url_prefix=<span class="string">&#x27;/somepath&#x27;</span>)</span><br><span class="line"><span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="视频网站设计思考"><a href="#视频网站设计思考" class="headerlink" title="视频网站设计思考"></a>视频网站设计思考</h1><ul>
+<li>视频文件存储到哪里: OSS对象存储服务</li>
+</ul>
+<h1 id="数据库隔离级别"><a href="#数据库隔离级别" class="headerlink" title="数据库隔离级别"></a>数据库隔离级别</h1><ol>
+<li><p>读未提交(Read Uncommitted)</p>
+</li>
+<li><p>读已提交(Read Committed)/不可重复读 大多数数据库默认的隔离级别</p>
+</li>
+<li><p>可重复读(Repeatable-Read) mysql数据库所默认的级别</p>
+</li>
+<li><p>序列化(serializable)</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -1308,13 +1985,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">91k</span>
+    <span title="站点总字数">94k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:23</span>
+    <span title="站点阅读时长">1:25</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -1361,7 +2038,49 @@
 
 
 
-  
+  <script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              const target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    const script = document.createElement('script');
+    script.src = '//cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js';
+    script.defer = true;
+    document.head.appendChild(script);
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.typesetClear();
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
 
 
 <script>
