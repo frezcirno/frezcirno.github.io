@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.2.0">
+<meta name="generator" content="Hexo 5.3.0">
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
@@ -31,7 +31,7 @@
 <meta property="og:description" content="转换dos格式行尾为unix行尾 工具: dos2unix  单文件: dos2unix input output  递归转换: find . -type f -print0 | xargs -0 dos2unix   Linux下 nodejs 环境配置 安装node(不是最新版): sudo apt install nodejs  使用n来切换node版本:   sudo npm instal">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-12-01T02:23:15.000Z">
-<meta property="article:modified_time" content="2021-01-22T16:10:50.242Z">
+<meta property="article:modified_time" content="2021-02-11T07:10:35.102Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="Javascript">
 <meta property="article:tag" content="React">
@@ -136,7 +136,7 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">41</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">43</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
@@ -146,7 +146,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">88</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">90</span></a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -221,7 +221,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">88</span>
+          <span class="site-state-item-count">90</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -234,7 +234,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-count">43</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -451,8 +451,7 @@
 <li><p>当然作为Object, 也可以有非整数类型的下标</p>
 </li>
 <li><p>for…in…循环遍历实际存储的值, for…of…循环遍历下标</p>
-  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a = []</span><br><span class="line"></span><br><span class="line">a[<span class="number">100</span>] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">a.length <span class="comment">// 101</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">in</span> a) <span class="built_in">console</span>.log(i) <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">of</span> a) <span class="built_in">console</span>.log(i) <span class="comment">// undefined, undefined, ... , 1</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-</li>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a = []</span><br><span class="line"></span><br><span class="line">a[<span class="number">100</span>] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">a.length <span class="comment">// 101</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">in</span> a) <span class="built_in">console</span>.log(i) <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">of</span> a) <span class="built_in">console</span>.log(i) <span class="comment">// undefined, undefined, ... , 1</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
 </ul>
 </li>
 <li><p>关于String</p>
@@ -462,8 +461,7 @@
 <li><p>any + String = String</p>
 </li>
 <li><p>注意结合性</p>
-  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> + <span class="number">2</span> + <span class="string">&#x27;3&#x27;</span> <span class="comment">// &#x27;33&#x27;</span></span><br><span class="line"><span class="string">&#x27;1&#x27;</span> + <span class="number">2</span> + <span class="number">3</span> <span class="comment">// &#x27;123&#x27;</span></span><br></pre></td></tr></table></figure>
-</li>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> + <span class="number">2</span> + <span class="string">&#x27;3&#x27;</span> <span class="comment">// &#x27;33&#x27;</span></span><br><span class="line"><span class="string">&#x27;1&#x27;</span> + <span class="number">2</span> + <span class="number">3</span> <span class="comment">// &#x27;123&#x27;</span></span><br></pre></td></tr></table></figure></li>
 </ul>
 </li>
 <li><p>关于Object:</p>
@@ -502,15 +500,13 @@
 </ul>
 </li>
 <li><p>模仿一个new:</p>
-  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fake_new</span>(<span class="params">ctor, ...args</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> x = <span class="built_in">Object</span>.create(ctor.prototype); <span class="comment">// ES5 创建新对象</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">///* before ES5 */</span></span><br><span class="line">    <span class="comment">// function F() &#123;&#125;</span></span><br><span class="line">    <span class="comment">// F.prototype = ctor.prototype;</span></span><br><span class="line">    <span class="comment">// let x = new F();</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> res = ctor.call(x, ...args); <span class="comment">//借用外部传入的构造器给obj设置属性</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">typeof</span> res === <span class="string">&#x27;object&#x27;</span> ? res : x; <span class="comment">//确保构造器总是返回一个对象</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-</li>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fake_new</span>(<span class="params">ctor, ...args</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> x = <span class="built_in">Object</span>.create(ctor.prototype); <span class="comment">// ES5 创建新对象</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">///* before ES5 */</span></span><br><span class="line">    <span class="comment">// function F() &#123;&#125;</span></span><br><span class="line">    <span class="comment">// F.prototype = ctor.prototype;</span></span><br><span class="line">    <span class="comment">// let x = new F();</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> res = ctor.call(x, ...args); <span class="comment">//借用外部传入的构造器给obj设置属性</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">typeof</span> res === <span class="string">&#x27;object&#x27;</span> ? res : x; <span class="comment">//确保构造器总是返回一个对象</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
 </ul>
 </li>
 <li><p>关于<code>this</code>:</p>
 <ul>
 <li><p>如何正确绑定this</p>
-  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="title">foo</span>(<span class="params"></span>)</span> &#123; ... &#125;, <span class="comment">// bad, `this` is bound to the object</span></span><br><span class="line">    foo = <span class="function">() =&gt;</span> &#123; ... &#125;, <span class="comment">// good, `this` is bound dynamically</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-</li>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="title">foo</span>(<span class="params"></span>)</span> &#123; ... &#125;, <span class="comment">// bad, `this` is bound to the object</span></span><br><span class="line">    foo = <span class="function">() =&gt;</span> &#123; ... &#125;, <span class="comment">// good, `this` is bound dynamically</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
 </ul>
 </li>
 <li><p>Javascript面向对象:</p>
@@ -523,11 +519,9 @@
 </li>
 <li><p>优化: 减少函数对象的拷贝, 利用原型链</p>
   <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Person</span>(<span class="params">first, last</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">this</span>.first = first;</span><br><span class="line">    <span class="built_in">this</span>.last = last;</span><br><span class="line">&#125;</span><br><span class="line">Person.prototype.fullName = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.first + <span class="string">&#x27; &#x27;</span> + <span class="built_in">this</span>.last;</span><br><span class="line">&#125;;</span><br><span class="line">Person.prototype.fullNameReversed = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.last + <span class="string">&#x27;, &#x27;</span> + <span class="built_in">this</span>.first;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-</li>
+<h1 id="React-复习"><a href="#React-复习" class="headerlink" title="React 复习"></a>React 复习</h1></li>
 </ul>
 </li>
-</ul>
-<h1 id="React-复习"><a href="#React-复习" class="headerlink" title="React 复习"></a>React 复习</h1><ul>
 <li><p>JSX语法</p>
   <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = (</span><br><span class="line">    &lt;h1 className=<span class="string">&quot;greeting&quot;</span> onClick=&#123;<span class="built_in">this</span>.handleClick&#125;&gt;</span><br><span class="line">        Hello, world!</span><br><span class="line">    &lt;/h1&gt;</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
   <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = React.createElement(</span><br><span class="line">    <span class="string">&#x27;h1&#x27;</span>, <span class="comment">// label type</span></span><br><span class="line">    &#123;<span class="attr">className</span>: <span class="string">&#x27;greeting&#x27;</span>, <span class="attr">onClick</span>: <span class="built_in">this</span>.handleClick&#125;, <span class="comment">// attrs</span></span><br><span class="line">    <span class="string">&#x27;Hello, world!&#x27;</span> <span class="comment">// children</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
@@ -670,13 +664,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">94k</span>
+    <span title="站点总字数">96k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:25</span>
+    <span title="站点阅读时长">1:27</span>
   </span>
 </div>
 <div class="busuanzi-count">

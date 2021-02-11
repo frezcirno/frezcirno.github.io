@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.2.0">
+<meta name="generator" content="Hexo 5.3.0">
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
@@ -31,7 +31,7 @@
 <meta property="og:description" content="Java Spring 框架学习Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。 要管理bean，也即是这堆发挥业务功能的类，就不能直接把它们new出来，这样缺乏统一的调度。所以，Spring使用.xml配置文件作为媒介，以IoC（Inversion of Control 控制反转）作为工具，将这些bean拿给Sprin">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-12-05T03:37:16.000Z">
-<meta property="article:modified_time" content="2021-01-22T16:10:50.242Z">
+<meta property="article:modified_time" content="2021-02-11T07:10:35.102Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="Spring">
@@ -135,7 +135,7 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">41</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">43</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
@@ -145,7 +145,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">88</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">90</span></a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -220,7 +220,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">88</span>
+          <span class="site-state-item-count">90</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -233,7 +233,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-count">43</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -379,8 +379,7 @@
 <li><p>克隆下来的项目包含子模块</p>
   <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git submodule init</span><br><span class="line">$ git submodule update</span><br></pre></td></tr></table></figure>
 <p>  或者</p>
-  <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git submodule update --init --recursive</span><br></pre></td></tr></table></figure>
-</li>
+  <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git submodule update --init --recursive</span><br></pre></td></tr></table></figure></li>
 <li><p>子模块的更新</p>
 <ol>
 <li><p>在子模块内部, 作为一般的git项目更新(<code>pull</code>)</p>
@@ -423,11 +422,7 @@
 </ul>
 </blockquote>
 <p>注释: <code>#</code></p>
-<p>使用左端对齐的键值对表示对象:<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">key1:</span> <span class="string">abc</span></span><br><span class="line">  <span class="attr">key2:</span> <span class="number">123</span></span><br><span class="line">  <span class="attr">key3:</span> <span class="string">sss</span></span><br></pre></td></tr></table></figure></p>
-<p>使用以<code>-</code>开头的对齐的值表示数组:<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">fruits:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">apple</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">banana</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">orange</span></span><br></pre></td></tr></table></figure></p>
-<p>数组套对象:<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">objs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">object</span> <span class="string">A</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">an</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">B</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">another</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">C</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">still</span> <span class="string">an</span> <span class="string">object</span></span><br></pre></td></tr></table></figure></p>
-<p>数组套数组:<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">matrix:</span> </span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a11</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a12</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a13</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a21</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a22</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a23</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a31</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a32</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a33</span></span><br></pre></td></tr></table></figure></p>
-<p>对象套数组:<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">frezcirno</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Boy</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Handsome</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Student</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Cool</span></span><br></pre></td></tr></table></figure></p>
+<p>使用左端对齐的键值对表示对象:<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">key1:</span> <span class="string">abc</span></span><br><span class="line">  <span class="attr">key2:</span> <span class="number">123</span></span><br><span class="line">  <span class="attr">key3:</span> <span class="string">sss</span></span><br></pre></td></tr></table></figure><br>使用以<code>-</code>开头的对齐的值表示数组:<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">fruits:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">apple</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">banana</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">orange</span></span><br></pre></td></tr></table></figure><br>数组套对象:<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">objs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">object</span> <span class="string">A</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">an</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">B</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">another</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">C</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">still</span> <span class="string">an</span> <span class="string">object</span></span><br></pre></td></tr></table></figure><br>数组套数组:<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">matrix:</span> </span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a11</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a12</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a13</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a21</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a22</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a23</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a31</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a32</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a33</span></span><br></pre></td></tr></table></figure><br>对象套数组:<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">frezcirno</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Boy</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Handsome</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Student</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Cool</span></span><br></pre></td></tr></table></figure></p>
 
     </div>
 
@@ -534,13 +529,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">94k</span>
+    <span title="站点总字数">96k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:25</span>
+    <span title="站点阅读时长">1:27</span>
   </span>
 </div>
 <div class="busuanzi-count">
