@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+<meta name="description" content="Java 包(Package), Jar和模块(Module)的区别 包 (Package)  是Java源文件的集合, 包含Class&#x2F;Interface&#x2F;Annotation的定义  与文件系统中的目录对应  主要目的是防止命名冲突    Jar (Java Archive File)  是编译后的Java代码(.class)的压缩包  实际上是一个zip格式文件  对Jar的操作用jar命令">
+<meta property="og:type" content="article">
+<meta property="og:title" content="每日小结">
+<meta property="og:url" content="https://frezcirno.github.io/daily/2020-12-04.html">
+<meta property="og:site_name" content="Frezcirno&#39;s Blog">
+<meta property="og:description" content="Java 包(Package), Jar和模块(Module)的区别 包 (Package)  是Java源文件的集合, 包含Class&#x2F;Interface&#x2F;Annotation的定义  与文件系统中的目录对应  主要目的是防止命名冲突    Jar (Java Archive File)  是编译后的Java代码(.class)的压缩包  实际上是一个zip格式文件  对Jar的操作用jar命令">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://frezcirno.github.io/daily/2020-12-04-java-module.jpg">
+<meta property="article:published_time" content="2020-12-04T02:17:02.000Z">
+<meta property="article:modified_time" content="2021-03-14T05:30:21.075Z">
+<meta property="article:author" content="frezcirno">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://frezcirno.github.io/daily/2020-12-04-java-module.jpg">
+
+
+<link rel="canonical" href="https://frezcirno.github.io/daily/2020-12-04.html">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>每日小结 | Frezcirno's Blog</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Frezcirno's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">今天学到了什么？</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">47</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">101</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E5%8C%85-Package-Jar%E5%92%8C%E6%A8%A1%E5%9D%97-Module-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-text">Java 包(Package), Jar和模块(Module)的区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux-Ubuntu-%E7%A1%AC%E4%BB%B6%E7%AE%A1%E7%90%86"><span class="nav-text">Linux (Ubuntu) 硬件管理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#apt-remove-%E4%B8%8E-apt-purge-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-text">apt remove 与 apt purge 的区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E5%AD%A6%E4%B9%A0"><span class="nav-text">Java 学习</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="frezcirno"
+      src="http://cdn.7c00h.xyz/avatar.jpg">
+  <p class="site-author-name" itemprop="name">frezcirno</p>
+  <div class="site-description" itemprop="description">Frezcirno的个人博客, 记录一些技术相关的学习内容</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">101</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/frezcirno" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;frezcirno" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:2277861660@qq.com" title="E-Mail → mailto:2277861660@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020-12-04.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://cdn.7c00h.xyz/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="Frezcirno的个人博客, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Frezcirno's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          每日小结
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-04 10:17:02" itemprop="dateCreated datePublished" datetime="2020-12-04T10:17:02+08:00">2020-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AF%B9%E6%95%B0%E6%97%A5%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">对数日记</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/daily/2020-12-04.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020-12-04.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+      </div>
+      <div class="post-meta">
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="Java-包-Package-Jar和模块-Module-的区别"><a href="#Java-包-Package-Jar和模块-Module-的区别" class="headerlink" title="Java 包(Package), Jar和模块(Module)的区别"></a>Java 包(Package), Jar和模块(Module)的区别</h1><ul>
+<li><p>包 (Package)</p>
+<ul>
+<li><p>是Java源文件的集合, 包含Class/Interface/Annotation的定义</p>
+</li>
+<li><p>与文件系统中的目录对应</p>
+</li>
+<li><p>主要目的是<em>防止命名冲突</em></p>
+</li>
+</ul>
+</li>
+<li><p>Jar (Java Archive File)</p>
+<ul>
+<li><p>是编译后的Java代码(<code>.class</code>)的压缩包</p>
+</li>
+<li><p>实际上是一个zip格式文件</p>
+</li>
+<li><p>对Jar的操作用<code>jar</code>命令, 其语法类似Linux下的<code>tar</code></p>
+<ul>
+<li><p>创建Jar包: <code>jar cvf test.jar test</code></p>
+</li>
+<li><p>解压Jar包: <code>jar xvf test.jar</code></p>
+</li>
+<li><p>列举Jar包的内容: <code>jar tvf test.jar</code></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>模块 (Module)</p>
+<ul>
+<li><p>是Java语言内置的一种管理组件之间依赖关系的方法, 在Java 9被引入</p>
+</li>
+<li><p>Module 解决的问题:</p>
+<ul>
+<li><p>在Java 9之前, <strong>主要使用package作为封装方式，使用Jar作为模块, 封装方式由 package和访问修饰符 (private, protected, public,包私有) 控制</strong></p>
+<ul>
+<li><p>任何模块都能访问其他模块的public的代码，不同Jar下的同名包可以相互访问包私有的代码。</p>
+</li>
+<li><p>无法控制非平台开发者对平台内部包的访问，如应用代码可以访问sun.misc、com.sun.security这样和具体平台绑定的包。</p>
+</li>
+<li><p>没有明确的依赖信息，模块开发者无法设置必须的依赖，模块使用者不清楚该模块必须依赖哪些模块。只能使用外部的工具，如Maven、Gradle、OSGI等。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Module 的优势</p>
+<ul>
+<li><p>明确的依赖配置，JPMS会在编译和运行之前检查当前环境是否满足依赖的要求。JPMS会检查版本冲突，即当有两个模块暴露了相同的包名时，系统会抛出异常。JPMS支持传递性依赖。</p>
+</li>
+<li><p>强大的封装，模块可以明确指定哪些包能暴露给哪些模块，JPMS不允许代码使用反射的方式访问不对外开放的包。</p>
+</li>
+<li><p>性能优化，JPMS完全清楚哪些模块是需要的，所以不需要的模块不会被JVM载入。</p>
+</li>
+</ul>
+</li>
+<li><p>Module 的不足:</p>
+<ul>
+<li>缺乏对模块的版本的支持</li>
+</ul>
+</li>
+<li><p>特点:</p>
+<p>  <img src="2020-12-04-java-module.jpg" alt=""></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="Linux-Ubuntu-硬件管理"><a href="#Linux-Ubuntu-硬件管理" class="headerlink" title="Linux (Ubuntu) 硬件管理"></a>Linux (Ubuntu) 硬件管理</h1><ul>
+<li><p>通用</p>
+<ul>
+<li><code>lshw -short</code>: 列举所有硬件信息</li>
+</ul>
+</li>
+<li><p>CPU</p>
+<ul>
+<li><p><code>lscpu</code>: 查看CPU信息</p>
+</li>
+<li><p><code>cat /proc/cpuinfo</code>: 查看每个CPU的信息</p>
+</li>
+</ul>
+</li>
+<li><p>内存</p>
+<ul>
+<li><p><code>free [-m|-g|-k|-b|-h]</code>: 查看内存使用情况</p>
+</li>
+<li><p><code>cat /proc/meminfo</code>: 查看内存详细使用情况</p>
+</li>
+<li><p><code>dmidecode -t memory</code>: 查看内存硬件信息</p>
+</li>
+</ul>
+</li>
+<li><p>硬盘</p>
+<ul>
+<li><p><code>lsblk</code>: 查看硬盘和分区信息</p>
+</li>
+<li><p><code>fdisk -l</code>: 查看详细分区表</p>
+</li>
+<li><p><code>df -h</code>: 查看硬盘剩余空间</p>
+</li>
+</ul>
+</li>
+<li><p>主板 BIOS</p>
+<ul>
+<li><code>dmidecode -t bios</code>: 查看bios信息</li>
+</ul>
+</li>
+<li><p>PCI设备</p>
+<ul>
+<li><code>lspci</code></li>
+</ul>
+</li>
+<li><p>网卡</p>
+<ul>
+<li><p><code>lspci | grep -i &#39;Ethernet&#39;</code>: 查看网卡硬件信息 (Ethernet 以太网)</p>
+</li>
+<li><p><code>lspci | grep -i &#39;Wireless&#39;</code>: 查看无线网卡硬件信息</p>
+</li>
+<li><p><code>ifconfig -a</code>: 查看系统的所有网络接口</p>
+</li>
+</ul>
+</li>
+<li><p>USB 设备</p>
+<ul>
+<li><code>lsusb</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="apt-remove-与-apt-purge-的区别"><a href="#apt-remove-与-apt-purge-的区别" class="headerlink" title="apt remove 与 apt purge 的区别"></a>apt remove 与 apt purge 的区别</h1><ul>
+<li>purge会删除配置文件, 而remove只会删除程序文件</li>
+</ul>
+<h1 id="Java-学习"><a href="#Java-学习" class="headerlink" title="Java 学习"></a>Java 学习</h1><ul>
+<li><p>Java多线程</p>
+<ul>
+<li>interrupt() 向该进程发送中断信号, 具体怎么处理由该进程实现</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">推荐文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2020-12-17.html" rel="bookmark">每日小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2020-12-01.html" rel="bookmark">每日小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2020-12-27.html" rel="bookmark">每日小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2020-11-29.html" rel="bookmark">每日小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2020-11-30.html" rel="bookmark">每日小结</a></div>
+    </li>
+  </ul>
+
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/oracledb.html" rel="prev" title="Oracle数据库学习">
+                  <i class="fa fa-chevron-left"></i> Oracle数据库学习
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/daily/2020-12-05.html" rel="next" title="每日小结">
+                  每日小结 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fas fa-dove"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">frezcirno</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">102k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:32</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+  
+
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://frezcirno-github-io.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://frezcirno.github.io/daily/2020-12-04.html";
+    this.page.identifier = "daily/2020-12-04.html";
+    this.page.title = "每日小结";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://frezcirno-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+<script src="http://cdn.7c00h.xyz/live2d-widget/autoload.js"></script>
+</body>
+</html>

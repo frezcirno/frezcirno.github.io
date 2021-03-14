@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+<meta name="description" content="转换dos格式行尾为unix行尾 工具: dos2unix  单文件: dos2unix input output  递归转换: find . -type f -print0 | xargs -0 dos2unix   Linux下 nodejs 环境配置 安装node(不是最新版): sudo apt install nodejs  使用n来切换node版本:   sudo npm instal">
+<meta property="og:type" content="article">
+<meta property="og:title" content="每日小结">
+<meta property="og:url" content="https://frezcirno.github.io/daily/2020-12-01.html">
+<meta property="og:site_name" content="Frezcirno&#39;s Blog">
+<meta property="og:description" content="转换dos格式行尾为unix行尾 工具: dos2unix  单文件: dos2unix input output  递归转换: find . -type f -print0 | xargs -0 dos2unix   Linux下 nodejs 环境配置 安装node(不是最新版): sudo apt install nodejs  使用n来切换node版本:   sudo npm instal">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-12-01T02:23:15.000Z">
+<meta property="article:modified_time" content="2021-03-14T05:30:21.075Z">
+<meta property="article:author" content="frezcirno">
+<meta property="article:tag" content="Javascript">
+<meta property="article:tag" content="React">
+<meta property="article:tag" content="npm">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://frezcirno.github.io/daily/2020-12-01.html">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>每日小结 | Frezcirno's Blog</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Frezcirno's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">今天学到了什么？</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">47</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">101</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BD%AC%E6%8D%A2dos%E6%A0%BC%E5%BC%8F%E8%A1%8C%E5%B0%BE%E4%B8%BAunix%E8%A1%8C%E5%B0%BE"><span class="nav-text">转换dos格式行尾为unix行尾</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux%E4%B8%8B-nodejs-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="nav-text">Linux下 nodejs 环境配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Nodejs%E7%89%88%E6%9C%AC%E5%88%87%E6%8D%A2"><span class="nav-text">Nodejs版本切换</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B8%85%E7%90%86npm%E7%BC%93%E5%AD%98"><span class="nav-text">清理npm缓存</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Javascript-%E5%A4%8D%E4%B9%A0"><span class="nav-text">Javascript 复习</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#React-%E5%A4%8D%E4%B9%A0"><span class="nav-text">React 复习</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="frezcirno"
+      src="http://cdn.7c00h.xyz/avatar.jpg">
+  <p class="site-author-name" itemprop="name">frezcirno</p>
+  <div class="site-description" itemprop="description">Frezcirno的个人博客, 记录一些技术相关的学习内容</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">101</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/frezcirno" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;frezcirno" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:2277861660@qq.com" title="E-Mail → mailto:2277861660@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020-12-01.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://cdn.7c00h.xyz/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="Frezcirno的个人博客, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Frezcirno's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          每日小结
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-01 10:23:15" itemprop="dateCreated datePublished" datetime="2020-12-01T10:23:15+08:00">2020-12-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AF%B9%E6%95%B0%E6%97%A5%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">对数日记</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/daily/2020-12-01.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020-12-01.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+      </div>
+      <div class="post-meta">
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>3 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="转换dos格式行尾为unix行尾"><a href="#转换dos格式行尾为unix行尾" class="headerlink" title="转换dos格式行尾为unix行尾"></a>转换dos格式行尾为unix行尾</h1><ul>
+<li><p>工具: dos2unix</p>
+</li>
+<li><p>单文件: <code>dos2unix input output</code></p>
+</li>
+<li><p>递归转换: <code>find . -type f -print0 | xargs -0 dos2unix</code></p>
+</li>
+</ul>
+<h1 id="Linux下-nodejs-环境配置"><a href="#Linux下-nodejs-环境配置" class="headerlink" title="Linux下 nodejs 环境配置"></a>Linux下 nodejs 环境配置</h1><ul>
+<li><p>安装node(不是最新版): <code>sudo apt install nodejs</code></p>
+</li>
+<li><p>使用<code>n</code>来切换node版本: </p>
+<ul>
+<li><p><code>sudo npm install -g n</code></p>
+</li>
+<li><p><code>sudo n stable</code></p>
+</li>
+</ul>
+</li>
+<li><p>安装yarn: <code>sudo npm install -g yarn</code></p>
+</li>
+</ul>
+<h1 id="Nodejs版本切换"><a href="#Nodejs版本切换" class="headerlink" title="Nodejs版本切换"></a>Nodejs版本切换</h1><ul>
+<li><p>使用<code>n</code></p>
+<ul>
+<li><p>方法:</p>
+<ul>
+<li><p>安装: <code>sudo npm install -g n</code></p>
+</li>
+<li><p>切换版本: <code>sudo n stable</code></p>
+</li>
+</ul>
+</li>
+<li><p>缺点: 据说会导致node modules混乱</p>
+</li>
+</ul>
+</li>
+<li><p>使用<code>nvm</code></p>
+</li>
+</ul>
+<h1 id="清理npm缓存"><a href="#清理npm缓存" class="headerlink" title="清理npm缓存"></a>清理npm缓存</h1><ul>
+<li><p><code>npm cache clean --force</code></p>
+</li>
+<li><p>The default cache direconstructory is ~/.npm on Posix (mac or linux), or %AppData%/npm-cache on Windows.</p>
+</li>
+</ul>
+<h1 id="Javascript-复习"><a href="#Javascript-复习" class="headerlink" title="Javascript 复习"></a>Javascript 复习</h1><ul>
+<li><p>数据类型</p>
+<ul>
+<li>Number</li>
+<li>String</li>
+<li>Boolean</li>
+<li>Symbol (new in ES2015)</li>
+<li>Object<ul>
+<li>Function</li>
+<li>Array</li>
+<li>Date</li>
+<li>RegExp</li>
+</ul>
+</li>
+<li>null</li>
+<li>undefined</li>
+</ul>
+</li>
+<li><p>关于变量</p>
+<ul>
+<li><p>用<code>var</code>定义的变量具有<strong>函数</strong>作用域</p>
+<ul>
+<li><p>name hiding: <code>(function () &#123; ... &#125;)();</code></p>
+</li>
+<li><p>允许递归版(IIFEs): <code>(function foo() &#123; ...foo()... &#125;)();</code></p>
+</li>
+</ul>
+</li>
+<li><p>尽量使用<code>let</code>和<code>const</code></p>
+</li>
+</ul>
+</li>
+<li><p>关于Array:</p>
+<ul>
+<li><p>相当于一个下标是整数, 有一个length属性, 外表看起来像是数组的Object</p>
+</li>
+<li><p>数组的length属性是数组中最大的下标+1</p>
+</li>
+<li><p>当然作为Object, 也可以有非整数类型的下标</p>
+</li>
+<li><p>for…in…循环遍历实际存储的值, for…of…循环遍历下标</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a = []</span><br><span class="line"></span><br><span class="line">a[<span class="number">100</span>] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">a.length <span class="comment">// 101</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">in</span> a) <span class="built_in">console</span>.log(i) <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">of</span> a) <span class="built_in">console</span>.log(i) <span class="comment">// undefined, undefined, ... , 1</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>关于String</p>
+<ul>
+<li><p>String + any = String</p>
+</li>
+<li><p>any + String = String</p>
+</li>
+<li><p>注意结合性</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> + <span class="number">2</span> + <span class="string">&#x27;3&#x27;</span> <span class="comment">// &#x27;33&#x27;</span></span><br><span class="line"><span class="string">&#x27;1&#x27;</span> + <span class="number">2</span> + <span class="number">3</span> <span class="comment">// &#x27;123&#x27;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>关于Object:</p>
+<ul>
+<li><p>对象字面量<code>&#123;&#125;</code>等效于<code>new Object()</code></p>
+<ul>
+<li><p>不过<code>Object()</code>可以被重载</p>
+</li>
+<li><p>对象字面量不能被重载</p>
+</li>
+</ul>
+</li>
+<li><p><code>new XXX()</code>: 相当于创建了一个类实例(实际上是个Object), <code>XXX()</code>函数可以对其进行进一步修饰</p>
+</li>
+</ul>
+</li>
+<li><p>关于<code>function</code>:</p>
+<ul>
+<li>函数是对象</li>
+</ul>
+</li>
+<li><p>关于<code>new</code>:</p>
+<ul>
+<li><p>new的功能:</p>
+<ul>
+<li><p>创建一个空对象{}</p>
+</li>
+<li><p>设置空对象的<code>__proto__</code>(与浏览器实现有关)为构造函数的<code>prototype</code></p>
+</li>
+<li><p>让this指向空对象</p>
+</li>
+<li><p>执行构造函数, 传入参数this</p>
+</li>
+<li><p>如果构造函数不返回一个对象, 则返回this</p>
+</li>
+</ul>
+</li>
+<li><p>模仿一个new:</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fake_new</span>(<span class="params">ctor, ...args</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> x = <span class="built_in">Object</span>.create(ctor.prototype); <span class="comment">// ES5 创建新对象</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">///* before ES5 */</span></span><br><span class="line">    <span class="comment">// function F() &#123;&#125;</span></span><br><span class="line">    <span class="comment">// F.prototype = ctor.prototype;</span></span><br><span class="line">    <span class="comment">// let x = new F();</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> res = ctor.call(x, ...args); <span class="comment">//借用外部传入的构造器给obj设置属性</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">typeof</span> res === <span class="string">&#x27;object&#x27;</span> ? res : x; <span class="comment">//确保构造器总是返回一个对象</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>关于<code>this</code>:</p>
+<ul>
+<li><p>如何正确绑定this</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="title">foo</span>(<span class="params"></span>)</span> &#123; ... &#125;, <span class="comment">// bad, `this` is bound to the object</span></span><br><span class="line">    foo = <span class="function">() =&gt;</span> &#123; ... &#125;, <span class="comment">// good, `this` is bound dynamically</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>Javascript面向对象:</p>
+<ul>
+<li><p>不用<code>new</code>模拟对象, 利用闭包</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">makePerson</span>(<span class="params">first, last</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        first: first,</span><br><span class="line">        last: last,</span><br><span class="line">        fullName: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="comment">// 每次创建对象时, 这个函数都会被拷贝</span></span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>.first + <span class="string">&#x27; &#x27;</span> + <span class="built_in">this</span>.last;</span><br><span class="line">        &#125;,</span><br><span class="line">        fullNameReversed: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="comment">// 每次创建对象时, 这个函数都会被拷贝</span></span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>.last + <span class="string">&#x27;, &#x27;</span> + <span class="built_in">this</span>.first;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> s = makePerson(<span class="string">&#x27;Simon&#x27;</span>, <span class="string">&#x27;Willison&#x27;</span>);</span><br><span class="line">s.fullName(); <span class="comment">// &quot;Simon Willison&quot;</span></span><br><span class="line">s.fullNameReversed(); <span class="comment">// &quot;Willison, Simon&quot;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用<code>new</code></p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Person</span>(<span class="params">first, last</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">this</span>.first = first;</span><br><span class="line">    <span class="built_in">this</span>.last = last;</span><br><span class="line">    <span class="built_in">this</span>.fullName = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="comment">// 每次创建对象时, 这个函数都会被拷贝</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.first + <span class="string">&#x27; &#x27;</span> + <span class="built_in">this</span>.last;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">this</span>.fullNameReversed = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="comment">// 每次创建对象时, 这个函数都会被拷贝</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.last + <span class="string">&#x27;, &#x27;</span> + <span class="built_in">this</span>.first;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> s = <span class="keyword">new</span> Person(<span class="string">&#x27;Simon&#x27;</span>, <span class="string">&#x27;Willison&#x27;</span>);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>优化: 减少函数对象的拷贝, 利用原型链</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Person</span>(<span class="params">first, last</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">this</span>.first = first;</span><br><span class="line">    <span class="built_in">this</span>.last = last;</span><br><span class="line">&#125;</span><br><span class="line">Person.prototype.fullName = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.first + <span class="string">&#x27; &#x27;</span> + <span class="built_in">this</span>.last;</span><br><span class="line">&#125;;</span><br><span class="line">Person.prototype.fullNameReversed = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.last + <span class="string">&#x27;, &#x27;</span> + <span class="built_in">this</span>.first;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h1 id="React-复习"><a href="#React-复习" class="headerlink" title="React 复习"></a>React 复习</h1></li>
+</ul>
+</li>
+<li><p>JSX语法</p>
+  <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = (</span><br><span class="line">    &lt;h1 className=<span class="string">&quot;greeting&quot;</span> onClick=&#123;<span class="built_in">this</span>.handleClick&#125;&gt;</span><br><span class="line">        Hello, world!</span><br><span class="line">    &lt;/h1&gt;</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = React.createElement(</span><br><span class="line">    <span class="string">&#x27;h1&#x27;</span>, <span class="comment">// label type</span></span><br><span class="line">    &#123;<span class="attr">className</span>: <span class="string">&#x27;greeting&#x27;</span>, <span class="attr">onClick</span>: <span class="built_in">this</span>.handleClick&#125;, <span class="comment">// attrs</span></span><br><span class="line">    <span class="string">&#x27;Hello, world!&#x27;</span> <span class="comment">// children</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>遇到<code>&lt;</code>开始解析HTML, 遇到<code>&#123;</code>开始解析Javascript</p>
+</li>
+<li><p>要比Vue的模板更加灵活</p>
+</li>
+</ul>
+</li>
+<li><p>数据流</p>
+<ul>
+<li><p>外层-&gt;内层组件: <code>props</code>, 只读</p>
+</li>
+<li><p>组件自己的状态: <code>state</code>, 可以修改</p>
+<ul>
+<li><p>初始化: 在构造函数内直接赋值</p>
+</li>
+<li><p>更新: 通过<code>this.setState(&#123;&#125;)</code></p>
+</li>
+<li><p>state可以被传递给子组件作为子组件的props</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>受控组件:</p>
+<ul>
+<li><p>不自己维护状态的组件</p>
+</li>
+<li><p>状态变化全部交给外部来做: props.value, props.onValueChanged()</p>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">推荐文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2020-12-02.html" rel="bookmark">每日小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2020-12-04.html" rel="bookmark">每日小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2020-12-17.html" rel="bookmark">每日小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2020-11-29.html" rel="bookmark">每日小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2020-11-30.html" rel="bookmark">每日小结</a></div>
+    </li>
+  </ul>
+
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Javascript/" rel="tag"># Javascript</a>
+              <a href="/tags/React/" rel="tag"># React</a>
+              <a href="/tags/npm/" rel="tag"># npm</a>
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/daily/2020-11-30.html" rel="prev" title="每日小结">
+                  <i class="fa fa-chevron-left"></i> 每日小结
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/daily/2020-12-02.html" rel="next" title="每日小结">
+                  每日小结 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fas fa-dove"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">frezcirno</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">102k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:32</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+  
+
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://frezcirno-github-io.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://frezcirno.github.io/daily/2020-12-01.html";
+    this.page.identifier = "daily/2020-12-01.html";
+    this.page.title = "每日小结";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://frezcirno-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+<script src="http://cdn.7c00h.xyz/live2d-widget/autoload.js"></script>
+</body>
+</html>

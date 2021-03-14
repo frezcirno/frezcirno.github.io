@@ -131,17 +131,17 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">43</span></a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">47</span></a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">13</span></a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">100</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">101</span></a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -215,20 +215,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">100</span>
+          <span class="site-state-item-count">101</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-count">47</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -274,7 +274,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/13.html">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/leetcode/4.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="http://cdn.7c00h.xyz/avatar.jpg">
@@ -287,7 +287,110 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/daily/2020/12/13.html" class="post-title-link" itemprop="url">每日小结</a>
+          <a href="/leetcode/4.html" class="post-title-link" itemprop="url">4. 寻找两个正序数组的中位数</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-13 23:16:26" itemprop="dateCreated datePublished" datetime="2020-12-13T23:16:26+08:00">2020-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/leetcode/4.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="leetcode/4.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+      </div>
+      <div class="post-meta">
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>599</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>思路: 先归并排序, 再寻找中间位置</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i=<span class="number">0</span>,j=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> len1=nums1.size(),len2=nums2.size(),len=len1+len2;</span><br><span class="line">        <span class="keyword">int</span> t, lastt;</span><br><span class="line">        <span class="keyword">while</span>(i+j&lt;=len/<span class="number">2</span>)&#123;</span><br><span class="line">            lastt=t;</span><br><span class="line">            <span class="keyword">if</span>(i&lt;len1 &amp;&amp; j&lt; len2)&#123;</span><br><span class="line">                <span class="keyword">int</span> n1=nums1[i];</span><br><span class="line">                <span class="keyword">int</span> n2=nums2[j];</span><br><span class="line">                <span class="keyword">if</span>(n1&lt;n2)&#123;</span><br><span class="line">                    t=n1;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    t=n2;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(i&lt;len1)&#123;</span><br><span class="line">                t=nums1[i++];</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                t=nums2[j++];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;i+j&lt;&lt;<span class="string">&quot;:&quot;</span>&lt;&lt;t&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (len%<span class="number">2</span>?t:(t+lastt)/<span class="number">2.0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020-12-13.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="http://cdn.7c00h.xyz/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="Frezcirno的个人博客, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Frezcirno's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/daily/2020-12-13.html" class="post-title-link" itemprop="url">每日小结</a>
         </h2>
 
         <div class="post-meta-container">
@@ -306,7 +409,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+          <a href="/categories/%E5%AF%B9%E6%95%B0%E6%97%A5%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">对数日记</span></a>
         </span>
     </span>
 
@@ -319,8 +422,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/daily/2020/12/13.html#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/13.html" itemprop="commentCount"></span>
+    <a title="disqus" href="/daily/2020-12-13.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020-12-13.html" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -697,7 +800,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/12.html">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020-12-12.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="http://cdn.7c00h.xyz/avatar.jpg">
@@ -710,7 +813,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/daily/2020/12/12.html" class="post-title-link" itemprop="url">每日小结</a>
+          <a href="/daily/2020-12-12.html" class="post-title-link" itemprop="url">每日小结</a>
         </h2>
 
         <div class="post-meta-container">
@@ -729,7 +832,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+          <a href="/categories/%E5%AF%B9%E6%95%B0%E6%97%A5%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">对数日记</span></a>
         </span>
     </span>
 
@@ -742,8 +845,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/daily/2020/12/12.html#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/12.html" itemprop="commentCount"></span>
+    <a title="disqus" href="/daily/2020-12-12.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020-12-12.html" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -799,7 +902,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/11.html">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020-12-11.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="http://cdn.7c00h.xyz/avatar.jpg">
@@ -812,7 +915,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/daily/2020/12/11.html" class="post-title-link" itemprop="url">每日小结</a>
+          <a href="/daily/2020-12-11.html" class="post-title-link" itemprop="url">每日小结</a>
         </h2>
 
         <div class="post-meta-container">
@@ -831,7 +934,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+          <a href="/categories/%E5%AF%B9%E6%95%B0%E6%97%A5%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">对数日记</span></a>
         </span>
     </span>
 
@@ -844,8 +947,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/daily/2020/12/11.html#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/11.html" itemprop="commentCount"></span>
+    <a title="disqus" href="/daily/2020-12-11.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020-12-11.html" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -917,7 +1020,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/10.html">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020-12-10.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="http://cdn.7c00h.xyz/avatar.jpg">
@@ -930,7 +1033,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/daily/2020/12/10.html" class="post-title-link" itemprop="url">每日小结</a>
+          <a href="/daily/2020-12-10.html" class="post-title-link" itemprop="url">每日小结</a>
         </h2>
 
         <div class="post-meta-container">
@@ -949,7 +1052,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+          <a href="/categories/%E5%AF%B9%E6%95%B0%E6%97%A5%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">对数日记</span></a>
         </span>
     </span>
 
@@ -962,8 +1065,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/daily/2020/12/10.html#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/10.html" itemprop="commentCount"></span>
+    <a title="disqus" href="/daily/2020-12-10.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020-12-10.html" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -1023,7 +1126,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/9.html">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020-12-09.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="http://cdn.7c00h.xyz/avatar.jpg">
@@ -1036,7 +1139,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/daily/2020/12/9.html" class="post-title-link" itemprop="url">每日小结</a>
+          <a href="/daily/2020-12-09.html" class="post-title-link" itemprop="url">每日小结</a>
         </h2>
 
         <div class="post-meta-container">
@@ -1055,7 +1158,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
+          <a href="/categories/%E5%AF%B9%E6%95%B0%E6%97%A5%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">对数日记</span></a>
         </span>
     </span>
 
@@ -1068,8 +1171,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/daily/2020/12/9.html#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/9.html" itemprop="commentCount"></span>
+    <a title="disqus" href="/daily/2020-12-09.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020-12-09.html" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -1246,129 +1349,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020/12/7.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="http://cdn.7c00h.xyz/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="Frezcirno的个人博客, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Frezcirno's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/daily/2020/12/7.html" class="post-title-link" itemprop="url">每日小结</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-12-07 11:04:26" itemprop="dateCreated datePublished" datetime="2020-12-07T11:04:26+08:00">2020-12-07</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93/" itemprop="url" rel="index"><span itemprop="name">每日小结</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/daily/2020/12/7.html#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020/12/7.html" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-      </div>
-      <div class="post-meta">
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>478</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>1 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="Visio-画图如何添加自定义连接点"><a href="#Visio-画图如何添加自定义连接点" class="headerlink" title="Visio 画图如何添加自定义连接点"></a>Visio 画图如何添加自定义连接点</h1><p>在工具栏选中”连接点”</p>
-<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
-<p>有时候可能需要多点几次</p>
-<h1 id="为什么校园网这么卡"><a href="#为什么校园网这么卡" class="headerlink" title="为什么校园网这么卡"></a>为什么校园网这么卡</h1><h1 id="Linux-创建用户时忘了使用-m参数创建用户目录怎么办"><a href="#Linux-创建用户时忘了使用-m参数创建用户目录怎么办" class="headerlink" title="Linux 创建用户时忘了使用-m参数创建用户目录怎么办"></a>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mkhomedir_helper &lt;username&gt;</span><br></pre></td></tr></table></figure>
-<h1 id="xargs-命令"><a href="#xargs-命令" class="headerlink" title="xargs 命令"></a>xargs 命令</h1><p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
-<p>xargs后面的命令默认是echo</p>
-<p>即: stdin -&gt; **argv</p>
-<h1 id="tee-命令"><a href="#tee-命令" class="headerlink" title="tee 命令"></a>tee 命令</h1><p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
-<p>可以用来复制文件</p>
-<ul>
-<li>输出管道中某一段的内容:<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">... | tee &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span><br></pre></td></tr></table></figure></li>
-<li>不退出vim使用sudo保存文件</li>
-</ul>
-<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
-<h1 id="echo-命令"><a href="#echo-命令" class="headerlink" title="echo 命令"></a>echo 命令</h1><p>echo命令用于将命令行参数输出到标准输出</p>
-<p>即: stdin -&gt; stdout</p>
-<h1 id="awk-命令"><a href="#awk-命令" class="headerlink" title="awk 命令"></a>awk 命令</h1><p>强大的字符串处理工具</p>
-<p>最基本的用法:<br><code>awk &#39;&#123;print$1,$2&#125;&#39;</code></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
