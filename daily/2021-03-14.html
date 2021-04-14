@@ -23,21 +23,23 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
-<meta name="description" content="时间过的真快啊，转眼间已经是3月了！ 博客更新日志：  日记分类名字从「每日小结」改为「对数日记」 日记文章标题从今往后将取有意义的名字 日记文件名改成更加标准的 ISO-8601 命名法  Numpy 使用Matplotlib 使用Pandas 使用">
+<meta name="description" content="时间过的真快啊，转眼间已经是 3 4 月了！ Python 数据科学常用的库 Numpy 使用array 对象Matplotlib 使用12import numpy as npimport matplotlib.pyplot as plt Pandas 使用Series 对象Dataframe 对象博客更新日志：  日记分类名字从「每日小结」改为「对数日记」 日记文章标题从今往后将取有意义的名字">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Numpy, Matplotlib 和 Pandas 学习">
+<meta property="og:title" content="Numpy, SciPy, Matplotlib 和 Pandas 学习">
 <meta property="og:url" content="https://frezcirno.github.io/daily/2021-03-14.html">
 <meta property="og:site_name" content="Frezcirno&#39;s Blog">
-<meta property="og:description" content="时间过的真快啊，转眼间已经是3月了！ 博客更新日志：  日记分类名字从「每日小结」改为「对数日记」 日记文章标题从今往后将取有意义的名字 日记文件名改成更加标准的 ISO-8601 命名法  Numpy 使用Matplotlib 使用Pandas 使用">
+<meta property="og:description" content="时间过的真快啊，转眼间已经是 3 4 月了！ Python 数据科学常用的库 Numpy 使用array 对象Matplotlib 使用12import numpy as npimport matplotlib.pyplot as plt Pandas 使用Series 对象Dataframe 对象博客更新日志：  日记分类名字从「每日小结」改为「对数日记」 日记文章标题从今往后将取有意义的名字">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.7c00h.xyz/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg">
 <meta property="article:published_time" content="2021-03-14T04:43:14.000Z">
-<meta property="article:modified_time" content="2021-03-14T05:30:21.075Z">
+<meta property="article:modified_time" content="2021-04-14T04:08:15.394Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="python">
 <meta property="article:tag" content="numpy">
 <meta property="article:tag" content="matplotlib">
 <meta property="article:tag" content="pandas">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.7c00h.xyz/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg">
 
 
 <link rel="canonical" href="https://frezcirno.github.io/daily/2021-03-14.html">
@@ -52,7 +54,7 @@
     lang   : 'zh-CN'
   };
 </script>
-<title>Numpy, Matplotlib 和 Pandas 学习 | Frezcirno's Blog</title>
+<title>Numpy, SciPy, Matplotlib 和 Pandas 学习 | Frezcirno's Blog</title>
   
 
 
@@ -205,14 +207,14 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <section class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Numpy-%E4%BD%BF%E7%94%A8"><span class="nav-text">Numpy 使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Matplotlib-%E4%BD%BF%E7%94%A8"><span class="nav-text">Matplotlib 使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pandas-%E4%BD%BF%E7%94%A8"><span class="nav-text">Pandas 使用</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Python-%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E5%B8%B8%E7%94%A8%E7%9A%84%E5%BA%93"><span class="nav-text">Python 数据科学常用的库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Numpy-%E4%BD%BF%E7%94%A8"><span class="nav-text">Numpy 使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#array-%E5%AF%B9%E8%B1%A1"><span class="nav-text">array 对象</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Matplotlib-%E4%BD%BF%E7%94%A8"><span class="nav-text">Matplotlib 使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pandas-%E4%BD%BF%E7%94%A8"><span class="nav-text">Pandas 使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Series-%E5%AF%B9%E8%B1%A1"><span class="nav-text">Series 对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dataframe-%E5%AF%B9%E8%B1%A1"><span class="nav-text">Dataframe 对象</span></a></li></ol></li></ol></div>
         </section>
         <!--/noindex-->
 
         <section class="site-overview-wrap sidebar-panel">
           <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <img class="site-author-image" itemprop="image" alt="frezcirno"
-      src="http://cdn.7c00h.xyz/avatar.jpg">
+      src="//cdn.7c00h.xyz/avatar.jpg">
   <p class="site-author-name" itemprop="name">frezcirno</p>
   <div class="site-description" itemprop="description">Frezcirno的个人博客, 记录一些技术相关的学习内容</div>
 </div>
@@ -284,7 +286,7 @@
     <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2021-03-14.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="http://cdn.7c00h.xyz/avatar.jpg">
+      <meta itemprop="image" content="//cdn.7c00h.xyz/avatar.jpg">
       <meta itemprop="name" content="frezcirno">
       <meta itemprop="description" content="Frezcirno的个人博客, 记录一些技术相关的学习内容">
     </span>
@@ -294,7 +296,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Numpy, Matplotlib 和 Pandas 学习
+          Numpy, SciPy, Matplotlib 和 Pandas 学习
         </h1>
 
         <div class="post-meta-container">
@@ -346,7 +348,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>114</span>
+      <span>200</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -364,14 +366,16 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>时间过的真快啊，转眼间已经是3月了！</p>
-<p>博客更新日志：</p>
+        <p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
+<h1 id="Python-数据科学常用的库"><a href="#Python-数据科学常用的库" class="headerlink" title="Python 数据科学常用的库"></a>Python 数据科学常用的库</h1><p><img src="//cdn.7c00h.xyz/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" alt=""></p>
+<h1 id="Numpy-使用"><a href="#Numpy-使用" class="headerlink" title="Numpy 使用"></a>Numpy 使用</h1><h2 id="array-对象"><a href="#array-对象" class="headerlink" title="array 对象"></a>array 对象</h2><h1 id="Matplotlib-使用"><a href="#Matplotlib-使用" class="headerlink" title="Matplotlib 使用"></a>Matplotlib 使用</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
+<h1 id="Pandas-使用"><a href="#Pandas-使用" class="headerlink" title="Pandas 使用"></a>Pandas 使用</h1><h2 id="Series-对象"><a href="#Series-对象" class="headerlink" title="Series 对象"></a>Series 对象</h2><h2 id="Dataframe-对象"><a href="#Dataframe-对象" class="headerlink" title="Dataframe 对象"></a>Dataframe 对象</h2><p>博客更新日志：</p>
 <ul>
 <li>日记分类名字从「每日小结」改为「对数日记」</li>
 <li>日记文章标题从今往后将取有意义的名字</li>
 <li>日记文件名改成更加标准的 ISO-8601 命名法</li>
 </ul>
-<h1 id="Numpy-使用"><a href="#Numpy-使用" class="headerlink" title="Numpy 使用"></a>Numpy 使用</h1><h1 id="Matplotlib-使用"><a href="#Matplotlib-使用" class="headerlink" title="Matplotlib 使用"></a>Matplotlib 使用</h1><h1 id="Pandas-使用"><a href="#Pandas-使用" class="headerlink" title="Pandas 使用"></a>Pandas 使用</h1>
+
     </div>
 
     
@@ -536,7 +540,7 @@
   var disqus_config = function() {
     this.page.url = "https://frezcirno.github.io/daily/2021-03-14.html";
     this.page.identifier = "daily/2021-03-14.html";
-    this.page.title = "Numpy, Matplotlib 和 Pandas 学习";
+    this.page.title = "Numpy, SciPy, Matplotlib 和 Pandas 学习";
     };
   NexT.utils.loadComments('#disqus_thread', () => {
     if (window.DISQUS) {
@@ -552,6 +556,6 @@
     }
   });
 </script>
-<script src="http://cdn.7c00h.xyz/live2d-widget/autoload.js"></script>
+<script src="//cdn.7c00h.xyz/live2d-widget/autoload.js"></script>
 </body>
 </html>
