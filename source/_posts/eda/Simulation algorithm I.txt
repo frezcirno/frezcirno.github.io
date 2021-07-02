@@ -1,0 +1,255 @@
+
+
+Simulation algorithms
+
+
+
+Introduction 
+. There are two approaches to simulation 
+1. 
+Simulate for functional correctness, ignoring all timing considerations. 
+
+2. 
+Simulate in an environment in which the models include timing. 
+
+
+. The simplest approach to simulation is to have a separate procedure for every logical element in the network, and the connections between the elements are then mirrored in the machine code of the program. 
+. 
+The entire structure of the network is thus mirrored in the storage of the computing machine. 
+
+. 
+This takes up a great deal of storage space, but is very fast in running, since there are no large lists to be searched and manipulated. 
+
+
+
+
+
+Cont. 
+. 
+The amount of storage can be reduced by having only one procedure for each element type, and a small amount of storage for every element to hold its specific data. 
+
+. 
+Procedure calls need machine states to be saved temporarily and restored on exit, which is expensive in CPU resources. 
+
+. 
+Storage space is saved, since only one copy of each different procedure is needed. The cost is the time taken in procedure calling. 
+
+
+
+. 
+In the simplest simulator, all elements will have the same delay. 
+
+. 
+The number of gate evaluations can be considerably reduced by first examining the structure of the network, and putting gates in an appropriate order. In this order, it is guaranteed that, for a combinational network , no gate will be simulated more than once during one (time*) step. 
+
+. 
+Special arrangements are required to handle feedback, while flip-flops are treated by regarding them as basic elements rather than devices with feedback. 
+
+
+
+. 
+This type of simulation is only useful for checking functionality, since all element delays are the same. 
+
+. 
+Since real gates have delays which depend on the direction of change of the output(0 →1 or 1→ 0), to include real timing was not concerned here. 
+
+. 
+Instead, one constructs a set of ‘event lists’, one for each time interval. Briefly, when a change of gate output is computed at time T, say, the change is placed in the list for time T+.t, where .t is the gate delay. 
+
+. 
+Lists are emptied in time order. When items are taken off the list, a second table is consulted to find which elements are driven by its output. 
+
+
+. The first type of simulator is designed to check logical correctness at maximum speed. Timing accuracy is regarded as of little importance. 
+. 
+It is an oblivious simulator, as it evaluates every element whether it is essential or not. 
+
+. 
+It is usually run by compiling the network, and is frequently known as the compiled code simulator, since the structure is reflected in the machine storage and the program. It is a static structure, allowing no timing detail to be seen. 
+
+. 
+Oblivious and compiled code do not necessarily go together. Following convention, this type will be referred to as compiled code. 
+
+
+
+. 
+The most complex of the above simulators enables detailed timing to be examined. It is based on sets of tables. 
+
+. The structure of the system being simulated is reflected in some of these tables, and the dynamic timing in others. It is referred to as a table-based event driven simulator (or table based or event driven for brevity). Such a simulator usually(but not necessarily) is run interpretively. 
+
+. 
+Both compiled code and event driven simulators can be useful when properly used by the designer. 
+
+. 
+It is important that the designer understands the strengths and weaknesses of the tools available. 
+
+. 
+As indicated earlier, they are aids, not gurus. 
+
+
+
+. 
+There are other distinctions between the two. 
+
+. 
+The compiled code approach presumes a synchronous system is being simulated – that is a system consisting essentially of blocks of combinational logic separated by clocked registers. 
+
+. 
+The event driven approach can handle any system, including asynchronous systems. 
+
+. Basic procedures 
+. The essence of a compiled code simulator is that the structure of the system under simulation is reflected in the computer storage, and that each logical element has its own code. 
+. Timing is ignored in the simplest form. Logical correctness alone is checked. 
+
+. Consider the simple not equivalence circuit of Fig.6.1.  suppose the test architecture causes A to change from 1 to 0. A reduction in work can be achieved by a simple rank ordering of the gates(门的阶数). 
+. 
+To rank order the gates, proceed as follows, 
+
+1. 
+Primary inputs are assigned to level 0; 
+
+2. 
+Find all gates with inputs connected only to primary inputs. G1 is the only such gate in the example, and is assigned to level 1; 
+
+3. 
+From the remaining gates, find whose inputs are connected to levels 0 and/or 1 only. G2 and G3 are assigned to level 2; 
+
+4. 
+Proceed further in this manner. At each step, find gates not yet assigned whose inputs are all assigned to a level. The level to which a gate is assigned is one greater than the highest level of its inputs. 
+
+
+
+. 
+Fig. 6.2 shows waveforms for some input changes as a result of simulation with rank order just derived. 
+
+. 
+Delays of one unit per rank are shown in order to indicate the ranks. 
+
+. 
+The model of the gate is a two-input NAND. The inputs A and B are initially 0. The gate(s) of level 1 is simulated, giving a 1 at C. 
+
+. 
+G2 is simulated next, followed by G3(vice versa is equally). Each gives a 1 out(D and E). Finally G4 is simulated, giving a 0 at Z. 
+
+
+
+
+. 
+A now changes to 1. G1 is simulate, but, as B is still at 0, C does not change. Next, consider G2. Both inputs are now 1, so D becomes 0. Simulation of G3 shows no change at E. Finally, in level 3, G4 is evaluated. D is now 0, so Z becomes 1. 
+
+. 
+The reader should repeat this simulation for the remaining part of the waveforms. 
+
+
+
+. 
+It will be seen later that, with real timing, it is possible for a narrow pulse to occur at D or E. This does not invalidate the use of the compiled code simulator. Indeed, as a check on the logical correctness of a design, and when used with a timing verifier, this type of simulator is particularly useful. 
+
+. 
+Modifications to this technique may find some short pulses but not all of them. Since the user is often misled into thinking that the checks are comprehensive, the simplest is the best. 
+
+. 
+This type of simulator is known as a levelized compiled code simulator, or LCC. 
+
+
+
+. Simulator structures 
+
+. As with any simulator, data describing the interconnection of the network must be held in a suitable memory. 
+. For each logical element, it will be necessary to hold data on inputs and outputs. It is preferable to hold signal data in a separate table, so the element inputs and outputs will be in terms of addresses(输入、输出地址 ) in the table. 
+. Hence, if a signal is an output of one element and the input of two others, it is recorded only once and has to be modified in only one place when a change occurs, not in three. 
+. This could be a very large number of addresses – say, several hundred for generalized logic elements, but only two for e.g. an inverter. So making every logic element fit the same sized piece of storage would be very wasteful. 
+
+
+. There are two solutions for this. 
+. The first is to have a large pool of storage and let each element have a list of addresses（元件地址表）. The lists must be ordered in a form known to the routine which is to compute the element output, the evaluation routine. 
+. The second solution is to restrict the size of the logic elements. In the Yorktown Simulation Engine(YSE) (Pfister 1982, Denneau 1982, Kronstadt and Pfister 1982; Denneau et al. 1983), a simulator built in hardware by IBM, the elements are limited to 4-input 1-output devices. Other simulators allow only three inputs. Libraries of more complex elements in terms of these basic devices are available. 
+. Thus only 5 addresses are needed per element in the YSE and all are provided for every element. There will still be some wastage, but it will be strictly limited. 
+. The YSE structures can equally well be put in software, and are a useful example of how compiled code simulator can be constructed. 
+. Each element in the network can be represented as a record holding 
+. The address of inputs and outputs 
+. The（logic*) function This is described in the YSE as the instruction memory. 
+
+. The connectivity of the network is implied in the addresses of the signals. The elements must be placed in an order implied by the levelizing process. 
+. Hence the first element evaluated must be at level 1. The output of an element at level N cannot be used in any level less than N+1. 
+. The order of evaluation within a level does not matter. The input values used in evaluating an element in level N will always be the up to date values from level N-1 or earlier. 
+
+
+. A second block of memory is assigned to values of the signals. This can be in any order. 
+
+
+
+
+
+
+
+
+Cont. 
+
+
+
+Cont. 
+
+
+
+Cont. 
+
+
+Cont. 
+
+
+
+
+Cont. 
+
+
+
+Compiled code simulation 
+
+
+
+
+
+
+Cont. 
+
+
+
+
+
+Cont. 
+
+
+
+Cont. 
+
+
+
+Cont. 
+
+
+
+Cont. 
+. The network compiler will ensure that connectivity of the network is implied by signal addresses in 
+the ‘instruction memory’. These signal addresses refer to the data memory. 
+
+
+Cont. 
+. Detailed example 
+. Table 6.1 shows a possible structure of the instruction memory for the example circuit (not equivalence) and Table 6.2 shows the data memory. 
+
+
+
+Table 6.1 Instruction memory for the example (not equivalence) circuit. Note: blank lines for readability only 
+
+
+
+
+
+
+
+
+The end of 1st session 
+
+
+

@@ -1,0 +1,273 @@
+
+Simulation algorithms (III)
+
+
+
+Cont. 
+. 
+The usual approach is to form a list of lists in order of time, called a ‘time wheel’, as shown in Fig. 6.9. 
+
+. 
+The first list is a set of pointers to the event memory. 
+
+. 
+There is notionally one pointer for each time interval from ‘T+1’. This could be a very large number. 
+
+. 
+Thus, one might limit the number of pointers to 1024, and re-use them at every 1024 time steps. The list pointers is thus a circular list, and is called a time WHEEL or chronwheel. The wheel itself is an array of pointers. 
+
+
+
+. 
+Each pointer in the time wheel indicates the address of a list of events that has been scheduled for that time. 
+
+. 
+Each list must be long enough to hold the maximum number of events for any time interval. 
+
+. 
+Furthermore, the lists for the times furthest ahead are likely to have relatively few events. 
+
+. 
+This is a very poor use of storage. 
+
+
+. 
+An alternative is to use a linked list for each time slot in the time wheel. It is only necessary to provide sufficient storage for the sum of all the event lists, and there is much less wastage. 
+
+. 
+The event memory consists of a series of records as shown in Fig. 6.10. each record holds the predicted value of a signal, the fan-out index(FOI), and a pointer. 
+
+
+
+. 
+The new event is added to the list (which) indicated by the pointer. 
+
+. 
+If the pointer is null, the time wheel and event memory are shown as Fig. 6.11(a). 
+
+. 
+Fig. 6.11(b) illustrates the case where the pointer in the time wheel is 31. The pointer of record 31 is null as this is the only event in this list. 
+
+. 
+There are now two events in the set for this time, the new event having been added to the front of the list. The list is indicated by the time wheel value of 137. 
+
+. 
+The order of events in a particular time slot is not important. 
+
+
+
+
+
+
+
+
+
+
+
+
+Cont. 
+
+
+Cont. 
+
+
+
+
+
+
+Cont. 
+
+
+
+
+pointer 
+
+
+
+Cont. 
+. Evaluation of events will continue until all elements scheduled for the current time slot, T, have been evaluated. 
+. 
+The current time (wheel) pointer is incremented to T+1. if the new time wheel pointer is not null, the event memory location to which it points is read. 
+
+. 
+Return to the example of Fig. 6.11, and recover the events from the time slot, ‘T’ say. 
+
+. 
+The time wheel pointer is 137. The record at location 137 (in EM) is read. The pointer value, 31, is placed in the time wheel (for ‘T’) and the address 137 added to the end of the free list. 
+
+. 
+The event [val(b), foi(b)] will be processed and the program then returns to see if the time wheel 
+
+pointer at ‘T’ is null. As it is not, the (a) event will be processed, the ‘T’ pointer set to the pointer from location 31 – null – and address 31 returned to the free list. 
+
+. 
+On the next return to the time wheel, the pointer at ‘T’ is null, so all events for this time slot have 
+
+
+
+
+
+
+
+Cont. 
+been passed on. 
+. 
+Notice that the events are withdrawn from the event list in reverse order to that in which they were placed there. It is axiomatic that the order of processing of all events in a given list, which take place at the same time, is unimportant. 
+
+. If the order is important then some ‘splitting’ of time slots is required. The function of deltas in VHDL is to force these extra time slots. 
+
+. 
+To determine which elements to evaluate in the new time slot, it is necessary to know which circuits are driven. Each output signal has an entry in the fan-out memory of Fig. 6.7, which is a table containing details of where the output is in the network. 
+
+. Fig. 6.12 illustrates this. A NAND gate drives two loads, a flip-flop and a logic block called FRED. Suppose the record in the network representing the NAND gate begins at address 258. 
+
+. 
+Conventional wisdom suggests that each output drives 2.5 inputs on average, so for each event, there are 3.5 sets of data out, that is for the output and 2.5 inputs(of the driven elements). 
+
+. 
+The state table(Fig. 6.7) holds the current state of all outputs, and is a copy of those in the network memory. 
+
+. Referring back to the example of Fig. 6.8, at time 12 the state table contains ‘1’ for signal C, but the predicted value is ‘0’. At time 14, the values for the state table and the predicted are ‘0’ and ‘1’, respectively. 
+
+. 
+The alternate case of the use of the state table is illustrated in Fig. 6.13. 
+
+
+
+
+Cont. 
+
+
+
+
+
+
+
+Cont. 
+
+
+
+Cause a prediction of C changing at time 12 
+Cause a prediction of C changing at time 17 
+Fig. 6.13 Alternate use of state table 
+
+
+Cont. 
+. Input A changing to 1 causes a prediction that C will change to 1 at time 12. At time 5, B changes to 1, and causes a prediction that C will change to 1 at time 17. 
+. 
+At time 12, the first change is propagated to the elements driven by C, which are evaluated since C in the state table, 0, is different from the predicted event, 1. 
+
+. 
+At time 17, the same predicted change is again found from the list in the event memory. 
+
+
+Since all driven elements have already been evaluated for this change, they do not need to be evaluated again as a result of this event. 
+
+
+
+Cont. 
+. The output signal value coming from the fan-out memory is compared with that in the state table. If they are the same, there is no need to pass this event on. This saves the average 2.5 evaluations, and unnecessary wok from this on. 
+. If the output prediction is different from the value in the state table, the event is passed on to the evaluation routines. The signal value in the state table is updated. 
+. This is, therefore, a good point to produce reports for the output process and the user, since it is the point where predictions of potential changes are confirmed as real ones. 
+
+
+
+
+An example – a four-gate not equivalence circuit 
+. Consider the simple not equivalence circuit shown in Fig. 6.14. 
+. 
+There are just 4 two-input NAND gates and 2 primary inputs, A and B. The gates are numbered in an arbitrary way. 
+
+. 
+There are 4 interested memories (Fig. 6.7), which are each an allocated area of the real machine memory. 
+
+
+. Addressing of the memories will be written in the form of base and offset. NM network memory e.g. 10,000 EM event memory e.g. 20,000 FOM fan-out memory e.g. 30,000 ST state table e.g. 40,000 
+. To find a particular item of data, the offset is added to the base to give the real address. Thus, NM234 will be 10234. 
+
+
+
+
+
+
+Fig. 6.14 Simple not-equivalence circuit 
+
+
+Cont. 
+. 
+G1 is assigned to line NM1 of the network memory as shown in Table 6.5, and consists of 5 lines. 
+
+. 
+The 1st contains the base address of data relating to G1 in the fan-out memory. 
+
+. 
+The 2nd contains the output value and the next two contain the input values. 
+
+. 
+The last line contains the element type(or a pointer to the evaluation routine for this element). 
+
+
+
+. 
+G2 data follows, occupying lines NM6 to NM10 and the others follow on. 
+
+. 
+The outputs are also assigned to lines ST1 to ST4 of the state table(see Table 6.8 later). 
+
+. 
+The inputs A and B are set by a process in the test bench architecture in VHDL or can be 
+
+
+considered to be the ‘outputs’ of some external circuit. 
+. 
+They also need an entry in the state table and are assigned to lines ST5 and ST6, respectively in quite an arbitrary manner. 
+
+. 
+If there is no state table, then the primary input data must be in the network memory. 
+
+
+
+
+
+Items of G1 
+
+
+
+Cont. 
+. 
+Table 6.6 shows the fan-out memory(FOM). 
+
+. 
+Primary input A has arbitrarily been assigned to line FOM1. The 1st fan-out of A is to be found in the network memory at line NM(1+2) = NM3. the flag is 1, indicating another fan-out of A, which is found in the network memory line NM(6+2) = NM8. The flag now indicates that this is the end of the data for signal A. 
+
+. 
+Other lines of the fan-out memory can be interpreted similarly. 
+
+. 
+Thus, for G1, the output C is on line NM(1+1), and the two fan-in’s on lines NM(6+3) and NM(11+2) of the network memory. 
+
+
+
+. 
+It will be seen that the network memory describes the logical elements and the fan-out memory their interconnection. 
+
+. 
+The network can be reconstructed from these two tables. 
+
+. 
+The element type indicates to the evaluator which evaluation routine to use. 
+
+
+
+
+
+
+
+Information of G1 
+
+
+
+The end of 3rd session 
+
+
+
