@@ -23,21 +23,21 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
-<meta name="description" content="思路有环无向图中找出环上最后出现的边 12345678910111213141516171819202122232425262728293031323334353637class Solution &amp;#123;public:    vector&lt;int&gt; parents;    int dj_root(int a)&amp;#123;        return a&#x3D;&#x3D;parents[a]?">
+<meta name="description" content="Rabin-Karp 算法字符串匹配算法之一，利用哈希进行匹配比较，利用滚动哈希优化哈希函数 滚动哈希将滑动窗口中的字符串哈希成一个数字  h_i &#x3D; \sum_{p &#x3D; 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}其中$L$为滑动窗口大小，$s$为探针字符串，$b$为基数     index  -1 0 1 2 3 4 5 6      s …… a b c d e f">
 <meta property="og:type" content="article">
-<meta property="og:title" content="684. 冗余连接">
-<meta property="og:url" content="https://frezcirno.github.io/leetcode/684.html">
+<meta property="og:title" content="Rabin-Karp 算法">
+<meta property="og:url" content="https://frezcirno.github.io/daily/2021-07-02.html">
 <meta property="og:site_name" content="Frezcirno&#39;s Blog">
-<meta property="og:description" content="思路有环无向图中找出环上最后出现的边 12345678910111213141516171819202122232425262728293031323334353637class Solution &amp;#123;public:    vector&lt;int&gt; parents;    int dj_root(int a)&amp;#123;        return a&#x3D;&#x3D;parents[a]?">
+<meta property="og:description" content="Rabin-Karp 算法字符串匹配算法之一，利用哈希进行匹配比较，利用滚动哈希优化哈希函数 滚动哈希将滑动窗口中的字符串哈希成一个数字  h_i &#x3D; \sum_{p &#x3D; 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}其中$L$为滑动窗口大小，$s$为探针字符串，$b$为基数     index  -1 0 1 2 3 4 5 6      s …… a b c d e f">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-01-13T12:17:37.000Z">
-<meta property="article:modified_time" content="2021-07-02T13:25:39.384Z">
+<meta property="article:published_time" content="2021-07-02T11:06:53.000Z">
+<meta property="article:modified_time" content="2021-07-02T13:25:39.380Z">
 <meta property="article:author" content="frezcirno">
-<meta property="article:tag" content="daily">
+<meta property="article:tag" content="算法">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://frezcirno.github.io/leetcode/684.html">
+<link rel="canonical" href="https://frezcirno.github.io/daily/2021-07-02.html">
 
 
 <script class="page-configurations">
@@ -49,7 +49,7 @@
     lang   : 'zh-CN'
   };
 </script>
-<title>684. 冗余连接 | Frezcirno's Blog</title>
+<title>Rabin-Karp 算法 | Frezcirno's Blog</title>
   
 
 
@@ -202,7 +202,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <section class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-text">思路</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Rabin-Karp-%E7%AE%97%E6%B3%95"><span class="nav-text">Rabin-Karp 算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BB%9A%E5%8A%A8%E5%93%88%E5%B8%8C"><span class="nav-text">滚动哈希</span></a></li></ol></li></ol></div>
         </section>
         <!--/noindex-->
 
@@ -278,7 +278,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/leetcode/684.html">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2021-07-02.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="https://cdn.7c00h.xyz/avatar.jpg">
@@ -291,7 +291,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          684. 冗余连接
+          Rabin-Karp 算法
         </h1>
 
         <div class="post-meta-container">
@@ -302,7 +302,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2021-01-13 20:17:37" itemprop="dateCreated datePublished" datetime="2021-01-13T20:17:37+08:00">2021-01-13</time>
+      <time title="创建时间：2021-07-02 19:06:53" itemprop="dateCreated datePublished" datetime="2021-07-02T19:06:53+08:00">2021-07-02</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -310,7 +310,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93-Day-Day-Up/" itemprop="url" rel="index"><span itemprop="name">每日小结 Day Day Up</span></a>
         </span>
     </span>
 
@@ -330,8 +330,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/leetcode/684.html#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="leetcode/684.html" itemprop="commentCount"></span>
+    <a title="disqus" href="/daily/2021-07-02.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2021-07-02.html" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -343,7 +343,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>707</span>
+      <span>977</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -361,8 +361,77 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>有环无向图中找出环上最后出现的边</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; parents;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">dj_root</span><span class="params">(<span class="keyword">int</span> a)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a==parents[a]? a: parents[a]=dj_root(parents[a]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">dj_union</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span></span>&#123;</span><br><span class="line">        a=dj_root(a);</span><br><span class="line">        b=dj_root(b);</span><br><span class="line">        <span class="keyword">if</span> (a!=b) parents[a]=b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">findRedundantConnection</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; edges)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; edge: edges) &#123;</span><br><span class="line">            <span class="keyword">if</span> (edge[<span class="number">0</span>] &gt; n) n = edge[<span class="number">0</span>];</span><br><span class="line">            <span class="keyword">if</span> (edge[<span class="number">1</span>] &gt; n) n = edge[<span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        parents.resize(n);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;n; i++)&#123;</span><br><span class="line">            parents[i] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; edge: edges) &#123;</span><br><span class="line">            <span class="keyword">int</span> a = edge[<span class="number">0</span>]<span class="number">-1</span>;</span><br><span class="line">            <span class="keyword">int</span> b = edge[<span class="number">1</span>]<span class="number">-1</span>;</span><br><span class="line">            <span class="keyword">if</span> (dj_root(a) == dj_root(b)) &#123;</span><br><span class="line">                <span class="keyword">return</span> edge;</span><br><span class="line">            &#125;</span><br><span class="line">            dj_union(a, b);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> edges.back();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+        <h1 id="Rabin-Karp-算法"><a href="#Rabin-Karp-算法" class="headerlink" title="Rabin-Karp 算法"></a>Rabin-Karp 算法</h1><p>字符串匹配算法之一，利用哈希进行匹配比较，利用滚动哈希优化哈希函数</p>
+<h2 id="滚动哈希"><a href="#滚动哈希" class="headerlink" title="滚动哈希"></a>滚动哈希</h2><p>将滑动窗口中的字符串哈希成一个数字</p>
+<script type="math/tex; mode=display">
+h_i = \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}</script><p>其中$L$为滑动窗口大小，$s$为探针字符串，$b$为基数</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>index</th>
+<th></th>
+<th>-1</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>s</td>
+<td>……</td>
+<td>a</td>
+<td>b</td>
+<td>c</td>
+<td>d</td>
+<td>e</td>
+<td>f</td>
+<td>g</td>
+<td></td>
+<td>……</td>
+</tr>
+<tr>
+<td>$h_{i-1}$</td>
+<td></td>
+<td>$b^5$</td>
+<td>$b^4$</td>
+<td>$b^3$</td>
+<td>$b^2$</td>
+<td>$b$</td>
+<td>$1$</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>$h_{i}$</td>
+<td></td>
+<td></td>
+<td>$b^5$</td>
+<td>$b^4$</td>
+<td>$b^3$</td>
+<td>$b^2$</td>
+<td>$b$</td>
+<td>$1$</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>则有递推公式</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
+&= b \cdot \sum_{p = 0}^{L - 1}{s_{i + p - 1} b^{L - 1 - p}} - s_{i-1} b^{L} + s_{i+L-1}\\
+&= (h_{i-1} - s_{i-1} b^{L-1}) b + s_{i+L-1}
+\end{aligned}</script><p>代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">rk_hash</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> s, <span class="keyword">int</span> start, <span class="keyword">int</span> base, <span class="keyword">int</span> L, <span class="keyword">int</span> mod)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> hash = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; L; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        hash = (hash * base) % mod;</span><br><span class="line">        hash = (hash + s[start + i]) % mod;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> hash;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">powmod</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> n, <span class="keyword">int</span> m)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n == <span class="number">1</span>) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">if</span> (n % <span class="number">2</span> == <span class="number">0</span>) <span class="keyword">return</span> powmod((<span class="keyword">long</span> <span class="keyword">long</span>)a * a % m, n / <span class="number">2</span>, m) % m;</span><br><span class="line">    <span class="keyword">return</span> ((powmod((<span class="keyword">long</span> <span class="keyword">long</span>)a * a % m, n / <span class="number">2</span>, m) % m) * ((<span class="keyword">long</span> <span class="keyword">long</span>)a % m)) % m;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">rk_cont_hash</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> s, <span class="keyword">int</span> start, <span class="keyword">int</span> last_h, <span class="keyword">int</span> base, <span class="keyword">int</span> L, <span class="keyword">int</span> mod)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> hash = last_h - s[start - <span class="number">1</span>] * powmod(base, L - <span class="number">1</span>, mod);</span><br><span class="line">    hash = (hash * base) % mod;</span><br><span class="line">    hash = (hash + s[start + L - <span class="number">1</span>]) % mod;</span><br><span class="line">    <span class="keyword">return</span> hash;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
     </div>
 
     
@@ -372,27 +441,36 @@
   <div class="popular-posts-header">推荐文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/leetcode/10.html" rel="bookmark">10. 正则表达式匹配</a></div>
+      <div class="popular-posts-title"><a href="/daily/2021-01-09.html" rel="bookmark">每日小结</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/leetcode/1018.html" rel="bookmark">1018. 可被 5 整除的二进制前缀</a></div>
+      <div class="popular-posts-title"><a href="/daily/2021-01-10.html" rel="bookmark">每日小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2020-11-29.html" rel="bookmark">每日小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2020-11-30.html" rel="bookmark">每日小结</a></div>
     </li>
   </ul>
 
 
     <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+          </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/leetcode/1203.html" rel="prev" title="1203. 项目管理">
-                  <i class="fa fa-chevron-left"></i> 1203. 项目管理
+                <a href="/leetcode/1395.html" rel="prev" title="1395. 统计作战单位数">
+                  <i class="fa fa-chevron-left"></i> 1395. 统计作战单位数
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/PTA/1035.html" rel="next" title="1035. Password">
-                  1035. Password <i class="fa fa-chevron-right"></i>
+                <a href="/eda/Q2.html" rel="next" title="">
+                   <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>
@@ -522,9 +600,9 @@
 </script>
 <script>
   var disqus_config = function() {
-    this.page.url = "https://frezcirno.github.io/leetcode/684.html";
-    this.page.identifier = "leetcode/684.html";
-    this.page.title = "684. 冗余连接";
+    this.page.url = "https://frezcirno.github.io/daily/2021-07-02.html";
+    this.page.identifier = "daily/2021-07-02.html";
+    this.page.title = "Rabin-Karp 算法";
     };
   NexT.utils.loadComments('#disqus_thread', () => {
     if (window.DISQUS) {
