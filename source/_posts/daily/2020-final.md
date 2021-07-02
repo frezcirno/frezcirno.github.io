@@ -1,7 +1,7 @@
 ---
 title: 2020年度总结
 date: 2021-01-05 10:21:41
-category: 对数日记
+category: 每日小结 Day Day Up
 tags:
 ---
 

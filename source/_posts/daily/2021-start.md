@@ -1,7 +1,7 @@
 ---
 title: 2021目标计划
 date: 2021-01-05 11:02:13
-category: 对数日记
+category: 每日小结 Day Day Up
 tags:
 ---
 
