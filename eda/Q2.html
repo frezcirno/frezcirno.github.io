@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"disqus","storage":true,"lazyload":true,"nav":{"disqus":{"text":"Load Disqus","order":-1}},"activeClass":"disqus"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+<meta name="description" content="Q1: How many approaches to simulation? And what are they?  There are two approaches to simulation:  Simulate for functional correctness, ignoring all timing considerations.    Simulate in an environme">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Frezcirno&#39;s Blog">
+<meta property="og:url" content="https://frezcirno.github.io/eda/Q2.html">
+<meta property="og:site_name" content="Frezcirno&#39;s Blog">
+<meta property="og:description" content="Q1: How many approaches to simulation? And what are they?  There are two approaches to simulation:  Simulate for functional correctness, ignoring all timing considerations.    Simulate in an environme">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-07-02T03:46:13.259Z">
+<meta property="article:modified_time" content="2021-07-02T03:46:13.259Z">
+<meta property="article:author" content="frezcirno">
+<meta property="article:tag" content="daily">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://frezcirno.github.io/eda/Q2.html">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title> | Frezcirno's Blog</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Frezcirno's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">今天学到了什么？</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">48</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">11</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">106</span></a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="frezcirno"
+      src="https://cdn.7c00h.xyz/avatar.jpg">
+  <p class="site-author-name" itemprop="name">frezcirno</p>
+  <div class="site-description" itemprop="description">Frezcirno的个人博客, 记录一些技术相关的学习内容</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">106</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/frezcirno" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;frezcirno" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:2277861660@qq.com" title="E-Mail → mailto:2277861660@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/eda/Q2.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.7c00h.xyz/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="Frezcirno的个人博客, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Frezcirno's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-07-02 11:46:13" itemprop="dateCreated datePublished" datetime="2021-07-02T11:46:13+08:00">2021-07-02</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/eda/Q2.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="eda/Q2.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+      </div>
+      <div class="post-meta">
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>15k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p><strong>Q1: How many approaches to simulation? And what are they?</strong></p>
+<ul>
+<li>There are two approaches to simulation:</li>
+<li><ol>
+<li>Simulate for functional correctness, ignoring all timing considerations.</li>
+</ol>
+</li>
+<li><ol>
+<li>Simulate in an environment in which the models include timing.</li>
+</ol>
+</li>
+</ul>
+<p><strong>Q2: What is the simplest approach to simulation? What is the according advantage and disadvantage, respectively?</strong></p>
+<ul>
+<li>The simplest approach to simulation is to have a separate procedure for every logical element in the network, and the connections between the elements are then mirrored in the machine code of the program.</li>
+</ul>
+<p><strong>Q3: By having only one procedure for each element type, how about the storage and computing cost changes as compared with for every logical element?</strong></p>
+<ul>
+<li>Procedure calls need machine states to be saved temporarily and restored on exit, which is expensive in CPU resources.</li>
+<li>Storage space is saved, since only one copy of each different procedure is needed. The cost is the time taken in procedure calling.</li>
+</ul>
+<p><strong>Q4: How about element’s delay in the simplest simulator?</strong></p>
+<ul>
+<li>In the simplest simulator, all elements will have the same delay.</li>
+</ul>
+<p><strong>Q5: Could the simplest simulator be used for timing verification?</strong></p>
+<ul>
+<li>No. 因为在简单仿真器中所有的器件被视为拥有相同的延时，也就是说最简仿真器没有考虑时序因素。</li>
+</ul>
+<p><strong>Q6: How is the first type of simulator designed to check logical correctness and timing accuracy, respectively? What is the name of this type of simulator?</strong></p>
+<ul>
+<li>It is usually run by compiling the network, and is frequently known as the compiled code simulator, since the structure is reflected in the machine storage and the program. </li>
+<li>It is a static structure, allowing no timing detail to be seen.</li>
+</ul>
+<p><strong>Q7: What is the name of the second type of simulator? How usually is it run?</strong></p>
+<ul>
+<li>It is referred to as a table-based event driven simulator (or table based or event driven for brevity). Such a simulator usually (but not necessarily) is run interpretively.</li>
+</ul>
+<p><strong>Q8: What are other distinctions between the two?</strong></p>
+<ul>
+<li>The compiled code approach presumes a synchronous system is being simulated – that is a system consisting essentially of blocks of combinational logic separated by clocked registers.</li>
+<li>The event driven approach can handle any system, including asynchronous systems.</li>
+</ul>
+<p><strong>Q9: What is the essence of a compiled code simulator?</strong></p>
+<ul>
+<li>The essence of a compiled code simulator is that the structure of the system under simulation is reflected in the computer storage, and that each logical element has its own code.</li>
+</ul>
+<p><strong>Q10: What is the logic function of the not equivalence circuit as in Fig. 6.1?</strong></p>
+<ul>
+<li>Z=¯(¯(A⋅¯AB) ¯(B⋅¯AB))=A⋅¯AB+B⋅¯AB=(A+B)(¯A+¯B)=A⊕B</li>
+</ul>
+<p><strong>Q11: What is the full name of ‘LCC’? What is it based on?</strong></p>
+<ul>
+<li>The full name of ‘LCC’ is levelized compiled code simulator.</li>
+<li>这个问题是想问使用LCC的目的，是为了检查电路的逻辑正确性。</li>
+</ul>
+<p><strong>Q12: With real timing, is it possible for a narrow pulse to occur at D or E?</strong></p>
+<ul>
+<li>Yes.</li>
+</ul>
+<p><strong>Q13: What is the elements limitation in the Yorktown Simulation Engine?</strong></p>
+<ul>
+<li>In the Yorktown Simulation Engine (YSE), the elements are limited to 4-input 1-output devices. Thus only 5 addresses are needed per element in the YSE and all are provided for every element. There will still be some wastage, but it will be strictly limited.</li>
+</ul>
+<p><strong>Q14: By what will the network compiler ensure connectivity of the network in the ‘instruction memory’?</strong></p>
+<ul>
+<li>The network compiler will ensure that connectivity of the network is implied by signal addresses in the ‘instruction memory’. These signal addresses refer to the data memory.</li>
+</ul>
+<p><strong>Q15: What is the relationship between the ‘instruction memory’ and the data memory?</strong></p>
+<ul>
+<li>The connectivity of the network is implied by signal addresses in the ‘instruction memory’.</li>
+<li>These signal addresses refer to the data memory.</li>
+</ul>
+<p><strong>Q16: Will the instruction memory change with different input values?</strong></p>
+<ul>
+<li>No. 因为instruction memory是描述器件的网表，与你的信号值是无关的，所以不同的输入信号并不会改变它的内容</li>
+</ul>
+<p><strong>Q17: Will the data memory change with different input values?</strong></p>
+<ul>
+<li>Yes.</li>
+</ul>
+<p><strong>Q18: Is the simple R-S flip-flop a deadlock situation for a LCC simulator? And, why?</strong></p>
+<ul>
+<li>Yes. R-S flip-flop has feedback in it.</li>
+</ul>
+<p><strong>Q19: In which memory is table 6.3 stored?</strong></p>
+<ul>
+<li>data memory.</li>
+</ul>
+<p><strong>Q20: What danger is there in all simulators according to table 6.4, in networks involving feedback?</strong></p>
+<ul>
+<li>In all simulators there is a danger of oscillation in networks involving feedback.</li>
+</ul>
+<p><strong>Q21: Is the LCC simulator a powerful tool for asynchronous logic? Give an example of asynchronous circuit, and give some comments.</strong></p>
+<ul>
+<li><p>No, LCC simulators should only be used with synchronous systems.</p>
+</li>
+<li><p>In digital electronics, an asynchronous circuit, clockless, or self-timed circuit, is a sequential digital logic circuit which is not governed by a clock circuit or global clock signal. Instead it often uses signals that indicate completion of instructions and operations, specified by simple data transfer protocols. (From Wikipedia) For example: </p>
+</li>
+<li></li>
+</ul>
+<p><strong>Q22: Why does the compiled code simulator run very fast?</strong></p>
+<ul>
+<li>The compiled code simulator runs very fast, since the code traces the links between elements, and time is ignored.</li>
+</ul>
+<p><strong>Q23: How to solve the problem that any change in network or devices require a full recompilation?</strong></p>
+<ul>
+<li>Use the event driven simulator.</li>
+</ul>
+<p><strong>Q24: What is the activity rate does it corresponds to the clock period of the synchronous logic for a LCC simulator?</strong></p>
+<ul>
+<li>As every logical element is evaluated in this time period, the activity is said to be 100%.</li>
+<li>For synchronous logic this corresponds to the activity in one clock period of the system.</li>
+<li></li>
+</ul>
+<p><strong>Q25: Why is the number of elements that requires evaluating is typically 1% or less at each time step for the event driven simulator?</strong></p>
+<ul>
+<li>Because time steps are much less than a clock period.</li>
+</ul>
+<p><strong>Q26: What is meaning of the ‘time step’ for a compiled code simulator?</strong></p>
+<ul>
+<li>In a compiled code simulator, a ‘time step’ is equivalent to a clock period.</li>
+</ul>
+<p><strong>Q27: What is the strength of an event driven simulator?</strong></p>
+<ul>
+<li>The strength of an event driven simulator is its ability to provide detailed timing.</li>
+</ul>
+<p><strong>Q28: What is the primary advantage of an event driven simulator?</strong></p>
+<ul>
+<li>The primary advantage of the event driven simulator is not speed, but time accuracy.</li>
+</ul>
+<p><strong>Q29: How many steps are there in the simulator’s working with the set of events for the time T? Describe the process step by step.</strong></p>
+<ul>
+<li>Three.</li>
+<li>An event is extracted from the list. The event data includes an address in the gate’s fan-out table.</li>
+<li>Starting at this address, the value of this output signal is updated. Subsequent fan-out table addresses point to element inputs driven by the current event. For each of the driven elements in turn, the data is extracted from other tables, the element type is determined, and the model evaluated.</li>
+<li>Outputs will be predicted to occur some time in the future, 𝛿t say, and these will be added to the event list for time T+𝛿t .</li>
+</ul>
+<p><strong>Q30: Where will the events be added to the event list for time T if outputs predicted to occur δt in the future?</strong></p>
+<ul>
+<li>The events will be added to the event list for time T+𝛿t .</li>
+</ul>
+<p><strong>Q31: What is the information contained in the fan-out memory?</strong></p>
+<ul>
+<li>The fan-out memory, FOM, containing information on where to find the inputs which are driven by that output.</li>
+</ul>
+<p><strong>Q32: In the case of no change at present, whether an output prediction is forwarded to the event memory or not?</strong></p>
+<ul>
+<li>Yes. All output predictions must be forwarded to the event memory, even if, at this stage, there appears to be no change.</li>
+</ul>
+<p><strong>Q33: What fields do records contain in a single linked list for an event memory?</strong></p>
+<ul>
+<li>value, fan-out index and absolute time.</li>
+</ul>
+<p><strong>Q34: What is the deficiency of using a single linked list for an event memory? And, what is the solution?</strong></p>
+<ul>
+<li>The total number of events in the memory for a reasonable sized piece of logic will be very large, and hence finding the place at which to insert an event could take a long time.</li>
+<li>The usual approach is to form a list of lists in order of time, called a ‘time wheel’.</li>
+</ul>
+<p><strong>Q35: What is the size of the total number of events in an EM for a reasonable sized piece of logic?</strong></p>
+<ul>
+<li>The total number of events in the memory for a reasonable sized piece of logic will be very</li>
+<li>large, and hence finding the place at which to insert an event could take a long time.</li>
+</ul>
+<p><strong>Q36: What kind of structure can you form for a ‘time wheel’?</strong></p>
+<ul>
+<li>The usual approach is to form a list of lists in order of time, called a ‘time wheel’.</li>
+</ul>
+<p><strong>Q37: What is a ‘time wheel’ or chronwheel?</strong></p>
+<ul>
+<li>The list pointers are thus a circular list, and is called a time WHEEL or chronwheel. The wheel itself is an array of pointers.</li>
+</ul>
+<p><strong>Q38: Where does each pointer in the time wheel indicate? Does a list of events make good use of storage? Why?</strong></p>
+<ul>
+<li>Each pointer in the time wheel indicates the address of a list of events that has been scheduled for that time. </li>
+<li>It doesn’t make good use of storage, because:</li>
+<li>Each list must be long enough to hold the maximum number of events for any time interval.</li>
+<li>Furthermore, the lists for the times furthest ahead are likely to have relatively few events.</li>
+<li>This is a very poor use of storage.</li>
+</ul>
+<p><strong>Q39: What is the alternative structure for each time slot in the time wheel?</strong></p>
+<ul>
+<li>An alternative is to use a linked list for each time slot in the time wheel. It is only necessary to provide sufficient storage for the sum of all the event lists, and there is much less wastage.</li>
+</ul>
+<p><strong>Q40: Which fields are there in each record of EM?</strong></p>
+<ul>
+<li>Each record holds the predicted value of a signal, the fan-out index (FOI), and a pointer.</li>
+<li></li>
+</ul>
+<p><strong>Q41: How many events are there in the set for this time in Fig. 6.11?</strong></p>
+<ul>
+<li>2 events. 包含两个事件，分别在地址137和地址31的事件寄存器中。</li>
+</ul>
+<p><strong>Q42: When is the address 137 added to the end of the free list?</strong></p>
+<ul>
+<li>The time wheel pointer is 137. The record at location 137 (in EM) is read. The pointer value, 31, is placed in the time wheel (for ‘T’) and the address 137 added to the end of the free list.</li>
+</ul>
+<p><strong>Q43: What is the processing sequence for events at time ‘T’, as in Fig. 6.11? Is the order of processing of all events in a given  list, which take place at the same time, important?</strong></p>
+<ul>
+<li>The sequence of event is the event 137 to event 31.</li>
+<li>事件处理的顺序不重要，因为每一个事件作用于一个单独的信号，因此事件之间互不影响，可以并行处理。</li>
+</ul>
+<p><strong>Q44: What does 3.5 sets of data out consist of according to conventional wisdom suggestion?</strong></p>
+<ul>
+<li>Conventional wisdom suggests that each output drives 2.5 inputs on average, so for each event, there are 3.5 sets of data out, that is for the output and 2.5 inputs (of the driven elements).</li>
+</ul>
+<p><strong>Q45: Do the elements driven by C need to be evaluated again at time 17, as in Fig. 6.13? Why?</strong></p>
+<ul>
+<li>No. Since all driven elements have already been evaluated for this change, they do not need to be evaluated again as a result of this event.</li>
+</ul>
+<p><strong>Q46: What does the simulator do if the output prediction is different from the value in the state table?</strong></p>
+<ul>
+<li>If the output prediction is different from the value in the state table, the event is passed on to the evaluation routines. The signal value in the state table is updated.</li>
+</ul>
+<p><strong>Q47: Which interested memories are there in an event driven simulator as in Fig. 6.7?</strong></p>
+<ul>
+<li>There are 4 interested memories (Fig. 6.7), which are each an allocated area of the real machine memory. </li>
+<li>Network memory, event memory, fan-out memory, state table</li>
+</ul>
+<p><strong>Q48: What is the form of addressing of the memories? What will be NM234 for the base of 10,000?</strong></p>
+<ul>
+<li>Addressing of the memories will be written in the form of base and offset.</li>
+<li>To find an item of data, the offset is added to the base to give the real address. Thus, NM234 will be 10234.</li>
+</ul>
+<p><strong>Q49: What is the Boolean expression of Z with the primary inputs as in Fig. 6.14?</strong></p>
+<ul>
+<li>Z=A⊕B</li>
+</ul>
+<p><strong>Q50: According to Table 6.5, what data is stored in a network memory? You may give your explanation using G1 as an example.</strong></p>
+<ul>
+<li>第一行是器件的名称以及在输出信号在FM的地址，</li>
+<li>第二行是器件输出信号的名称和信号值，之后是输入信号的名称和信号值</li>
+<li>最后是器件的功能，或者工艺信息。</li>
+<li>The 1st contains the base address of data relating to G1 in the fan-out memory.</li>
+<li>The 2nd contains the output value and the next two contain the input values.</li>
+<li>The last line contains the element type (or a pointer to the evaluation routine for this element)</li>
+</ul>
+<p><strong>Q51: Which information can you find in FOM for a signal? Give your explanation using signal C as an example in Table 6.6.</strong></p>
+<ul>
+<li>For G1, the output C is on line NM(1+1), and the two fan-in’s on lines NM(6+3) and NM(11+2)</li>
+<li>of the network memory.</li>
+</ul>
+<p><strong>Q53: Is the delay of tpLH equivalent to that of tpHL for the elements of example circuit? What is the value for each of them,  respectively?</strong></p>
+<ul>
+<li>No. The tpLH is 9ns, while the tpHL is 5ns.</li>
+</ul>
+<p><strong>Q54: What is the fan-out index of signal A as known by the primary input controller?</strong></p>
+<ul>
+<li>The fan-out index of A is known by the primary input controller to be FOM1.</li>
+</ul>
+<p><strong>Q55: What is to do if the value from the state table different from the new value of A?</strong></p>
+<ul>
+<li>The state table value is updated.</li>
+</ul>
+<p><strong>Q56: Must an input change be sent to the event memory even if gate-output’s prediction is unchanged?</strong></p>
+<ul>
+<li>Yes.</li>
+</ul>
+<p><strong>Q57: What is indicated as the flag in FOM1 of the fan-out memory is 1? Which memory location is set to 0 with the output of G2 being  predicted to 0 at time 5?</strong></p>
+<ul>
+<li>The flag in FOM1 of the fan-out memory is 1, indicating that another gate input is driven by A.</li>
+<li>The next free memory location in the event memory is at address EM1. The value in this location is set to 0, and the fan-out index to FOM8.</li>
+</ul>
+<p><strong>Q58: What does time do since the flag in line 2 of the fan-out memory is 0？Why？</strong></p>
+<ul>
+<li>Time now advances to find the next event., because there are no further fan-outs of signal A</li>
+</ul>
+<p><strong>Q59: What is the wheel pointer, at time 5? Which steps does simulator follow after find address EM1 of the event memory?</strong></p>
+<ul>
+<li>At time 5, the time wheel pointer is EM1.</li>
+<li>Address EM1 of the event memory has a fan-out index of FOM8.Reading line FOM8 of the fan-out memory finds the state table line ST2. Considering state table for line ST2, it is found that the value is 1 prior to time 5. The value from the event memory is 0, so there is a change. The value in line ST2 of the state table is updated accordingly. The fan-out memory of line FOM8 points to line NM(6+1) in the network memory. This is the output of G2, so Dis also updated. As this is an output, an evaluation is not required. Line EM1 location is returned to the free list.</li>
+</ul>
+<p><strong>Q60: What should the simulator do if a line of the fan-out memory has its flag set?</strong></p>
+<ul>
+<li>Read a further line.</li>
+</ul>
+<p><strong>Q61: When does the evaluation at time 5 predict that Z will change from ‘0’to ‘1’?</strong></p>
+<ul>
+<li>The evaluation predicts that Z will change to 1 in tpLH, at time 5+9 = 14.</li>
+</ul>
+<p><strong>Q62: What operation was taken on the EM when the event at time 5 was read out?</strong></p>
+<ul>
+<li>Event memory location EM1 was recovered when the event at time 5 was read out, so this is the next available location.</li>
+</ul>
+<p><strong>Q63: Why is there no further activity as a result of the change of A at time 0 after the event at time 14 is processed?</strong></p>
+<ul>
+<li>There are no fan-outs of this signal and there are no more events in the time wheel, so there is no further activity as a result of this change of A.</li>
+</ul>
+<p><strong>Q64: What is the new change that the primary input controller applies at time 100?</strong></p>
+<ul>
+<li>This is B going to 1.</li>
+</ul>
+<p><strong>Q65: What problem does consideration of the potential changes from 114 illustrate? And, what is the solution?</strong></p>
+<ul>
+<li>The first indicates a change of E to 1. As D is still 0(data not yet read), a prediction that Z will change to 1 at time 123 is made.</li>
+<li>However, on reading the D change, it is found that Z is predicted to go to 0 at time 119.</li>
+<li><p>It is assumed that the event at time 123 is deleted after the second event is read on processing T =114.</p>
+</li>
+<li><p>There are two solution, both of which are required.</p>
+</li>
+<li>For this specific case, it is sufficient if it can be arranged to evaluate each element not more than once in each time slot. This is described further in Sec. 6.5.1(*some refinements).</li>
+<li>The second solution is to remove the event at time 123. This in turn requires knowledge that the event has been placed, followed by a search of all event memory lists which might contain the false prediction.</li>
+<li>However, the use of unequal rising and falling delays, as here, makes it necessary to have some such mechanism.</li>
+</ul>
+<p><strong>Q66: What is the longest delay through the circuit for the input (B)’s changing at time 100? And, what is that for A’s changing to 0  at 200 ns?</strong></p>
+<ul>
+<li>19ns; 23ns.</li>
+</ul>
+<p><strong>Q67: What is the aim of a timing verifier?</strong></p>
+<ul>
+<li>The aim of a timing verifier is to perform a full analysis of the circuit independent of the input patterns</li>
+</ul>
+<p><strong>Q68: What is the horizontal ordinate and vertical ordinate for the state table, respectively?</strong></p>
+<ul>
+<li>horizontal ordinate: address</li>
+<li>vertical ordinate: T</li>
+<li>横坐标是仿真的时间点，纵坐标是每一个信号的指针</li>
+</ul>
+<p><strong>Q69: What is the use of Free List of EM?</strong></p>
+<ul>
+<li>For prediction and recover. </li>
+<li>free list用于存储事件寄存器中哪些空间可用，他可以让所有时轮中的事件列表共用一块内存。</li>
+</ul>
+<p><strong>Q70: Notice the short pulse on E. Does the ‘logic only’ LCC simulator predict this? Why is the difference?</strong></p>
+<ul>
+<li>No. 我们注意到e的一个短脉冲是由于c信号翻转的延时导致的，因此不考虑时延的LCC模型是不能对其进行描述的。</li>
+</ul>
+<p><strong>Q71: Which are examples of groups of signals?</strong></p>
+<ul>
+<li>Examples might include: memory address signals; data buses in a processor.</li>
+</ul>
+<p><strong>Q72: What benefits does treating such groups as a unit leads to?</strong></p>
+<ul>
+<li>Since the group is treated as a unit, it requires only one fan-out index.</li>
+<li>As there is only one set of fan-out data per group, the storage requirements of the fan-out memory are also reduced.</li>
+<li>As the group is a single unit, only one event has to pass around the simulator for each group.</li>
+</ul>
+<p><strong>Q73: How many fan-out index does it require since the group is treated as a unit? And, how about the number of events?</strong></p>
+<ul>
+<li>Since the group is treated as a unit, it requires only one fan-out index.</li>
+</ul>
+<p><strong>Q74: How many bits are defined in IEEE 754 standard for single-precision floating point number and double-precision number,  respectively?</strong></p>
+<ul>
+<li>32 bits for single-precision, 64 bits for double-precision number.</li>
+</ul>
+<p><strong>Q75: How does the simulator know a group and identify the size of its?</strong></p>
+<ul>
+<li>There is a bit to indicate that this is a group and some means of identifying the size of the group.</li>
+</ul>
+<p><strong>Q76: Where is a new routine named group split unit placed in Fig. 6.7? What does the group split unit do when it notices a new  prediction?</strong></p>
+<ul>
+<li>A new routine is placed in the simulator between the evaluator and the event memory (Fig. 6.7)</li>
+<li>When the 32-bit register prediction reaches the group split unit, the unit notices that it is a group rather than a single signal. The group split unit now calls the splitting procedure for this group. For the example quoted two groups are formed.</li>
+</ul>
+<p><strong>Q77: How many groups are there in line FOM53 after group splitting?</strong></p>
+<ul>
+<li>3</li>
+</ul>
+<p><strong>Q78: What is the offset for the 8-bit subgroup, 2 single bits, and the 20-bit group, respectively, supposing that the combined group  starts at NM (1234 + 5) in the network memory? And, which locations does each of them occupy?</strong></p>
+<ul>
+<li>Each subgroup, including the single bits, will have address NM1234 in the fan-out memory. All the offsets are computed by the network compiler at compile time.</li>
+</ul>
+<p><strong>Q79: What are major times involved in simulation?</strong></p>
+<ul>
+<li>The major times involved in simulation are</li>
+<li>calling and evaluating models,</li>
+<li>extracting data from the time wheel, following fan-out linkages and forming the affected components list,</li>
+<li>searching for erroneous data.</li>
+</ul>
+<p><strong>Q80: Which kinds of models do switch level simulators require?</strong></p>
+<ul>
+<li>Switch level simulators require different modelling approaches.</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">推荐文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/oracle-apex.html" rel="bookmark">Oracle APEX学习</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/oracledb.html" rel="bookmark">Oracle数据库学习</a></div>
+    </li>
+  </ul>
+
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/daily/2021-06-15.html" rel="prev" title="python 自定义 JSON Encoder">
+                  <i class="fa fa-chevron-left"></i> python 自定义 JSON Encoder
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/eda/Q1.html" rel="next" title="">
+                   <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fas fa-dove"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">frezcirno</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">156k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:22</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+  
+
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://frezcirno-github-io.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://frezcirno.github.io/eda/Q2.html";
+    this.page.identifier = "eda/Q2.html";
+    this.page.title = "";
+    };
+  NexT.utils.loadComments('#disqus_thread', () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://frezcirno-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+<script src="https://cdn.7c00h.xyz/live2d-widget/autoload.js"></script>
+</body>
+</html>
