@@ -141,7 +141,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">106</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">108</span></a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -215,7 +215,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">106</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -265,6 +265,217 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/leetcode/376.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.7c00h.xyz/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="Frezcirno的个人博客, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Frezcirno's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/leetcode/376.html" class="post-title-link" itemprop="url">376. 摆动序列</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-12 15:49:18" itemprop="dateCreated datePublished" datetime="2020-12-12T15:49:18+08:00">2020-12-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/leetcode/376.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="leetcode/376.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+      </div>
+      <div class="post-meta">
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>思路: 先差分, 然后把所有0和相邻同号的数字(之一)去掉, 剩下的元素数量+2既是最终答案</p>
+<p>注意: 元素个数为0, 元素个数为1, 差分后有0出现</p>
+<p>代码:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">wiggleMaxLength</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;nums)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> size = nums.size() - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (size &lt; <span class="number">1</span>) &#123; <span class="keyword">return</span> size + <span class="number">1</span>; &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> start = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">            nums[i] -= nums[i + <span class="number">1</span>];</span><br><span class="line">            <span class="comment">// find first not zero</span></span><br><span class="line">            <span class="keyword">if</span> (start == <span class="number">-1</span> &amp;&amp; nums[i] != <span class="number">0</span>) &#123; start = i; &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (start == <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// none</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">1</span>, want = nums[start];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = start + <span class="number">1</span>; i &lt; size; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((nums[i] &gt; <span class="number">0</span> &amp;&amp; want &lt; <span class="number">0</span>) ||</span><br><span class="line">                (nums[i] &lt; <span class="number">0</span> &amp;&amp; want &gt; <span class="number">0</span>)) &#123;  <span class="comment">// different sign and no zero</span></span><br><span class="line">                want = nums[i];</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> count + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>看过题解: 复杂了, 只要统计波峰和波谷的数量就行了</p>
+<p>别人的代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">wiggleMaxLength</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = nums.length;</span><br><span class="line">        <span class="keyword">if</span> (n &lt; <span class="number">2</span>) <span class="keyword">return</span> n;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>, prev_diff = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> diff = nums[i] - nums[i - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span> (diff &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &gt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = -<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (diff &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &lt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：lincs</span><br><span class="line">链接：https:<span class="comment">//leetcode-cn.com/problems/wiggle-subsequence/solution/java-on-solution-by-lincs-6l5r/</span></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/leetcode/index.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.7c00h.xyz/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="Frezcirno的个人博客, 记录一些技术相关的学习内容">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Frezcirno's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/leetcode/index.html" class="post-title-link" itemprop="url">每日 leetcode</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-12 15:35:18" itemprop="dateCreated datePublished" datetime="2020-12-12T15:35:18+08:00">2020-12-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/leetcode/index.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="leetcode/index.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+      </div>
+      <div class="post-meta">
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>63</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="决定开始刷leetcode了"><a href="#决定开始刷leetcode了" class="headerlink" title="决定开始刷leetcode了"></a>决定开始刷leetcode了</h1><p>目标:<br><del>每天一道</del><br><del>如果每日一题是easy, 就加一道hard</del><br>如果每日一题是easy, 就加一道medium</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -1209,515 +1420,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/daily/2020-12-04.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://cdn.7c00h.xyz/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="Frezcirno的个人博客, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Frezcirno's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/daily/2020-12-04.html" class="post-title-link" itemprop="url">每日小结</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-12-04 10:17:02" itemprop="dateCreated datePublished" datetime="2020-12-04T10:17:02+08:00">2020-12-04</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%AF%8F%E6%97%A5%E5%B0%8F%E7%BB%93-Day-Day-Up/" itemprop="url" rel="index"><span itemprop="name">每日小结 Day Day Up</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/daily/2020-12-04.html#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="daily/2020-12-04.html" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-      </div>
-      <div class="post-meta">
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>1.3k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>1 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="Java-包-Package-Jar和模块-Module-的区别"><a href="#Java-包-Package-Jar和模块-Module-的区别" class="headerlink" title="Java 包(Package), Jar和模块(Module)的区别"></a>Java 包(Package), Jar和模块(Module)的区别</h1><ul>
-<li><p>包 (Package)</p>
-<ul>
-<li><p>是Java源文件的集合, 包含Class/Interface/Annotation的定义</p>
-</li>
-<li><p>与文件系统中的目录对应</p>
-</li>
-<li><p>主要目的是<em>防止命名冲突</em></p>
-</li>
-</ul>
-</li>
-<li><p>Jar (Java Archive File)</p>
-<ul>
-<li><p>是编译后的Java代码(<code>.class</code>)的压缩包</p>
-</li>
-<li><p>实际上是一个zip格式文件</p>
-</li>
-<li><p>对Jar的操作用<code>jar</code>命令, 其语法类似Linux下的<code>tar</code></p>
-<ul>
-<li><p>创建Jar包: <code>jar cvf test.jar test</code></p>
-</li>
-<li><p>解压Jar包: <code>jar xvf test.jar</code></p>
-</li>
-<li><p>列举Jar包的内容: <code>jar tvf test.jar</code></p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>模块 (Module)</p>
-<ul>
-<li><p>是Java语言内置的一种管理组件之间依赖关系的方法, 在Java 9被引入</p>
-</li>
-<li><p>Module 解决的问题:</p>
-<ul>
-<li><p>在Java 9之前, <strong>主要使用package作为封装方式，使用Jar作为模块, 封装方式由 package和访问修饰符 (private, protected, public,包私有) 控制</strong></p>
-<ul>
-<li><p>任何模块都能访问其他模块的public的代码，不同Jar下的同名包可以相互访问包私有的代码。</p>
-</li>
-<li><p>无法控制非平台开发者对平台内部包的访问，如应用代码可以访问sun.misc、com.sun.security这样和具体平台绑定的包。</p>
-</li>
-<li><p>没有明确的依赖信息，模块开发者无法设置必须的依赖，模块使用者不清楚该模块必须依赖哪些模块。只能使用外部的工具，如Maven、Gradle、OSGI等。</p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Module 的优势</p>
-<ul>
-<li><p>明确的依赖配置，JPMS会在编译和运行之前检查当前环境是否满足依赖的要求。JPMS会检查版本冲突，即当有两个模块暴露了相同的包名时，系统会抛出异常。JPMS支持传递性依赖。</p>
-</li>
-<li><p>强大的封装，模块可以明确指定哪些包能暴露给哪些模块，JPMS不允许代码使用反射的方式访问不对外开放的包。</p>
-</li>
-<li><p>性能优化，JPMS完全清楚哪些模块是需要的，所以不需要的模块不会被JVM载入。</p>
-</li>
-</ul>
-</li>
-<li><p>Module 的不足:</p>
-<ul>
-<li>缺乏对模块的版本的支持</li>
-</ul>
-</li>
-<li><p>特点:</p>
-<p>  <img src="https://cdn.7c00h.xyz/images/2020-12-04-java-module.jpg" alt=""></p>
-</li>
-</ul>
-</li>
-</ul>
-<h1 id="Linux-Ubuntu-硬件管理"><a href="#Linux-Ubuntu-硬件管理" class="headerlink" title="Linux (Ubuntu) 硬件管理"></a>Linux (Ubuntu) 硬件管理</h1><ul>
-<li><p>通用</p>
-<ul>
-<li><code>lshw -short</code>: 列举所有硬件信息</li>
-</ul>
-</li>
-<li><p>CPU</p>
-<ul>
-<li><p><code>lscpu</code>: 查看CPU信息</p>
-</li>
-<li><p><code>cat /proc/cpuinfo</code>: 查看每个CPU的信息</p>
-</li>
-</ul>
-</li>
-<li><p>内存</p>
-<ul>
-<li><p><code>free [-m|-g|-k|-b|-h]</code>: 查看内存使用情况</p>
-</li>
-<li><p><code>cat /proc/meminfo</code>: 查看内存详细使用情况</p>
-</li>
-<li><p><code>dmidecode -t memory</code>: 查看内存硬件信息</p>
-</li>
-</ul>
-</li>
-<li><p>硬盘</p>
-<ul>
-<li><p><code>lsblk</code>: 查看硬盘和分区信息</p>
-</li>
-<li><p><code>fdisk -l</code>: 查看详细分区表</p>
-</li>
-<li><p><code>df -h</code>: 查看硬盘剩余空间</p>
-</li>
-</ul>
-</li>
-<li><p>主板 BIOS</p>
-<ul>
-<li><code>dmidecode -t bios</code>: 查看bios信息</li>
-</ul>
-</li>
-<li><p>PCI设备</p>
-<ul>
-<li><code>lspci</code></li>
-</ul>
-</li>
-<li><p>网卡</p>
-<ul>
-<li><p><code>lspci | grep -i &#39;Ethernet&#39;</code>: 查看网卡硬件信息 (Ethernet 以太网)</p>
-</li>
-<li><p><code>lspci | grep -i &#39;Wireless&#39;</code>: 查看无线网卡硬件信息</p>
-</li>
-<li><p><code>ifconfig -a</code>: 查看系统的所有网络接口</p>
-</li>
-</ul>
-</li>
-<li><p>USB 设备</p>
-<ul>
-<li><code>lsusb</code></li>
-</ul>
-</li>
-</ul>
-<h1 id="apt-remove-与-apt-purge-的区别"><a href="#apt-remove-与-apt-purge-的区别" class="headerlink" title="apt remove 与 apt purge 的区别"></a>apt remove 与 apt purge 的区别</h1><ul>
-<li>purge会删除配置文件, 而remove只会删除程序文件</li>
-</ul>
-<h1 id="Java-学习"><a href="#Java-学习" class="headerlink" title="Java 学习"></a>Java 学习</h1><ul>
-<li><p>Java多线程</p>
-<ul>
-<li>interrupt() 向该进程发送中断信号, 具体怎么处理由该进程实现</li>
-</ul>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/oracledb.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://cdn.7c00h.xyz/avatar.jpg">
-      <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="Frezcirno的个人博客, 记录一些技术相关的学习内容">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Frezcirno's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/oracledb.html" class="post-title-link" itemprop="url">Oracle数据库学习</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-12-03 12:59:18" itemprop="dateCreated datePublished" datetime="2020-12-03T12:59:18+08:00">2020-12-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">编程</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/oracledb.html#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="oracledb.html" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-      </div>
-      <div class="post-meta">
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>2.8k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>3 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考资料:</p>
-<p><a target="_blank" rel="noopener" href="https://docs.oracle.com/en/database/oracle/oracle-database/index.html">Oracle官方文档</a></p>
-<h1 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h1><p>Schema是表, 索引, 存储过程等等数据库对象(DB Object)的存储容器</p>
-<p>用户与Schema之间是<strong>一对一</strong>的关系</p>
-<p>例如: 访问用户A的xxx对象就通过 <code>A.xxx</code></p>
-<p><img src="oracledb/user-schema-tables.png" alt=""></p>
-<h1 id="Oracle-表空间"><a href="#Oracle-表空间" class="headerlink" title="Oracle 表空间"></a>Oracle 表空间</h1><p>表空间是逻辑上, 存放数据表的容器</p>
-<p>每张表一定属于某个表空间</p>
-<p>每个用户(Schema)可以拥有多个表空间, 而且都有一个默认表空间</p>
-<p>用户之间可以通过共享表空间的方式共享数据表</p>
-<p>物理上, 表空间的存储可能不是连续的</p>
-<h1 id="PL-SQL"><a href="#PL-SQL" class="headerlink" title="PL/SQL"></a>PL/SQL</h1><ul>
-<li>A primary benefit of PL/SQL is the ability to store application logic in the database itself.</li>
-</ul>
-<h1 id="Oracle-体系结构-重要"><a href="#Oracle-体系结构-重要" class="headerlink" title="Oracle 体系结构 (重要)"></a>Oracle 体系结构 (重要)</h1><ul>
-<li>Oracle Server = Oracle Instance + Oracle Database</li>
-</ul>
-<h2 id="1-Oracle实例-Oracle-Instance"><a href="#1-Oracle实例-Oracle-Instance" class="headerlink" title="1. Oracle实例 (Oracle Instance)"></a>1. Oracle实例 (Oracle Instance)</h2><p>Oracle Instance = SGA(system global area) + Background Process</p>
-<p>是一组<strong>OS进程(线程)和一些内存(SGA)</strong>的总称</p>
-<p>可以用来mount和open一个数据库</p>
-<p>一个实例在其生存期中最多只能装载和打开一个数据库。要想再打开这个（或其他）数据库，必须先丢弃这个实例，并创建一个新的实例。</p>
-<p>一个数据库实例的状态分为以下几种</p>
-<ul>
-<li><p><code>started</code></p>
-</li>
-<li><p><code>mounted</code></p>
-</li>
-<li><p><code>open</code></p>
-</li>
-<li><p><code>close</code></p>
-</li>
-<li><p><code>mounted</code></p>
-</li>
-<li><p><code>open</code></p>
-</li>
-</ul>
-<h3 id="started-状态"><a href="#started-状态" class="headerlink" title="started 状态"></a><code>started</code> 状态</h3><p>在执行<code>startup nomount</code>命令后, Oracle会执行以下操作, 之后实例会进入<code>started</code>状态, 此时实例还未绑定数据库</p>
-<ul>
-<li><p>读取配置文件</p>
-</li>
-<li><p>分配<code>SGA</code></p>
-</li>
-<li><p>启动后台进程</p>
-</li>
-<li><p>打开一些用于记录的文件</p>
-</li>
-</ul>
-<h3 id="mounted-状态"><a href="#mounted-状态" class="headerlink" title="mounted 状态"></a><code>mounted</code> 状态</h3><p>在执行<code>startup mount</code>或者<code>alter database mount</code>命令后, 实例会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
-<p>数据库打开后, 执行<code>alter database close</code>命令后, 实例也会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
-<p>此时实例与数据库建立了联系, 但是只有DBA能够访问数据库。</p>
-<h3 id="open-状态"><a href="#open-状态" class="headerlink" title="open 状态"></a><code>open</code> 状态</h3><p>在执行<code>startup</code>或者<code>alter database open</code>命令后, 实例会进入<code>open</code>状态。</p>
-<p>此时实例与数据库建立了联系, 数据库完全启动, 普通用户也可以访问数据库。</p>
-<h2 id="2-Oracle数据库-Oracle-Database"><a href="#2-Oracle数据库-Oracle-Database" class="headerlink" title="2. Oracle数据库 (Oracle Database)"></a>2. Oracle数据库 (Oracle Database)</h2><p>Oracle Database = Controlfile + datafile + logfile + spfile + …</p>
-<p>是存储在<strong>磁盘</strong>上的<strong>一组数据文件</strong>的集合</p>
-<p>一般来说, 一个数据库上只有一个实例对其进行操作</p>
-<p>但是也有例外: RAC（Real Application Clusters）就允许在集群环境中的多台计算机上操作，这样就可以有多台实例同时装载并打开一个数据库（位于一组共享物理磁盘上）</p>
-<p>例外2: 容器式数据库</p>
-<h2 id="3-Oracle数据库和Oracle实例的关系"><a href="#3-Oracle数据库和Oracle实例的关系" class="headerlink" title="3. Oracle数据库和Oracle实例的关系"></a>3. <em>Oracle数据库</em>和<em>Oracle实例</em>的关系</h2><ol>
-<li><p>一个实例一生只能够装载及打开一个数据库  </p>
-</li>
-<li><p>一个数据库能够被多个实例装载并打开(RAC)</p>
-</li>
-<li><p>每个运行着的数据库一定与至少一个实例关联</p>
-</li>
-</ol>
-<p><img src="oracledb/instance-and-database.png" alt=""></p>
-<p>Oracle数据库与实例的启动过程</p>
-<p><img src="oracledb/startup-sequence.png" alt=""></p>
-<p>Oracle数据库与实例的关闭过程</p>
-<p><img src="oracledb/shutdown-sequence.png" alt=""></p>
-<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><ul>
-<li><p>名称, 版本信息查看</p>
-<ul>
-<li><p>查询数据库版本信息</p>
-<p>  <code>SQL&gt; select * from v$version;</code></p>
-</li>
-<li><p>查看数据库名称</p>
-<p>  <code>SQL&gt; show parameter db_name;</code></p>
-</li>
-<li><p>查看数据库服务名</p>
-<p>  <code>SQL&gt; show parameter service_names;</code></p>
-</li>
-<li><p>查询全局数据库名称</p>
-<p>  <code>SQL&gt; select * from global_name;</code></p>
-</li>
-</ul>
-</li>
-<li><p>数据库实例 (Instance)</p>
-<ul>
-<li><p>查询当前数据库实例名称</p>
-<p>  <code>SQL&gt; select instance_name from v$instance;</code></p>
-</li>
-<li><p>查看当前数据库实例状态(open/mount等)</p>
-<p>  <code>SQL&gt; select status from v$instance;</code></p>
-</li>
-<li><p>查看数据库实例启动时间</p>
-<p>  <code>SQL&gt; SELECT TO_CHAR(STARTUP_TIME,&#39;MON-DD-RR HH24:MI:SS&#39;) AS &quot;Inst Start Time&quot; FROM V$INSTANCE;</code></p>
-</li>
-<li><p>创建一个新的数据库实例、加载数据库、打开数据库 (需要DBA权限)</p>
-<p>  <code>SQL&gt; startup [nomount | mount | open];</code></p>
-</li>
-<li><p>关闭实例绑定的数据库、卸载数据库、结束当前实例 (需要DBA权限)</p>
-<p>  <code>SQL&gt; shutdown [normal | transactional | immediate];</code></p>
-</li>
-<li><p>关闭实例绑定的数据库、卸载数据库</p>
-<p>  <code>SQL&gt; alter database close;</code></p>
-</li>
-<li><p>加载数据库/打开数据库</p>
-<p>  <code>SQL&gt; alter database [mount | open];</code></p>
-</li>
-</ul>
-</li>
-<li><p>数据库设置, 统计信息等</p>
-<ul>
-<li><p>查询数据库打开模式(mounted/open/read write)</p>
-<p>  <code>SQL&gt; select open_mode from v$database;</code></p>
-</li>
-<li><p>查看数据库DBF文件位置</p>
-<p>  <code>SQL&gt; select name from v$datafile;</code></p>
-</li>
-<li><p>查询数据文件状态</p>
-<p>  <code>SQL&gt; select file#,name,status,enabled,checkpoint_change# from v$datafile;</code></p>
-</li>
-<li><p>查询数据文件位置</p>
-<p>  <code>SQL&gt; select name from v$datafile;</code></p>
-</li>
-<li><p>查询数据文件（表空间）大小</p>
-<p>  <code>SQL&gt; select sum(bytes)/1024/1024/1024 as GB from v$datafile;</code></p>
-</li>
-<li><p>查询有效数据大小</p>
-<p>  <code>SQL&gt; select sum(bytes)/1024/1024/1024 as GB from dba_segments;</code></p>
-</li>
-<li><p>查看当前库的所有数据表</p>
-<p>  <code>SQL&gt; select TABLE_NAME from all_tables;</code></p>
-</li>
-</ul>
-</li>
-<li><p>可插拔数据库 (PDB) 管理</p>
-<ul>
-<li><p>查看数据库是CDB还是传统DB</p>
-<p>  <code>SQL&gt; select name, cdb, open_mode, con_id from v$database;</code></p>
-</li>
-<li><p>查看当前容器 (CDB) 名</p>
-<p>  <code>SQL&gt; show con_name;</code></p>
-</li>
-<li><p>列举当前容器中的所有PDB以及状态</p>
-<p>  <code>SQL&gt; select con_id, dbid, guid, name, open_mode from v$pdbs;</code></p>
-</li>
-<li><p>切换到某个PDB</p>
-<p>  <code>SQL&gt; alter session set container=&lt;PDB&gt;;</code></p>
-</li>
-<li><p>启动PDB数据库</p>
-<p>  <code>SQL&gt; alter pluggable database &lt;PDB&gt; open;</code></p>
-<p>  或者</p>
-<p>  <code>SQL&gt; alter session set container=&lt;PDB&gt;;</code><br>  <code>SQL&gt; startup</code></p>
-</li>
-<li><p>关闭PDB数据库</p>
-<p>  <code>SQL&gt; alter pluggable database &lt;PDB&gt; close;</code></p>
-</li>
-</ul>
-</li>
-<li><p>用户管理</p>
-<ul>
-<li>创建用户</li>
-</ul>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" href="/page/9/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/11/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
@@ -1764,7 +1466,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">156k</span>
+    <span title="站点总字数">157k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
@@ -1830,6 +1532,6 @@
   // defer loading until the whole page loading is completed
   window.addEventListener('load', loadCount, false);
 </script>
-<script src="https://cdn.7c00h.xyz/live2d-widget/autoload.js"></script>
+<!-- <script src="https://cdn.7c00h.xyz/live2d-widget/autoload.js"></script> -->
 </body>
 </html>
