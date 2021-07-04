@@ -3867,6 +3867,14 @@ f[i][j - 2], & p[j] = '*' ~and~ s[i] \neq p[j-1]
       </tags>
   </entry>
   <entry>
+    <title>645. 错误的集合</title>
+    <url>/leetcode/645.html</url>
+    <content><![CDATA[<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param <span class="type">&#123;number[]&#125;</span> <span class="variable">nums</span></span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return <span class="type">&#123;number[]&#125;</span></span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> findErrorNums = <span class="function"><span class="keyword">function</span>(<span class="params">nums</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> ex = <span class="keyword">new</span> <span class="built_in">Array</span>(nums.length);</span><br><span class="line">    <span class="keyword">let</span> dup,lost;</span><br><span class="line">    <span class="keyword">for</span>(num <span class="keyword">of</span> nums)&#123;</span><br><span class="line">        <span class="keyword">if</span> (!ex[num-<span class="number">1</span>])&#123;</span><br><span class="line">            ex[num-<span class="number">1</span>]=<span class="number">1</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            dup=num;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>;i&lt;nums.length;i++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(!ex[i])&#123;</span><br><span class="line">            lost=i+<span class="number">1</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> [dup, lost]</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
     <title>684. 冗余连接</title>
     <url>/leetcode/684.html</url>
     <content><![CDATA[<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>有环无向图中找出环上最后出现的边</p>
