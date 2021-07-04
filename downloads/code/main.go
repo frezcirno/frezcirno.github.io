@@ -16,9 +16,9 @@ func check(err error) {
 	}
 }
 
-var endpoint = "7c00h.xyz:9000"
-var accessKeyID = "frezcirno"
-var secretAccessKey = "tanzixuan"
+var endpoint = "server:9000"
+var accessKeyID = "username"
+var secretAccessKey = "password"
 var useSSL = false
 var bucketName = "furniture"
 var minioClient *minio.Client
