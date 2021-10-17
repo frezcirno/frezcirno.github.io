@@ -10,10 +10,10 @@ function newLeetcode(id) {
     });
 }
 
-function newDaily() {
+function newDaily(args) {
     let today = new Date(Date.now())
     let date = today.toISOString().slice(0, 10)
-    let cmd = ['hexo', 'new', 'post', '-p', `daily/${date}`, "title"].join(' ');
+    let cmd = ['hexo', 'new', 'post', '-p', `daily/${date}-${args[0]}`, "title"].join(' ');
     exec(cmd, (error, stdout, stderr) => {
         if (stdout) console.log(stdout);
         if (stderr) console.log(stderr);
@@ -34,7 +34,7 @@ function main() {
         case 'daily':
         case 'da':
         case 'd':
-            newDaily();
+            newDaily(args.slice(1));
         default:
             break;
     }
