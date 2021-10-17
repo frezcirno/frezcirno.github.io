@@ -1159,7 +1159,7 @@ pre code {
 }
 .headband {
   background: var(--theme-color);
-  height: 3px;
+  height: 0px;
 }
 @media (max-width: 991px) {
   .headband {
@@ -2628,7 +2628,7 @@ mjx-container[display='true'] + br {
 }
 .header-inner {
   background: var(--content-bg-color);
-  border-radius: 20px 20px 20px 20px;
+  border-radius: 10px 10px 10px 10px;
   box-shadow: 0 2px 2px 0 rgba(0,0,0,0.12), 0 3px 1px -2px rgba(0,0,0,0.06), 0 1px 5px 0 rgba(0,0,0,0.12);
   width: 240px;
 }
@@ -2662,7 +2662,7 @@ mjx-container[display='true'] + br {
   }
 }
 .main-inner {
-  border-radius: 20px 20px 20px 20px;
+  border-radius: 10px 10px 10px 10px;
   box-sizing: border-box;
   width: calc(100% - 252px);
 }
@@ -2793,7 +2793,7 @@ mjx-container[display='true'] + br {
 }
 .sidebar-inner {
   background: var(--content-bg-color);
-  border-radius: 20px;
+  border-radius: 10px;
   box-shadow: 0 2px 2px 0 rgba(0,0,0,0.12), 0 3px 1px -2px rgba(0,0,0,0.06), 0 1px 5px 0 rgba(0,0,0,0.12), 0 -1px 0.5px 0 rgba(0,0,0,0.09);
   box-sizing: border-box;
   color: var(--text-color);
@@ -2848,7 +2848,7 @@ mjx-container[display='true'] + br {
 .main-inner > .comments,
 .main-inner > .pagination {
   background: var(--content-bg-color);
-  border-radius: 20px 20px 20px 20px;
+  border-radius: 10px 10px 10px 10px;
   box-shadow: 0 2px 2px 0 rgba(0,0,0,0.12), 0 3px 1px -2px rgba(0,0,0,0.06), 0 1px 5px 0 rgba(0,0,0,0.12);
 }
 .main-inner > .sub-menu:not(:first-child):not(.sub-menu),
@@ -2856,7 +2856,7 @@ mjx-container[display='true'] + br {
 .main-inner > .tabs-comment:not(:first-child):not(.sub-menu),
 .main-inner > .comments:not(:first-child):not(.sub-menu),
 .main-inner > .pagination:not(:first-child):not(.sub-menu) {
-  border-radius: 20px;
+  border-radius: 10px;
   box-shadow: 0 2px 2px 0 rgba(0,0,0,0.12), 0 3px 1px -2px rgba(0,0,0,0.06), 0 1px 5px 0 rgba(0,0,0,0.12), 0 -1px 0.5px 0 rgba(0,0,0,0.09);
   margin-top: 12px;
 }
@@ -2930,6 +2930,14 @@ body {
   background-attachment: fixed;
   background-size: cover;
   background-position: 50% 50%;
+}
+@media (min-width: 991px) {
+  .main {
+    margin-top: 20px;
+  }
+}
+.header-inner {
+  overflow: hidden;
 }
 .posts-expand {
   opacity: 0.95;
