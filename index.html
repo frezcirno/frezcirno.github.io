@@ -289,59 +289,14 @@
 <p>创建编译用的目录，我一般习惯命名为build：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir build &amp;&amp; <span class="built_in">cd</span> build</span><br></pre></td></tr></table></figure>
 <p>编译配置：</p>
-<p>此处可配置的选项极多，具体含义可以在<a target="_blank" rel="noopener" href="https://gcc.gnu.org/install/configure.html">gcc网站</a>上查询. 如果不知道应该加什么参数，可以参考系统上已有的gcc的配置参数：<code>gcc -v</code>。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">../configure -v \</span><br><span class="line">    --prefix=/usr/<span class="built_in">local</span></span><br><span class="line">    --enable-languages=c,c++ \</span><br><span class="line">    --with-gcc-major-version-only \</span><br><span class="line">    --enable-shared \</span><br><span class="line">    --enable-linker-build-id \</span><br><span class="line">    --without-included-gettext \</span><br><span class="line">    --enable-threads=posix \</span><br><span class="line">    --enable-nls \</span><br><span class="line">    --enable-bootstrap \</span><br><span class="line">    --enable-clocale=gnu \</span><br><span class="line">    --enable-libstdcxx-debug \</span><br><span class="line">    --enable-libstdcxx-time=yes \</span><br><span class="line">    --with-default-libstdcxx-abi=new \</span><br><span class="line">    --enable-gnu-unique-object \</span><br><span class="line">    --disable-vtable-verify \</span><br><span class="line">    --enable-libmpx \</span><br><span class="line">    --enable-plugin \</span><br><span class="line">    --enable-default-pie \</span><br><span class="line">    --with-system-zlib \</span><br><span class="line">    --with-target-system-zlib \</span><br><span class="line">    --enable-multiarch \</span><br><span class="line">    --disable-werror \</span><br><span class="line">    --with-arch-32=i686 \</span><br><span class="line">    --with-abi=m64 \</span><br><span class="line">    --with-multilib-list=m32,m64,mx32 \</span><br><span class="line">    --enable-multilib \</span><br><span class="line">    --with-tune=generic \</span><br><span class="line">    --enable-offload-targets=nvptx-none \</span><br><span class="line">    --without-cuda-driver \</span><br><span class="line">    --enable-checking=release \</span><br><span class="line">    --build=x86_64-linux-gnu \</span><br><span class="line">    --host=x86_64-linux-gnu \</span><br><span class="line">    --target=x86_64-linux-gnu</span><br></pre></td></tr></table></figure>
-<p>此处解释几个关键配置</p>
-<ul>
-<li><p>—build</p>
-<p>  当前正在使用的机器的环境</p>
-</li>
-<li><p>—host</p>
-<p>  编译产物(gcc)将会运行在的环境</p>
-</li>
-<li><p>—target</p>
-<p>  编译出来的gcc的编译产物的目标环境</p>
-</li>
-</ul>
-<p>以上三个参数用于交叉编译，比如在x86_64机器上(build)编译一个即将在arm上运行(host)的编译器，该编译器产生在arm上(target)运行的程序。三个参数的格式均为<code>cpu-company-system</code></p>
-<ul>
-<li><p>—prefix=/usr/local</p>
-<p>  编译产物的安装目录。系统默认的gcc一般会安装在/usr下，为了不影响系统的gcc，建议设置为不同的路径</p>
-</li>
-<li><p>—enable-languages</p>
-<p>  配置gcc支持的语言类型，可选项有ada, c, c++, go等, 由于笔者只需要c和c++，因此只开启了c和c++.</p>
-</li>
-<li><p>—enable-multilib</p>
-<p>  是否编译target上的multilib, multilib是在target上编译和运行架构不同程序所需的库，比如在x86_64上编译运行32位程序。</p>
-</li>
-<li><p>—with-multilib-list</p>
-<p>  开启的multilib列表，对于不同target，此处允许的值有所不同。在<code>x86_64-*-linux*</code>上有m32, m64, mx32三个可选项。</p>
-</li>
-</ul>
-<p>开始编译并安装：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
-<p>环境变量配置：</p>
-<p>下面的<code>$INSTALLDIR</code>要换成对应的值。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="built_in">export</span> PATH=<span class="string">&quot;<span class="variable">$INSTALLDIR</span>/bin:\$PATH&quot;</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="built_in">export</span> CPPFLAGS=<span class="string">&quot;-I<span class="variable">$INSTALLDIR</span>/include \$CPPFLAGS&quot;</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="built_in">export</span> LDFLAGS=<span class="string">&quot;-L<span class="variable">$INSTALLDIR</span>/lib64 -L<span class="variable">$INSTALLDIR</span>/lib \$LDFLAGS&quot;</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="built_in">export</span> LD_LIBRARY_PATH=<span class="string">&quot;<span class="variable">$INSTALLDIR</span>/lib64:<span class="variable">$INSTALLDIR</span>/lib:\$LD_LIBRARY_PATH&quot;</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br></pre></td></tr></table></figure>
-<h2 id="安装-Python-3"><a href="#安装-Python-3" class="headerlink" title="安装 Python 3"></a>安装 Python 3</h2><p>YouCompleteMe需要最低Python3.6的环境，如果不满足，则需要安装</p>
-<p>如果软件源中包含了满足要求的python版本，则可以直接安装；否则需要从源码编译。</p>
-<p>a. 直接从软件源安装</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install python3.8 python3.8-dev</span><br></pre></td></tr></table></figure>
-<p>b. 从源码编译Python3</p>
-<p>暂时没有用到，略过</p>
-<h2 id="编译-VIM"><a href="#编译-VIM" class="headerlink" title="编译 VIM"></a>编译 VIM</h2><p>VIM的编译过程相对简单了很多</p>
-<p>克隆代码，可以直接克隆最新版本：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --depth 1 https://github.com/vim/vim.git    </span><br></pre></td></tr></table></figure>
-<p>编译配置：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> vim/src</span><br><span class="line">./configure \</span><br><span class="line">    --with-features=huge \</span><br><span class="line">    --enable-multibyte \</span><br><span class="line">    --enable-pythoninterp=dynamic \</span><br><span class="line">    --with-python-config-dir=$(python2.7-config --configdir) \</span><br><span class="line">    --enable-python3interp=dynamic \</span><br><span class="line">    --with-python3-config-dir=$(python3.8-config --configdir) \</span><br><span class="line">    --enable-cscope \</span><br><span class="line">    --enable-gui=auto \</span><br><span class="line">    --enable-gtk2-check \</span><br><span class="line">    --enable-fontset \</span><br><span class="line">    --enable-largefile \</span><br><span class="line">    --disable-netbeans \</span><br><span class="line">    --with-compiledby=<span class="string">&quot;xxxxx@xx.com&quot;</span> \</span><br><span class="line">    --enable-fail-if-missing</span><br></pre></td></tr></table></figure>
-<p>编译安装：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
-<h2 id="安装-CMAKE"><a href="#安装-CMAKE" class="headerlink" title="安装 CMAKE"></a>安装 CMAKE</h2><p>下载cmake并安装：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3-linux-x86_64.sh</span><br><span class="line">chmod +x cmake-3.21.3-linux-x86_64.sh</span><br><span class="line">./cmake-3.21.3-linux-x86_64.sh</span><br></pre></td></tr></table></figure>
-<p>配置环境变量：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo export PATH&#x3D;$(pwd)&#x2F;cmake-3.21.3-linux-x86_64&#x2F;bin:\$PATH &gt;&gt; $HOME&#x2F;.bashrc  </span><br></pre></td></tr></table></figure>
-<h2 id="安装-YouCompleteMe-插件"><a href="#安装-YouCompleteMe-插件" class="headerlink" title="安装 YouCompleteMe 插件"></a>安装 YouCompleteMe 插件</h2><p>——待更新</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/daily/2021-10-17-vim-youcompleteme-plugin.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -429,6 +384,14 @@
     
     <div class="post-body" itemprop="articleBody">
           <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param <span class="type">&#123;number[]&#125;</span> <span class="variable">nums</span></span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return <span class="type">&#123;number[]&#125;</span></span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> findErrorNums = <span class="function"><span class="keyword">function</span>(<span class="params">nums</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> ex = <span class="keyword">new</span> <span class="built_in">Array</span>(nums.length);</span><br><span class="line">    <span class="keyword">let</span> dup,lost;</span><br><span class="line">    <span class="keyword">for</span>(num <span class="keyword">of</span> nums)&#123;</span><br><span class="line">        <span class="keyword">if</span> (!ex[num-<span class="number">1</span>])&#123;</span><br><span class="line">            ex[num-<span class="number">1</span>]=<span class="number">1</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            dup=num;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>;i&lt;nums.length;i++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(!ex[i])&#123;</span><br><span class="line">            lost=i+<span class="number">1</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> [dup, lost]</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/leetcode/645.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -586,6 +549,14 @@ h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
 &= (h_{i-1} - s_{i-1} b^{L-1}) b + s_{i+L-1}
 \end{aligned}</script><p>代码：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">rk_hash</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> s, <span class="keyword">int</span> start, <span class="keyword">int</span> base, <span class="keyword">int</span> L, <span class="keyword">int</span> mod)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> hash = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; L; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        hash = (hash * base) % mod;</span><br><span class="line">        hash = (hash + s[start + i]) % mod;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> hash;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">powmod</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> n, <span class="keyword">int</span> m)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n == <span class="number">1</span>) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">if</span> (n % <span class="number">2</span> == <span class="number">0</span>) <span class="keyword">return</span> powmod((<span class="keyword">long</span> <span class="keyword">long</span>)a * a % m, n / <span class="number">2</span>, m) % m;</span><br><span class="line">    <span class="keyword">return</span> ((powmod((<span class="keyword">long</span> <span class="keyword">long</span>)a * a % m, n / <span class="number">2</span>, m) % m) * ((<span class="keyword">long</span> <span class="keyword">long</span>)a % m)) % m;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">rk_cont_hash</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> s, <span class="keyword">int</span> start, <span class="keyword">int</span> last_h, <span class="keyword">int</span> base, <span class="keyword">int</span> L, <span class="keyword">int</span> mod)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> hash = last_h - s[start - <span class="number">1</span>] * powmod(base, L - <span class="number">1</span>, mod);</span><br><span class="line">    hash = (hash * base) % mod;</span><br><span class="line">    hash = (hash + s[start + L - <span class="number">1</span>]) % mod;</span><br><span class="line">    <span class="keyword">return</span> hash;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/daily/2021-07-02.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -673,6 +644,14 @@ h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
     
     <div class="post-body" itemprop="articleBody">
           <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param <span class="type">&#123;number[]&#125;</span> <span class="variable">rating</span></span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return <span class="type">&#123;number&#125;</span></span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> numTeams = <span class="function"><span class="keyword">function</span> (<span class="params">rating</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; rating.length - <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">let</span> ri = rating[i];</span><br><span class="line">        <span class="keyword">let</span> countx1 = <span class="number">0</span>, countx2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">let</span> county1 = <span class="number">0</span>, county2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = <span class="number">0</span>; x &lt; i; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) countx1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) countx2++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = i + <span class="number">1</span>; x &lt; rating.length; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) county1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) county2++;</span><br><span class="line">        &#125;</span><br><span class="line">        count += countx1 * county2 + countx2 * county1;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/leetcode/1395.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -761,6 +740,14 @@ h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
     <div class="post-body" itemprop="articleBody">
           <p>排序</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param <span class="type">&#123;number[]&#125;</span> <span class="variable">costs</span></span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param <span class="type">&#123;number&#125;</span> <span class="variable">coins</span></span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return <span class="type">&#123;number&#125;</span></span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> maxIceCream = <span class="function"><span class="keyword">function</span> (<span class="params">costs, coins</span>) </span>&#123;</span><br><span class="line">    costs.sort(<span class="function">(<span class="params">a, b</span>) =&gt;</span> a - b);</span><br><span class="line">    <span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; costs.length; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (costs[i] &lt;= coins) &#123;</span><br><span class="line">            coins -= costs[i];</span><br><span class="line">            count++;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/leetcode/1833.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -849,6 +836,14 @@ h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
     <div class="post-body" itemprop="articleBody">
           <h1 id="python-自定义-JSON-Encoder"><a href="#python-自定义-JSON-Encoder" class="headerlink" title="python 自定义 JSON Encoder"></a>python 自定义 JSON Encoder</h1><p>继承 json.JSONEncoder 类, 重载 default 方法</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">convert_time</span>(<span class="params">dt: DateTime</span>):</span></span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CustomJSONEncoder</span>(<span class="params">JSONEncoder</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">default</span>(<span class="params">self, o</span>):</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, self).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, self).default(o)</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/daily/2021-06-15.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -936,15 +931,17 @@ h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
     
     <div class="post-body" itemprop="articleBody">
           <p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
-<h1 id="Python-数据科学常用的库"><a href="#Python-数据科学常用的库" class="headerlink" title="Python 数据科学常用的库"></a>Python 数据科学常用的库</h1><p><img src="https://cdn.7c00h.xyz/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" alt=""></p>
+<h1 id="Python-数据科学常用的库"><a href="#Python-数据科学常用的库" class="headerlink" title="Python 数据科学常用的库"></a>Python 数据科学常用的库</h1><p><img src="https://cdn.7c00h.xyz/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" alt></p>
 <h1 id="Numpy-使用"><a href="#Numpy-使用" class="headerlink" title="Numpy 使用"></a>Numpy 使用</h1><h2 id="array-对象"><a href="#array-对象" class="headerlink" title="array 对象"></a>array 对象</h2><h1 id="Matplotlib-使用"><a href="#Matplotlib-使用" class="headerlink" title="Matplotlib 使用"></a>Matplotlib 使用</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
-<h1 id="Pandas-使用"><a href="#Pandas-使用" class="headerlink" title="Pandas 使用"></a>Pandas 使用</h1><h2 id="Series-对象"><a href="#Series-对象" class="headerlink" title="Series 对象"></a>Series 对象</h2><h2 id="Dataframe-对象"><a href="#Dataframe-对象" class="headerlink" title="Dataframe 对象"></a>Dataframe 对象</h2><p>博客更新日志：</p>
-<ul>
-<li>日记分类名字从「每日小结」改为「每日小结 Day Day Up」</li>
-<li>日记文章标题从今往后将取有意义的名字</li>
-<li>日记文件名改成更加标准的 ISO-8601 命名法</li>
-</ul>
-
+<h1 id="Pandas-使用"><a href="#Pandas-使用" class="headerlink" title="Pandas 使用"></a>Pandas 使用</h1><h2 id="Series-对象"><a href="#Series-对象" class="headerlink" title="Series 对象"></a>Series 对象</h2><h2 id="Dataframe-对象"><a href="#Dataframe-对象" class="headerlink" title="Dataframe 对象"></a>Dataframe 对象</h2>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/daily/2021-03-14.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1033,6 +1030,14 @@ h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
     <div class="post-body" itemprop="articleBody">
           <h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>动态规划 &lt; 中心扩展算法 &lt; manacher</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">longestPalindrome</span><span class="params">(<span class="built_in">string</span> s)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = s.size();</span><br><span class="line">        <span class="keyword">int</span> maximum = <span class="number">1</span>, maxI = <span class="number">0</span>, maxJ = <span class="number">0</span>;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; dp(n, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(n, <span class="number">0</span>));</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = n - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i; j &lt; n; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (i == j) &#123;</span><br><span class="line">                    dp[i][j] = <span class="number">1</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    dp[i][j] = max(dp[i][j - <span class="number">1</span>], dp[i + <span class="number">1</span>][j]);</span><br><span class="line">                    <span class="keyword">if</span> (dp[i + <span class="number">1</span>][j - <span class="number">1</span>] == j - i - <span class="number">1</span> &amp;&amp; s[i] == s[j])</span><br><span class="line">                        dp[i][j] = max(dp[i][j], dp[i + <span class="number">1</span>][j - <span class="number">1</span>] + <span class="number">2</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (dp[i][j] &gt; maximum) &#123;</span><br><span class="line">                    maximum = dp[i][j];</span><br><span class="line">                    maxI = i;</span><br><span class="line">                    maxJ = j;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">string</span>(s.begin() + maxI, s.begin() + maxJ + <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/leetcode/5.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1120,6 +1125,14 @@ h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
     
     <div class="post-body" itemprop="articleBody">
           <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode *<span class="title">reverseKGroup</span><span class="params">(ListNode *head, <span class="keyword">int</span> k)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        ListNode _header(<span class="number">0</span>, head);</span><br><span class="line">        ListNode *last = &amp;_header;</span><br><span class="line">        head = last;</span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (head) &#123;</span><br><span class="line">            head = head-&gt;next;</span><br><span class="line">            count++;</span><br><span class="line">            <span class="keyword">if</span> (head &amp;&amp; count == k) &#123;</span><br><span class="line">                count -= k;</span><br><span class="line">                ListNode *tmp_last_next = last-&gt;next;</span><br><span class="line">                reverseK(last, k);</span><br><span class="line">                head = last = tmp_last_next;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> _header.next;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">reverseK</span><span class="params">(ListNode *start, <span class="keyword">int</span> k)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        ListNode *cur = start, *next = start-&gt;next;</span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (count &lt; k) &#123;</span><br><span class="line">            ListNode *tmp = next-&gt;next;</span><br><span class="line">            next-&gt;next = cur;</span><br><span class="line">            cur = next;</span><br><span class="line">            next = tmp;</span><br><span class="line">            count++;</span><br><span class="line">        &#125;</span><br><span class="line">        start-&gt;next-&gt;next = next;</span><br><span class="line">        start-&gt;next = cur;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/leetcode/25.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1208,6 +1221,14 @@ h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
     <div class="post-body" itemprop="articleBody">
           <h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>滑动窗口</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(<span class="built_in">string</span> s)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">unordered_set</span>&lt;<span class="keyword">char</span>&gt; cur_group;</span><br><span class="line">        <span class="keyword">int</span> end = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (end &lt; s.size() &amp;&amp; cur_group.find(s[end]) == cur_group.end()) &#123;</span><br><span class="line">            cur_group.insert(s[end++]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">unsigned</span> <span class="keyword">long</span> max_length = cur_group.size();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; s.size(); i++) &#123;</span><br><span class="line">            cur_group.erase(s[i]);</span><br><span class="line">            <span class="keyword">while</span> (end &lt; s.size() &amp;&amp; cur_group.find(s[end]) == cur_group.end()) &#123;</span><br><span class="line">                cur_group.insert(s[end++]);</span><br><span class="line">            &#125;</span><br><span class="line">            max_length = <span class="built_in">std</span>::max(max_length, cur_group.size());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max_length;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/leetcode/3.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
