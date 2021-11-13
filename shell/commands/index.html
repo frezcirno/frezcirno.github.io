@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif:300,300italic,400,400italic,700,700italic%7CJetBrains+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/orange/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.7c00h.xyz","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<meta name="description" content="杂项清屏">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux命令">
+<meta property="og:url" content="https://blog.7c00h.xyz/shell/commands/index.html">
+<meta property="og:site_name" content="Frezcirno的博客">
+<meta property="og:description" content="杂项清屏">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-02-09T12:58:19.000Z">
+<meta property="article:modified_time" content="2021-11-13T13:01:29.223Z">
+<meta property="article:author" content="frezcirno">
+<meta property="article:tag" content="shell">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.7c00h.xyz/shell/commands/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.7c00h.xyz/shell/commands/","path":"shell/commands/","title":"Linux命令"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Linux命令 | Frezcirno的博客</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y9HV7FT1HW"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-Y9HV7FT1HW","only_pageview":false}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+<script defer src="scripts/fireworks.js"></script>
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Frezcirno的博客</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">frezcirno今天学什么？</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">50</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">108</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9D%82%E9%A1%B9"><span class="nav-text">杂项</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%85%E5%B1%8F"><span class="nav-text">清屏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E6%B8%85%E7%A9%BA%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9"><span class="nav-text">快速清空文件内容</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%94%A8%E7%A8%8B%E5%BA%8F"><span class="nav-text">实用程序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#cat"><span class="nav-text">cat</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#grep"><span class="nav-text">grep</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cut"><span class="nav-text">cut</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sort"><span class="nav-text">sort</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#uniq"><span class="nav-text">uniq</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tee"><span class="nav-text">tee</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#diff"><span class="nav-text">diff</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#patch"><span class="nav-text">patch</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#paste"><span class="nav-text">paste</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tr"><span class="nav-text">tr</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="frezcirno"
+      src="https://cdn.7c00h.xyz/avatar.jpg">
+  <p class="site-author-name" itemprop="name">frezcirno</p>
+  <div class="site-description" itemprop="description">笨蛋代码人</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">50</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/frezcirno" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;frezcirno" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:2277861660@qq.com" title="E-Mail → mailto:2277861660@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.7c00h.xyz/shell/commands/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.7c00h.xyz/avatar.jpg">
+      <meta itemprop="name" content="frezcirno">
+      <meta itemprop="description" content="笨蛋代码人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Frezcirno的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux命令
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-02-09 20:58:19" itemprop="dateCreated datePublished" datetime="2021-02-09T20:58:19+08:00">2021-02-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">编程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="杂项"><a href="#杂项" class="headerlink" title="杂项"></a>杂项</h1><h2 id="清屏"><a href="#清屏" class="headerlink" title="清屏"></a>清屏</h2><p>按下Ctrl+l</p>
+<h2 id="快速清空文件内容"><a href="#快速清空文件内容" class="headerlink" title="快速清空文件内容"></a>快速清空文件内容</h2><p>利用文件写入</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; filename</span><br></pre></td></tr></table></figure>
+<h1 id="实用程序"><a href="#实用程序" class="headerlink" title="实用程序"></a>实用程序</h1><h2 id="cat"><a href="#cat" class="headerlink" title="cat"></a>cat</h2><p>显示文件内容, 如果输入是多个文件也可以用于文件拼接</p>
+<ul>
+<li><code>-n</code> 显示行号</li>
+</ul>
+<h2 id="grep"><a href="#grep" class="headerlink" title="grep"></a>grep</h2><p>行过滤</p>
+<ul>
+<li><code>-n</code> 显示行号</li>
+<li><code>-i</code> 忽略大小写</li>
+<li><code>-c</code> 统计结果行数</li>
+<li><code>-A</code> 显示匹配处后多少行</li>
+<li><code>-B</code> 显示匹配处前多少行</li>
+<li><code>-C</code> 显示匹配处前后多少行</li>
+<li><code>--color=auto</code> 彩色显示</li>
+<li><code>^</code> 行开头</li>
+<li><code>$</code> 行末尾</li>
+</ul>
+<h2 id="cut"><a href="#cut" class="headerlink" title="cut"></a>cut</h2><p>列截取</p>
+<ul>
+<li><code>-d</code> 分隔符</li>
+<li><code>-f</code> 分割后取出哪些列</li>
+</ul>
+<h2 id="sort"><a href="#sort" class="headerlink" title="sort"></a>sort</h2><p>对标准输入进行排序, 默认是升序排列</p>
+<ul>
+<li><code>-r</code> 逆序排列, 即按降序排列</li>
+<li></li>
+</ul>
+<h2 id="uniq"><a href="#uniq" class="headerlink" title="uniq"></a>uniq</h2><p>连续行去重, 即对标准输入中连续重复的行只保留一个</p>
+<h2 id="tee"><a href="#tee" class="headerlink" title="tee"></a>tee</h2><p>把标准输入写入到标准输出和一个文件中, 即: 双向<strong>覆盖</strong>重定向(屏幕+文件输出)</p>
+<ul>
+<li><code>-a</code> 双向<strong>追加</strong>重定向</li>
+</ul>
+<h2 id="diff"><a href="#diff" class="headerlink" title="diff"></a>diff</h2><p>描述怎样改变第一个文件使之与第二个文件匹配</p>
+<h2 id="patch"><a href="#patch" class="headerlink" title="patch"></a>patch</h2><p>基于diff的结果修改一个文件</p>
+<h2 id="paste"><a href="#paste" class="headerlink" title="paste"></a>paste</h2><p>将两个文件逐行拼接, 与cut相反</p>
+<ul>
+<li><code>-d</code> 指定分割符, 默认是tab</li>
+<li><code>-s</code> 将结果转置</li>
+</ul>
+<h2 id="tr"><a href="#tr" class="headerlink" title="tr"></a>tr</h2><p>字符转换, 替换和删除. 主要用于删除文件中的控制字符, 或者进行字符转换</p>
+<p>格式:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tr set1 set2 &lt; stdin</span><br></pre></td></tr></table></figure>
+<p>把字符集1中的字符替换成字符集2中的字符</p>
+<p>例:</p>
+<ul>
+<li>小写转大写 <code>tr a-z A-Z &lt; package.json</code></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">推荐文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/shell/bash/" rel="bookmark">Bash使用</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2021-01-29/" rel="bookmark">shell脚本编程</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/daily/2021-10-17-vim-youcompleteme-plugin/" rel="bookmark">VIM YouCompleteMe自动补全插件配置</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/oracle-apex/" rel="bookmark">Oracle APEX学习</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/oracledb/" rel="bookmark">Oracle数据库学习</a></div>
+    </li>
+  </ul>
+
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/shell/" rel="tag"># shell</a>
+              <a href="/tags/linux/" rel="tag"># linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/daily/2021-01-29/" rel="prev" title="shell脚本编程">
+                  <i class="fa fa-chevron-left"></i> shell脚本编程
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/shell/bash/" rel="next" title="Bash使用">
+                  Bash使用 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">frezcirno</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js","integrity":"sha256-r+3itOMtGGjap0x+10hu6jW/gZCzxHsoKrOd7gyRSGY="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"frezcirno/frezcirno.github.io","issue_term":"pathname","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js"></script>
+<script defer src="https://cdn.7c00h.xyz/live2d-widget/autoload.js"></script>
+</body>
+</html>
