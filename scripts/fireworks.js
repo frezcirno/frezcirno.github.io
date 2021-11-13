@@ -7,7 +7,7 @@ window.addEventListener('load', () => {
   const numberOfParticules = 30;
   let pointerX = 0;
   let pointerY = 0;
-  const tap = "mouseup";
+  const tap = "click";
   const colors = ["#FF1461", "#18FF92", "#5A87FF", "#FBF38C"];
 
   const setCanvasSize = debounce(() => {
