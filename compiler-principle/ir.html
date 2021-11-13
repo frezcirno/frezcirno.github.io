@@ -14,51 +14,50 @@
 
 <link rel="stylesheet" href="/css/main.css">
 
-
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif:300,300italic,400,400italic,700,700italic%7CJetBrains+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/orange/pace-theme-minimal.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
-<meta name="description" content="提纲  属性文法和语法制导翻译属性文法属性文法: 在上下文无关文法的基础上给每个文法符号增加若干属性 语义规则: 对于文法的每个产生式配备了一组属性的计算规则  $b:&#x3D;f(c_1,c_2,…,c_k)$ 产生式左边的综合属性和右边的继承属性必须提供语义规则 语义规则所描述的工作可以包括属性计算、符号表操作、静态语义检查、代码生成等等。  属性加工的过程即是语义处理的过程 属性">
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.7c00h.xyz","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<meta name="description" content="提纲">
 <meta property="og:type" content="article">
 <meta property="og:title" content="语义分析和中间代码生成">
-<meta property="og:url" content="https://frezcirno.github.io/compiler-principle/ir.html">
-<meta property="og:site_name" content="Frezcirno&#39;s Blog">
-<meta property="og:description" content="提纲  属性文法和语法制导翻译属性文法属性文法: 在上下文无关文法的基础上给每个文法符号增加若干属性 语义规则: 对于文法的每个产生式配备了一组属性的计算规则  $b:&#x3D;f(c_1,c_2,…,c_k)$ 产生式左边的综合属性和右边的继承属性必须提供语义规则 语义规则所描述的工作可以包括属性计算、符号表操作、静态语义检查、代码生成等等。  属性加工的过程即是语义处理的过程 属性">
+<meta property="og:url" content="https://blog.7c00h.xyz/compiler-principle/ir.html">
+<meta property="og:site_name" content="Frezcirno的博客">
+<meta property="og:description" content="提纲">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/index1.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/index2.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/dep_tree.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/ast.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/dag.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/assign_example.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/assign_example_solution.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/bool_example.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/bool1.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/bool2.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/control.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/while.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/list.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/ir/block.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/index1.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/index2.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/dep_tree.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/ast.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/dag.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/assign_example.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/assign_example_solution.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/bool_example.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/bool1.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/bool2.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/control.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/while.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/list.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/block.png">
 <meta property="article:published_time" content="2020-12-17T02:55:55.000Z">
-<meta property="article:modified_time" content="2021-10-20T15:04:48.604Z">
+<meta property="article:modified_time" content="2021-11-13T09:58:07.627Z">
 <meta property="article:author" content="frezcirno">
-<meta property="article:tag" content="daily">
+<meta property="article:tag" content="programming, code">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://frezcirno.github.io/compiler-principle/ir/index1.png">
+<meta name="twitter:image" content="https://blog.7c00h.xyz/compiler-principle/ir/index1.png">
 
 
-<link rel="canonical" href="https://frezcirno.github.io/compiler-principle/ir.html">
+<link rel="canonical" href="https://blog.7c00h.xyz/compiler-principle/ir.html">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://frezcirno.github.io/compiler-principle/ir.html","path":"compiler-principle/ir.html","title":"语义分析和中间代码生成"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.7c00h.xyz/compiler-principle/ir.html","path":"compiler-principle/ir.html","title":"语义分析和中间代码生成"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>语义分析和中间代码生成 | Frezcirno's Blog</title>
+<title>语义分析和中间代码生成 | Frezcirno的博客</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y9HV7FT1HW"></script>
   <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-Y9HV7FT1HW","only_pageview":false}</script>
@@ -66,13 +65,13 @@
 
 
 
-
+<script src="/lib/fireworks.js"></script>
   <noscript>
     <link rel="stylesheet" href="/css/noscript.css">
   </noscript>
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+<body itemscope itemtype="http://schema.org/WebPage">
   <div class="headband"></div>
 
   <main class="main">
@@ -90,7 +89,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">Frezcirno's Blog</h1>
+      <h1 class="site-title">Frezcirno的博客</h1>
       <i class="logo-line"></i>
     </a>
       <p class="site-subtitle" itemprop="description">frezcirno今天学什么？</p>
@@ -149,7 +148,7 @@
     <img class="site-author-image" itemprop="image" alt="frezcirno"
       src="https://cdn.7c00h.xyz/avatar.jpg">
   <p class="site-author-name" itemprop="name">frezcirno</p>
-  <div class="site-description" itemprop="description">Frezcirno的个人博客, 记录一些杂七杂八的内容</div>
+  <div class="site-description" itemprop="description">笨蛋代码人</div>
 </div>
 <div class="site-state-wrap site-overview-item animated">
   <nav class="site-state">
@@ -213,16 +212,16 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle/ir.html">
+    <link itemprop="mainEntityOfPage" href="https://blog.7c00h.xyz/compiler-principle/ir.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="https://cdn.7c00h.xyz/avatar.jpg">
       <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="Frezcirno的个人博客, 记录一些杂七杂八的内容">
+      <meta itemprop="description" content="笨蛋代码人">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Frezcirno's Blog">
+      <meta itemprop="name" content="Frezcirno的博客">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -254,28 +253,6 @@
     </span>
 
   
-    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span id="busuanzi_value_page_pv"></span>
-    </span>
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>2.1k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>2 分钟</span>
-    </span>
 </div>
 
         </div>
@@ -368,8 +345,8 @@
 <li>(一元操作符后置)</li>
 <li>去括号</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a+b*(c+d&#x2F;e)</span><br><span class="line">a b*(c+d&#x2F;e) +</span><br><span class="line">a b (c+d&#x2F;e) * +</span><br><span class="line">a b c d&#x2F;e + * +</span><br><span class="line">a b c d e &#x2F; + * +</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">b:&#x3D;-c*a+-c*a</span><br><span class="line">b -c*a+-c*a :&#x3D;</span><br><span class="line">b -c*a -c*a + :&#x3D;</span><br><span class="line">b -c a * -c a * + :&#x3D;</span><br><span class="line">b c Neg a * c Neg a * + :&#x3D;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a+b*(c+d/e)</span><br><span class="line">a b*(c+d/e) +</span><br><span class="line">a b (c+d/e) * +</span><br><span class="line">a b c d/e + * +</span><br><span class="line">a b c d e / + * +</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">b:=-c*a+-c*a</span><br><span class="line">b -c*a+-c*a :=</span><br><span class="line">b -c*a -c*a + :=</span><br><span class="line">b -c a * -c a * + :=</span><br><span class="line">b c Neg a * c Neg a * + :=</span><br></pre></td></tr></table></figure>
 <p>抽象语法树: 去掉对翻译不必要的信息, 更有效表示源程序的语法树</p>
 <p><img src="ir/ast.png" alt=""></p>
 <p>DAG</p>
@@ -414,7 +391,7 @@
 <h2 id="说明语句的翻译"><a href="#说明语句的翻译" class="headerlink" title="说明语句的翻译"></a>说明语句的翻译</h2><h2 id="赋值语句的翻译"><a href="#赋值语句的翻译" class="headerlink" title="赋值语句的翻译"></a>赋值语句的翻译</h2><p><img src="ir/assign_example.png" alt=""></p>
 <p>答案:</p>
 <p><img src="ir/assign_example_solution.png" alt=""></p>
-<p>三地址代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">T1:&#x3D;uminus C</span><br><span class="line">T2:&#x3D;T1+D</span><br><span class="line">T3:&#x3D;B*T2</span><br><span class="line">A:&#x3D;T3</span><br></pre></td></tr></table></figure></p>
+<p>三地址代码<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">T1:=uminus C</span><br><span class="line">T2:=T1+D</span><br><span class="line">T3:=B*T2</span><br><span class="line">A:=T3</span><br></pre></td></tr></table></figure></p>
 <h2 id="布尔表达式的翻译"><a href="#布尔表达式的翻译" class="headerlink" title="布尔表达式的翻译"></a>布尔表达式的翻译</h2><p>基本作用:</p>
 <ul>
 <li>逻辑运算</li>
@@ -427,7 +404,7 @@
 </ul>
 <h3 id="逻辑运算中的布尔表达式翻译"><a href="#逻辑运算中的布尔表达式翻译" class="headerlink" title="逻辑运算中的布尔表达式翻译"></a>逻辑运算中的布尔表达式翻译</h3><p><img src="ir/bool_example.png" alt=""></p>
 <p>答案:</p>
-<p>三地址代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">0: if a&gt;b goto 3</span><br><span class="line">1: T1:&#x3D;0</span><br><span class="line">2: goto 4</span><br><span class="line">3: T1:&#x3D;1</span><br><span class="line">4: if a&gt;b goto 7</span><br><span class="line">5: T1:&#x3D;0</span><br><span class="line">6: goto 8</span><br><span class="line">7: T1:&#x3D;1</span><br><span class="line">8: T3&#x3D;T1 and T2</span><br></pre></td></tr></table></figure></p>
+<p>三地址代码<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">0: if a&gt;b goto 3</span><br><span class="line">1: T1:=0</span><br><span class="line">2: goto 4</span><br><span class="line">3: T1:=1</span><br><span class="line">4: if a&gt;b goto 7</span><br><span class="line">5: T1:=0</span><br><span class="line">6: goto 8</span><br><span class="line">7: T1:=1</span><br><span class="line">8: T3=T1 and T2</span><br></pre></td></tr></table></figure></p>
 <h3 id="条件控制语句中的布尔表达式翻译"><a href="#条件控制语句中的布尔表达式翻译" class="headerlink" title="条件控制语句中的布尔表达式翻译"></a>条件控制语句中的布尔表达式翻译</h3><p>两种出口: 一真一假</p>
 <p>改写产生式</p>
 <ul>
@@ -450,7 +427,7 @@
 <p><img src="ir/bool2.png" alt=""></p>
 <p>例: 写出布尔式A or (B and not (C or D))的四元式序列</p>
 <p>答案:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0: jnz,A,-,0</span><br><span class="line">1: j,-,-,2</span><br><span class="line">2: jnz,B,-,4</span><br><span class="line">3: j,-,-,0</span><br><span class="line">4: jnz,C,-,0</span><br><span class="line">5: j,-,-,6</span><br><span class="line">6: jnz,D,-,0</span><br><span class="line">7: j,-,-,0</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0: jnz,A,-,0</span><br><span class="line">1: j,-,-,2</span><br><span class="line">2: jnz,B,-,4</span><br><span class="line">3: j,-,-,0</span><br><span class="line">4: jnz,C,-,0</span><br><span class="line">5: j,-,-,6</span><br><span class="line">6: jnz,D,-,0</span><br><span class="line">7: j,-,-,0</span><br></pre></td></tr></table></figure>
 <h2 id="控制语句的翻译"><a href="#控制语句的翻译" class="headerlink" title="控制语句的翻译"></a>控制语句的翻译</h2><h3 id="条件语句"><a href="#条件语句" class="headerlink" title="条件语句"></a>条件语句</h3><p>改写产生式</p>
 <ul>
 <li><code>S -&gt; if E then M S</code></li>
@@ -531,38 +508,6 @@
   </span>
   <span class="author" itemprop="copyrightHolder">frezcirno</span>
 </div>
-<div class="wordcount">
-  <span class="post-meta-item">
-    <span class="post-meta-item-icon">
-      <i class="fa fa-chart-line"></i>
-    </span>
-    <span title="站点总字数">109k</span>
-  </span>
-  <span class="post-meta-item">
-    <span class="post-meta-item-icon">
-      <i class="fa fa-coffee"></i>
-    </span>
-    <span title="站点阅读时长">1:39</span>
-  </span>
-</div>
-<div class="busuanzi-count">
-    <span class="post-meta-item" id="busuanzi_container_site_uv">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-user"></i>
-      </span>
-      <span class="site-uv" title="总访客量">
-        <span id="busuanzi_value_site_uv"></span>
-      </span>
-    </span>
-    <span class="post-meta-item" id="busuanzi_container_site_pv">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-eye"></i>
-      </span>
-      <span class="site-pv" title="总访问量">
-        <span id="busuanzi_value_site_pv"></span>
-      </span>
-    </span>
-</div>
   <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
 
@@ -571,7 +516,7 @@
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
-<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
 
   
 
@@ -581,7 +526,6 @@
   <script src="/js/third-party/pace.js"></script>
 
   
-  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 
 
@@ -594,6 +538,6 @@
 
 <script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"frezcirno/frezcirno.github.io","issue_term":"pathname","theme":"preferred-color-scheme"}</script>
 <script src="/js/third-party/comments/utterances.js"></script>
-<!-- <script src="https://cdn.7c00h.xyz/live2d-widget/autoload.js"></script> -->
+<script defer src="https://cdn.7c00h.xyz/live2d-widget/autoload.js"></script>
 </body>
 </html>

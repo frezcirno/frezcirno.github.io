@@ -14,43 +14,42 @@
 
 <link rel="stylesheet" href="/css/main.css">
 
-
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif:300,300italic,400,400italic,700,700italic%7CJetBrains+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/orange/pace-theme-minimal.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"frezcirno.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
-<meta name="description" content="提纲  语法分析方法 自上而下分析 LL(1)分析法 递归下降分析法 预测分析法   自下而上分析 算符优先分析法 LR分析法 LR(0) SLR LR(1) LALR      LL(1)左递归消除一个文法含有下列形式的产生式时, 称为左递归文法, 不能采用自顶向下分析法  直接递归  $A\rightarrow A\beta, A\in V_N$, $\beta$$\in$V*  间接递归">
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.7c00h.xyz","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<meta name="description" content="提纲">
 <meta property="og:type" content="article">
 <meta property="og:title" content="语法分析">
-<meta property="og:url" content="https://frezcirno.github.io/compiler-principle/parser.html">
-<meta property="og:site_name" content="Frezcirno&#39;s Blog">
-<meta property="og:description" content="提纲  语法分析方法 自上而下分析 LL(1)分析法 递归下降分析法 预测分析法   自下而上分析 算符优先分析法 LR分析法 LR(0) SLR LR(1) LALR      LL(1)左递归消除一个文法含有下列形式的产生式时, 称为左递归文法, 不能采用自顶向下分析法  直接递归  $A\rightarrow A\beta, A\in V_N$, $\beta$$\in$V*  间接递归">
+<meta property="og:url" content="https://blog.7c00h.xyz/compiler-principle/parser.html">
+<meta property="og:site_name" content="Frezcirno的博客">
+<meta property="og:description" content="提纲">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/parser/index1.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/parser/index2.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/parser/phrase.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/parser/huoqianzhui.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/parser/huoqianzhui2.png">
-<meta property="og:image" content="https://frezcirno.github.io/compiler-principle/parser/lr0_table.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/parser/index1.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/parser/index2.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/parser/phrase.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/parser/huoqianzhui.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/parser/huoqianzhui2.png">
+<meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/parser/lr0_table.png">
 <meta property="article:published_time" content="2020-12-17T02:54:20.000Z">
-<meta property="article:modified_time" content="2021-10-20T15:04:48.612Z">
+<meta property="article:modified_time" content="2021-11-13T09:58:07.635Z">
 <meta property="article:author" content="frezcirno">
-<meta property="article:tag" content="daily">
+<meta property="article:tag" content="programming, code">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://frezcirno.github.io/compiler-principle/parser/index1.png">
+<meta name="twitter:image" content="https://blog.7c00h.xyz/compiler-principle/parser/index1.png">
 
 
-<link rel="canonical" href="https://frezcirno.github.io/compiler-principle/parser.html">
+<link rel="canonical" href="https://blog.7c00h.xyz/compiler-principle/parser.html">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://frezcirno.github.io/compiler-principle/parser.html","path":"compiler-principle/parser.html","title":"语法分析"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.7c00h.xyz/compiler-principle/parser.html","path":"compiler-principle/parser.html","title":"语法分析"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>语法分析 | Frezcirno's Blog</title>
+<title>语法分析 | Frezcirno的博客</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y9HV7FT1HW"></script>
   <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-Y9HV7FT1HW","only_pageview":false}</script>
@@ -58,13 +57,13 @@
 
 
 
-
+<script src="/lib/fireworks.js"></script>
   <noscript>
     <link rel="stylesheet" href="/css/noscript.css">
   </noscript>
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+<body itemscope itemtype="http://schema.org/WebPage">
   <div class="headband"></div>
 
   <main class="main">
@@ -82,7 +81,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">Frezcirno's Blog</h1>
+      <h1 class="site-title">Frezcirno的博客</h1>
       <i class="logo-line"></i>
     </a>
       <p class="site-subtitle" itemprop="description">frezcirno今天学什么？</p>
@@ -132,7 +131,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E7%BA%B2"><span class="nav-text">提纲</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90%E6%96%B9%E6%B3%95"><span class="nav-text">语法分析方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LL-1"><span class="nav-text">LL(1)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A6%E9%80%92%E5%BD%92%E6%B6%88%E9%99%A4"><span class="nav-text">左递归消除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FIRST-FOLLOW"><span class="nav-text">FIRST, FOLLOW</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LL-1-%E6%96%87%E6%B3%95"><span class="nav-text">LL(1)文法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LL-1-%E5%88%86%E6%9E%90%E6%96%B9%E6%B3%95"><span class="nav-text">LL(1)分析方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LL-1-%E7%A8%8B%E5%BA%8F%E6%9E%84%E9%80%A0"><span class="nav-text">LL(1)程序构造</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%92%E5%BD%92%E4%B8%8B%E9%99%8D%E7%A8%8B%E5%BA%8F"><span class="nav-text">递归下降程序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%84%E6%B5%8B%E5%88%86%E6%9E%90%E7%A8%8B%E5%BA%8F"><span class="nav-text">预测分析程序</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%84%E8%8C%83%E8%A7%84%E7%BA%A6"><span class="nav-text">规范规约</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%97%E7%AC%A6%E4%BC%98%E5%85%88%E5%88%86%E6%9E%90%E6%B3%95"><span class="nav-text">算符优先分析法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E7%AC%A6%E4%BC%98%E5%85%88%E6%96%87%E6%B3%95"><span class="nav-text">算符优先文法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%85%88%E5%85%B3%E7%B3%BB%E8%A1%A8"><span class="nav-text">优先关系表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FIRSTVT-LASTVT"><span class="nav-text">FIRSTVT, LASTVT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A0%E7%9F%AD%E8%AF%AD"><span class="nav-text">素短语</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LR%E5%88%86%E6%9E%90%E6%B3%95"><span class="nav-text">LR分析法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LR-0"><span class="nav-text">LR(0)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E8%AF%86%E5%88%AB%E6%B4%BB%E5%89%8D%E7%BC%80%E7%9A%84NFA%E6%96%B9%E6%B3%95"><span class="nav-text">1. 识别活前缀的NFA方法:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-LR-0-%E9%A1%B9%E7%9B%AE%E9%9B%86%E8%A7%84%E8%8C%83%E6%97%8F"><span class="nav-text">2. LR(0)项目集规范族</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SLR"><span class="nav-text">SLR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LR-1"><span class="nav-text">LR(1)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LALR"><span class="nav-text">LALR</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E4%B9%89%E6%96%87%E6%B3%95%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-text">二义文法的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E4%B9%89%E6%96%87%E6%B3%95"><span class="nav-text">二义文法</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E7%BA%B2"><span class="nav-text">提纲</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90%E6%96%B9%E6%B3%95"><span class="nav-text">语法分析方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LL-1"><span class="nav-text">LL(1)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A6%E9%80%92%E5%BD%92%E6%B6%88%E9%99%A4"><span class="nav-text">左递归消除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FIRST-FOLLOW"><span class="nav-text">FIRST, FOLLOW</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LL-1-%E6%96%87%E6%B3%95"><span class="nav-text">LL(1)文法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LL-1-%E5%88%86%E6%9E%90%E6%96%B9%E6%B3%95"><span class="nav-text">LL(1)分析方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LL-1-%E7%A8%8B%E5%BA%8F%E6%9E%84%E9%80%A0"><span class="nav-text">LL(1)程序构造</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%84%E8%8C%83%E8%A7%84%E7%BA%A6"><span class="nav-text">规范规约</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%97%E7%AC%A6%E4%BC%98%E5%85%88%E5%88%86%E6%9E%90%E6%B3%95"><span class="nav-text">算符优先分析法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E7%AC%A6%E4%BC%98%E5%85%88%E6%96%87%E6%B3%95"><span class="nav-text">算符优先文法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%85%88%E5%85%B3%E7%B3%BB%E8%A1%A8"><span class="nav-text">优先关系表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FIRSTVT-LASTVT"><span class="nav-text">FIRSTVT, LASTVT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A0%E7%9F%AD%E8%AF%AD"><span class="nav-text">素短语</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LR%E5%88%86%E6%9E%90%E6%B3%95"><span class="nav-text">LR分析法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LR-0"><span class="nav-text">LR(0)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SLR"><span class="nav-text">SLR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LR-1"><span class="nav-text">LR(1)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LALR"><span class="nav-text">LALR</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E4%B9%89%E6%96%87%E6%B3%95%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-text">二义文法的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E4%B9%89%E6%96%87%E6%B3%95"><span class="nav-text">二义文法</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -141,7 +140,7 @@
     <img class="site-author-image" itemprop="image" alt="frezcirno"
       src="https://cdn.7c00h.xyz/avatar.jpg">
   <p class="site-author-name" itemprop="name">frezcirno</p>
-  <div class="site-description" itemprop="description">Frezcirno的个人博客, 记录一些杂七杂八的内容</div>
+  <div class="site-description" itemprop="description">笨蛋代码人</div>
 </div>
 <div class="site-state-wrap site-overview-item animated">
   <nav class="site-state">
@@ -205,16 +204,16 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://frezcirno.github.io/compiler-principle/parser.html">
+    <link itemprop="mainEntityOfPage" href="https://blog.7c00h.xyz/compiler-principle/parser.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="https://cdn.7c00h.xyz/avatar.jpg">
       <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="Frezcirno的个人博客, 记录一些杂七杂八的内容">
+      <meta itemprop="description" content="笨蛋代码人">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Frezcirno's Blog">
+      <meta itemprop="name" content="Frezcirno的博客">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -246,28 +245,6 @@
     </span>
 
   
-    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span id="busuanzi_value_page_pv"></span>
-    </span>
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>4 分钟</span>
-    </span>
 </div>
 
         </div>
@@ -460,7 +437,7 @@
 <li>(接受$X$之后的$Closure$集合)</li>
 </ul>
 </li>
-<li>构造DFA算法 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PROCEDURE ITEMSETS(G&#39;)</span><br><span class="line">BEGIN</span><br><span class="line">  C:&#x3D;&#123;Closure(&#123;S&#39;\rightarrow\cdot S&#125;)&#125;</span><br><span class="line">  REPEAT</span><br><span class="line">    FOR C中每个项目集I和G&#39;的每个符号X DO</span><br><span class="line">      IF GO(I, X)非空且不属于C THEN</span><br><span class="line">        C +&#x3D; GO(I, X)</span><br><span class="line">  UNTIL C 不再增大</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+<li>构造DFA算法 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PROCEDURE ITEMSETS(G&#x27;)</span><br><span class="line">BEGIN</span><br><span class="line">  C:=&#123;Closure(&#123;S&#x27;\rightarrow\cdot S&#125;)&#125;</span><br><span class="line">  REPEAT</span><br><span class="line">    FOR C中每个项目集I和G&#x27;的每个符号X DO</span><br><span class="line">      IF GO(I, X)非空且不属于C THEN</span><br><span class="line">        C += GO(I, X)</span><br><span class="line">  UNTIL C 不再增大</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
 <p>LR(0)文法:</p>
@@ -585,38 +562,6 @@ I=\{
   </span>
   <span class="author" itemprop="copyrightHolder">frezcirno</span>
 </div>
-<div class="wordcount">
-  <span class="post-meta-item">
-    <span class="post-meta-item-icon">
-      <i class="fa fa-chart-line"></i>
-    </span>
-    <span title="站点总字数">109k</span>
-  </span>
-  <span class="post-meta-item">
-    <span class="post-meta-item-icon">
-      <i class="fa fa-coffee"></i>
-    </span>
-    <span title="站点阅读时长">1:39</span>
-  </span>
-</div>
-<div class="busuanzi-count">
-    <span class="post-meta-item" id="busuanzi_container_site_uv">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-user"></i>
-      </span>
-      <span class="site-uv" title="总访客量">
-        <span id="busuanzi_value_site_uv"></span>
-      </span>
-    </span>
-    <span class="post-meta-item" id="busuanzi_container_site_pv">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-eye"></i>
-      </span>
-      <span class="site-pv" title="总访问量">
-        <span id="busuanzi_value_site_pv"></span>
-      </span>
-    </span>
-</div>
   <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
 
@@ -625,7 +570,7 @@ I=\{
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
-<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
 
   
 
@@ -635,7 +580,6 @@ I=\{
   <script src="/js/third-party/pace.js"></script>
 
   
-  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 
 
@@ -648,6 +592,6 @@ I=\{
 
 <script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"frezcirno/frezcirno.github.io","issue_term":"pathname","theme":"preferred-color-scheme"}</script>
 <script src="/js/third-party/comments/utterances.js"></script>
-<!-- <script src="https://cdn.7c00h.xyz/live2d-widget/autoload.js"></script> -->
+<script defer src="https://cdn.7c00h.xyz/live2d-widget/autoload.js"></script>
 </body>
 </html>
