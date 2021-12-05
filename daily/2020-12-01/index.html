@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.3.0">
+<meta name="generator" content="Hexo 5.4.0">
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/orange/pace-theme-minimal.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.7c00h.xyz","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":true,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.7c00h.xyz","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.8.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"algolia":{"appID":"G5DVU73U10","apiKey":"febdb5a3098818569516dfd45b32982d","indexName":"indexName","hits":{"per_page":10}}}</script><script src="/js/config.js"></script>
 <meta name="description" content="转换dos格式行尾为unix行尾 工具: dos2unix  单文件: dos2unix input output  递归转换: find . -type f -print0 | xargs -0 dos2unix">
 <meta property="og:type" content="article">
 <meta property="og:title" content="每日小结">
@@ -30,7 +30,7 @@
 <meta property="og:description" content="转换dos格式行尾为unix行尾 工具: dos2unix  单文件: dos2unix input output  递归转换: find . -type f -print0 | xargs -0 dos2unix">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-12-01T02:23:15.000Z">
-<meta property="article:modified_time" content="2021-11-17T15:33:09.655Z">
+<meta property="article:modified_time" content="2021-12-05T16:33:04.977Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="Javascript">
 <meta property="article:tag" content="React">
@@ -78,7 +78,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">Frezcirno的博客</h1>
+      <p class="site-title">Frezcirno的博客</p>
       <i class="logo-line"></i>
     </a>
       <p class="site-subtitle" itemprop="description">frezcirno今天学什么？</p>
@@ -86,6 +86,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -98,11 +99,33 @@
         <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">50</span></a></li>
         <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">12</span></a></li>
         <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">109</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container"></div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="algolia-stats"><hr></div>
+  <div class="algolia-hits"></div>
+  <div class="algolia-pagination"></div>
+</div>
+
+    </div>
+  </div>
 
 </div>
         
@@ -238,6 +261,21 @@
     </span>
 
   
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>3 分钟</span>
+    </span>
 </div>
 
         </div>
@@ -334,7 +372,8 @@
 <li><p>当然作为Object, 也可以有非整数类型的下标</p>
 </li>
 <li><p>for…in…循环遍历实际存储的值, for…of…循环遍历下标</p>
-  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a = []</span><br><span class="line"></span><br><span class="line">a[<span class="number">100</span>] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">a.length <span class="comment">// 101</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">in</span> a) <span class="built_in">console</span>.log(i) <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">of</span> a) <span class="built_in">console</span>.log(i) <span class="comment">// undefined, undefined, ... , 1</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a = []</span><br><span class="line"></span><br><span class="line">a[<span class="number">100</span>] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">a.length <span class="comment">// 101</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">in</span> a) <span class="built_in">console</span>.log(i) <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">of</span> a) <span class="built_in">console</span>.log(i) <span class="comment">// undefined, undefined, ... , 1</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
 </ul>
 </li>
 <li><p>关于String</p>
@@ -344,7 +383,8 @@
 <li><p>any + String = String</p>
 </li>
 <li><p>注意结合性</p>
-  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> + <span class="number">2</span> + <span class="string">&#x27;3&#x27;</span> <span class="comment">// &#x27;33&#x27;</span></span><br><span class="line"><span class="string">&#x27;1&#x27;</span> + <span class="number">2</span> + <span class="number">3</span> <span class="comment">// &#x27;123&#x27;</span></span><br></pre></td></tr></table></figure></li>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> + <span class="number">2</span> + <span class="string">&#x27;3&#x27;</span> <span class="comment">// &#x27;33&#x27;</span></span><br><span class="line"><span class="string">&#x27;1&#x27;</span> + <span class="number">2</span> + <span class="number">3</span> <span class="comment">// &#x27;123&#x27;</span></span><br></pre></td></tr></table></figure>
+</li>
 </ul>
 </li>
 <li><p>关于Object:</p>
@@ -383,13 +423,15 @@
 </ul>
 </li>
 <li><p>模仿一个new:</p>
-  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fake_new</span>(<span class="params">ctor, ...args</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> x = <span class="built_in">Object</span>.create(ctor.prototype); <span class="comment">// ES5 创建新对象</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">///* before ES5 */</span></span><br><span class="line">    <span class="comment">// function F() &#123;&#125;</span></span><br><span class="line">    <span class="comment">// F.prototype = ctor.prototype;</span></span><br><span class="line">    <span class="comment">// let x = new F();</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> res = ctor.call(x, ...args); <span class="comment">//借用外部传入的构造器给obj设置属性</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">typeof</span> res === <span class="string">&#x27;object&#x27;</span> ? res : x; <span class="comment">//确保构造器总是返回一个对象</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fake_new</span>(<span class="params">ctor, ...args</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> x = <span class="built_in">Object</span>.create(ctor.prototype); <span class="comment">// ES5 创建新对象</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">///* before ES5 */</span></span><br><span class="line">    <span class="comment">// function F() &#123;&#125;</span></span><br><span class="line">    <span class="comment">// F.prototype = ctor.prototype;</span></span><br><span class="line">    <span class="comment">// let x = new F();</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> res = ctor.call(x, ...args); <span class="comment">//借用外部传入的构造器给obj设置属性</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">typeof</span> res === <span class="string">&#x27;object&#x27;</span> ? res : x; <span class="comment">//确保构造器总是返回一个对象</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
 </ul>
 </li>
 <li><p>关于<code>this</code>:</p>
 <ul>
 <li><p>如何正确绑定this</p>
-  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="title">foo</span>(<span class="params"></span>)</span> &#123; ... &#125;, <span class="comment">// bad, `this` is bound to the object</span></span><br><span class="line">    foo = <span class="function">() =&gt;</span> &#123; ... &#125;, <span class="comment">// good, `this` is bound dynamically</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="title">foo</span>(<span class="params"></span>)</span> &#123; ... &#125;, <span class="comment">// bad, `this` is bound to the object</span></span><br><span class="line">    foo = <span class="function">() =&gt;</span> &#123; ... &#125;, <span class="comment">// good, `this` is bound dynamically</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
 </ul>
 </li>
 <li><p>Javascript面向对象:</p>
@@ -402,9 +444,11 @@
 </li>
 <li><p>优化: 减少函数对象的拷贝, 利用原型链</p>
   <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Person</span>(<span class="params">first, last</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">this</span>.first = first;</span><br><span class="line">    <span class="built_in">this</span>.last = last;</span><br><span class="line">&#125;</span><br><span class="line">Person.prototype.fullName = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.first + <span class="string">&#x27; &#x27;</span> + <span class="built_in">this</span>.last;</span><br><span class="line">&#125;;</span><br><span class="line">Person.prototype.fullNameReversed = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.last + <span class="string">&#x27;, &#x27;</span> + <span class="built_in">this</span>.first;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h1 id="React-复习"><a href="#React-复习" class="headerlink" title="React 复习"></a>React 复习</h1></li>
+</li>
 </ul>
 </li>
+</ul>
+<h1 id="React-复习"><a href="#React-复习" class="headerlink" title="React 复习"></a>React 复习</h1><ul>
 <li><p>JSX语法</p>
   <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = (</span><br><span class="line">    <span class="xml"><span class="tag">&lt;<span class="name">h1</span> <span class="attr">className</span>=<span class="string">&quot;greeting&quot;</span> <span class="attr">onClick</span>=<span class="string">&#123;this.handleClick&#125;</span>&gt;</span></span></span><br><span class="line"><span class="xml">        Hello, world!</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
   <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = React.createElement(</span><br><span class="line">    <span class="string">&#x27;h1&#x27;</span>, <span class="comment">// label type</span></span><br><span class="line">    &#123;<span class="attr">className</span>: <span class="string">&#x27;greeting&#x27;</span>, <span class="attr">onClick</span>: <span class="built_in">this</span>.handleClick&#125;, <span class="comment">// attrs</span></span><br><span class="line">    <span class="string">&#x27;Hello, world!&#x27;</span> <span class="comment">// children</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
@@ -514,6 +558,20 @@
   </span>
   <span class="author" itemprop="copyrightHolder">frezcirno</span>
 </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">109k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:39</span>
+  </span>
+</div>
   <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
 
@@ -525,6 +583,8 @@
 <script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
 
   
+<script src="https://cdnjs.cloudflare.com/ajax/libs/algoliasearch/4.11.0/algoliasearch-lite.umd.js" integrity="sha256-48AZ24Ct05NAMLT7hvYgeW1X350OgEcZvHd6Ih6xwOA=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/4.33.2/instantsearch.production.min.js" integrity="sha256-0B5Q7I/DVd8yp8JYLzbpELEonNBlVe7NLixMCLEnlBU=" crossorigin="anonymous"></script><script src="/js/third-party/search/algolia-search.js"></script>
 
 
 
