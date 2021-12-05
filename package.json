@@ -3,28 +3,30 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "hexo generate",
+    "_algolia": "HEXO_ALGOLIA_INDEXING_KEY=bb1caa75b0b7c7636d6d34cec290998e hexo algolia",
+    "build": "npm run _algolia && hexo generate",
     "clean": "hexo clean",
-    "deploy": "hexo deploy",
     "server": "hexo server",
     "new": "node ./tools/new.js"
   },
   "hexo": {
-    "version": "5.3.0"
+    "version": "5.4.0"
   },
   "dependencies": {
-    "hexo": "^5.3.0",
+    "hexo": "^5.4.0",
+    "hexo-algolia": "^1.3.2",
     "hexo-excerpt": "^1.2.1",
     "hexo-generator-archive": "^1.0.0",
     "hexo-generator-category": "^1.0.0",
     "hexo-generator-index": "^2.0.0",
-    "hexo-generator-searchdb": "^1.3.3",
+    "hexo-generator-searchdb": "^1.4.0",
     "hexo-generator-tag": "^1.0.0",
     "hexo-related-popular-posts": "^5.0.1",
     "hexo-renderer-ejs": "^1.0.0",
-    "hexo-renderer-kramed": "^0.1.2",
+    "hexo-renderer-kramed": "^0.1.4",
     "hexo-renderer-stylus": "^2.0.0",
     "hexo-server": "^2.0.0",
-    "hexo-symbols-count-time": "^0.6.2"
+    "hexo-symbols-count-time": "^0.6.2",
+    "hexo-theme-next": "^8.8.2"
   }
 }

@@ -1,3 +1,9 @@
+# ===============================================================
+# It's recommended to use Alternate Theme Config to configure NexT
+# Modifying this file may result in merge conflict
+# See: https://theme-next.js.org/docs/getting-started/configuration
+# ===============================================================
+
 # ---------------------------------------------------------------
 # Theme Core Configuration Settings
 # See: https://theme-next.js.org/docs/theme-settings/
@@ -26,6 +32,20 @@ custom_file_path:
 
 
 # ---------------------------------------------------------------
+# Scheme Settings
+# ---------------------------------------------------------------
+
+# Schemes
+#scheme: Muse
+#scheme: Mist
+#scheme: Pisces
+scheme: Gemini
+
+# Dark Mode
+darkmode: false
+
+
+# ---------------------------------------------------------------
 # Site Information Settings
 # ---------------------------------------------------------------
 
@@ -40,45 +60,6 @@ favicon:
 custom_logo: #/uploads/custom-logo.jpg
 
 
-# ---------------------------------------------------------------
-# Footer Settings
-# See: https://theme-next.js.org/docs/theme-settings/footer
-# ---------------------------------------------------------------
-
-# Show multilingual switcher in footer.
-language_switcher: false
-
-footer:
-  # Specify the year when the site was setup. If not defined, current year will be used.
-  since: 2020
-
-  # Icon between year and copyright info.
-  icon:
-    # Icon name in Font Awesome. See: https://fontawesome.com/icons
-    name: fa fa-heart
-    # If you want to animate the icon, set it to true.
-    animated: false
-    # Change the color of icon, using Hex Code.
-    color: "#ff0000"
-
-  # If not defined, `author` from Hexo `_config.yml` will be used.
-  copyright:
-
-  # Powered by Hexo & NexT
-  powered: true
-
-  # Beian ICP and gongan information for Chinese users. See: https://beian.miit.gov.cn, http://www.beian.gov.cn
-  beian:
-    enable: false
-    icp:
-    # The digit in the num of gongan beian.
-    gongan_id:
-    # The full num of gongan beian.
-    gongan_num:
-    # The icon for gongan beian. See: http://www.beian.gov.cn/portal/download
-    gongan_icon_url:
-
-
 # Creative Commons 4.0 International License.
 # See: https://creativecommons.org/about/cclicenses/
 creative_commons:
@@ -91,20 +72,6 @@ creative_commons:
   # You can set a language value if you prefer a translated version of CC license, e.g. deed.zh
   # CC licenses are available in 39 languages, you can find the specific and correct abbreviation you need on https://creativecommons.org
   language:
-
-
-# ---------------------------------------------------------------
-# Scheme Settings
-# ---------------------------------------------------------------
-
-# Schemes
-#scheme: Muse
-#scheme: Mist
-#scheme: Pisces
-scheme: Gemini
-
-# Dark Mode
-darkmode: false
 
 
 # ---------------------------------------------------------------
@@ -214,12 +181,44 @@ toc:
   # Maximum heading depth of generated toc.
   max_depth: 3
 
-# A button to open designated chat widget in sidebar.
-# Firstly, you need to enable and configure the chat service.
-chat:
-  enable: false
-  icon: fa fa-comment # Icon name in Font Awesome, set false to disable icon.
-  text: Chat # Button text, change it as you wish.
+
+# ---------------------------------------------------------------
+# Footer Settings
+# See: https://theme-next.js.org/docs/theme-settings/footer
+# ---------------------------------------------------------------
+
+# Show multilingual switcher in footer.
+language_switcher: false
+
+footer:
+  # Specify the year when the site was setup. If not defined, current year will be used.
+  since: 2020
+
+  # Icon between year and copyright info.
+  icon:
+    # Icon name in Font Awesome. See: https://fontawesome.com/icons
+    name: fa fa-heart
+    # If you want to animate the icon, set it to true.
+    animated: false
+    # Change the color of icon, using Hex Code.
+    color: "#ff0000"
+
+  # If not defined, `author` from Hexo `_config.yml` will be used.
+  copyright:
+
+  # Powered by Hexo & NexT
+  powered: true
+
+  # Beian ICP and gongan information for Chinese users. See: https://beian.miit.gov.cn, http://www.beian.gov.cn
+  beian:
+    enable: false
+    icp:
+    # The digit in the num of gongan beian.
+    gongan_id:
+    # The full num of gongan beian.
+    gongan_num:
+    # The icon for gongan beian. See: http://www.beian.gov.cn/portal/download
+    gongan_icon_url:
 
 
 # ---------------------------------------------------------------
@@ -369,7 +368,7 @@ codeblock:
   copy_button:
     enable: true
     # Available values: default | flat | mac
-    style: default
+    style:
 
 back2top:
   enable: true
@@ -421,7 +420,7 @@ font:
   enable: true
 
   # Uri of fonts host, e.g. https://fonts.googleapis.com (Default).
-  host: https://fonts.googleapis.com
+  host:
 
   # Font options:
   # `external: true` will load this font family from `host` above.
@@ -571,7 +570,7 @@ comments:
   # Setting `true` means remembering the comment system selected by the visitor.
   storage: true
   # Lazyload all comment systems.
-  lazyload: true
+  lazyload: false
   # Modify texts or order for any naves, here are some examples.
   nav:
     #disqus:
@@ -726,7 +725,7 @@ busuanzi_count:
 # Algolia Search
 # For more information: https://www.algolia.com
 algolia_search:
-  enable: false
+  enable: true
   hits:
     per_page: 10
 
@@ -749,6 +748,13 @@ local_search:
 # Chat Services
 # See: https://theme-next.js.org/docs/third-party-services/chat-services
 # ---------------------------------------------------------------
+
+# A button to open designated chat widget in sidebar.
+# Firstly, you need to enable and configure the chat service.
+chat:
+  enable: false
+  icon: fa fa-comment # Icon name in Font Awesome, set false to disable icon.
+  text: Chat # Button text, change it as you wish.
 
 # Chatra Support
 # For more information: https://chatra.com
