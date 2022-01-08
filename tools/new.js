@@ -21,6 +21,17 @@ function newDaily(args) {
     });
 }
 
+function newPost(args) {
+    let today = new Date(Date.now())
+    let date = today.toISOString().slice(0, 10)
+    let cmd = ['hexo', 'new', 'post', '-p', `${date}-${args[0]}`, "title"].join(' ');
+    exec(cmd, (error, stdout, stderr) => {
+        if (stdout) console.log(stdout);
+        if (stderr) console.log(stderr);
+        if (error) console.log(error);
+    });
+}
+
 function main() {
     let args = process.argv.slice(2);
     let type = args[0];
@@ -35,7 +46,9 @@ function main() {
         case 'da':
         case 'd':
             newDaily(args.slice(1));
+            break;
         default:
+            newPost(args);
             break;
     }
 
