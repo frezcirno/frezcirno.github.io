@@ -316,6 +316,14 @@
 
 <script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"frezcirno/frezcirno.github.io","issue_term":"pathname","theme":"preferred-color-scheme"}</script>
 <script src="/js/third-party/comments/utterances.js"></script>
-<script defer src="https://cdn.7c00h.xyz/live2d-widget/autoload.js"></script>
+<script>
+if (window.matchMedia("(min-width: 760px)").matches) {
+    var js = document.createElement("script");
+    js.type = "text/javascript";
+    js.defer = true;
+    js.src = "https://cdn.7c00h.xyz/live2d-widget/autoload.js";
+    document.getElementsByTagName('head')[0].appendChild(js);
+}
+</script>
 </body>
 </html>
