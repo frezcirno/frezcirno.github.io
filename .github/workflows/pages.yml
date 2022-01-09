@@ -33,6 +33,12 @@ jobs:
             ${{ runner.OS }}-npm-cache
       - name: Install Dependencies
         run: npm install
+      - name: Patch packages
+        run: |
+          patch -d node_modules/hexo-excerpt -N -p1 < 0001-fix-don-t-process-if-the-excerpt-already-exists.patch
+          retCode=$?
+          [[ $retCode -gt 1 ]] && exit $retCode
+          exit 0
       - name: Build
         run: npm run build
       - name: Post process
