@@ -1,7 +1,7 @@
 ---
 title: 线性代数
 date: 2021-01-08 20:56:06
-category: 
+category:
 - [课程笔记, 线性代数]
 tags:
 mathjax: true

@@ -1,7 +1,4 @@
 #!/bin/bash
-ABS_PATH=$(cd $(dirname $0) && pwd)
-PUBLIC=$ABS_PATH/../public
+DIR=$(cd $(dirname $0) && pwd)
 
-for f in $ABS_PATH/post_process/*; do
-    . $f
-done
+run-parts --regex '.*\.sh$' $DIR/post_process

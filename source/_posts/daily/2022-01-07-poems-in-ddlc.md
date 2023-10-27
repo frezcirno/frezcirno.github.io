@@ -11,31 +11,31 @@ tags:
 @font-face
 {
     font-family: DejaVuSans;
-    src: url(https://static.7c00h.xyz/images/DejaVuSans.ttf);
+    src: url(https://frezcirno.github.io/static/images/DejaVuSans.ttf);
 }
 
 @font-face
 {
     font-family: Ammys Handwriting;
-    src: url("https://static.7c00h.xyz/images/Ammys Handwriting.ttf");
+    src: url("https://frezcirno.github.io/static/images/Ammys Handwriting.ttf");
 }
 
 @font-face
 {
     font-family: Hashtag;
-    src: url(https://static.7c00h.xyz/images/Hashtag.ttf);
+    src: url(https://frezcirno.github.io/static/images/Hashtag.ttf);
 }
 
 @font-face
 {
     font-family: JPHSL;
-    src: url(https://static.7c00h.xyz/images/JPHSL.TTF);
+    src: url(https://frezcirno.github.io/static/images/JPHSL.TTF);
 }
 
 @font-face
 {
     font-family: Journal;
-    src: url(https://static.7c00h.xyz/images/Journal-Regular.ttf);
+    src: url(https://frezcirno.github.io/static/images/Journal-Regular.ttf);
 }
 
 h1[id="Sayori"]~blockquote {
@@ -64,7 +64,7 @@ h1[id="Monika"]~blockquote {
 
 </style>
 
-![](https://static.7c00h.xyz/images/ddlc.png)
+![](https://frezcirno.github.io/static/images/ddlc.png)
 
 # Sayori
 

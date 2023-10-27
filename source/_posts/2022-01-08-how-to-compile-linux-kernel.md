@@ -6,7 +6,7 @@ tags:
 - Linux
 ---
 
-![](https://static.7c00h.xyz/images/NewTux.svg)
+![](https://frezcirno.github.io/static/images/NewTux.svg)
 
 # 访问 https://www.kernel.org/ 查看最新的内核版本，获取下载链接
 

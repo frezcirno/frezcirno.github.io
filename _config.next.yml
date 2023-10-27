@@ -128,7 +128,7 @@ sidebar:
 # Sidebar Avatar
 avatar:
   # Replace the default image and set the url here.
-  url: https://cdn.7c00h.xyz/avatar.jpg
+  url: https://frezcirno.github.io/static/avatar.jpg
   # If true, the avatar will be displayed in circle.
   rounded: true
   # If true, the avatar will be rotated with the cursor.
@@ -430,13 +430,13 @@ font:
   # Global font settings used for all elements inside <body>.
   global:
     external: true
-    family: Noto Serif
+    family: "Libertinus Serif, Noto Serif CJK SC"
     size:
 
   # Font settings for site title (.site-title).
   title:
     external: true
-    family:
+    family: "Noto Sans CJK SC"
     size:
 
   # Font settings for headlines (<h1> to <h6>).
@@ -453,7 +453,7 @@ font:
   # Font settings for <code> and code blocks.
   codes:
     external: true
-    family: JetBrains Mono
+    family: "JetBrains Mono"
 
 
 # ---------------------------------------------------------------
@@ -502,7 +502,7 @@ math:
   # Default (false) will load mathjax / katex script on demand.
   # That is it only render those page which has `mathjax: true` in front-matter.
   # If you set it to true, it will load mathjax / katex script EVERY PAGE.
-  every_page: true
+  every_page: false
 
   mathjax:
     enable: true
@@ -531,7 +531,7 @@ mediumzoom: false
 # For more information: https://apoorv.pro/lozad.js/demo/
 lazyload: false
 
-# Pangu Support
+# Automatically insert whitespace between CJK and half-width characters.
 # For more information: https://github.com/vinta/pangu.js
 # Server-side plugin: https://github.com/next-theme/hexo-pangu
 pangu: false
@@ -540,7 +540,7 @@ pangu: false
 # For more information: https://getquick.link
 # Front-matter variable (nonsupport home archive).
 quicklink:
-  enable: false
+  enable: true
 
   # Home page and archive page can be controlled through home and archive options below.
   # This configuration item is independent of `enable`.
@@ -671,44 +671,10 @@ google_analytics:
   # If you only need the pageview feature, set the following option to true to get a better performance.
   only_pageview: false
 
-# Baidu Analytics
-# See: https://tongji.baidu.com
-baidu_analytics: # <app_id>
-
-# Growingio Analytics
-# See: https://www.growingio.com
-growingio_analytics: # <project_id>
-
-# Cloudflare Web Analytics
-# See: https://www.cloudflare.com/web-analytics/
-cloudflare_analytics:
-
-# Show number of visitors of each article.
-# You can visit https://www.leancloud.cn to get AppID and AppKey.
-leancloud_visitors:
-  enable: false
-  app_id: # <your app id>
-  app_key: # <your app key>
-  # Required for apps from CN region
-  server_url: # <your server url>
-  # Dependencies: https://github.com/theme-next/hexo-leancloud-counter-security
-  # If you don't care about security in leancloud counter and just want to use it directly
-  # (without hexo-leancloud-counter-security plugin), set `security` to `false`.
-  security: true
-
-# Another tool to show number of visitors to each article.
-# Visit https://console.firebase.google.com/u/0/ to get apiKey and projectId.
-# Visit https://firebase.google.com/docs/firestore/ to get more information about firestore.
-firestore:
-  enable: false
-  collection: articles # Required, a string collection name to access firestore database
-  apiKey: # Required
-  projectId: # Required
-
 # Show Views / Visitors of the website / page with busuanzi.
 # For more information: http://ibruce.info/2015/04/04/busuanzi/
 busuanzi_count:
-  enable: false
+  enable: true
   total_visitors: true
   total_visitors_icon: fa fa-user
   total_views: true
@@ -728,21 +694,6 @@ algolia_search:
   enable: true
   hits:
     per_page: 10
-
-# Local Search
-# Dependencies: https://github.com/next-theme/hexo-generator-searchdb
-local_search:
-  enable: false
-  # If auto, trigger search by changing input.
-  # If manual, trigger search by pressing enter key or search button.
-  trigger: auto
-  # Show top n results per article, show all results by setting to -1
-  top_n_per_article: 1
-  # Unescape html strings to the readable one.
-  unescape: false
-  # Preload the search data when the page loads.
-  preload: false
-
 
 # ---------------------------------------------------------------
 # Chat Services
