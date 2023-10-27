@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.1">
-
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
@@ -14,15 +13,15 @@
 
 <link rel="stylesheet" href="/css/main.css">
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif:300,300italic,400,400italic,700,700italic%7CJetBrains+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libertinus+Serif:300,300italic,400,400italic,700,700italic%7CNoto+Serif+CJK+SC:300,300italic,400,400italic,700,700italic%7CNoto+Sans+CJK+SC:300,300italic,400,400italic,700,700italic%7CJetBrains+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/orange/pace-theme-minimal.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.7c00h.xyz","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"algolia":{"appID":"G5DVU73U10","apiKey":"febdb5a3098818569516dfd45b32982d","indexName":"indexName","hits":{"per_page":10}}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.7c00h.xyz","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"algolia":{"appID":"G5DVU73U10","apiKey":"febdb5a3098818569516dfd45b32982d","indexName":"indexName","hits":{"per_page":10}}}</script><script src="/js/config.js"></script>
 
-  <meta name="description" content="提纲">
+    <meta name="description" content="提纲">
 <meta property="og:type" content="article">
 <meta property="og:title" content="语义分析和中间代码生成">
 <meta property="og:url" content="https://blog.7c00h.xyz/compiler-principle/ir/index.html">
@@ -44,7 +43,7 @@
 <meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/ir/list.png">
 <meta property="og:image" content="https://blog.7c00h.xyz/compiler-principle/ir/ir/block.png">
 <meta property="article:published_time" content="2020-12-17T02:55:55.000Z">
-<meta property="article:modified_time" content="2022-02-26T08:49:53.266Z">
+<meta property="article:modified_time" content="2023-10-27T18:36:26.497Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="programming, code">
 <meta name="twitter:card" content="summary">
@@ -67,7 +66,24 @@
 
 
 
+
+
+
 <script defer src="/scripts/fireworks.js"></script>
+<style>
+@font-face {
+    font-family: 'Libertinus Serif';
+    src: url(https://frezcirno.github.io/static/Libertinus-7.040/static/WOFF2/LibertinusSerif-Regular.woff2);
+}
+@font-face {
+    font-family: 'Libertinus Sans';
+    src: url(https://frezcirno.github.io/static/Libertinus-7.040/static/WOFF2/LibertinusSans-Regular.woff2);
+}
+@font-face {
+    font-family: 'Libertinus Math';
+    src: url(https://frezcirno.github.io/static/Libertinus-7.040/static/WOFF2/LibertinusMath-Regular.woff2);
+}
+</style>
   <noscript>
     <link rel="stylesheet" href="/css/noscript.css">
   </noscript>
@@ -77,8 +93,8 @@
   <div class="headband"></div>
 
   <main class="main">
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
   <div class="site-nav-toggle">
     <div class="toggle" aria-label="切换导航栏" role="button">
         <span class="toggle-line"></span>
@@ -98,7 +114,7 @@
   </div>
 
   <div class="site-nav-right">
-    <div class="toggle popup-trigger">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
         <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
@@ -107,11 +123,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu">
-        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
-        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">51</span></a></li>
-        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">14</span></a></li>
-        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">111</span></a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">51</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">16</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">113</span></a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -140,15 +152,9 @@
     </div>
   </div>
 
-</div>
+</header>
         
   
-  <div class="toggle sidebar-toggle" role="button">
-    <span class="toggle-line"></span>
-    <span class="toggle-line"></span>
-    <span class="toggle-line"></span>
-  </div>
-
   <aside class="sidebar">
 
     <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
@@ -164,28 +170,28 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%90%E7%BA%B2"><span class="nav-text">提纲</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95%E5%92%8C%E8%AF%AD%E6%B3%95%E5%88%B6%E5%AF%BC%E7%BF%BB%E8%AF%91"><span class="nav-text">属性文法和语法制导翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95"><span class="nav-text">属性文法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#S-%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95"><span class="nav-text">S-属性文法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#L-%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95"><span class="nav-text">L-属性文法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E5%88%B6%E5%AF%BC%E7%BF%BB%E8%AF%91"><span class="nav-text">语法制导翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E5%9B%BE"><span class="nav-text">依赖图</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90%E5%92%8C%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-text">语义分析和中间代码生成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90"><span class="nav-text">语义分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%AD%E9%97%B4%E8%AF%AD%E8%A8%80"><span class="nav-text">中间语言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B4%E6%98%8E%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">说明语句的翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%8B%E5%80%BC%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">赋值语句的翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%83%E5%B0%94%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">布尔表达式的翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E8%BF%90%E7%AE%97%E4%B8%AD%E7%9A%84%E5%B8%83%E5%B0%94%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%BF%BB%E8%AF%91"><span class="nav-text">逻辑运算中的布尔表达式翻译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5%E4%B8%AD%E7%9A%84%E5%B8%83%E5%B0%94%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%BF%BB%E8%AF%91"><span class="nav-text">条件控制语句中的布尔表达式翻译</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">控制语句的翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E8%AF%AD%E5%8F%A5"><span class="nav-text">条件语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E8%AF%AD%E5%8F%A5-while"><span class="nav-text">循环语句(while)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E5%8F%A5%E5%88%97%E8%A1%A8%E5%92%8C%E8%AF%AD%E5%8F%A5%E5%9D%97"><span class="nav-text">语句列表和语句块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E5%8F%B7%E4%B8%8Egoto%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">标号与goto语句的翻译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#case%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">case语句的翻译</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E7%A8%8B%E8%B0%83%E7%94%A8%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">过程调用的翻译</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%90%E7%BA%B2"><span class="nav-text">提纲</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95%E5%92%8C%E8%AF%AD%E6%B3%95%E5%88%B6%E5%AF%BC%E7%BF%BB%E8%AF%91"><span class="nav-text">属性文法和语法制导翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95"><span class="nav-text">属性文法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#s-%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95"><span class="nav-text">S-属性文法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#l-%E5%B1%9E%E6%80%A7%E6%96%87%E6%B3%95"><span class="nav-text">L-属性文法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E5%88%B6%E5%AF%BC%E7%BF%BB%E8%AF%91"><span class="nav-text">语法制导翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E5%9B%BE"><span class="nav-text">依赖图</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90%E5%92%8C%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-text">语义分析和中间代码生成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90"><span class="nav-text">语义分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%AD%E9%97%B4%E8%AF%AD%E8%A8%80"><span class="nav-text">中间语言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B4%E6%98%8E%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">说明语句的翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%8B%E5%80%BC%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">赋值语句的翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%83%E5%B0%94%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">布尔表达式的翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E8%BF%90%E7%AE%97%E4%B8%AD%E7%9A%84%E5%B8%83%E5%B0%94%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%BF%BB%E8%AF%91"><span class="nav-text">逻辑运算中的布尔表达式翻译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5%E4%B8%AD%E7%9A%84%E5%B8%83%E5%B0%94%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%BF%BB%E8%AF%91"><span class="nav-text">条件控制语句中的布尔表达式翻译</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">控制语句的翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E8%AF%AD%E5%8F%A5"><span class="nav-text">条件语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E8%AF%AD%E5%8F%A5while"><span class="nav-text">循环语句(while)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E5%8F%A5%E5%88%97%E8%A1%A8%E5%92%8C%E8%AF%AD%E5%8F%A5%E5%9D%97"><span class="nav-text">语句列表和语句块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E5%8F%B7%E4%B8%8Egoto%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">标号与goto语句的翻译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#case%E8%AF%AD%E5%8F%A5%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">case语句的翻译</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E7%A8%8B%E8%B0%83%E7%94%A8%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-text">过程调用的翻译</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
         <div class="site-overview-wrap sidebar-panel">
-          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <img class="site-author-image" itemprop="image" alt="frezcirno"
-      src="https://cdn.7c00h.xyz/avatar.jpg">
+      src="https://frezcirno.github.io/static/avatar.jpg">
   <p class="site-author-name" itemprop="name">frezcirno</p>
   <div class="site-description" itemprop="description">笨蛋代码人</div>
 </div>
-<div class="site-state-wrap site-overview-item animated">
+<div class="site-state-wrap animated">
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">111</span>
+          <span class="site-state-item-count">113</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -195,36 +201,24 @@
       </div>
   </nav>
 </div>
-  <div class="links-of-author site-overview-item animated">
+  <div class="links-of-author animated">
       <span class="links-of-author-item">
-        <a href="https://github.com/frezcirno" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;frezcirno" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+        <a href="https://github.com/frezcirno" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;frezcirno" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:2277861660@qq.com" title="E-Mail → mailto:2277861660@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+        <a href="mailto:2277861660@qq.com" title="E-Mail → mailto:2277861660@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
       </span>
   </div>
-
-
 
         </div>
       </div>
     </div>
-  </aside>
-  <div class="sidebar-dimmer"></div>
-
-
-    </header>
 
     
-  <div class="back-to-top" role="button" aria-label="返回顶部">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
+  </aside>
 
-<noscript>
-  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
-</noscript>
 
+    </div>
 
     <div class="main-inner post posts-expand">
 
@@ -240,13 +234,18 @@
     <link itemprop="mainEntityOfPage" href="https://blog.7c00h.xyz/compiler-principle/ir/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://cdn.7c00h.xyz/avatar.jpg">
+      <meta itemprop="image" content="https://frezcirno.github.io/static/avatar.jpg">
       <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="笨蛋代码人">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Frezcirno的博客">
+      <meta itemprop="description" content="笨蛋代码人">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="语义分析和中间代码生成 | Frezcirno的博客">
+      <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -278,13 +277,20 @@
     </span>
 
   
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
     <span class="post-meta-break"></span>
     <span class="post-meta-item" title="本文字数">
       <span class="post-meta-item-icon">
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>2k</span>
+      <span>2.1k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -301,202 +307,156 @@
     
     
     
-    <div class="post-body" itemprop="articleBody">
-        <h1 id="提纲"><a href="#提纲" class="headerlink" title="提纲"></a>提纲</h1><p><img src="ir/index1.png" alt=""></p>
-<p><img src="ir/index2.png" alt=""></p>
-<h1 id="属性文法和语法制导翻译"><a href="#属性文法和语法制导翻译" class="headerlink" title="属性文法和语法制导翻译"></a>属性文法和语法制导翻译</h1><h2 id="属性文法"><a href="#属性文法" class="headerlink" title="属性文法"></a>属性文法</h2><p>属性文法: 在上下文无关文法的基础上给每个文法符号增加若干属性</p>
-<p>语义规则: 对于文法的每个产生式配备了<strong>一组</strong>属性的计算规则</p>
-<ul>
-<li>$b:=f(c_1,c_2,…,c_k)$</li>
-<li>产生式左边的综合属性和右边的继承属性必须提供语义规则</li>
-<li>语义规则所描述的工作可以包括属性计算、符号表操作、静态语义检查、代码生成等等。</li>
-</ul>
+    <div class="post-body" itemprop="articleBody"><h1 id="提纲">提纲</h1>
+<p><img src="ir/index1.png" /></p>
+<p><img src="ir/index2.png" /></p>
+<h1 id="属性文法和语法制导翻译">属性文法和语法制导翻译</h1>
+<h2 id="属性文法">属性文法</h2>
+<p>属性文法: 在上下文无关文法的基础上给每个文法符号增加若干属性</p>
+<p>语义规则: 对于文法的每个产生式配备了<strong>一组</strong>属性的计算规则 - <span class="math inline">\(b:=f(c_1,c_2,...,c_k)\)</span> - 产生式左边的综合属性和右边的继承属性必须提供语义规则 - 语义规则所描述的工作可以包括属性计算、符号表操作、静态语义检查、代码生成等等。</p>
 <p>属性加工的过程即是语义处理的过程</p>
-<p>属性</p>
-<ul>
-<li>综合属性: 在语法树中, 通过子节点的属性计算出来的属性(自下而上)</li>
-<li>继承属性: 在语法树中, 通过父节点和兄弟节点的属性计算出来的属性(自上而下)</li>
-<li>终结符只有综合属性, 有lexer提供</li>
-</ul>
-<h3 id="S-属性文法"><a href="#S-属性文法" class="headerlink" title="S-属性文法"></a>S-属性文法</h3><p>只包含综合属性的文法</p>
-<h3 id="L-属性文法"><a href="#L-属性文法" class="headerlink" title="L-属性文法"></a>L-属性文法</h3><p>如果每个产生式A→X1…Xj-1Xj…Xn的每条语义规则计算的属性或者是A的综合属性；或者是Xj的继承属性，但它仅依赖：</p>
-<ul>
-<li>该产生式中Xj左边符号X1, X2, …, Xj-1的属性；</li>
-<li>A的继承属性</li>
-</ul>
-<h2 id="语法制导翻译"><a href="#语法制导翻译" class="headerlink" title="语法制导翻译"></a>语法制导翻译</h2><p>语法制导翻译法: </p>
-<ul>
-<li>基于属性文法的处理过程: <code>输入串-&gt;语法树-&gt;依赖图-&gt;语义规则计算次序</code></li>
-<li>由源程序的语法结构所驱动</li>
-</ul>
-<p>作用</p>
-<ul>
-<li><strong>产生中间代码</strong></li>
-<li>产生目标指令</li>
-<li>对输入串进行解释执行</li>
-</ul>
-<h3 id="依赖图"><a href="#依赖图" class="headerlink" title="依赖图"></a>依赖图</h3><p>用DAG表示属性依赖关系</p>
-<ul>
-<li>每个属性一个结点</li>
-<li>语义规则中左边属性依赖右边每一个属性</li>
-</ul>
-<p><img src="ir/dep_tree.png" alt=""></p>
-<ol>
-<li><p>树遍历法</p>
+<p>属性 - 综合属性: 在语法树中, 通过子节点的属性计算出来的属性(自下而上) - 继承属性: 在语法树中, 通过父节点和兄弟节点的属性计算出来的属性(自上而下) - 终结符只有综合属性, 有lexer提供</p>
+<h3 id="s-属性文法">S-属性文法</h3>
+<p>只包含综合属性的文法</p>
+<h3 id="l-属性文法">L-属性文法</h3>
+<p>如果每个产生式A→X1…Xj-1Xj…Xn的每条语义规则计算的属性或者是A的综合属性；或者是Xj的继承属性，但它仅依赖： - 该产生式中Xj左边符号X1, X2, …, Xj-1的属性； - A的继承属性</p>
+<h2 id="语法制导翻译">语法制导翻译</h2>
+<p>语法制导翻译法: - 基于属性文法的处理过程: <code>输入串-&gt;语法树-&gt;依赖图-&gt;语义规则计算次序</code> - 由源程序的语法结构所驱动</p>
+<p>作用 - <strong>产生中间代码</strong> - 产生目标指令 - 对输入串进行解释执行</p>
+<h3 id="依赖图">依赖图</h3>
+<p>用DAG表示属性依赖关系 - 每个属性一个结点 - 语义规则中左边属性依赖右边每一个属性</p>
+<p><img src="ir/dep_tree.png" /></p>
+<ol type="1">
+<li>树遍历法
 <ul>
 <li>无环图</li>
 <li>DFS</li>
 <li>从左到右</li>
-</ul>
-</li>
-<li><p>一遍扫描法</p>
+</ul></li>
+<li>一遍扫描法
 <ul>
 <li>在语法分析的同时计算属性值</li>
 <li>S-属性文法适合于一遍扫描的自下而上分析</li>
 <li>L-属性文法适合于一遍扫描的自上而下分析</li>
-</ul>
-</li>
+</ul></li>
 </ol>
-<h1 id="语义分析和中间代码生成"><a href="#语义分析和中间代码生成" class="headerlink" title="语义分析和中间代码生成"></a>语义分析和中间代码生成</h1><h2 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h2><h2 id="中间语言"><a href="#中间语言" class="headerlink" title="中间语言"></a>中间语言</h2><p>中间语言是复杂性界于源语言和目标语言之间的语言</p>
-<p>好处:</p>
-<ul>
-<li>便于进行与机器无关的代码优化工作</li>
-<li>易于移植</li>
-<li>使编译程序的结构在逻辑上更为简单明确</li>
-</ul>
-<p>常用的中间语言表示法</p>
-<ul>
-<li>后缀式(逆波兰式)</li>
-<li>图表示<ul>
-<li>DAG</li>
-<li>AST</li>
-</ul>
-</li>
-<li>三地址代码<ul>
-<li>三元式</li>
-<li>四元式</li>
-<li>间接三元式</li>
-</ul>
-</li>
-</ul>
-<p>后缀式:</p>
-<ul>
-<li>二元操作符后置</li>
-<li>(一元操作符后置)</li>
-<li>去括号</li>
-</ul>
+<h1 id="语义分析和中间代码生成">语义分析和中间代码生成</h1>
+<h2 id="语义分析">语义分析</h2>
+<h2 id="中间语言">中间语言</h2>
+<p>中间语言是复杂性界于源语言和目标语言之间的语言</p>
+<p>好处: * 便于进行与机器无关的代码优化工作 * 易于移植 * 使编译程序的结构在逻辑上更为简单明确</p>
+<p>常用的中间语言表示法 * 后缀式(逆波兰式) * 图表示 * DAG * AST * 三地址代码 * 三元式 * 四元式 * 间接三元式</p>
+<p>后缀式: - 二元操作符后置 - (一元操作符后置) - 去括号</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a+b*(c+d/e)</span><br><span class="line">a b*(c+d/e) +</span><br><span class="line">a b (c+d/e) * +</span><br><span class="line">a b c d/e + * +</span><br><span class="line">a b c d e / + * +</span><br></pre></td></tr></table></figure>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">b:=-c*a+-c*a</span><br><span class="line">b -c*a+-c*a :=</span><br><span class="line">b -c*a -c*a + :=</span><br><span class="line">b -c a * -c a * + :=</span><br><span class="line">b c Neg a * c Neg a * + :=</span><br></pre></td></tr></table></figure>
 <p>抽象语法树: 去掉对翻译不必要的信息, 更有效表示源程序的语法树</p>
-<p><img src="ir/ast.png" alt=""></p>
-<p>DAG</p>
+<p><img src="ir/ast.png" /></p>
+<p>DAG - 一个内部结点代表一个操作符，它的孩子代表操作数 - 一个DAG中代表<strong>公共子表达式</strong>的结点具有多个父结点</p>
+<p><img src="ir/dag.png" /></p>
+<p>三地址代码: <code>x:=y op z</code> - 三地址代码可以看成是抽象语法树或DAG的一种线性表示 - 种类 - <code>x:=y op z</code> - <code>x:=op y</code> - <code>x:=y</code> - <code>goto L</code> - <code>if x rop y goto L</code> - <code>if a goto L</code> - 计算机表示 - 四元式</p>
+<pre><code>|     | Op     | arg1 | arg2 | result |
+| --- | ------ | ---- | ---- | ------ |
+| (0) | uminus | c    |      | T1     |
+| (1) | *      | b    | T1   | T2     |
+| ... | ...    | ...  | ...  | ...    |</code></pre>
 <ul>
-<li>一个内部结点代表一个操作符，它的孩子代表操作数</li>
-<li>一个DAG中代表<strong>公共子表达式</strong>的结点具有多个父结点</li>
-</ul>
-<p><img src="ir/dag.png" alt=""></p>
-<p>三地址代码: <code>x:=y op z</code></p>
-<ul>
-<li>三地址代码可以看成是抽象语法树或DAG的一种线性表示</li>
-<li>种类<ul>
-<li><code>x:=y op z</code></li>
-<li><code>x:=op y</code></li>
-<li><code>x:=y</code></li>
-<li><code>goto L</code></li>
-<li><code>if x rop y goto L</code></li>
-<li><code>if a goto L</code></li>
-</ul>
-</li>
-<li><p>计算机表示</p>
-<ul>
-<li><p>四元式</p>
-<p>|     | Op     | arg1 | arg2 | result |<br>| —- | ——— | —— | —— | ——— |<br>| (0) | uminus | c    |      | T1     |<br>| (1) | *      | b    | T1   | T2     |<br>| … | …    | …  | …  | …    |</p>
-</li>
 <li><p>三元式</p>
-<p>|     | Op     | arg1 | arg2 |<br>| —- | ——— | —— | —— |<br>| (0) | uminus | c    |      |<br>| (1) | *      | b    | (0)  |<br>| … | …    | …  | …  |<br>| (4) | +      | (1)  | (3)  |<br>| … | …    | …  | …  |</p>
-</li>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Op</th>
+<th>arg1</th>
+<th>arg2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(0)</td>
+<td>uminus</td>
+<td>c</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>(1)</td>
+<td>*</td>
+<td>b</td>
+<td>(0)</td>
+</tr>
+<tr class="odd">
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="even">
+<td>(4)</td>
+<td>+</td>
+<td>(1)</td>
+<td>(3)</td>
+</tr>
+<tr class="odd">
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+</tbody>
+</table></li>
 <li><p>间接三元式</p>
 <ul>
 <li>使用间接代码表来压缩存储相同的三元式</li>
-<li>好处: <ul>
+<li>好处:
+<ul>
 <li>调整语句顺序不需要改动三元式表</li>
 <li>节省存储空间</li>
+</ul></li>
+</ul></li>
 </ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="说明语句的翻译"><a href="#说明语句的翻译" class="headerlink" title="说明语句的翻译"></a>说明语句的翻译</h2><h2 id="赋值语句的翻译"><a href="#赋值语句的翻译" class="headerlink" title="赋值语句的翻译"></a>赋值语句的翻译</h2><p><img src="ir/assign_example.png" alt=""></p>
+<h2 id="说明语句的翻译">说明语句的翻译</h2>
+<h2 id="赋值语句的翻译">赋值语句的翻译</h2>
+<p><img src="ir/assign_example.png" /></p>
 <p>答案:</p>
-<p><img src="ir/assign_example_solution.png" alt=""></p>
-<p>三地址代码<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">T1:=uminus C</span><br><span class="line">T2:=T1+D</span><br><span class="line">T3:=B*T2</span><br><span class="line">A:=T3</span><br></pre></td></tr></table></figure></p>
-<h2 id="布尔表达式的翻译"><a href="#布尔表达式的翻译" class="headerlink" title="布尔表达式的翻译"></a>布尔表达式的翻译</h2><p>基本作用:</p>
-<ul>
-<li>逻辑运算</li>
-<li>控制语句条件</li>
-</ul>
-<p>翻译方法</p>
-<ul>
-<li>算数方式</li>
-<li>短路计算</li>
-</ul>
-<h3 id="逻辑运算中的布尔表达式翻译"><a href="#逻辑运算中的布尔表达式翻译" class="headerlink" title="逻辑运算中的布尔表达式翻译"></a>逻辑运算中的布尔表达式翻译</h3><p><img src="ir/bool_example.png" alt=""></p>
+<p><img src="ir/assign_example_solution.png" /></p>
+<p>三地址代码 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">T1:=uminus C</span><br><span class="line">T2:=T1+D</span><br><span class="line">T3:=B*T2</span><br><span class="line">A:=T3</span><br></pre></td></tr></table></figure></p>
+<h2 id="布尔表达式的翻译">布尔表达式的翻译</h2>
+<p>基本作用: - 逻辑运算 - 控制语句条件</p>
+<p>翻译方法 - 算数方式 - 短路计算</p>
+<h3 id="逻辑运算中的布尔表达式翻译">逻辑运算中的布尔表达式翻译</h3>
+<p><img src="ir/bool_example.png" /></p>
 <p>答案:</p>
-<p>三地址代码<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">0: if a&gt;b goto 3</span><br><span class="line">1: T1:=0</span><br><span class="line">2: goto 4</span><br><span class="line">3: T1:=1</span><br><span class="line">4: if a&gt;b goto 7</span><br><span class="line">5: T1:=0</span><br><span class="line">6: goto 8</span><br><span class="line">7: T1:=1</span><br><span class="line">8: T3=T1 and T2</span><br></pre></td></tr></table></figure></p>
-<h3 id="条件控制语句中的布尔表达式翻译"><a href="#条件控制语句中的布尔表达式翻译" class="headerlink" title="条件控制语句中的布尔表达式翻译"></a>条件控制语句中的布尔表达式翻译</h3><p>两种出口: 一真一假</p>
-<p>改写产生式</p>
-<ul>
-<li><code>E -&gt; E and M E</code></li>
-<li><code>E -&gt; E or M E</code></li>
-<li><code>M -&gt; epsilon</code></li>
-</ul>
-<p>增加属性</p>
-<ul>
-<li><code>truelist</code>/<code>falselist</code>: 布尔表达式中需要回填地址的四元式构成的(反向)列表, 从最后的需要回填地址四元式指向更靠前的四元式</li>
-<li><code>nextquad</code>: 下一条即将产生的四元式的地址, 如果是emit过程中包含那么就是该条语句的地址</li>
-</ul>
-<p>增加过程</p>
-<ul>
-<li><code>makelist(i)</code>: 创建一个新链表<code>-&gt;i</code></li>
-<li><code>merge(p1,p2)</code>: 合并两个链表</li>
-<li><code>backpatch(p,t)</code>: 回填地址</li>
-</ul>
-<p><img src="ir/bool1.png" alt=""></p>
-<p><img src="ir/bool2.png" alt=""></p>
+<p>三地址代码 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">0: if a&gt;b goto 3</span><br><span class="line">1: T1:=0</span><br><span class="line">2: goto 4</span><br><span class="line">3: T1:=1</span><br><span class="line">4: if a&gt;b goto 7</span><br><span class="line">5: T1:=0</span><br><span class="line">6: goto 8</span><br><span class="line">7: T1:=1</span><br><span class="line">8: T3=T1 and T2</span><br></pre></td></tr></table></figure></p>
+<h3 id="条件控制语句中的布尔表达式翻译">条件控制语句中的布尔表达式翻译</h3>
+<p>两种出口: 一真一假</p>
+<p>改写产生式 - <code>E -&gt; E and M E</code> - <code>E -&gt; E or M E</code> - <code>M -&gt; epsilon</code></p>
+<p>增加属性 - <code>truelist</code>/<code>falselist</code>: 布尔表达式中需要回填地址的四元式构成的(反向)列表, 从最后的需要回填地址四元式指向更靠前的四元式 - <code>nextquad</code>: 下一条即将产生的四元式的地址, 如果是emit过程中包含那么就是该条语句的地址</p>
+<p>增加过程 - <code>makelist(i)</code>: 创建一个新链表<code>-&gt;i</code> - <code>merge(p1,p2)</code>: 合并两个链表 - <code>backpatch(p,t)</code>: 回填地址</p>
+<p><img src="ir/bool1.png" /></p>
+<p><img src="ir/bool2.png" /></p>
 <p>例: 写出布尔式A or (B and not (C or D))的四元式序列</p>
 <p>答案:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0: jnz,A,-,0</span><br><span class="line">1: j,-,-,2</span><br><span class="line">2: jnz,B,-,4</span><br><span class="line">3: j,-,-,0</span><br><span class="line">4: jnz,C,-,0</span><br><span class="line">5: j,-,-,6</span><br><span class="line">6: jnz,D,-,0</span><br><span class="line">7: j,-,-,0</span><br></pre></td></tr></table></figure>
-<h2 id="控制语句的翻译"><a href="#控制语句的翻译" class="headerlink" title="控制语句的翻译"></a>控制语句的翻译</h2><h3 id="条件语句"><a href="#条件语句" class="headerlink" title="条件语句"></a>条件语句</h3><p>改写产生式</p>
-<ul>
-<li><code>S -&gt; if E then M S</code></li>
-<li><code>S -&gt; if E then M S N else M S</code></li>
-<li><code>M -&gt; epsilon</code></li>
-<li><code>N -&gt; epsilon</code></li>
-</ul>
-<p>增加属性:</p>
-<ul>
-<li><code>nextlist</code>: 下一条执行语句的地址, 引入此变量是为了优化连续多次跳转</li>
-</ul>
-<p><img src="ir/control.png" alt=""></p>
-<h3 id="循环语句-while"><a href="#循环语句-while" class="headerlink" title="循环语句(while)"></a>循环语句(while)</h3><p><img src="ir/while.png" alt=""></p>
-<h3 id="语句列表和语句块"><a href="#语句列表和语句块" class="headerlink" title="语句列表和语句块"></a>语句列表和语句块</h3><p>改写产生式</p>
-<ul>
-<li><code>L -&gt; L; M S</code></li>
-<li><code>M -&gt; epsilon</code></li>
-</ul>
-<p><img src="ir/list.png" alt=""></p>
-<p><img src="ir/block.png" alt=""></p>
-<h3 id="标号与goto语句的翻译"><a href="#标号与goto语句的翻译" class="headerlink" title="标号与goto语句的翻译"></a>标号与goto语句的翻译</h3><h3 id="case语句的翻译"><a href="#case语句的翻译" class="headerlink" title="case语句的翻译"></a>case语句的翻译</h3><h2 id="过程调用的翻译"><a href="#过程调用的翻译" class="headerlink" title="过程调用的翻译"></a>过程调用的翻译</h2><p>不考, 略</p>
+<h2 id="控制语句的翻译">控制语句的翻译</h2>
+<h3 id="条件语句">条件语句</h3>
+<p>改写产生式 - <code>S -&gt; if E then M S</code> - <code>S -&gt; if E then M S N else M S</code> - <code>M -&gt; epsilon</code> - <code>N -&gt; epsilon</code></p>
+<p>增加属性: - <code>nextlist</code>: 下一条执行语句的地址, 引入此变量是为了优化连续多次跳转</p>
+<p><img src="ir/control.png" /></p>
+<h3 id="循环语句while">循环语句(while)</h3>
+<p><img src="ir/while.png" /></p>
+<h3 id="语句列表和语句块">语句列表和语句块</h3>
+<p>改写产生式 - <code>L -&gt; L; M S</code> - <code>M -&gt; epsilon</code></p>
+<p><img src="ir/list.png" /></p>
+<p><img src="ir/block.png" /></p>
+<h3 id="标号与goto语句的翻译">标号与goto语句的翻译</h3>
+<h3 id="case语句的翻译">case语句的翻译</h3>
+<h2 id="过程调用的翻译">过程调用的翻译</h2>
+<p>不考, 略</p>
 
     </div>
 
     
     
     
-      
-
 
     <footer class="post-footer">
 
@@ -505,12 +465,12 @@
           <div class="post-nav">
             <div class="post-nav-item">
                 <a href="/compiler-principle/parser/" rel="prev" title="语法分析">
-                  <i class="fa fa-chevron-left"></i> 语法分析
+                  <i class="fa fa-angle-left"></i> 语法分析
                 </a>
             </div>
             <div class="post-nav-item">
                 <a href="/compiler-principle/profile/" rel="next" title="优化">
-                  优化 <i class="fa fa-chevron-right"></i>
+                  优化 <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>
@@ -530,28 +490,45 @@
   <footer class="footer">
     <div class="footer-inner">
 
-
-<div class="copyright">
-  &copy; 2020 – 
-  <span itemprop="copyrightYear">2022</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">frezcirno</span>
-</div>
+  <div class="copyright">
+    &copy; 2020 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">frezcirno</span>
+  </div>
 <div class="wordcount">
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">126k</span>
+    <span title="站点总字数">129k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:55</span>
+    <span title="站点阅读时长">1:58</span>
   </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
@@ -560,29 +537,45 @@
   </footer>
 
   
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
 <script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
 
-  
-<script src="https://cdnjs.cloudflare.com/ajax/libs/algoliasearch/4.12.1/algoliasearch-lite.umd.js" integrity="sha256-gOvJ6W+j+t/cgnnl9iUU3cb6F1WFQGDdtTXhfPjU4bc=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/4.38.0/instantsearch.production.min.js" integrity="sha256-KSgT2gZhRG/3zPNvK4asby8mNGnIDpUJbebF8DDWyss=" crossorigin="anonymous"></script><script src="/js/third-party/search/algolia-search.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/algoliasearch/4.20.0/algoliasearch-lite.umd.js" integrity="sha256-DABVk+hYj0mdUzo+7ViJC6cwLahQIejFvC+my2M/wfM=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/4.57.0/instantsearch.production.min.js" integrity="sha256-foJtB+Wd0wvvK+VU3KO0/H6CjwSwJfB1RnWlgx0Ov9U=" crossorigin="anonymous"></script><script src="/js/third-party/search/algolia-search.js"></script>
+
 
 
 
 
   <script src="/js/third-party/pace.js"></script>
 
-  
-
-
-
 
   
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js","integrity":"sha256-r+3itOMtGGjap0x+10hu6jW/gZCzxHsoKrOd7gyRSGY="}}</script>
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
 <script src="/js/third-party/math/mathjax.js"></script>
 
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous"></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":false,"archive":false,"delay":true,"timeout":3000,"priority":true,"url":"https://blog.7c00h.xyz/compiler-principle/ir/"}</script>
+  <script src="/js/third-party/quicklink.js"></script>
 <script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"frezcirno/frezcirno.github.io","issue_term":"pathname","theme":"preferred-color-scheme"}</script>
 <script src="/js/third-party/comments/utterances.js"></script>
 <script>
@@ -590,7 +583,7 @@ if (window.matchMedia("(min-width: 760px)").matches) {
     var js = document.createElement("script");
     js.type = "text/javascript";
     js.defer = true;
-    js.src = "https://cdn.7c00h.xyz/live2d-widget/autoload.js";
+    js.src = "https://frezcirno.github.io/static/live2d-widget/autoload.js";
     document.getElementsByTagName('head')[0].appendChild(js);
 }
 </script>

@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.1">
-
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
@@ -14,23 +13,23 @@
 
 <link rel="stylesheet" href="/css/main.css">
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif:300,300italic,400,400italic,700,700italic%7CJetBrains+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libertinus+Serif:300,300italic,400,400italic,700,700italic%7CNoto+Serif+CJK+SC:300,300italic,400,400italic,700,700italic%7CNoto+Sans+CJK+SC:300,300italic,400,400italic,700,700italic%7CJetBrains+Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/orange/pace-theme-minimal.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.7c00h.xyz","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"algolia":{"appID":"G5DVU73U10","apiKey":"febdb5a3098818569516dfd45b32982d","indexName":"indexName","hits":{"per_page":10}}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.7c00h.xyz","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"algolia":{"appID":"G5DVU73U10","apiKey":"febdb5a3098818569516dfd45b32982d","indexName":"indexName","hits":{"per_page":10}}}</script><script src="/js/config.js"></script>
 
-  <meta name="description" content="Rabin-Karp 算法字符串匹配算法之一，利用哈希进行匹配比较，利用滚动哈希优化哈希函数">
+    <meta name="description" content="Rabin-Karp 算法 字符串匹配算法之一，利用哈希进行匹配比较，利用滚动哈希优化哈希函数">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Rabin-Karp 算法">
 <meta property="og:url" content="https://blog.7c00h.xyz/daily/2021-07-02/index.html">
 <meta property="og:site_name" content="Frezcirno的博客">
-<meta property="og:description" content="Rabin-Karp 算法字符串匹配算法之一，利用哈希进行匹配比较，利用滚动哈希优化哈希函数">
+<meta property="og:description" content="Rabin-Karp 算法 字符串匹配算法之一，利用哈希进行匹配比较，利用滚动哈希优化哈希函数">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-07-02T11:06:53.000Z">
-<meta property="article:modified_time" content="2022-02-26T08:49:53.290Z">
+<meta property="article:modified_time" content="2023-10-27T18:36:26.521Z">
 <meta property="article:author" content="frezcirno">
 <meta property="article:tag" content="算法">
 <meta name="twitter:card" content="summary">
@@ -52,7 +51,24 @@
 
 
 
+
+
+
 <script defer src="/scripts/fireworks.js"></script>
+<style>
+@font-face {
+    font-family: 'Libertinus Serif';
+    src: url(https://frezcirno.github.io/static/Libertinus-7.040/static/WOFF2/LibertinusSerif-Regular.woff2);
+}
+@font-face {
+    font-family: 'Libertinus Sans';
+    src: url(https://frezcirno.github.io/static/Libertinus-7.040/static/WOFF2/LibertinusSans-Regular.woff2);
+}
+@font-face {
+    font-family: 'Libertinus Math';
+    src: url(https://frezcirno.github.io/static/Libertinus-7.040/static/WOFF2/LibertinusMath-Regular.woff2);
+}
+</style>
   <noscript>
     <link rel="stylesheet" href="/css/noscript.css">
   </noscript>
@@ -62,8 +78,8 @@
   <div class="headband"></div>
 
   <main class="main">
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
   <div class="site-nav-toggle">
     <div class="toggle" aria-label="切换导航栏" role="button">
         <span class="toggle-line"></span>
@@ -83,7 +99,7 @@
   </div>
 
   <div class="site-nav-right">
-    <div class="toggle popup-trigger">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
         <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
@@ -92,11 +108,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu">
-        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
-        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">51</span></a></li>
-        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">14</span></a></li>
-        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">111</span></a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">51</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">16</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">113</span></a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -125,15 +137,9 @@
     </div>
   </div>
 
-</div>
+</header>
         
   
-  <div class="toggle sidebar-toggle" role="button">
-    <span class="toggle-line"></span>
-    <span class="toggle-line"></span>
-    <span class="toggle-line"></span>
-  </div>
-
   <aside class="sidebar">
 
     <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
@@ -149,28 +155,28 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Rabin-Karp-%E7%AE%97%E6%B3%95"><span class="nav-text">Rabin-Karp 算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BB%9A%E5%8A%A8%E5%93%88%E5%B8%8C"><span class="nav-text">滚动哈希</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#rabin-karp-%E7%AE%97%E6%B3%95"><span class="nav-text">Rabin-Karp 算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BB%9A%E5%8A%A8%E5%93%88%E5%B8%8C"><span class="nav-text">滚动哈希</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
         <div class="site-overview-wrap sidebar-panel">
-          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <img class="site-author-image" itemprop="image" alt="frezcirno"
-      src="https://cdn.7c00h.xyz/avatar.jpg">
+      src="https://frezcirno.github.io/static/avatar.jpg">
   <p class="site-author-name" itemprop="name">frezcirno</p>
   <div class="site-description" itemprop="description">笨蛋代码人</div>
 </div>
-<div class="site-state-wrap site-overview-item animated">
+<div class="site-state-wrap animated">
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">111</span>
+          <span class="site-state-item-count">113</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -180,36 +186,24 @@
       </div>
   </nav>
 </div>
-  <div class="links-of-author site-overview-item animated">
+  <div class="links-of-author animated">
       <span class="links-of-author-item">
-        <a href="https://github.com/frezcirno" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;frezcirno" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+        <a href="https://github.com/frezcirno" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;frezcirno" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:2277861660@qq.com" title="E-Mail → mailto:2277861660@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+        <a href="mailto:2277861660@qq.com" title="E-Mail → mailto:2277861660@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
       </span>
   </div>
-
-
 
         </div>
       </div>
     </div>
-  </aside>
-  <div class="sidebar-dimmer"></div>
-
-
-    </header>
 
     
-  <div class="back-to-top" role="button" aria-label="返回顶部">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
+  </aside>
 
-<noscript>
-  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
-</noscript>
 
+    </div>
 
     <div class="main-inner post posts-expand">
 
@@ -225,13 +219,18 @@
     <link itemprop="mainEntityOfPage" href="https://blog.7c00h.xyz/daily/2021-07-02/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://cdn.7c00h.xyz/avatar.jpg">
+      <meta itemprop="image" content="https://frezcirno.github.io/static/avatar.jpg">
       <meta itemprop="name" content="frezcirno">
-      <meta itemprop="description" content="笨蛋代码人">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Frezcirno的博客">
+      <meta itemprop="description" content="笨蛋代码人">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Rabin-Karp 算法 | Frezcirno的博客">
+      <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -259,13 +258,20 @@
     </span>
 
   
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
     <span class="post-meta-break"></span>
     <span class="post-meta-item" title="本文字数">
       <span class="post-meta-item-icon">
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>977</span>
+      <span>1k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -282,15 +288,17 @@
     
     
     
-    <div class="post-body" itemprop="articleBody">
-        <h1 id="Rabin-Karp-算法"><a href="#Rabin-Karp-算法" class="headerlink" title="Rabin-Karp 算法"></a>Rabin-Karp 算法</h1><p>字符串匹配算法之一，利用哈希进行匹配比较，利用滚动哈希优化哈希函数</p>
-<h2 id="滚动哈希"><a href="#滚动哈希" class="headerlink" title="滚动哈希"></a>滚动哈希</h2><p>将滑动窗口中的字符串哈希成一个数字</p>
-<script type="math/tex; mode=display">
-h_i = \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}</script><p>其中$L$为滑动窗口大小，$s$为探针字符串，$b$为基数</p>
-<div class="table-container">
+    <div class="post-body" itemprop="articleBody"><h1 id="rabin-karp-算法">Rabin-Karp 算法</h1>
+<p>字符串匹配算法之一，利用哈希进行匹配比较，利用滚动哈希优化哈希函数</p>
+<h2 id="滚动哈希">滚动哈希</h2>
+<p>将滑动窗口中的字符串哈希成一个数字</p>
+<p><span class="math display">\[
+h_i = \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}
+\]</span></p>
+<p>其中<span class="math inline">\(L\)</span>为滑动窗口大小，<span class="math inline">\(s\)</span>为探针字符串，<span class="math inline">\(b\)</span>为基数</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th>index</th>
 <th></th>
 <th>-1</th>
@@ -305,9 +313,9 @@ h_i = \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}</script><p>其中$L$为滑�
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>s</td>
-<td>……</td>
+<td>......</td>
 <td>a</td>
 <td>b</td>
 <td>c</td>
@@ -316,43 +324,45 @@ h_i = \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}</script><p>其中$L$为滑�
 <td>f</td>
 <td>g</td>
 <td></td>
-<td>……</td>
+<td>......</td>
 </tr>
-<tr>
-<td>$h_{i-1}$</td>
+<tr class="even">
+<td><span class="math inline">\(h_{i-1}\)</span></td>
 <td></td>
-<td>$b^5$</td>
-<td>$b^4$</td>
-<td>$b^3$</td>
-<td>$b^2$</td>
-<td>$b$</td>
-<td>$1$</td>
+<td><span class="math inline">\(b^5\)</span></td>
+<td><span class="math inline">\(b^4\)</span></td>
+<td><span class="math inline">\(b^3\)</span></td>
+<td><span class="math inline">\(b^2\)</span></td>
+<td><span class="math inline">\(b\)</span></td>
+<td><span class="math inline">\(1\)</span></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
-<tr>
-<td>$h_{i}$</td>
+<tr class="odd">
+<td><span class="math inline">\(h_{i}\)</span></td>
 <td></td>
 <td></td>
-<td>$b^5$</td>
-<td>$b^4$</td>
-<td>$b^3$</td>
-<td>$b^2$</td>
-<td>$b$</td>
-<td>$1$</td>
+<td><span class="math inline">\(b^5\)</span></td>
+<td><span class="math inline">\(b^4\)</span></td>
+<td><span class="math inline">\(b^3\)</span></td>
+<td><span class="math inline">\(b^2\)</span></td>
+<td><span class="math inline">\(b\)</span></td>
+<td><span class="math inline">\(1\)</span></td>
+<td></td>
 <td></td>
 </tr>
 </tbody>
 </table>
-</div>
 <p>则有递推公式</p>
-<script type="math/tex; mode=display">
+<p><span class="math display">\[
 \begin{aligned}
-h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
-&= b \cdot \sum_{p = 0}^{L - 1}{s_{i + p - 1} b^{L - 1 - p}} - s_{i-1} b^{L} + s_{i+L-1}\\
-&= (h_{i-1} - s_{i-1} b^{L-1}) b + s_{i+L-1}
-\end{aligned}</script><p>代码：</p>
+h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
+&amp;= b \cdot \sum_{p = 0}^{L - 1}{s_{i + p - 1} b^{L - 1 - p}} - s_{i-1} b^{L} + s_{i+L-1}\\
+&amp;= (h_{i-1} - s_{i-1} b^{L-1}) b + s_{i+L-1}
+\end{aligned}
+\]</span></p>
+<p>代码：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">rk_hash</span><span class="params">(<span class="type">const</span> std::string s, <span class="type">int</span> start, <span class="type">int</span> base, <span class="type">int</span> L, <span class="type">int</span> mod)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> hash = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; L; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        hash = (hash * base) % mod;</span><br><span class="line">        hash = (hash + s[start + i]) % mod;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> hash;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">powmod</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> n, <span class="type">int</span> m)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n == <span class="number">1</span>) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">if</span> (n % <span class="number">2</span> == <span class="number">0</span>) <span class="keyword">return</span> <span class="built_in">powmod</span>((<span class="type">long</span> <span class="type">long</span>)a * a % m, n / <span class="number">2</span>, m) % m;</span><br><span class="line">    <span class="keyword">return</span> ((<span class="built_in">powmod</span>((<span class="type">long</span> <span class="type">long</span>)a * a % m, n / <span class="number">2</span>, m) % m) * ((<span class="type">long</span> <span class="type">long</span>)a % m)) % m;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">rk_cont_hash</span><span class="params">(<span class="type">const</span> std::string s, <span class="type">int</span> start, <span class="type">int</span> last_h, <span class="type">int</span> base, <span class="type">int</span> L, <span class="type">int</span> mod)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> hash = last_h - s[start - <span class="number">1</span>] * <span class="built_in">powmod</span>(base, L - <span class="number">1</span>, mod);</span><br><span class="line">    hash = (hash * base) % mod;</span><br><span class="line">    hash = (hash + s[start + L - <span class="number">1</span>]) % mod;</span><br><span class="line">    <span class="keyword">return</span> hash;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
     </div>
@@ -360,8 +370,6 @@ h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
     
     
     
-      
-
 
     <footer class="post-footer">
           <div class="post-tags">
@@ -373,12 +381,12 @@ h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
           <div class="post-nav">
             <div class="post-nav-item">
                 <a href="/leetcode/1395/" rel="prev" title="1395. 统计作战单位数">
-                  <i class="fa fa-chevron-left"></i> 1395. 统计作战单位数
+                  <i class="fa fa-angle-left"></i> 1395. 统计作战单位数
                 </a>
             </div>
             <div class="post-nav-item">
                 <a href="/leetcode/645/" rel="next" title="645. 错误的集合">
-                  645. 错误的集合 <i class="fa fa-chevron-right"></i>
+                  645. 错误的集合 <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>
@@ -398,28 +406,45 @@ h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
   <footer class="footer">
     <div class="footer-inner">
 
-
-<div class="copyright">
-  &copy; 2020 – 
-  <span itemprop="copyrightYear">2022</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">frezcirno</span>
-</div>
+  <div class="copyright">
+    &copy; 2020 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">frezcirno</span>
+  </div>
 <div class="wordcount">
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">126k</span>
+    <span title="站点总字数">129k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:55</span>
+    <span title="站点阅读时长">1:58</span>
   </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
@@ -428,29 +453,45 @@ h_i &= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
   </footer>
 
   
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
 <script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
 
-  
-<script src="https://cdnjs.cloudflare.com/ajax/libs/algoliasearch/4.12.1/algoliasearch-lite.umd.js" integrity="sha256-gOvJ6W+j+t/cgnnl9iUU3cb6F1WFQGDdtTXhfPjU4bc=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/4.38.0/instantsearch.production.min.js" integrity="sha256-KSgT2gZhRG/3zPNvK4asby8mNGnIDpUJbebF8DDWyss=" crossorigin="anonymous"></script><script src="/js/third-party/search/algolia-search.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/algoliasearch/4.20.0/algoliasearch-lite.umd.js" integrity="sha256-DABVk+hYj0mdUzo+7ViJC6cwLahQIejFvC+my2M/wfM=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/4.57.0/instantsearch.production.min.js" integrity="sha256-foJtB+Wd0wvvK+VU3KO0/H6CjwSwJfB1RnWlgx0Ov9U=" crossorigin="anonymous"></script><script src="/js/third-party/search/algolia-search.js"></script>
+
 
 
 
 
   <script src="/js/third-party/pace.js"></script>
 
-  
-
-
-
 
   
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js","integrity":"sha256-r+3itOMtGGjap0x+10hu6jW/gZCzxHsoKrOd7gyRSGY="}}</script>
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
 <script src="/js/third-party/math/mathjax.js"></script>
 
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous"></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":false,"archive":false,"delay":true,"timeout":3000,"priority":true,"url":"https://blog.7c00h.xyz/daily/2021-07-02/"}</script>
+  <script src="/js/third-party/quicklink.js"></script>
 <script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"frezcirno/frezcirno.github.io","issue_term":"pathname","theme":"preferred-color-scheme"}</script>
 <script src="/js/third-party/comments/utterances.js"></script>
 <script>
@@ -458,7 +499,7 @@ if (window.matchMedia("(min-width: 760px)").matches) {
     var js = document.createElement("script");
     js.type = "text/javascript";
     js.defer = true;
-    js.src = "https://cdn.7c00h.xyz/live2d-widget/autoload.js";
+    js.src = "https://frezcirno.github.io/static/live2d-widget/autoload.js";
     document.getElementsByTagName('head')[0].appendChild(js);
 }
 </script>
