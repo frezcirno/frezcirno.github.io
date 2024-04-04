@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>word2vec</title>
+    <url>/2023/10/28/word2vec/</url>
+    <content><![CDATA[<h2 id="whats-it">What's it</h2>
+<p>2013年，Google开源的，用于词向量计算的工具</p>
+<h2 id="架构">架构</h2>
+<p>X -- Dense -- Dense -- Softmax -- Y</p>
+<p>CBoW: 利用上下文预测当前词</p>
+<p>Skip-gram: 利用当前词预测上下文</p>
+]]></content>
+      <categories>
+        <category>NLP</category>
+      </categories>
+  </entry>
+  <entry>
     <title>LLVM 中间语言参考</title>
     <url>/2023/12/22/llvm/</url>
     <content><![CDATA[<h2 id="概述">概述</h2>
@@ -53,20 +67,6 @@
         <tag>编译原理</tag>
         <tag>程序分析</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>word2vec</title>
-    <url>/2023/10/28/word2vec/</url>
-    <content><![CDATA[<h2 id="whats-it">What's it</h2>
-<p>2013年，Google开源的，用于词向量计算的工具</p>
-<h2 id="架构">架构</h2>
-<p>X -- Dense -- Dense -- Softmax -- Y</p>
-<p>CBoW: 利用上下文预测当前词</p>
-<p>Skip-gram: 利用当前词预测上下文</p>
-]]></content>
-      <categories>
-        <category>NLP</category>
-      </categories>
   </entry>
   <entry>
     <title>离散数学</title>
@@ -1059,41 +1059,47 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </categories>
   </entry>
   <entry>
-    <title>How to compile the linux kernel</title>
-    <url>/2022/01/08/how-to-compile-linux-kernel/</url>
-    <content><![CDATA[<p><img src="https://frezcirno.github.io/static/images/NewTux.svg" /></p>
-<h1 id="访问-httpswww.kernel.org-查看最新的内核版本获取下载链接">访问 https://www.kernel.org/ 查看最新的内核版本，获取下载链接</h1>
-<h1 id="下载并解压到当前目录">下载并解压到当前目录</h1>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">wget -qO- https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.13.tar.xz | tar Jxvf -</span><br><span class="line"><span class="built_in">cd</span> linux-5.15.13</span><br></pre></td></tr></table></figure>
-<h1 id="编译配置">编译配置</h1>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cp</span> /boot/config-`<span class="built_in">uname</span> -r` .config</span><br><span class="line">make menuconfig</span><br></pre></td></tr></table></figure>
-<h1 id="开始编译">开始编译</h1>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">make -j $(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
-<h1 id="安装到系统中">安装到系统中</h1>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">sudo make INSTALL_MOD_STRIP=1 modules_install</span><br><span class="line">sudo make headers_install</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+    <title>分布式系统基础</title>
+    <url>/2024/04/04/distributed-system/</url>
+    <content><![CDATA[<h1 id="为什么需要分布式系统">为什么需要分布式系统</h1>
+<p>单点故障，分布式增加冗余提高系统的可用性</p>
+<h1 id="分布式系统存在的问题">分布式系统存在的问题</h1>
+<h2 id="cap-定理">CAP 定理</h2>
+<p>对于一个分布式计算系统来说，不可能同时满足以下三点：</p>
+<ul>
+<li>一致性 (Consistency): 所有节点都能够访问到同一份最新的数据副本或者错误。</li>
+<li>可用性 (Availability): 每次请求都能获取到非错误响应，但不保证获取的数据为最新数据。</li>
+<li>分区容错性 (Partition tolerance): 在节点之间的网络通信出现故障的情况下，系统仍能继续运行。</li>
+</ul>
+<p>分析:</p>
+<ul>
+<li>网络故障必定存在，如果一发生网络分区整个系统就不可用，是没有意义的。因此分布式系统必须首先要保证P性质，接下来有两个选择: C或者A。</li>
+<li>如果选择 C 一致性，则当网络分区无法保证数据是最新的时候，系统就会返回错误或者超时，即不可用。</li>
+<li>如果选择 A 可用性，则系统始终尝试返回信息的最新版本，但是无法保证是最新的。</li>
+</ul>
+<h2 id="base-碱-语义">BASE (碱) 语义</h2>
+<p>分布式系统的一种用于实现高可用性的一致性模型，弱化一致性的承诺，保证可用性，因此属于AP的一种拓展。</p>
+<ul>
+<li>基本可用 (Basically Available): 读写操作尽可能是可用的，但是不保证一致性 (在冲突的情况下，写值可能不会成功; 读值可能不是最新的)</li>
+<li>软状态 (Soft-state): 没有强一致性保证。</li>
+<li>最终一致性 (Eventually consistent): 系统运行足够长的时间后，多个节点最终会达到一致。</li>
+</ul>
+<h2 id="c-与-a-如何取舍">C 与 A 如何取舍</h2>
+<ol type="1">
+<li>选择一致性: 对一致性要求较高的系统，例如:</li>
+</ol>
+<p>传统ACID数据库，服务注册中心 (Etcd, Zookeeper, Nacos)，HBase，金融系统，银行系统，与钱相关的</p>
+<ol start="2" type="1">
+<li>选择可用性:</li>
+</ol>
+<p>Eureka，Redis 集群，Nacos配置中心</p>
 ]]></content>
       <categories>
-        <category>misc</category>
+        <category>distributed-system</category>
       </categories>
       <tags>
-        <tag>Linux</tag>
+        <tag>学习</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>自签名 SSL 证书</title>
-    <url>/2023/11/21/ssl_certificate/</url>
-    <content><![CDATA[<h2 id="成为-ca">成为 CA！</h2>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Generate private key</span></span><br><span class="line">openssl genrsa -des3 -out myCA.key 2048</span><br><span class="line"><span class="comment"># Generate root certificate</span></span><br><span class="line">openssl req -x509 -new -nodes -key myCA.key -sha256 -days 825 -out myCA.pem \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Shanghai/L=Shanghai/O=/OU=/CN=My first CA&quot;</span></span><br></pre></td></tr></table></figure>
-<h2 id="信任-ca">信任 CA</h2>
-<p>Ubuntu:</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">sudo <span class="built_in">cp</span> myCA.pem /usr/local/share/ca-certificates/myCA.crt</span><br><span class="line">sudo update-ca-certificates</span><br></pre></td></tr></table></figure>
-<h2 id="颁发证书">颁发证书！</h2>
-<p>可以有多个域名/IP地址</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Use your own domain name</span></span><br><span class="line">NAME=my.domain.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># Generate a private key</span></span><br><span class="line">openssl genrsa -out <span class="variable">$NAME</span>.key 2048</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a certificate-signing request</span></span><br><span class="line">openssl req -new -key <span class="variable">$NAME</span>.key -out <span class="variable">$NAME</span>.csr \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Shanghai/L=Shanghai/O=/OU=/CN=<span class="variable">$NAME</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a config file for the extensions</span></span><br><span class="line"><span class="built_in">cat</span> &gt;<span class="variable">$NAME</span>.ext &lt;&lt;-<span class="string">EOF</span></span><br><span class="line"><span class="string">authorityKeyIdentifier=keyid,issuer</span></span><br><span class="line"><span class="string">basicConstraints=CA:FALSE</span></span><br><span class="line"><span class="string">keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment</span></span><br><span class="line"><span class="string">subjectAltName = @alt_names</span></span><br><span class="line"><span class="string">[alt_names]</span></span><br><span class="line"><span class="string">DNS.1 = $NAME # Be sure to include the domain name here because Common Name is not so commonly honoured by itself</span></span><br><span class="line"><span class="string">DNS.2 = bar.$NAME # Optionally, add additional domains (I&#x27;ve added a subdomain here)</span></span><br><span class="line"><span class="string">IP.1 = 1.2.3.4 # Optionally, add an IP address (if the connection which you have planned requires it)</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create the signed certificate</span></span><br><span class="line">openssl x509 -req -<span class="keyword">in</span> <span class="variable">$NAME</span>.csr -CA myCA.pem -CAkey myCA.key -CAcreateserial \</span><br><span class="line">    -out <span class="variable">$NAME</span>.crt -days 825 -sha256 -extfile <span class="variable">$NAME</span>.ext</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> <span class="variable">$NAME</span>.crt <span class="variable">$NAME</span>.key &gt;<span class="variable">$NAME</span>.pem</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>misc</category>
-      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
@@ -1344,10 +1350,10 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
         <category>daily</category>
       </categories>
       <tags>
-        <tag>Linux</tag>
         <tag>Javascript</tag>
         <tag>React</tag>
         <tag>npm</tag>
+        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -1802,6 +1808,15 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/12/2020-12-12/</url>
+    <content><![CDATA[<h1 id="线性代数">线性代数</h1>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/13/2020-12-13/</url>
     <content><![CDATA[<h1 id="c-stl中unique的用法">C++ STL中unique的用法</h1>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>, <span class="keyword">class</span> <span class="title class_">BinaryPredicate</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last,</span></span></span><br><span class="line"><span class="params"><span class="function">                           BinaryPredicate pred )</span></span>;</span><br></pre></td></tr></table></figure>
@@ -1820,15 +1835,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
         <tag>STL</tag>
         <tag>CCFCSP</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/12/2020-12-12/</url>
-    <content><![CDATA[<h1 id="线性代数">线性代数</h1>
-]]></content>
-      <categories>
-        <category>daily</category>
-      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
@@ -1878,6 +1884,16 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/18/2020-12-18/</url>
+    <content><![CDATA[<h1 id="oracle-apex怎么调用procedure">Oracle Apex怎么调用procedure</h1>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">begin</span></span><br><span class="line">  ANALYSIS(<span class="number">6</span>, <span class="number">1000</span>);</span><br><span class="line"><span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/17/2020-12-17/</url>
     <content><![CDATA[<h1 id="spring-doc-openapi-注解">Spring-doc OpenAPI 注解</h1>
 <p><span class="citation" data-cites="Operation">@Operation</span> <span class="citation" data-cites="Response">@Response</span> <span class="citation" data-cites="Parameter">@Parameter</span></p>
@@ -1924,16 +1940,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
         <tag>Spring</tag>
         <tag>Swagger</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/18/2020-12-18/</url>
-    <content><![CDATA[<h1 id="oracle-apex怎么调用procedure">Oracle Apex怎么调用procedure</h1>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">begin</span></span><br><span class="line">  ANALYSIS(<span class="number">6</span>, <span class="number">1000</span>);</span><br><span class="line"><span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>daily</category>
-      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
@@ -2079,20 +2085,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/28/2020-12-28/</url>
-    <content><![CDATA[<h1 id="su-user-和-su---user的区别">su user 和 su - user的区别</h1>
-<p><code>$ su user</code>启动nologin shell</p>
-<p><code>$ su - user</code>启动login shell</p>
-]]></content>
-      <categories>
-        <category>daily</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/27/2020-12-27/</url>
     <content><![CDATA[<h1 id="配环境心得">配环境心得</h1>
 <p>放平心态</p>
@@ -2127,6 +2119,64 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </categories>
       <tags>
         <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/28/2020-12-28/</url>
+    <content><![CDATA[<h1 id="su-user-和-su---user的区别">su user 和 su - user的区别</h1>
+<p><code>$ su user</code>启动nologin shell</p>
+<p><code>$ su - user</code>启动login shell</p>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/30/2020-12-30/</url>
+    <content><![CDATA[<h1 id="计网答辩顺利">计网答辩顺利</h1>
+<p>开心!</p>
+<h1 id="wifi协议802.11扫盲">WiFi协议(802.11)扫盲</h1>
+<h2 id="基本概述">基本概述</h2>
+<ol type="1">
+<li><p>有线与无线网络</p>
+<p>当前有线网络中最著名的是以太网(Ethernet), 无线网络中最有前景的是WiFi.</p>
+<p>无线网络的缺点:</p>
+<ul>
+<li>通信双方因为是通过无线进行通信，所以通信之前需要建立连接；而有线网络就直接用线缆连接，不用这个过程了。</li>
+<li>通信双方通信方式是半双工的通信方式；而有线网络可以是全双工。</li>
+<li>通信时在网络层以下出错的概率非常高，所以帧的重传概率很大，需要在网络层之下的协议添加重传的机制（不能只依赖上面TCP/IP的延时等待重传等开销来保证）；而有线网络出错概率非常小，无需在网络层有如此复杂的机制。</li>
+<li>数据是在无线环境下进行的，所以抓包非常容易，存在安全隐患。</li>
+<li>因为收发无线信号，所以功耗较大，对电池来说是一个考验。</li>
+<li>相对有线网络吞吐量低，这一点正在逐步改善，802.11n协议可以达到600Mbps的吞吐量。</li>
+</ul></li>
+<li><p>协议</p>
+<p>Ethenet和Wifi采用的协议都属于IEEE 802协议集。其中，Ethenet以802.3协议做为其网络层以下的协议；而Wifi以802.11做为其网络层以下的协议。无论是有线网络，还是无线网络，其网络层以上的部分，基本一样。</p></li>
+<li><p>术语</p>
+<p>讲述之前，我们需要对无线网络中一些常用的术语有所了解。这里先列出一些，后面描述中出现的新的术语，将会在描述中解释。</p>
+<ul>
+<li><p>LAN：即局域网，是路由和主机组成的内部局域网，一般为有线网络。</p></li>
+<li><p>WAN：即广域网，是外部一个更大的局域网。</p></li>
+<li><p>WLAN（Wireless LAN，即无线局域网）：前面我们说过LAN是局域网，其实大多数指的是有线网络中的局域网，无线网络中的局域网，一般用WLAN。</p></li>
+<li><p>AP（Access point的简称，即访问点，接入点）：是一个无线网络中的特殊节点，通过这个节点，无线网络中的其它类型节点可以和无线网络外部以及内部进行通信。这里，AP和无线路由都在一台设备上（即Cisco E3000）。</p></li>
+<li><p>Station（工作站）：表示连接到无线网络中的设备，这些设备通过AP，可以和内部其它设备或者无线网络外部通信。</p></li>
+<li><p>Assosiate：连接。如果一个Station想要加入到无线网络中，需要和这个无线网络中的AP关联（即Assosiate）。</p></li>
+<li><p>SSID：用来标识一个无线网络，后面会详细介绍，我们这里只需了解，每个无线网络都有它自己的SSID。</p></li>
+<li><p>BSSID：用来标识一个BSS，其格式和MAC地址一样，是48位的地址格式。一般来说，它就是所处的无线接入点的MAC地址。某种程度来说，它的作用和SSID类似，但是SSID是网络的名字，是给人看的，BSSID是给机器看的，BSSID类似MAC地址。</p></li>
+<li><p>BSS（Basic Service Set）：由一组相互通信的工作站组成，是802.11无线网络的基本组件。主要有两种类型的IBSS和基础结构型网络。IBSS又叫ADHOC，组网是临时的，通信方式为Station&lt;-&gt;Station，这里不关注这种组网方式；我们关注的基础结构形网络，其通信方式是Station&lt;-&gt;AP&lt;-&gt;Station，也就是所有无线网络中的设备要想通信，都得经过AP。在无线网络的基础形网络中，最重要的两类设备：AP和Station。</p></li>
+</ul></li>
+</ol>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+      <tags>
+        <tag>答辩</tag>
+        <tag>计算机网络</tag>
       </tags>
   </entry>
   <entry>
@@ -2211,50 +2261,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/30/2020-12-30/</url>
-    <content><![CDATA[<h1 id="计网答辩顺利">计网答辩顺利</h1>
-<p>开心!</p>
-<h1 id="wifi协议802.11扫盲">WiFi协议(802.11)扫盲</h1>
-<h2 id="基本概述">基本概述</h2>
-<ol type="1">
-<li><p>有线与无线网络</p>
-<p>当前有线网络中最著名的是以太网(Ethernet), 无线网络中最有前景的是WiFi.</p>
-<p>无线网络的缺点:</p>
-<ul>
-<li>通信双方因为是通过无线进行通信，所以通信之前需要建立连接；而有线网络就直接用线缆连接，不用这个过程了。</li>
-<li>通信双方通信方式是半双工的通信方式；而有线网络可以是全双工。</li>
-<li>通信时在网络层以下出错的概率非常高，所以帧的重传概率很大，需要在网络层之下的协议添加重传的机制（不能只依赖上面TCP/IP的延时等待重传等开销来保证）；而有线网络出错概率非常小，无需在网络层有如此复杂的机制。</li>
-<li>数据是在无线环境下进行的，所以抓包非常容易，存在安全隐患。</li>
-<li>因为收发无线信号，所以功耗较大，对电池来说是一个考验。</li>
-<li>相对有线网络吞吐量低，这一点正在逐步改善，802.11n协议可以达到600Mbps的吞吐量。</li>
-</ul></li>
-<li><p>协议</p>
-<p>Ethenet和Wifi采用的协议都属于IEEE 802协议集。其中，Ethenet以802.3协议做为其网络层以下的协议；而Wifi以802.11做为其网络层以下的协议。无论是有线网络，还是无线网络，其网络层以上的部分，基本一样。</p></li>
-<li><p>术语</p>
-<p>讲述之前，我们需要对无线网络中一些常用的术语有所了解。这里先列出一些，后面描述中出现的新的术语，将会在描述中解释。</p>
-<ul>
-<li><p>LAN：即局域网，是路由和主机组成的内部局域网，一般为有线网络。</p></li>
-<li><p>WAN：即广域网，是外部一个更大的局域网。</p></li>
-<li><p>WLAN（Wireless LAN，即无线局域网）：前面我们说过LAN是局域网，其实大多数指的是有线网络中的局域网，无线网络中的局域网，一般用WLAN。</p></li>
-<li><p>AP（Access point的简称，即访问点，接入点）：是一个无线网络中的特殊节点，通过这个节点，无线网络中的其它类型节点可以和无线网络外部以及内部进行通信。这里，AP和无线路由都在一台设备上（即Cisco E3000）。</p></li>
-<li><p>Station（工作站）：表示连接到无线网络中的设备，这些设备通过AP，可以和内部其它设备或者无线网络外部通信。</p></li>
-<li><p>Assosiate：连接。如果一个Station想要加入到无线网络中，需要和这个无线网络中的AP关联（即Assosiate）。</p></li>
-<li><p>SSID：用来标识一个无线网络，后面会详细介绍，我们这里只需了解，每个无线网络都有它自己的SSID。</p></li>
-<li><p>BSSID：用来标识一个BSS，其格式和MAC地址一样，是48位的地址格式。一般来说，它就是所处的无线接入点的MAC地址。某种程度来说，它的作用和SSID类似，但是SSID是网络的名字，是给人看的，BSSID是给机器看的，BSSID类似MAC地址。</p></li>
-<li><p>BSS（Basic Service Set）：由一组相互通信的工作站组成，是802.11无线网络的基本组件。主要有两种类型的IBSS和基础结构型网络。IBSS又叫ADHOC，组网是临时的，通信方式为Station&lt;-&gt;Station，这里不关注这种组网方式；我们关注的基础结构形网络，其通信方式是Station&lt;-&gt;AP&lt;-&gt;Station，也就是所有无线网络中的设备要想通信，都得经过AP。在无线网络的基础形网络中，最重要的两类设备：AP和Station。</p></li>
-</ul></li>
-</ol>
-]]></content>
-      <categories>
-        <category>daily</category>
-      </categories>
-      <tags>
-        <tag>答辩</tag>
-        <tag>计算机网络</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2021/01/05/2021-01-05/</url>
     <content><![CDATA[<h1 id="关于ddl的疑惑">关于DDL的疑惑</h1>
 <p>为什么ddl推迟, 开始肝ddl的时间也跟着推迟?</p>
@@ -2324,20 +2330,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2021/01/10/2021-01-10/</url>
-    <content><![CDATA[<h2 id="模运算的性质程序设计版">模运算的性质(程序设计版)</h2>
-<p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
-<p><span class="math display">\[(a + b)\bmod p = (a\bmod p + b\bmod p)\bmod p\]</span> <span class="math display">\[(a - b)\bmod p = (a\bmod p - b\bmod p)\bmod p\]</span> <span class="math display">\[(a \times b)\bmod p = (a\bmod p \times b\bmod p)\bmod p\]</span> <span class="math display">\[(a^b)\bmod p = ((a\bmod p)^b)\bmod p\]</span></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-      </categories>
-      <tags>
-        <tag>算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2021/01/09/2021-01-09/</url>
     <content><![CDATA[<h2 id="动态规划">动态规划</h2>
 <h3 id="特点">特点</h3>
@@ -2353,6 +2345,20 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
 <li>列举dp数组</li>
 <li>找出状态转移方程</li>
 </ol>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2021/01/10/2021-01-10/</url>
+    <content><![CDATA[<h2 id="模运算的性质程序设计版">模运算的性质(程序设计版)</h2>
+<p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
+<p><span class="math display">\[(a + b)\bmod p = (a\bmod p + b\bmod p)\bmod p\]</span> <span class="math display">\[(a - b)\bmod p = (a\bmod p - b\bmod p)\bmod p\]</span> <span class="math display">\[(a \times b)\bmod p = (a\bmod p \times b\bmod p)\bmod p\]</span> <span class="math display">\[(a^b)\bmod p = ((a\bmod p)^b)\bmod p\]</span></p>
 ]]></content>
       <categories>
         <category>daily</category>
@@ -2411,12 +2417,9 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2021/01/19/2021-01-19/</url>
-    <content><![CDATA[<h2 id="近期任务">近期任务</h2>
-<ul>
-<li>内存数据库最终项目</li>
-<li>计算机网络实验报告</li>
-</ul>
+    <url>/2021/01/22/2021-01-22/</url>
+    <content><![CDATA[<p>考试结束</p>
+<p>假期的一些计划 - 完善<code>codepass</code>项目 - 刷算法题目 - 深入学习c++</p>
 ]]></content>
       <categories>
         <category>daily</category>
@@ -2424,9 +2427,12 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2021/01/22/2021-01-22/</url>
-    <content><![CDATA[<p>考试结束</p>
-<p>假期的一些计划 - 完善<code>codepass</code>项目 - 刷算法题目 - 深入学习c++</p>
+    <url>/2021/01/19/2021-01-19/</url>
+    <content><![CDATA[<h2 id="近期任务">近期任务</h2>
+<ul>
+<li>内存数据库最终项目</li>
+<li>计算机网络实验报告</li>
+</ul>
 ]]></content>
       <categories>
         <category>daily</category>
@@ -2545,6 +2551,21 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </tags>
   </entry>
   <entry>
+    <title>python 自定义 JSON Encoder</title>
+    <url>/2021/06/15/2021-06-15/</url>
+    <content><![CDATA[<h1 id="python-自定义-json-encoder">python 自定义 JSON Encoder</h1>
+<p>继承 json.JSONEncoder 类, 重载 default 方法</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, self).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, self).default(o)</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>json</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
     <url>/2021/03/14/2021-03-14/</url>
     <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
@@ -2572,21 +2593,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
         <tag>numpy</tag>
         <tag>matplotlib</tag>
         <tag>pandas</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>python 自定义 JSON Encoder</title>
-    <url>/2021/06/15/2021-06-15/</url>
-    <content><![CDATA[<h1 id="python-自定义-json-encoder">python 自定义 JSON Encoder</h1>
-<p>继承 json.JSONEncoder 类, 重载 default 方法</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, self).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, self).default(o)</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>daily</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>json</tag>
       </tags>
   </entry>
   <entry>
@@ -3067,6 +3073,43 @@ h1[id="Monika"]~blockquote {
       </tags>
   </entry>
   <entry>
+    <title>How to compile the linux kernel</title>
+    <url>/2022/01/08/how-to-compile-linux-kernel/</url>
+    <content><![CDATA[<p><img src="https://frezcirno.github.io/static/images/NewTux.svg" /></p>
+<h1 id="访问-httpswww.kernel.org-查看最新的内核版本获取下载链接">访问 https://www.kernel.org/ 查看最新的内核版本，获取下载链接</h1>
+<h1 id="下载并解压到当前目录">下载并解压到当前目录</h1>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">wget -qO- https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.13.tar.xz | tar Jxvf -</span><br><span class="line"><span class="built_in">cd</span> linux-5.15.13</span><br></pre></td></tr></table></figure>
+<h1 id="编译配置">编译配置</h1>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cp</span> /boot/config-`<span class="built_in">uname</span> -r` .config</span><br><span class="line">make menuconfig</span><br></pre></td></tr></table></figure>
+<h1 id="开始编译">开始编译</h1>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">make -j $(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
+<h1 id="安装到系统中">安装到系统中</h1>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">sudo make INSTALL_MOD_STRIP=1 modules_install</span><br><span class="line">sudo make headers_install</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>自签名 SSL 证书</title>
+    <url>/2023/11/21/ssl_certificate/</url>
+    <content><![CDATA[<h2 id="成为-ca">成为 CA！</h2>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Generate private key</span></span><br><span class="line">openssl genrsa -des3 -out myCA.key 2048</span><br><span class="line"><span class="comment"># Generate root certificate</span></span><br><span class="line">openssl req -x509 -new -nodes -key myCA.key -sha256 -days 825 -out myCA.pem \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Shanghai/L=Shanghai/O=/OU=/CN=My first CA&quot;</span></span><br></pre></td></tr></table></figure>
+<h2 id="信任-ca">信任 CA</h2>
+<p>Ubuntu:</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">sudo <span class="built_in">cp</span> myCA.pem /usr/local/share/ca-certificates/myCA.crt</span><br><span class="line">sudo update-ca-certificates</span><br></pre></td></tr></table></figure>
+<h2 id="颁发证书">颁发证书！</h2>
+<p>可以有多个域名/IP地址</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Use your own domain name</span></span><br><span class="line">NAME=my.domain.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># Generate a private key</span></span><br><span class="line">openssl genrsa -out <span class="variable">$NAME</span>.key 2048</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a certificate-signing request</span></span><br><span class="line">openssl req -new -key <span class="variable">$NAME</span>.key -out <span class="variable">$NAME</span>.csr \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Shanghai/L=Shanghai/O=/OU=/CN=<span class="variable">$NAME</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a config file for the extensions</span></span><br><span class="line"><span class="built_in">cat</span> &gt;<span class="variable">$NAME</span>.ext &lt;&lt;-<span class="string">EOF</span></span><br><span class="line"><span class="string">authorityKeyIdentifier=keyid,issuer</span></span><br><span class="line"><span class="string">basicConstraints=CA:FALSE</span></span><br><span class="line"><span class="string">keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment</span></span><br><span class="line"><span class="string">subjectAltName = @alt_names</span></span><br><span class="line"><span class="string">[alt_names]</span></span><br><span class="line"><span class="string">DNS.1 = $NAME # Be sure to include the domain name here because Common Name is not so commonly honoured by itself</span></span><br><span class="line"><span class="string">DNS.2 = bar.$NAME # Optionally, add additional domains (I&#x27;ve added a subdomain here)</span></span><br><span class="line"><span class="string">IP.1 = 1.2.3.4 # Optionally, add an IP address (if the connection which you have planned requires it)</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create the signed certificate</span></span><br><span class="line">openssl x509 -req -<span class="keyword">in</span> <span class="variable">$NAME</span>.csr -CA myCA.pem -CAkey myCA.key -CAcreateserial \</span><br><span class="line">    -out <span class="variable">$NAME</span>.crt -days 825 -sha256 -extfile <span class="variable">$NAME</span>.ext</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> <span class="variable">$NAME</span>.crt <span class="variable">$NAME</span>.key &gt;<span class="variable">$NAME</span>.pem</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
+  </entry>
+  <entry>
     <title>程序分析</title>
     <url>/2023/10/31/program-analysis/</url>
     <content><![CDATA[
@@ -3137,18 +3180,6 @@ h1[id="Monika"]~blockquote {
       <tags>
         <tag>jpf-symbc</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>1032. Sharing</title>
-    <url>/2020/12/18/1032/</url>
-    <content><![CDATA[<p>寻找最长公共后缀</p>
-<p>注意: 边界情况: 两条链没有交集, 其中一条链是另一条链的子链</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt; <span class="function"><span class="type">void</span> <span class="title">ERR</span><span class="params">(T x, string name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(x) ERR(x, #x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">map&lt;string, pair&lt;<span class="type">char</span>, string&gt;&gt; M;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    string w1, w2;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; w1 &gt;&gt; w2 &gt;&gt; n;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        string a, b;</span><br><span class="line">        <span class="type">char</span> c;</span><br><span class="line">        cin &gt;&gt; a &gt;&gt; c &gt;&gt; b;</span><br><span class="line">        M[a] = <span class="built_in">make_pair</span>(c, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    stack&lt;string&gt; s1, s2;</span><br><span class="line">    <span class="built_in">debug</span>(<span class="string">&quot;s1&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (string addr = w1; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s1.<span class="built_in">push</span>(addr);</span><br><span class="line">        <span class="built_in">debug</span>(addr);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">debug</span>(<span class="string">&quot;s2&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (string addr = w2; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s2.<span class="built_in">push</span>(addr);</span><br><span class="line">        <span class="built_in">debug</span>(addr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    string top = <span class="string">&quot;-1&quot;</span>;</span><br><span class="line">    <span class="keyword">while</span> (s1.<span class="built_in">size</span>() &amp;&amp; s2.<span class="built_in">size</span>() &amp;&amp; s1.<span class="built_in">top</span>() == s2.<span class="built_in">top</span>()) &#123;</span><br><span class="line">        top = s1.<span class="built_in">top</span>();</span><br><span class="line">        <span class="built_in">debug</span>(top);</span><br><span class="line">        s1.<span class="built_in">pop</span>();</span><br><span class="line">        s2.<span class="built_in">pop</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; top &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>PTA</category>
-      </categories>
   </entry>
   <entry>
     <title>KLEE 符号执行</title>
@@ -3244,6 +3275,18 @@ h1[id="Monika"]~blockquote {
       <tags>
         <tag>Program Analysis</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>1032. Sharing</title>
+    <url>/2020/12/18/1032/</url>
+    <content><![CDATA[<p>寻找最长公共后缀</p>
+<p>注意: 边界情况: 两条链没有交集, 其中一条链是另一条链的子链</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt; <span class="function"><span class="type">void</span> <span class="title">ERR</span><span class="params">(T x, string name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(x) ERR(x, #x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">map&lt;string, pair&lt;<span class="type">char</span>, string&gt;&gt; M;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    string w1, w2;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; w1 &gt;&gt; w2 &gt;&gt; n;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        string a, b;</span><br><span class="line">        <span class="type">char</span> c;</span><br><span class="line">        cin &gt;&gt; a &gt;&gt; c &gt;&gt; b;</span><br><span class="line">        M[a] = <span class="built_in">make_pair</span>(c, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    stack&lt;string&gt; s1, s2;</span><br><span class="line">    <span class="built_in">debug</span>(<span class="string">&quot;s1&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (string addr = w1; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s1.<span class="built_in">push</span>(addr);</span><br><span class="line">        <span class="built_in">debug</span>(addr);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">debug</span>(<span class="string">&quot;s2&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (string addr = w2; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s2.<span class="built_in">push</span>(addr);</span><br><span class="line">        <span class="built_in">debug</span>(addr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    string top = <span class="string">&quot;-1&quot;</span>;</span><br><span class="line">    <span class="keyword">while</span> (s1.<span class="built_in">size</span>() &amp;&amp; s2.<span class="built_in">size</span>() &amp;&amp; s1.<span class="built_in">top</span>() == s2.<span class="built_in">top</span>()) &#123;</span><br><span class="line">        top = s1.<span class="built_in">top</span>();</span><br><span class="line">        <span class="built_in">debug</span>(top);</span><br><span class="line">        s1.<span class="built_in">pop</span>();</span><br><span class="line">        s2.<span class="built_in">pop</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; top &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>PTA</category>
+      </categories>
   </entry>
   <entry>
     <title>1035. Password</title>
