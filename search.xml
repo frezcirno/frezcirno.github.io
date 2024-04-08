@@ -1,6 +1,1292 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>暑期实习 - 面试准备</title>
+    <url>/2024/04/07/interview/</url>
+    <content><![CDATA[<h2 id="leetcode">Leetcode</h2>
+<ul>
+<li>链表 ✅</li>
+<li>dp ✅</li>
+<li>排列组合 ❓</li>
+<li>大数模运算 ❓</li>
+<li>图算法 ❓</li>
+<li>数论 ❓</li>
+<li>字符串 ❓</li>
+</ul>
+<h2 id="杂项">杂项</h2>
+<ul>
+<li>自我介绍 ✅</li>
+<li>开放性问题
+<ul>
+<li>最近关注的新技术</li>
+<li>最近读了什么书
+<ul>
+<li>高性能MySQL</li>
+<li>设计数据密集型应用 DDIA</li>
+</ul></li>
+<li>还在面其他的什么公司没</li>
+<li>职业规划</li>
+</ul></li>
+<li>反问问题
+<ul>
+<li>面试表现如何</li>
+<li>还需要提升哪些方面</li>
+<li>实习生培养</li>
+</ul></li>
+</ul>
+<h2 id="智力题">智力题</h2>
+<ul>
+<li>高楼扔鸡蛋</li>
+<li>老鼠喝毒药</li>
+</ul>
+<h2 id="计算机基础">计算机基础</h2>
+<h3 id="数据结构">数据结构 ✅</h3>
+<ul>
+<li>哈希表
+<ul>
+<li>冲突解决
+<ul>
+<li>开链法
+<ul>
+<li>链表</li>
+<li>JDK&gt;=8 红黑树</li>
+</ul></li>
+<li>开放寻址
+<ul>
+<li>线性探测法</li>
+<li>二次探测法</li>
+</ul></li>
+<li>再哈希</li>
+</ul></li>
+<li>扩缩容
+<ul>
+<li>负载因子 = 元素个数 / 桶个数
+<ul>
+<li>JDK默认 &gt;0.75 扩容</li>
+<li>Redis &lt;0.1 缩容</li>
+</ul></li>
+<li>Redis - 渐进式Rehash
+<ul>
+<li>防止扩容时key过多导致卡顿</li>
+<li>懒迁移</li>
+</ul></li>
+<li>HashMap 一次性完成</li>
+</ul></li>
+</ul></li>
+<li>AVL</li>
+<li>Rb-tree</li>
+<li>B树 B+树
+<ul>
+<li>+节点密度大, 3层能存2kw数据, 需要的IO少</li>
+<li>-节点分裂合并复杂</li>
+<li>使用场景
+<ul>
+<li>MySQL索引</li>
+</ul></li>
+</ul></li>
+<li>SkipList
+<ul>
+<li>查找,插入 O(logn)</li>
+<li>+编写简单</li>
+<li>+插入删除更简单</li>
+<li>-2kw需要24层, 查询需要的跳转/IO次数多</li>
+<li>使用场景
+<ul>
+<li>Redis</li>
+<li>RocksDB</li>
+<li>Lucene &amp; ElasticSearch</li>
+</ul></li>
+</ul></li>
+<li>堆</li>
+</ul>
+<h3 id="算法">算法 ❓</h3>
+<ul>
+<li>排序算法
+<ul>
+<li>选择排序</li>
+<li>插入排序 (打牌) 稳</li>
+<li>冒泡排序 稳✅</li>
+<li>快速排序 ✅</li>
+<li>归并排序 稳</li>
+<li>桶排序</li>
+<li>堆排序</li>
+<li>基数排序 稳</li>
+<li>希尔排序</li>
+<li>稳定 &amp; 不稳定</li>
+<li>STL -&gt; timsort</li>
+<li>Java -&gt;</li>
+</ul></li>
+<li>布隆过滤器
+<ul>
+<li>key -&gt; hash到多个key</li>
+<li>快速判断元素是否存在于某个集合里面</li>
+</ul></li>
+</ul>
+<h3 id="体系结构">体系结构 ❓</h3>
+<ul>
+<li>MMU
+<ul>
+<li>位于CPU芯片内部</li>
+<li>将CPU请求的虚拟地址翻译成物理地址</li>
+<li>TLB
+<ul>
+<li>缓存了当前进程使用的页表项(PTE)</li>
+<li>在MMU旁边 被MMU使用</li>
+</ul></li>
+</ul></li>
+<li>CPU Cache
+<ul>
+<li>速度
+<ul>
+<li>L1: 1ns</li>
+<li>L2: 4ns</li>
+<li>Memory: 100ns</li>
+</ul></li>
+<li>拓扑
+<ul>
+<li>Write Through: 写内存同时写Cache</li>
+<li>Write Back: 写Cache, 异步写内存</li>
+</ul></li>
+<li>多核缓存一致性
+<ul>
+<li>MESI协议 ❓</li>
+<li>MOESI协议 ❓</li>
+</ul></li>
+</ul></li>
+<li>内存栅栏 ❓</li>
+<li>NUMA
+<ul>
+<li>UMA 多核对称</li>
+<li>NUMA 多核不对称</li>
+</ul></li>
+</ul>
+<h3 id="操作系统">操作系统 ✅</h3>
+<ul>
+<li>Socket</li>
+<li>文件系统</li>
+<li>Shell命令 ✅</li>
+<li>CPU管理
+<ul>
+<li>进程 线程 协程
+<ul>
+<li>进程
+<ul>
+<li>资源分配单位</li>
+<li>有自己的地址空间 堆 PCB 页表</li>
+</ul></li>
+<li>线程
+<ul>
+<li>执行和调度单位</li>
+<li>有自己的栈 寄存器</li>
+</ul></li>
+<li>协程
+<ul>
+<li>用户态模拟的线程</li>
+<li>程序自己控制切换</li>
+</ul></li>
+</ul></li>
+<li>进程状态
+<ul>
+<li>R: Running 可被调度</li>
+<li>S: Sleeping 等待中 可以被信号等中断</li>
+<li>D: Sleeping 系统调用中 不可被中断</li>
+<li>T: Stopped 收到了SIGSTOP/SIGCONT继续</li>
+<li>Z: Zombies 进程已结束 但在等待父进程读取状态</li>
+<li>X: Dead 已经退出</li>
+</ul></li>
+<li>孤儿进程: 父进程退出</li>
+<li>进程文件: lsof, /proc/fd/fd</li>
+<li>调度算法
+<ul>
+<li>FCFS</li>
+<li>SPF</li>
+<li>RR</li>
+<li>多级队列</li>
+</ul></li>
+<li>进线程切换
+<ul>
+<li>上下文切换</li>
+<li>特权级切换</li>
+<li>页表切换
+<ul>
+<li>刷新TLB</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>锁
+<ul>
+<li>mutex</li>
+<li>semaphore</li>
+<li>原子变量</li>
+<li>条件变量</li>
+<li>volatile</li>
+<li>死锁</li>
+</ul></li>
+<li>内存管理
+<ul>
+<li>段式内存管理
+<ul>
+<li>段表 段权限</li>
+<li>-外碎片</li>
+</ul></li>
+<li>页式内存管理 x86-64
+<ul>
+<li>页权限</li>
+<li>+缓解外碎片</li>
+<li>-内碎片</li>
+<li>缺页中断</li>
+<li>换页算法
+<ul>
+<li>LRU</li>
+<li>LFU</li>
+<li>FIFO</li>
+</ul></li>
+</ul></li>
+<li>段页结合
+<ul>
+<li>段表+页号+偏移</li>
+<li>-&gt; 页表+页号+偏移</li>
+<li>-&gt; 地址</li>
+</ul></li>
+</ul></li>
+</ul>
+<h3 id="oop-设计模式">OOP &amp; 设计模式 ❓</h3>
+<ul>
+<li>封装 继承 多态</li>
+<li>继承的缺点
+<ul>
+<li>不利于重构</li>
+<li>golang Rust等很多语言去掉继承</li>
+</ul></li>
+<li>工厂模式</li>
+<li>单例模式</li>
+<li>Builder模式</li>
+<li>代理模式</li>
+<li>适配器模式</li>
+</ul>
+<h3 id="计算机网络">计算机网络 ❓</h3>
+<ul>
+<li>OSI七层
+<ul>
+<li>L7 应用层</li>
+<li>L6 表示层</li>
+<li>L5 会话层</li>
+<li>L4 传输层</li>
+<li>L3 网络层</li>
+<li>L2 数据链路层</li>
+<li>L1 物理层</li>
+</ul></li>
+<li>OSI五层</li>
+<li>交换机 路由器</li>
+<li>常见的网络协议
+<ul>
+<li>MAC</li>
+<li>TCP/UDP</li>
+<li>SSH</li>
+<li>FTP</li>
+<li>ARP</li>
+</ul></li>
+<li>IP协议 网络层
+<ul>
+<li>ARP</li>
+</ul></li>
+<li>TCP协议 传输层
+<ul>
+<li>可靠 点对点 字节流 面向连接 20字节</li>
+<li>可靠性保证 ❓
+<ul>
+<li>序列号 确认机制</li>
+<li>超时重传</li>
+<li>...</li>
+<li>握手流程
+<ul>
+<li>第二次握手重试</li>
+</ul></li>
+<li>挥手流程
+<ul>
+<li>主动方 TIME_WAIT 等待2MSL ❓
+<ul>
+<li>保证对端正确断开</li>
+<li>保证本次连接所有报文都过期 不影响下次连接</li>
+</ul></li>
+</ul></li>
+<li>保活机制 (Linux SO_KEEPALIVE) 非标准 ❓</li>
+</ul></li>
+<li>流量控制 ❓
+<ul>
+<li>发送 接收 滑动窗口
+<ul>
+<li>Selective ACK 额外回复收到了哪些段数据</li>
+<li>Duplicate ACK 额外回复哪些段数据重复接收</li>
+<li>Nagle算法 接收窗口太小时 累计一定数据后(MSS)再发送
+<ul>
+<li>-实时性变差</li>
+<li>TCP_NODELAY 关闭</li>
+</ul></li>
+<li>延迟ACK 组合多个ACK为一个
+<ul>
+<li>-实时性变差</li>
+<li>TCP_QUICKACK 关闭</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>拥塞控制 ❓
+<ul>
+<li>慢启动 指数增加</li>
+<li>拥塞避免 线性增加</li>
+<li>拥塞发生 超时重传 RTO指数倍增 保险 回到起点</li>
+<li>快速恢复 快速重传 收到了3ACK 没超时但是重传</li>
+<li>BBR拥塞控制算法 ❓</li>
+</ul></li>
+<li>调优选项
+<ul>
+<li>TCP Fast Open(TFO)
+<ul>
+<li>第二次连接 通过TFO cookie省略一个RTT</li>
+</ul></li>
+<li>tcp_tw_recycle
+<ul>
+<li>TIME_WAIT状态快速回收</li>
+</ul></li>
+<li>tcp_tw_reuse
+<ul>
+<li>复用TIME_WAIT状态的连接</li>
+<li>依赖 tcp_timestamps 启用时间戳</li>
+</ul></li>
+</ul></li>
+<li>缺陷
+<ul>
+<li>-队头阻塞: 中间丢包导致后面阻塞</li>
+<li>-不支持网络迁移</li>
+</ul></li>
+<li>网络攻击
+<ul>
+<li>syn flood
+<ul>
+<li>服务器只收到SYN -&gt; 半连接</li>
+<li>增大半连接队列</li>
+<li>syn cookie</li>
+</ul></li>
+</ul></li>
+<li>应用问题
+<ul>
+<li>对端断电 保持ESTABLISHED状态
+<ul>
+<li>对端退出 FIN</li>
+<li>对端重启 RST</li>
+</ul></li>
+<li>大量CLOSE_WAIT
+<ul>
+<li>对端shutdown 自己没有shutdown</li>
+</ul></li>
+<li>大量TIME_WAIT
+<ul>
+<li>确保应用层使用长连接 Keep-Alive
+<ul>
+<li>设置长连接超时时间</li>
+</ul></li>
+<li>使用 tcp_tw_reuse 和 timestamp</li>
+<li>增大 tcp_max_tw_buckets 默认18000</li>
+<li>SO_LINGER: 用 RST 代替 FIN, 不安全</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>QUIC协议 传输层
+<ul>
+<li>基于UDP实现可靠传输 旨在取代TCP</li>
+<li>+单连接传输多个流 避免队头阻塞</li>
+<li>+握手过程集成TLS 节约连接设置的开销</li>
+<li>+包含连接ID 支持底层网络切换</li>
+</ul></li>
+<li>UDP协议 传输层
+<ul>
+<li>无状态 面向报文 8字节</li>
+</ul></li>
+<li>HTTP协议
+<ul>
+<li>0.9</li>
+<li>1.0</li>
+<li>1.1
+<ul>
+<li>Keep-Alive 默认开启</li>
+<li>流水线
+<ul>
+<li>-HTTP队头阻塞</li>
+</ul></li>
+</ul></li>
+<li>2.0 ❓
+<ul>
+<li>http请求头压缩编码</li>
+<li>二进制帧 请求头可以二进制</li>
+<li>引入流 可以单连接传输多个流</li>
+<li>服务器推送</li>
+<li>-TCP队头阻塞</li>
+</ul></li>
+<li>3.0 ❓
+<ul>
+<li>底层TCP-&gt;QUIC</li>
+</ul></li>
+<li>报文格式
+<ul>
+<li>GET / HTTP/1.1: xxx.com</li>
+<li>HTTP/1.1 200 OK-Type: application/json</li>
+</ul></li>
+<li>状态码
+<ul>
+<li>101 Switch</li>
+<li>200 OK</li>
+<li>301 Moved Permanently</li>
+<li>302 Found</li>
+<li>400 Bad Request</li>
+<li>403 Forbidden</li>
+<li>404 Not Found</li>
+<li>500 Server Error</li>
+<li>502 Bad Gateway</li>
+</ul></li>
+<li>请求方法</li>
+<li>请求头</li>
+<li>缓存控制</li>
+</ul></li>
+<li>DNS协议 应用层
+<ul>
+<li>over UDP</li>
+<li>递归解析</li>
+<li>根域名服务器</li>
+</ul></li>
+<li>SSL/TLS协议 应用层?
+<ul>
+<li>建立流程 四次握手 ❓</li>
+<li>密钥协商</li>
+<li>对称加密</li>
+<li>证书机制</li>
+<li>中间人攻击</li>
+</ul></li>
+<li>RPC
+<ul>
+<li>一种调用方式</li>
+<li>没有http的条条框框 效率更高</li>
+<li>可以定制 例如使用protobuf thrift</li>
+<li>一般基于tcp实现 也有基于http2.0</li>
+</ul></li>
+<li>WebSocket
+<ul>
+<li>HTTP长连接</li>
+<li>HTTP长轮询</li>
+</ul></li>
+<li>扫码登录</li>
+</ul>
+<h3 id="软件测试">软件测试</h3>
+<ul>
+<li>单元测试框架
+<ul>
+<li>CppUnit</li>
+<li>GTest</li>
+</ul></li>
+<li>压测
+<ul>
+<li>TCP压测 iperf3</li>
+<li>HTTP压测 wrk</li>
+</ul></li>
+</ul>
+<h3 id="编译原理">编译原理</h3>
+<ul>
+<li>编译器过程</li>
+<li>C/C++编译过程</li>
+</ul>
+<h2 id="语言">语言</h2>
+<h3 id="java">Java ❓</h3>
+<ul>
+<li><p>基本数据类型</p>
+<ul>
+<li>int vs Integer</li>
+</ul></li>
+<li><p>抽象类 接口</p></li>
+<li><p>重载 重写</p></li>
+<li><p>字符串处理</p></li>
+<li><p>Collections ✅</p>
+<ul>
+<li>HashMap 线程安全
+<ul>
+<li>x2扩容</li>
+<li>get() ❓</li>
+<li>put() ❓</li>
+</ul></li>
+<li>HashTable</li>
+<li>Vector</li>
+<li>LinkedList</li>
+<li>ArrayList
+<ul>
+<li>x1.5扩容</li>
+</ul></li>
+</ul></li>
+<li><p>Comparable</p></li>
+<li><p>面向对象特性</p>
+<ul>
+<li>Object类
+<ul>
+<li>析构 finalize()</li>
+<li>复制 clone()</li>
+<li>容器 hashCode() equals()
+<ul>
+<li>equals() 默认实现比较引用是否相同</li>
+</ul></li>
+<li>反射 getClass()</li>
+<li>字符串 toString()</li>
+<li>同步相关 wait() notify() notifyAll()
+<ul>
+<li>wait() 让持有此对象的监视器的线程等待</li>
+<li>notify() 唤醒</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><p>并发 ❓</p>
+<ul>
+<li>ThreadLocal</li>
+<li>Lock</li>
+<li>synchronized
+<ul>
+<li>修饰方法</li>
+<li>修饰代码块</li>
+<li>持有对象的锁</li>
+</ul></li>
+<li>volatile</li>
+<li>JUC</li>
+<li>线程</li>
+<li>线程池
+<ul>
+<li>创建线程开销大</li>
+<li>状态
+<ul>
+<li>RUNNING</li>
+<li>SHUTDOWN</li>
+<li>STOP</li>
+<li>TERMINATED</li>
+</ul></li>
+<li>参数调优
+<ul>
+<li>CPU密集: n+1</li>
+<li>IO密集: 2n</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><p>反射</p></li>
+<li><p>JVM ❓</p>
+<ul>
+<li>内存结构 ❓
+<ul>
+<li>堆结构</li>
+</ul></li>
+<li>垃圾回收GC ❓
+<ul>
+<li>CMS
+<ul>
+<li>Minor GC</li>
+<li>Full GC</li>
+</ul></li>
+<li>ZGC</li>
+</ul></li>
+</ul></li>
+<li><p>JDBC</p></li>
+</ul>
+<h3 id="c">C++ ❓</h3>
+<ul>
+<li>虚函数
+<ul>
+<li>纯虚函数</li>
+<li>虚表</li>
+</ul></li>
+<li>编译
+<ul>
+<li>工具
+<ul>
+<li>cmake</li>
+<li>meson</li>
+<li>makefile/ninja</li>
+<li>gradle</li>
+</ul></li>
+</ul></li>
+<li>编译和链接
+<ul>
+<li>变量位置
+<ul>
+<li>局部变量 栈上</li>
+<li>全局 静态变量 零初始化bss 否则data</li>
+</ul></li>
+</ul></li>
+<li>STL容器
+<ul>
+<li>vector
+<ul>
+<li>扩容 VSx1.5 GCCx2
+<ul>
+<li>x2会导致重新分配</li>
+</ul></li>
+</ul></li>
+<li>map/set</li>
+<li>unordered_map/set</li>
+<li>list</li>
+</ul></li>
+<li>引用</li>
+<li>类
+<ul>
+<li>构造 析构</li>
+<li>复制 移动</li>
+</ul></li>
+<li>C++11
+<ul>
+<li>move() forward()</li>
+</ul></li>
+<li>C++20 协程</li>
+<li>四种cast
+<ul>
+<li>static_cast</li>
+<li>const_cast</li>
+<li>reinterpret_cast</li>
+<li>dynamic_cast</li>
+</ul></li>
+<li>异常</li>
+<li>智能指针
+<ul>
+<li>unique_ptr
+<ul>
+<li>内部: 对象指针</li>
+</ul></li>
+<li>shared_ptr &amp; weak_ptr
+<ul>
+<li>内部: 对象指针, &amp;use_count, &amp;weak_count, (可选)Mutex</li>
+<li>多个共享指针持有同一个控制块</li>
+<li>make_shared 创建智能指针</li>
+<li>: public shared_from_this
+<ul>
+<li>内部: 一个 weak_ptr(this)</li>
+</ul></li>
+</ul></li>
+<li>auto_ptr</li>
+<li>实现
+<ul>
+<li>原子变量</li>
+<li>引用计数</li>
+</ul></li>
+</ul></li>
+<li>并发
+<ul>
+<li>原子操作
+<ul>
+<li>i++ 不是原子</li>
+</ul></li>
+<li>volatile
+<ul>
+<li>标记变量可能被未知的因素更改</li>
+<li>避免激进的优化 每次都去读内存</li>
+</ul></li>
+</ul></li>
+<li>malloc</li>
+</ul>
+<h3 id="golang">Golang</h3>
+<ul>
+<li>GMP模型
+<ul>
+<li>G 协程</li>
+<li>M OS线程</li>
+<li>P CPU核</li>
+</ul></li>
+<li>避免共享内存 使用通信</li>
+<li>defer语法</li>
+</ul>
+<h3 id="javascript">JavaScript</h3>
+<h3 id="rust">Rust ❓</h3>
+<ul>
+<li>Lifetime</li>
+<li>trait</li>
+<li>Tokio异步
+<ul>
+<li>异步任务</li>
+</ul></li>
+</ul>
+<h2 id="linux">Linux</h2>
+<ul>
+<li>文件
+<ul>
+<li>一切皆文件</li>
+<li>类型
+<ul>
+<li>Regular</li>
+<li>Directory</li>
+<li>Link</li>
+<li>Char Dev</li>
+<li>Block Dev</li>
+<li>Socket</li>
+<li>Pipe</li>
+</ul></li>
+<li>inode
+<ul>
+<li>内容</li>
+<li>访问时间</li>
+</ul></li>
+</ul></li>
+<li>IO多路复用
+<ul>
+<li>select</li>
+<li>poll</li>
+<li>epoll</li>
+</ul></li>
+<li>零拷贝
+<ul>
+<li>用户态IO: SPDK, DPDK</li>
+<li>减少切换次数: sendfile, splice</li>
+<li>COW</li>
+</ul></li>
+<li>Coredump</li>
+<li>链接与库
+<ul>
+<li>静态链接</li>
+<li>动态链接</li>
+<li>装载</li>
+</ul></li>
+<li>运维命令
+<ul>
+<li>负载
+<ul>
+<li>uptime</li>
+<li>vmstat</li>
+<li>top</li>
+</ul></li>
+<li>网络
+<ul>
+<li>netstat</li>
+<li>ss</li>
+</ul></li>
+<li>内存
+<ul>
+<li>sar</li>
+</ul></li>
+</ul></li>
+<li>缓存 ❓
+<ul>
+<li>kswapd</li>
+<li>File Cache</li>
+<li>Disk Cache</li>
+</ul></li>
+</ul>
+<h2 id="mysql">MySQL ❓</h2>
+<ul>
+<li>SQL 基本
+<ul>
+<li>语句</li>
+</ul></li>
+<li>数据类型</li>
+<li>范式 ❓
+<ul>
+<li>第一范式 列不可分</li>
+<li>第二范式 只依赖主键</li>
+<li>BC范式</li>
+<li>第三范式 属性不依赖于其它非主属性的传递函数依赖</li>
+</ul></li>
+<li>引擎
+<ul>
+<li>MyISAM
+<ul>
+<li>+插入, 查询性能</li>
+<li>-只有表锁</li>
+<li>-不支持外键</li>
+<li>-不支持事务</li>
+<li>适合非事务型负载 OLAP?</li>
+</ul></li>
+<li>InnoDB
+<ul>
+<li>+行锁</li>
+<li>+聚簇索引</li>
+<li>+支持外键</li>
+<li>+支持事务</li>
+</ul></li>
+<li>底层存储
+<ul>
+<li>MyISAM
+<ul>
+<li>数据.myd和索引.myi分开存储</li>
+<li>数据按插入顺序存储</li>
+<li>索引B+树叶子节点存数据行号 -&gt; 没有聚簇索引</li>
+</ul></li>
+<li>InnoDB
+<ul>
+<li>数据和索引保存在一起</li>
+<li>主索引B+树叶子节点存数据本身 -&gt; 聚簇索引</li>
+<li>需要一个主key 没有会自己创建</li>
+</ul></li>
+</ul></li>
+<li>区别</li>
+</ul></li>
+<li>索引 ❓❓
+<ul>
+<li>优缺点
+<ul>
+<li>+加快速度</li>
+<li>-空间开销</li>
+<li>-维护索引开销</li>
+</ul></li>
+<li>索引类型
+<ul>
+<li>hash索引
+<ul>
+<li>-范围查询</li>
+<li>-模糊查询</li>
+<li>-联合索引 最左匹配</li>
+</ul></li>
+<li>Btree索引</li>
+<li>Fulltext索引
+<ul>
+<li>+查询文本中的关键字</li>
+<li>模糊匹配
+<ul>
+<li>like 'abc%' ✅</li>
+<li>like '%abc' ❎</li>
+</ul></li>
+</ul></li>
+<li>Rtree索引
+<ul>
+<li>+地理数据范围查询</li>
+</ul></li>
+</ul></li>
+<li>聚簇索引
+<ul>
+<li>聚簇索引
+<ul>
+<li>数据和索引放在一起存储 索引的叶子节点保存数据</li>
+<li>相对的 其他索引叫做二级索引</li>
+<li>举例 InnoDB</li>
+</ul></li>
+<li>非聚簇索引
+<ul>
+<li>数据和索引分开存储 索引的叶子节点保存数据行号</li>
+<li>举例 MyISAM</li>
+</ul></li>
+</ul></li>
+<li>覆盖索引
+<ul>
+<li>查询结果都包含在索引中</li>
+<li>不需要回表</li>
+</ul></li>
+<li>最左匹配原则</li>
+<li>索引使用原则
+<ul>
+<li>经常查询的where条件</li>
+<li>长串索引需要限定前缀长度 看区分度</li>
+</ul></li>
+</ul></li>
+<li>优化
+<ul>
+<li>定位慢查询
+<ul>
+<li>show_query_log</li>
+</ul></li>
+<li>explain
+<ul>
+<li>Using index = 使用了覆盖索引</li>
+</ul></li>
+<li>optimize table</li>
+</ul></li>
+<li>事务 ✅
+<ul>
+<li>概念</li>
+<li>ACID ✅
+<ul>
+<li>原子性</li>
+<li>一致性</li>
+<li>隔离性</li>
+<li>持久性</li>
+</ul></li>
+<li>问题 ❓
+<ul>
+<li>脏读</li>
+<li>不可重复读: 在同一个事务中，多次读取同一数据返回的结果有所不同</li>
+<li>幻读: 一个事务读取了另一个事务插入的新纪录</li>
+<li>丢失修改</li>
+</ul></li>
+<li>SQL标准隔离级别 ✅
+<ul>
+<li>读未提交(=脏读)</li>
+<li>读已提交 fix脏读</li>
+<li>可重复读 fix不可重复读</li>
+<li>序列化 fix幻读</li>
+</ul></li>
+<li>MySQL 如何保证 ACID ❓❓
+<ul>
+<li>保证原子性A
+<ul>
+<li>Undo log</li>
+</ul></li>
+<li>保证隔离性I
+<ul>
+<li>间隙锁 锁定一个区间 防止幻读</li>
+<li>记录锁 锁定行</li>
+<li>临界锁</li>
+<li>MVCC机制</li>
+</ul></li>
+<li>保证持久性D
+<ul>
+<li>WAL 先写日志</li>
+<li>Redo log
+<ul>
+<li>追加写 性能</li>
+<li>两个文件环形写</li>
+</ul></li>
+<li>Binlog
+<ul>
+<li>Server层日志</li>
+<li>用于主从同步</li>
+</ul></li>
+</ul></li>
+<li>保证一致性C
+<ul>
+<li>前三个加起来</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>锁 ❓
+<ul>
+<li>全局锁</li>
+<li>表锁
+<ul>
+<li>MyISAM默认</li>
+</ul></li>
+<li>行锁
+<ul>
+<li>MyISAM没有</li>
+<li>InnoDB默认</li>
+<li>可能导致死锁</li>
+</ul></li>
+<li>页面锁</li>
+<li>乐观锁 &amp; 悲观锁
+<ul>
+<li>乐观锁: 先更新再检查是否有其他事务修改</li>
+<li>悲观锁: 先加锁再更新</li>
+</ul></li>
+</ul></li>
+<li>MVCC 多版本并发控制
+<ul>
+<li>提高并发性能</li>
+<li>当前读 读最新版本</li>
+<li>快照读</li>
+</ul></li>
+</ul>
+<h2 id="redis">Redis ✅</h2>
+<ul>
+<li>特点
+<ul>
+<li>性能</li>
+<li>功能</li>
+</ul></li>
+<li>单线程</li>
+<li>数据类型
+<ul>
+<li>string</li>
+<li>list</li>
+<li>hash</li>
+<li>set</li>
+<li>zset</li>
+</ul></li>
+<li>底层存储
+<ul>
+<li>int</li>
+<li>sds</li>
+<li>quicklist</li>
+<li>压缩列表/listpack</li>
+<li>skiplist
+<ul>
+<li>SkipList vs B+tree
+<ul>
+<li>实现简单</li>
+<li>占用内存少</li>
+<li>插入删除性能更好，没有旋转平衡的开销</li>
+</ul></li>
+</ul></li>
+<li>hashtable
+<ul>
+<li>MurmurHash2</li>
+</ul></li>
+</ul></li>
+<li>持久化
+<ul>
+<li>RDB</li>
+<li>AOF</li>
+<li>混合</li>
+</ul></li>
+<li>Pub/Sub机制</li>
+<li>内存淘汰
+<ul>
+<li>noeviction</li>
+<li>volatile-random</li>
+<li>volatile-ttl</li>
+<li>volatile-lru 默认</li>
+<li>volatile-lfu</li>
+<li>allkeys-random</li>
+<li>allkeys-lru</li>
+<li>allkeys-lfu</li>
+<li>LFU 更好, LRU 容易受缓存污染影响</li>
+</ul></li>
+<li>Redis集群</li>
+<li>主从复制
+<ul>
+<li>主库读写, 从库只读</li>
+</ul></li>
+<li>使用问题
+<ul>
+<li>大key</li>
+<li>缓存击穿 热点key过期
+<ul>
+<li>设置热点key永不过期</li>
+</ul></li>
+<li>缓存雪崩 大量key同时失效
+<ul>
+<li>随机过期时间或永不过期</li>
+<li>热点数据分散</li>
+</ul></li>
+<li>缓存穿透 热点key不存在
+<ul>
+<li>设置key-null</li>
+</ul></li>
+</ul></li>
+<li>缓存一致性 (分布式一致性问题)
+<ul>
+<li>缓存策略
+<ul>
+<li>Cache Aside: 读者读db时顺便设置缓存
+<ul>
+<li>-需要缓存设置过期时间</li>
+<li>-过期时间内可能是旧的值</li>
+</ul></li>
+<li>Read Through:</li>
+<li>Write Through: 只写db, 异步推送到缓存</li>
+<li>Write Back: 只更新缓存, 异步写入db</li>
+</ul></li>
+<li>同步机制
+<ul>
+<li>更新派
+<ul>
+<li>🔃缓存, 🔃db
+<ul>
+<li>不好 缓存可能被另一个进程刷新为旧值</li>
+</ul></li>
+<li>🔃db, 🔃缓存
+<ul>
+<li>不好 更新缓存需要计算 浪费系统资源</li>
+</ul></li>
+</ul></li>
+<li>删除派
+<ul>
+<li>🆑️缓存, 🔃db
+<ul>
+<li>不好 缓存可能被另一个进程刷新为旧值</li>
+<li>延迟双删可以: 🆑️缓存, 🔃db, 延迟, 🆑️缓存</li>
+</ul></li>
+<li>🔃db, 🆑️缓存
+<ul>
+<li>好 第二步需要重试保证</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>通用技巧
+<ul>
+<li>过期时间</li>
+<li>终极方案 分布式锁</li>
+<li>失败重试
+<ul>
+<li>单独线程</li>
+<li>MQ</li>
+</ul></li>
+<li>binlog订阅</li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 id="前端技术">前端技术</h2>
+<ul>
+<li>Session &amp; Cookie &amp; Token
+<ul>
+<li>Session 服务端用于保存每个连接用户状态的对象</li>
+<li>Cookie
+<ul>
+<li>结构 name, domain, path, secure</li>
+<li>生命周期
+<ul>
+<li>没设置过期时间 =&gt; 会话Cookie 浏览器关闭即消失</li>
+<li>设置过期时间 保存在硬盘上</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>LocalStorage
+<ul>
+<li>生命周期 不会过期</li>
+<li>大小 一般5M</li>
+</ul></li>
+<li>SessionStorage
+<ul>
+<li>生命周期 浏览器关闭即消失</li>
+</ul></li>
+<li>浏览器加载资源的过程</li>
+<li>浏览器输入URL之后的过程</li>
+</ul>
+<h2 id="后端技术">后端技术</h2>
+<ul>
+<li>分库分表
+<ul>
+<li>MyCat
+<ul>
+<li>MySQL Stub</li>
+</ul></li>
+<li>ShardingSphere
+<ul>
+<li>JDBC Stub</li>
+</ul></li>
+</ul></li>
+<li>Spring
+<ul>
+<li>AOP</li>
+<li>IOC</li>
+<li>循环依赖
+<ul>
+<li>Bean互相依赖</li>
+<li>三级缓存
+<ul>
+<li>一级缓存为单例池 singletonObjects</li>
+<li>二级缓存为早期曝光对象 earlySingletonObjects</li>
+<li>三级缓存为早期曝光对象工厂 singletonFactories</li>
+</ul></li>
+</ul></li>
+<li>Filter ❓</li>
+</ul></li>
+<li>MyBatis</li>
+</ul>
+<h2 id="中间件">中间件</h2>
+<ul>
+<li>缓存</li>
+<li>消息队列</li>
+<li>定时任务</li>
+<li>日志采集</li>
+</ul>
+<h2 id="消息队列">消息队列</h2>
+<ul>
+<li>作用 异步削峰解耦</li>
+<li>RabbitMQ ❓</li>
+<li>消息积压 ❓</li>
+</ul>
+<h2 id="分布式系统">分布式系统</h2>
+<ul>
+<li>CAP理论 ✅
+<ul>
+<li>C 强一致性</li>
+<li>A 可用性</li>
+<li>P 分区可用性</li>
+</ul></li>
+<li>BASE理论 ✅
+<ul>
+<li>BA 基本可用</li>
+<li>S 软状态</li>
+<li>E 最终一直性</li>
+</ul></li>
+<li>一致性算法
+<ul>
+<li>Paxos ❓</li>
+<li>Raft ❓
+<ul>
+<li>关键点: 心跳同步log, 过半数机制</li>
+</ul></li>
+<li>ZAB ❓</li>
+</ul></li>
+<li>分布式锁 ❓
+<ul>
+<li>Redis Lock</li>
+<li>Google Chubby</li>
+</ul></li>
+<li>一致性哈希</li>
+<li>分布式ID
+<ul>
+<li>雪花算法</li>
+</ul></li>
+<li>分布式事务
+<ul>
+<li>两阶段提交 2PC ❓❓</li>
+<li>TCC</li>
+</ul></li>
+<li>ZooKeeper ❓</li>
+<li>Hive ❓</li>
+<li>分布式文件系统
+<ul>
+<li>GFS ❓</li>
+<li>HDFS ❓</li>
+</ul></li>
+<li>Hadoop ❓</li>
+<li>表格存储
+<ul>
+<li>BigTable ❓</li>
+<li>HBase ❓</li>
+</ul></li>
+</ul>
+<h2 id="大数据">大数据</h2>
+<ul>
+<li>Spark</li>
+<li>Lucene</li>
+<li>基本思想
+<ul>
+<li>数据结构: 位图 平衡树 索引</li>
+<li>分治 合并</li>
+</ul></li>
+<li>大数据排序问题
+<ul>
+<li><p>离线Top n</p></li>
+<li><p>在线Top n</p></li>
+</ul></li>
+</ul>
+<h2 id="云计算">云计算</h2>
+<ul>
+<li>Docker
+<ul>
+<li>底层</li>
+</ul></li>
+<li>K8S
+<ul>
+<li>架构</li>
+</ul></li>
+</ul>
+<h2 id="微服务">微服务</h2>
+<ul>
+<li>Nacos 注册中心</li>
+<li>Dubbo 微服务框架</li>
+</ul>
+<h2 id="存储">存储</h2>
+<ul>
+<li>块存储</li>
+<li>文件存储</li>
+<li>对象存储 ✅</li>
+<li>快照机制
+<ul>
+<li>COW</li>
+</ul></li>
+</ul>
+<h2 id="虚拟化">虚拟化</h2>
+<ul>
+<li>QEMU</li>
+</ul>
+<h2 id="数据库内核">数据库内核</h2>
+<ul>
+<li>LSM-Tree ❓</li>
+<li>LevelDB ❓</li>
+<li>RocksDB ❓</li>
+<li>MySQL</li>
+<li>Buffer Pool
+<ul>
+<li>文件系统缓存层</li>
+</ul></li>
+</ul>
+<h2 id="搜索">搜索</h2>
+<ul>
+<li>粗排</li>
+<li>精排</li>
+<li>召回</li>
+<li>算法</li>
+</ul>
+]]></content>
+  </entry>
+  <entry>
     <title>word2vec</title>
     <url>/2023/10/28/word2vec/</url>
     <content><![CDATA[<h2 id="whats-it">What's it</h2>
@@ -615,64 +1901,67 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
 <li><p>名称, 版本信息查看</p>
 <ul>
 <li><p>查询数据库版本信息</p>
-<p><code>SQL&gt; select * from v$version;</code></p></li>
+<pre><code>`SQL&gt; select * from v$version;`</code></pre></li>
 <li><p>查看数据库名称</p>
-<p><code>SQL&gt; show parameter db_name;</code></p></li>
+<pre><code>`SQL&gt; show parameter db_name;`</code></pre></li>
 <li><p>查看数据库服务名</p>
-<p><code>SQL&gt; show parameter service_names;</code></p></li>
+<pre><code>`SQL&gt; show parameter service_names;`</code></pre></li>
 <li><p>查询全局数据库名称</p>
-<p><code>SQL&gt; select * from global_name;</code></p></li>
+<pre><code>`SQL&gt; select * from global_name;`</code></pre></li>
 </ul></li>
 <li><p>数据库实例 (Instance)</p>
 <ul>
 <li><p>查询当前数据库实例名称</p>
-<p><code>SQL&gt; select instance_name from v$instance;</code></p></li>
+<pre><code>`SQL&gt; select instance_name from v$instance;`</code></pre></li>
 <li><p>查看当前数据库实例状态(open/mount等)</p>
-<p><code>SQL&gt; select status from v$instance;</code></p></li>
+<pre><code>`SQL&gt; select status from v$instance;`</code></pre></li>
 <li><p>查看数据库实例启动时间</p>
-<p><code>SQL&gt; SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS "Inst Start Time" FROM V$INSTANCE;</code></p></li>
+<pre><code>`SQL&gt; SELECT TO_CHAR(STARTUP_TIME,&#39;MON-DD-RR HH24:MI:SS&#39;) AS &quot;Inst Start Time&quot; FROM V$INSTANCE;`</code></pre></li>
 <li><p>创建一个新的数据库实例、加载数据库、打开数据库 (需要DBA权限)</p>
-<p><code>SQL&gt; startup [nomount | mount | open];</code></p></li>
+<pre><code>`SQL&gt; startup [nomount | mount | open];`</code></pre></li>
 <li><p>关闭实例绑定的数据库、卸载数据库、结束当前实例 (需要DBA权限)</p>
-<p><code>SQL&gt; shutdown [normal | transactional | immediate];</code></p></li>
+<pre><code>`SQL&gt; shutdown [normal | transactional | immediate];`</code></pre></li>
 <li><p>关闭实例绑定的数据库、卸载数据库</p>
-<p><code>SQL&gt; alter database close;</code></p></li>
+<pre><code>`SQL&gt; alter database close;`</code></pre></li>
 <li><p>加载数据库/打开数据库</p>
-<p><code>SQL&gt; alter database [mount | open];</code></p></li>
+<pre><code>`SQL&gt; alter database [mount | open];`</code></pre></li>
 </ul></li>
 <li><p>数据库设置, 统计信息等</p>
 <ul>
 <li><p>查询数据库打开模式(mounted/open/read write)</p>
-<p><code>SQL&gt; select open_mode from v$database;</code></p></li>
+<pre><code>`SQL&gt; select open_mode from v$database;`</code></pre></li>
 <li><p>查看数据库DBF文件位置</p>
-<p><code>SQL&gt; select name from v$datafile;</code></p></li>
+<pre><code>`SQL&gt; select name from v$datafile;`</code></pre></li>
 <li><p>查询数据文件状态</p>
-<p><code>SQL&gt; select file#,name,status,enabled,checkpoint_change# from v$datafile;</code></p></li>
+<pre><code>`SQL&gt; select file#,name,status,enabled,checkpoint_change# from v$datafile;`</code></pre></li>
 <li><p>查询数据文件位置</p>
-<p><code>SQL&gt; select name from v$datafile;</code></p></li>
+<pre><code>`SQL&gt; select name from v$datafile;`</code></pre></li>
 <li><p>查询数据文件（表空间）大小</p>
-<p><code>SQL&gt; select sum(bytes)/1024/1024/1024 as GB from v$datafile;</code></p></li>
+<pre><code>`SQL&gt; select sum(bytes)/1024/1024/1024 as GB from v$datafile;`</code></pre></li>
 <li><p>查询有效数据大小</p>
-<p><code>SQL&gt; select sum(bytes)/1024/1024/1024 as GB from dba_segments;</code></p></li>
+<pre><code>`SQL&gt; select sum(bytes)/1024/1024/1024 as GB from dba_segments;`</code></pre></li>
 <li><p>查看当前库的所有数据表</p>
-<p><code>SQL&gt; select TABLE_NAME from all_tables;</code></p></li>
+<pre><code>`SQL&gt; select TABLE_NAME from all_tables;`</code></pre></li>
 </ul></li>
 <li><p>可插拔数据库 (PDB) 管理</p>
 <ul>
 <li><p>查看数据库是CDB还是传统DB</p>
-<p><code>SQL&gt; select name, cdb, open_mode, con_id from v$database;</code></p></li>
+<pre><code>`SQL&gt; select name, cdb, open_mode, con_id from v$database;`</code></pre></li>
 <li><p>查看当前容器 (CDB) 名</p>
-<p><code>SQL&gt; show con_name;</code></p></li>
+<pre><code>`SQL&gt; show con_name;`</code></pre></li>
 <li><p>列举当前容器中的所有PDB以及状态</p>
-<p><code>SQL&gt; select con_id, dbid, guid, name, open_mode from v$pdbs;</code></p></li>
+<pre><code>`SQL&gt; select con_id, dbid, guid, name, open_mode from v$pdbs;`</code></pre></li>
 <li><p>切换到某个PDB</p>
-<p><code>SQL&gt; alter session set container=&lt;PDB&gt;;</code></p></li>
+<pre><code>`SQL&gt; alter session set container=&lt;PDB&gt;;`</code></pre></li>
 <li><p>启动PDB数据库</p>
-<p><code>SQL&gt; alter pluggable database &lt;PDB&gt; open;</code></p>
-<p>或者</p>
-<p><code>SQL&gt; alter session set container=&lt;PDB&gt;;</code> <code>SQL&gt; startup</code></p></li>
+<pre><code>`SQL&gt; alter pluggable database &lt;PDB&gt; open;`
+
+或者
+
+`SQL&gt; alter session set container=&lt;PDB&gt;;`
+`SQL&gt; startup`</code></pre></li>
 <li><p>关闭PDB数据库</p>
-<p><code>SQL&gt; alter pluggable database &lt;PDB&gt; close;</code></p></li>
+<pre><code>`SQL&gt; alter pluggable database &lt;PDB&gt; close;`</code></pre></li>
 </ul></li>
 <li><p>用户管理</p>
 <ul>
@@ -1358,6 +2647,70 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/03/2020-12-03/</url>
+    <content><![CDATA[<h1 id="秘书问题">秘书问题</h1>
+<ul>
+<li><p>又称相亲问题、止步问题、见好就收问题、苏丹的嫁妆问题、挑剔的求婚者问题等</p></li>
+<li><p>要聘请一名秘书，有 n 个应聘者。每次面试一人，面试后就要及时决定是否聘他，如果当时决定不聘他，他便不会回来。面试后总能清楚了解应聘者的合适程度，并能和之前的每个人做比较。问什么样的策略，才使最佳人选被选中的概率最大。</p></li>
+<li><p>答案:</p>
+<details>
+<p><summary>展开</summary></p>
+<ul>
+<li><p>这个问题的最优解是一个停止规则。在这个规则里，面试官会拒绝头 r - 1 个应聘者 (令他们中的最佳人选为 应聘者 M)，然后选出第一个比 M 好的应聘者。可见最优策略包含于这个系列的策略中。 (如果M在所有n个应聘者中也是最好的一个，那么这个策略将选不出任何人选)对于任意的截断值 r，最佳人选被选中的概率是：</p>
+<pre><code>$$&#123;\displaystyle &#123;\begin&#123;aligned&#125;P(r)&amp;=\sum _&#123;i=1&#125;^&#123;n&#125;P\left(&#123;\text&#123;applicant &#125;&#125;i&#123;\text&#123; is selected&#125;&#125;\cap &#123;\text&#123;applicant &#125;&#125;i&#123;\text&#123; is the best&#125;&#125;\right)\\&amp;=\sum _&#123;i=1&#125;^&#123;n&#125;P\left(&#123;\text&#123;applicant &#125;&#125;i&#123;\text&#123; is selected&#125;&#125;|&#123;\text&#123;applicant &#125;&#125;i&#123;\text&#123; is the best&#125;&#125;\right)\cdot P\left(&#123;\text&#123;applicant &#125;&#125;i&#123;\text&#123; is the best&#125;&#125;\right)\\&amp;=\left[\sum _&#123;i=1&#125;^&#123;r-1&#125;0+\sum _&#123;i=r&#125;^&#123;n&#125;P\left(\left.&#123;\begin&#123;array&#125;&#123;l&#125;&#123;\text&#123;the best of the first &#125;&#125;i-1&#123;\text&#123; applicants&#125;&#125;\\&#123;\text&#123;is in the first &#125;&#125;r-1&#123;\text&#123; applicants&#125;&#125;\end&#123;array&#125;&#125;\right|&#123;\text&#123;applicant &#125;&#125;i&#123;\text&#123; is the best&#125;&#125;\right)\right]\cdot &#123;\frac &#123;1&#125;&#123;n&#125;&#125;\\&amp;=\left[\sum _&#123;i=r&#125;^&#123;n&#125;&#123;\frac &#123;r-1&#125;&#123;i-1&#125;&#125;\right]\cdot &#123;\frac &#123;1&#125;&#123;n&#125;&#125;\quad =\quad &#123;\frac &#123;r-1&#125;&#123;n&#125;&#125;\sum _&#123;i=r&#125;^&#123;n&#125;&#123;\frac &#123;1&#125;&#123;i-1&#125;&#125;.\end&#123;aligned&#125;&#125;&#125;$$</code></pre>
+<ul>
+<li><p>当n趋近于无穷大时</p>
+<p><span class="math display">\[{\displaystyle P(x)=x\int _{x}^{1}{\frac {1}{t}}\,dt=-x\ln(x).}\]</span></p></li>
+<li><p>求出最优的x值为</p>
+<p><span class="math display">\[\frac {1}{e}\]</span></p></li>
+</ul>
+</details></li>
+</ul></li>
+</ul>
+<h1 id="nginx-配置">Nginx 配置</h1>
+<ul>
+<li><p>root: 表示去哪个目录下寻找对应url的文件, 实际上是添加前缀</p>
+<p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">location /aaaa/ &#123;</span><br><span class="line">    root /home/tom/www/</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p>请求: http://(hostname)<span style="background-color: yellow;">/aaaa/</span>hello.txt</p></li>
+<li><p>返回: <span style="background-color: #cdffd8;">/home/tom/www</span><span style="background-color: yellow;">/aaaa/</span>hello.txt</p></li>
+</ul></li>
+<li><p>alias: 表示把匹配成功的路径<strong>替换</strong>成alias</p>
+<p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">location /aaaa/ &#123;</span><br><span class="line">    alias /home/tom/www/</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p>请求: http://(hostname)<span style="background-color: yellow;">/aaaa/</span>hello.txt</p></li>
+<li><p>返回: <span style="background-color: #cdffd8;">/home/tom/www/</span>hello.txt</p></li>
+</ul></li>
+<li><p>PS: Nginx会自动将两个连续的斜杠替换成一个</p></li>
+</ul>
+<h1 id="flask-嵌套路由配置">Flask 嵌套路由配置</h1>
+<ul>
+<li><p>使用<code>register_blueprint</code>时的<code>url_prefix</code>参数</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># create app, blueprints, etc.</span></span><br><span class="line">app.register_blueprint(myblueprint, url_prefix=<span class="string">&#x27;/somepath&#x27;</span>)</span><br><span class="line"><span class="comment"># ...</span></span><br></pre></td></tr></table></figure></p></li>
+</ul>
+<h1 id="视频网站设计思考">视频网站设计思考</h1>
+<ul>
+<li>视频文件存储到哪里: OSS对象存储服务</li>
+</ul>
+<h1 id="数据库隔离级别">数据库隔离级别</h1>
+<ol type="1">
+<li><p>读未提交(Read Uncommitted)</p></li>
+<li><p>读已提交(Read Committed)/不可重复读 大多数数据库默认的隔离级别</p></li>
+<li><p>可重复读(Repeatable-Read) mysql数据库所默认的级别</p></li>
+<li><p>序列化(serializable)</p></li>
+</ol>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+      <tags>
+        <tag>Nginx</tag>
+        <tag>Math</tag>
+        <tag>Database</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/02/2020-12-02/</url>
     <content><![CDATA[<ul>
 <li><p>React</p>
@@ -1435,70 +2788,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       <tags>
         <tag>React</tag>
         <tag>Oracle</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/03/2020-12-03/</url>
-    <content><![CDATA[<h1 id="秘书问题">秘书问题</h1>
-<ul>
-<li><p>又称相亲问题、止步问题、见好就收问题、苏丹的嫁妆问题、挑剔的求婚者问题等</p></li>
-<li><p>要聘请一名秘书，有 n 个应聘者。每次面试一人，面试后就要及时决定是否聘他，如果当时决定不聘他，他便不会回来。面试后总能清楚了解应聘者的合适程度，并能和之前的每个人做比较。问什么样的策略，才使最佳人选被选中的概率最大。</p></li>
-<li><p>答案:</p>
-<details>
-<p><summary>展开</summary></p>
-<ul>
-<li><p>这个问题的最优解是一个停止规则。在这个规则里，面试官会拒绝头 r - 1 个应聘者 (令他们中的最佳人选为 应聘者 M)，然后选出第一个比 M 好的应聘者。可见最优策略包含于这个系列的策略中。 (如果M在所有n个应聘者中也是最好的一个，那么这个策略将选不出任何人选)对于任意的截断值 r，最佳人选被选中的概率是：</p>
-<pre><code>$$&#123;\displaystyle &#123;\begin&#123;aligned&#125;P(r)&amp;=\sum _&#123;i=1&#125;^&#123;n&#125;P\left(&#123;\text&#123;applicant &#125;&#125;i&#123;\text&#123; is selected&#125;&#125;\cap &#123;\text&#123;applicant &#125;&#125;i&#123;\text&#123; is the best&#125;&#125;\right)\\&amp;=\sum _&#123;i=1&#125;^&#123;n&#125;P\left(&#123;\text&#123;applicant &#125;&#125;i&#123;\text&#123; is selected&#125;&#125;|&#123;\text&#123;applicant &#125;&#125;i&#123;\text&#123; is the best&#125;&#125;\right)\cdot P\left(&#123;\text&#123;applicant &#125;&#125;i&#123;\text&#123; is the best&#125;&#125;\right)\\&amp;=\left[\sum _&#123;i=1&#125;^&#123;r-1&#125;0+\sum _&#123;i=r&#125;^&#123;n&#125;P\left(\left.&#123;\begin&#123;array&#125;&#123;l&#125;&#123;\text&#123;the best of the first &#125;&#125;i-1&#123;\text&#123; applicants&#125;&#125;\\&#123;\text&#123;is in the first &#125;&#125;r-1&#123;\text&#123; applicants&#125;&#125;\end&#123;array&#125;&#125;\right|&#123;\text&#123;applicant &#125;&#125;i&#123;\text&#123; is the best&#125;&#125;\right)\right]\cdot &#123;\frac &#123;1&#125;&#123;n&#125;&#125;\\&amp;=\left[\sum _&#123;i=r&#125;^&#123;n&#125;&#123;\frac &#123;r-1&#125;&#123;i-1&#125;&#125;\right]\cdot &#123;\frac &#123;1&#125;&#123;n&#125;&#125;\quad =\quad &#123;\frac &#123;r-1&#125;&#123;n&#125;&#125;\sum _&#123;i=r&#125;^&#123;n&#125;&#123;\frac &#123;1&#125;&#123;i-1&#125;&#125;.\end&#123;aligned&#125;&#125;&#125;$$</code></pre>
-<ul>
-<li><p>当n趋近于无穷大时</p>
-<p><span class="math display">\[{\displaystyle P(x)=x\int _{x}^{1}{\frac {1}{t}}\,dt=-x\ln(x).}\]</span></p></li>
-<li><p>求出最优的x值为</p>
-<p><span class="math display">\[\frac {1}{e}\]</span></p></li>
-</ul>
-</details></li>
-</ul></li>
-</ul>
-<h1 id="nginx-配置">Nginx 配置</h1>
-<ul>
-<li><p>root: 表示去哪个目录下寻找对应url的文件, 实际上是添加前缀</p>
-<p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">location /aaaa/ &#123;</span><br><span class="line">    root /home/tom/www/</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li><p>请求: http://(hostname)<span style="background-color: yellow;">/aaaa/</span>hello.txt</p></li>
-<li><p>返回: <span style="background-color: #cdffd8;">/home/tom/www</span><span style="background-color: yellow;">/aaaa/</span>hello.txt</p></li>
-</ul></li>
-<li><p>alias: 表示把匹配成功的路径<strong>替换</strong>成alias</p>
-<p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">location /aaaa/ &#123;</span><br><span class="line">    alias /home/tom/www/</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li><p>请求: http://(hostname)<span style="background-color: yellow;">/aaaa/</span>hello.txt</p></li>
-<li><p>返回: <span style="background-color: #cdffd8;">/home/tom/www/</span>hello.txt</p></li>
-</ul></li>
-<li><p>PS: Nginx会自动将两个连续的斜杠替换成一个</p></li>
-</ul>
-<h1 id="flask-嵌套路由配置">Flask 嵌套路由配置</h1>
-<ul>
-<li><p>使用<code>register_blueprint</code>时的<code>url_prefix</code>参数</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># create app, blueprints, etc.</span></span><br><span class="line">app.register_blueprint(myblueprint, url_prefix=<span class="string">&#x27;/somepath&#x27;</span>)</span><br><span class="line"><span class="comment"># ...</span></span><br></pre></td></tr></table></figure></p></li>
-</ul>
-<h1 id="视频网站设计思考">视频网站设计思考</h1>
-<ul>
-<li>视频文件存储到哪里: OSS对象存储服务</li>
-</ul>
-<h1 id="数据库隔离级别">数据库隔离级别</h1>
-<ol type="1">
-<li><p>读未提交(Read Uncommitted)</p></li>
-<li><p>读已提交(Read Committed)/不可重复读 大多数数据库默认的隔离级别</p></li>
-<li><p>可重复读(Repeatable-Read) mysql数据库所默认的级别</p></li>
-<li><p>序列化(serializable)</p></li>
-</ol>
-]]></content>
-      <categories>
-        <category>daily</category>
-      </categories>
-      <tags>
-        <tag>Nginx</tag>
-        <tag>Math</tag>
-        <tag>Database</tag>
       </tags>
   </entry>
   <entry>
@@ -1613,6 +2902,19 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/06/2020-12-06/</url>
+    <content><![CDATA[<h1 id="学习oracle使用">学习Oracle使用</h1>
+<p><a href="../oracledb/index">OracleDB</a></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+      <tags>
+        <tag>Oracle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/05/2020-12-05/</url>
     <content><![CDATA[<h1 id="java-spring-框架学习">Java Spring 框架学习</h1>
 <p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
@@ -1673,19 +2975,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
         <tag>Java</tag>
         <tag>Spring</tag>
         <tag>Git</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/06/2020-12-06/</url>
-    <content><![CDATA[<h1 id="学习oracle使用">学习Oracle使用</h1>
-<p><a href="../oracledb/index">OracleDB</a></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-      </categories>
-      <tags>
-        <tag>Oracle</tag>
       </tags>
   </entry>
   <entry>
@@ -1884,16 +3173,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/18/2020-12-18/</url>
-    <content><![CDATA[<h1 id="oracle-apex怎么调用procedure">Oracle Apex怎么调用procedure</h1>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">begin</span></span><br><span class="line">  ANALYSIS(<span class="number">6</span>, <span class="number">1000</span>);</span><br><span class="line"><span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>daily</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/17/2020-12-17/</url>
     <content><![CDATA[<h1 id="spring-doc-openapi-注解">Spring-doc OpenAPI 注解</h1>
 <p><span class="citation" data-cites="Operation">@Operation</span> <span class="citation" data-cites="Response">@Response</span> <span class="citation" data-cites="Parameter">@Parameter</span></p>
@@ -1940,6 +3219,16 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
         <tag>Spring</tag>
         <tag>Swagger</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/18/2020-12-18/</url>
+    <content><![CDATA[<h1 id="oracle-apex怎么调用procedure">Oracle Apex怎么调用procedure</h1>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">begin</span></span><br><span class="line">  ANALYSIS(<span class="number">6</span>, <span class="number">1000</span>);</span><br><span class="line"><span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
@@ -2242,6 +3531,19 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2021/01/05/2021-01-05/</url>
+    <content><![CDATA[<h1 id="关于ddl的疑惑">关于DDL的疑惑</h1>
+<p>为什么ddl推迟, 开始肝ddl的时间也跟着推迟?</p>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+      <tags>
+        <tag>摸鱼</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2021/01/04/2021-01-04/</url>
     <content><![CDATA[<h1 id="ios答辩">iOS答辩</h1>
 <h1 id="数据仓库答辩">数据仓库答辩</h1>
@@ -2261,9 +3563,10 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2021/01/05/2021-01-05/</url>
-    <content><![CDATA[<h1 id="关于ddl的疑惑">关于DDL的疑惑</h1>
-<p>为什么ddl推迟, 开始肝ddl的时间也跟着推迟?</p>
+    <url>/2021/01/08/2021-01-08/</url>
+    <content><![CDATA[<h2 id="没什么成果的一天">没什么成果的一天</h2>
+<p>复习线代</p>
+<p>配Oracle, timesten</p>
 ]]></content>
       <categories>
         <category>daily</category>
@@ -2316,20 +3619,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2021/01/08/2021-01-08/</url>
-    <content><![CDATA[<h2 id="没什么成果的一天">没什么成果的一天</h2>
-<p>复习线代</p>
-<p>配Oracle, timesten</p>
-]]></content>
-      <categories>
-        <category>daily</category>
-      </categories>
-      <tags>
-        <tag>摸鱼</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2021/01/09/2021-01-09/</url>
     <content><![CDATA[<h2 id="动态规划">动态规划</h2>
 <h3 id="特点">特点</h3>
@@ -2366,6 +3655,19 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       <tags>
         <tag>算法</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2021/01/19/2021-01-19/</url>
+    <content><![CDATA[<h2 id="近期任务">近期任务</h2>
+<ul>
+<li>内存数据库最终项目</li>
+<li>计算机网络实验报告</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
@@ -2420,19 +3722,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
     <url>/2021/01/22/2021-01-22/</url>
     <content><![CDATA[<p>考试结束</p>
 <p>假期的一些计划 - 完善<code>codepass</code>项目 - 刷算法题目 - 深入学习c++</p>
-]]></content>
-      <categories>
-        <category>daily</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2021/01/19/2021-01-19/</url>
-    <content><![CDATA[<h2 id="近期任务">近期任务</h2>
-<ul>
-<li>内存数据库最终项目</li>
-<li>计算机网络实验报告</li>
-</ul>
 ]]></content>
       <categories>
         <category>daily</category>
@@ -2551,21 +3840,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </tags>
   </entry>
   <entry>
-    <title>python 自定义 JSON Encoder</title>
-    <url>/2021/06/15/2021-06-15/</url>
-    <content><![CDATA[<h1 id="python-自定义-json-encoder">python 自定义 JSON Encoder</h1>
-<p>继承 json.JSONEncoder 类, 重载 default 方法</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, self).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, self).default(o)</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>daily</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>json</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
     <url>/2021/03/14/2021-03-14/</url>
     <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
@@ -2593,6 +3867,21 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
         <tag>numpy</tag>
         <tag>matplotlib</tag>
         <tag>pandas</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python 自定义 JSON Encoder</title>
+    <url>/2021/06/15/2021-06-15/</url>
+    <content><![CDATA[<h1 id="python-自定义-json-encoder">python 自定义 JSON Encoder</h1>
+<p>继承 json.JSONEncoder 类, 重载 default 方法</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, self).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, self).default(o)</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>json</tag>
       </tags>
   </entry>
   <entry>
@@ -5118,6 +6407,89 @@ I=\{
       </categories>
   </entry>
   <entry>
+    <title>考研总结1</title>
+    <url>/2021/02/16/index/</url>
+    <content><![CDATA[<h2 id="经验分享">经验分享:</h2>
+<ul>
+<li><a href="http://www.cskaoyan.com/thread-659004-1-1.html">2020浙江大学计算机考研初试428分经验分享（风华注：初试状元）</a></li>
+</ul>
+<h2 id="考试内容">考试内容</h2>
+<table>
+<thead>
+<tr class="header">
+<th>科目</th>
+<th></th>
+<th>分数</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>政治</td>
+<td>101全国统一</td>
+<td>100分</td>
+</tr>
+<tr class="even">
+<td>英语</td>
+<td>英语一/英语二</td>
+<td>100分</td>
+</tr>
+<tr class="odd">
+<td>数学</td>
+<td>数学一/数学二</td>
+<td>150分</td>
+</tr>
+<tr class="even">
+<td>专业课</td>
+<td>408/自主命题</td>
+<td>150分</td>
+</tr>
+</tbody>
+</table>
+<p>408 = 数据结构 + 计组 + 操作系统 + 计算机网络</p>
+<h2 id="时间轴">时间轴</h2>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">发布招生计划       9-10月</span><br><span class="line">报名时间           9-10月</span><br><span class="line">[!]考试(笔试)时间  12月末(大四上学期期末)</span><br><span class="line">初试成绩           2-3月</span><br><span class="line">复试时间           3-5月</span><br><span class="line">[!]offer发放       5-6月</span><br></pre></td></tr></table></figure>
+<h2 id="考研趋势">考研趋势</h2>
+<p>报考人数逐年升高</p>
+<p>报考地区: 北上广,江苏湖北</p>
+<p>专硕:学硕=7:3</p>
+<p>77%的人来自双非院校</p>
+<p>往届生比例与应届生几乎持平</p>
+<p>2020报录比 4:1 20%</p>
+<h2 id="考研择校">考研择校</h2>
+<h2 id="学硕和专硕">学硕和专硕</h2>
+<ul>
+<li><p>学术型硕士</p>
+<p>面向学术科研</p></li>
+<li><p>专业型硕士</p>
+<p>面向工作, 考试较为容易</p>
+<p>学费贵, 奖学金少</p></li>
+</ul>
+<h2 id="信息搜集">信息搜集</h2>
+<p>择校: 目标院校的历年报录比, 历年分数线, 推免人数</p>
+<p>择专业: 参考书, 真题, 招生简章, 报考指南</p>
+<p>经验: 网络</p>
+<p>怎么搜集: - 目标院校招生信息网 - 研招网 - 论坛类(院校论坛等) - 知乎豆瓣微信QQ群</p>
+<h2 id="备考计划">备考计划</h2>
+<!-- 
+2018.9 入学, 大一开始
+ 2019.3 大一下开始
+2019.9 大二开始
+ 2020.3 大二下开始
+2020.9 大三开始
+-> 2021.3 大三下开始
+2021.9 大四开始
+=> 2021.12 考研!!
+ 2022.3 大四下开始
+2022.9 毕业
+ -->
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1-6月     数学 + 英语基础 + 专业课基础知识</span><br><span class="line">7-8月     数学刷题 + 专业课强化 + 政治基础课&amp;非主观题一刷 + 英语真题</span><br><span class="line">9-10月    (毕业)数学真题 + 政治非主观题二刷 + 专业课刷题&amp;知识点 + 英语真题</span><br><span class="line">11-12月   政治主观题 + 各科查缺补漏</span><br><span class="line">英语贯穿始终, 单词每日看</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">政治: 到3月甚至7月后准备都可</span><br><span class="line">英语: 某些企业对四六级成绩有要求, 背单词!</span><br><span class="line">数学: 先看同济高数/辅导书, 做课后习题, 特别是前几章, 刷题</span><br><span class="line">专业课: 刷OJ(如leetcode), 认真做课程项目(整理), 写代码实现常用数据结构, 对以后复试或者就业有帮助</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>course-notes</category>
+        <category>kaoyan</category>
+      </categories>
+  </entry>
+  <entry>
     <title>计算机网络复习</title>
     <url>/2021/01/05/index/</url>
     <content><![CDATA[<h1 id="按章节">按章节</h1>
@@ -5664,89 +7036,6 @@ I=\{
       <categories>
         <category>course-notes</category>
         <category>computer-networking</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>考研总结1</title>
-    <url>/2021/02/16/index/</url>
-    <content><![CDATA[<h2 id="经验分享">经验分享:</h2>
-<ul>
-<li><a href="http://www.cskaoyan.com/thread-659004-1-1.html">2020浙江大学计算机考研初试428分经验分享（风华注：初试状元）</a></li>
-</ul>
-<h2 id="考试内容">考试内容</h2>
-<table>
-<thead>
-<tr class="header">
-<th>科目</th>
-<th></th>
-<th>分数</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>政治</td>
-<td>101全国统一</td>
-<td>100分</td>
-</tr>
-<tr class="even">
-<td>英语</td>
-<td>英语一/英语二</td>
-<td>100分</td>
-</tr>
-<tr class="odd">
-<td>数学</td>
-<td>数学一/数学二</td>
-<td>150分</td>
-</tr>
-<tr class="even">
-<td>专业课</td>
-<td>408/自主命题</td>
-<td>150分</td>
-</tr>
-</tbody>
-</table>
-<p>408 = 数据结构 + 计组 + 操作系统 + 计算机网络</p>
-<h2 id="时间轴">时间轴</h2>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">发布招生计划       9-10月</span><br><span class="line">报名时间           9-10月</span><br><span class="line">[!]考试(笔试)时间  12月末(大四上学期期末)</span><br><span class="line">初试成绩           2-3月</span><br><span class="line">复试时间           3-5月</span><br><span class="line">[!]offer发放       5-6月</span><br></pre></td></tr></table></figure>
-<h2 id="考研趋势">考研趋势</h2>
-<p>报考人数逐年升高</p>
-<p>报考地区: 北上广,江苏湖北</p>
-<p>专硕:学硕=7:3</p>
-<p>77%的人来自双非院校</p>
-<p>往届生比例与应届生几乎持平</p>
-<p>2020报录比 4:1 20%</p>
-<h2 id="考研择校">考研择校</h2>
-<h2 id="学硕和专硕">学硕和专硕</h2>
-<ul>
-<li><p>学术型硕士</p>
-<p>面向学术科研</p></li>
-<li><p>专业型硕士</p>
-<p>面向工作, 考试较为容易</p>
-<p>学费贵, 奖学金少</p></li>
-</ul>
-<h2 id="信息搜集">信息搜集</h2>
-<p>择校: 目标院校的历年报录比, 历年分数线, 推免人数</p>
-<p>择专业: 参考书, 真题, 招生简章, 报考指南</p>
-<p>经验: 网络</p>
-<p>怎么搜集: - 目标院校招生信息网 - 研招网 - 论坛类(院校论坛等) - 知乎豆瓣微信QQ群</p>
-<h2 id="备考计划">备考计划</h2>
-<!-- 
-2018.9 入学, 大一开始
- 2019.3 大一下开始
-2019.9 大二开始
- 2020.3 大二下开始
-2020.9 大三开始
--> 2021.3 大三下开始
-2021.9 大四开始
-=> 2021.12 考研!!
- 2022.3 大四下开始
-2022.9 毕业
- -->
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1-6月     数学 + 英语基础 + 专业课基础知识</span><br><span class="line">7-8月     数学刷题 + 专业课强化 + 政治基础课&amp;非主观题一刷 + 英语真题</span><br><span class="line">9-10月    (毕业)数学真题 + 政治非主观题二刷 + 专业课刷题&amp;知识点 + 英语真题</span><br><span class="line">11-12月   政治主观题 + 各科查缺补漏</span><br><span class="line">英语贯穿始终, 单词每日看</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">政治: 到3月甚至7月后准备都可</span><br><span class="line">英语: 某些企业对四六级成绩有要求, 背单词!</span><br><span class="line">数学: 先看同济高数/辅导书, 做课后习题, 特别是前几章, 刷题</span><br><span class="line">专业课: 刷OJ(如leetcode), 认真做课程项目(整理), 写代码实现常用数据结构, 对以后复试或者就业有帮助</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>course-notes</category>
-        <category>kaoyan</category>
       </categories>
   </entry>
   <entry>
