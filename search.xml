@@ -2728,6 +2728,19 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </categories>
   </entry>
   <entry>
+    <title>Linux Kernel 网络</title>
+    <url>/2024/04/16/linux-kernel-network/</url>
+    <content><![CDATA[<h2 id="napi">NAPI</h2>
+<p>NAPI机制采用中断和轮询结合的方式收包</p>
+<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的backlog</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>softnet_data</p>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+      </categories>
+  </entry>
+  <entry>
     <title>linux-kernel 中断子系统</title>
     <url>/2024/04/16/linux-kernel-interrupt/</url>
     <content><![CDATA[<p>Linux 将中断处理流程划分成两个部分，一个是top half，另一个是bottom half。</p>
@@ -2754,19 +2767,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
 <h2 id="tasklet">tasklet</h2>
 <p>per-cpu会有一个tasklet的链表</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_vec)</span>;</span><br><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_hi_vec)</span>;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>learning-notes</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Linux Kernel 网络</title>
-    <url>/2024/04/16/linux-kernel-network/</url>
-    <content><![CDATA[<h2 id="napi">NAPI</h2>
-<p>NAPI机制采用中断和轮询结合的方式收包</p>
-<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的backlog</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>softnet_data</p>
 ]]></content>
       <categories>
         <category>learning-notes</category>
@@ -4059,11 +4059,10 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>37. 解数独</title>
-    <url>/2021/03/01/37/</url>
-    <content><![CDATA[<h2 id="思路">思路</h2>
-<p>DFS</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">solveSudoku</span><span class="params">(vector&lt;vector&lt;<span class="type">char</span>&gt;&gt;&amp; board)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">solveSudoku1</span>(board, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">solveSudoku1</span><span class="params">(vector&lt;vector&lt;<span class="type">char</span>&gt;&gt;&amp; board, <span class="type">int</span> i, <span class="type">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (i&gt;=<span class="number">9</span>||j&gt;=<span class="number">9</span>) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">if</span> (board[i][j]==<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            <span class="function">vector&lt;<span class="type">bool</span>&gt; <span class="title">used_numbers</span><span class="params">(<span class="number">9</span>)</span></span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>;k&lt;<span class="number">9</span>;k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[i][k]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    used_numbers[board[i][k]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>;k&lt;<span class="number">9</span>;k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[k][j]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    used_numbers[board[k][j]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="type">int</span> grid_i = i / <span class="number">3</span>;</span><br><span class="line">            <span class="type">int</span> grid_j = j / <span class="number">3</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> m=<span class="number">3</span>*grid_i;m&lt;<span class="number">3</span>+<span class="number">3</span>*grid_i;m++) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> n=<span class="number">3</span>*grid_j;n&lt;<span class="number">3</span>+<span class="number">3</span>*grid_j;n++) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (board[m][n]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                        used_numbers[board[m][n]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> ii=<span class="number">0</span>;ii&lt;<span class="number">9</span>;ii++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (used_numbers[ii]==<span class="literal">false</span>) &#123;</span><br><span class="line">                    board[i][j] = ii+<span class="string">&#x27;1&#x27;</span>;</span><br><span class="line">                    <span class="keyword">if</span> (<span class="built_in">solveSudoku1</span>(board, i+(j+<span class="number">1</span>)/<span class="number">9</span>, (j+<span class="number">1</span>)%<span class="number">9</span>)) &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            board[i][j] = <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">solveSudoku1</span>(board, i+(j+<span class="number">1</span>)/<span class="number">9</span>, (j+<span class="number">1</span>)%<span class="number">9</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    <title>318. 最大单词长度乘积</title>
+    <url>/2021/11/17/318/</url>
+    <content><![CDATA[<p>位运算</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">unsigned</span> <span class="title">to_uword</span><span class="params">(<span class="type">const</span> string &amp;word)</span> </span>&#123;</span><br><span class="line">        <span class="type">unsigned</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;c: word) &#123;</span><br><span class="line">            res |= <span class="number">1</span> &lt;&lt; (c - <span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">maxProduct</span><span class="params">(vector&lt;string&gt;&amp; words)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="type">unsigned</span>&gt; uwords;</span><br><span class="line">        uwords.<span class="built_in">reserve</span>(words.<span class="built_in">size</span>());</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;w: words) &#123;</span><br><span class="line">            uwords.<span class="built_in">push_back</span>(<span class="built_in">to_uword</span>(w));</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> m = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> n = words.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = i; j &lt; n; j++) &#123;</span><br><span class="line">                <span class="keyword">auto</span> &amp;s1 = uwords[i];</span><br><span class="line">                <span class="keyword">auto</span> &amp;s2 = uwords[j];</span><br><span class="line">                <span class="keyword">if</span> (s1 &amp; s2) <span class="keyword">continue</span>;</span><br><span class="line">                <span class="keyword">if</span> (<span class="type">int</span> r = words[i].<span class="built_in">size</span>() * words[j].<span class="built_in">size</span>(); r &gt; m) m = r;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -4071,10 +4070,11 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>318. 最大单词长度乘积</title>
-    <url>/2021/11/17/318/</url>
-    <content><![CDATA[<p>位运算</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">unsigned</span> <span class="title">to_uword</span><span class="params">(<span class="type">const</span> string &amp;word)</span> </span>&#123;</span><br><span class="line">        <span class="type">unsigned</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;c: word) &#123;</span><br><span class="line">            res |= <span class="number">1</span> &lt;&lt; (c - <span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">maxProduct</span><span class="params">(vector&lt;string&gt;&amp; words)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="type">unsigned</span>&gt; uwords;</span><br><span class="line">        uwords.<span class="built_in">reserve</span>(words.<span class="built_in">size</span>());</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;w: words) &#123;</span><br><span class="line">            uwords.<span class="built_in">push_back</span>(<span class="built_in">to_uword</span>(w));</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> m = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> n = words.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = i; j &lt; n; j++) &#123;</span><br><span class="line">                <span class="keyword">auto</span> &amp;s1 = uwords[i];</span><br><span class="line">                <span class="keyword">auto</span> &amp;s2 = uwords[j];</span><br><span class="line">                <span class="keyword">if</span> (s1 &amp; s2) <span class="keyword">continue</span>;</span><br><span class="line">                <span class="keyword">if</span> (<span class="type">int</span> r = words[i].<span class="built_in">size</span>() * words[j].<span class="built_in">size</span>(); r &gt; m) m = r;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    <title>37. 解数独</title>
+    <url>/2021/03/01/37/</url>
+    <content><![CDATA[<h2 id="思路">思路</h2>
+<p>DFS</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">solveSudoku</span><span class="params">(vector&lt;vector&lt;<span class="type">char</span>&gt;&gt;&amp; board)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">solveSudoku1</span>(board, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">solveSudoku1</span><span class="params">(vector&lt;vector&lt;<span class="type">char</span>&gt;&gt;&amp; board, <span class="type">int</span> i, <span class="type">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (i&gt;=<span class="number">9</span>||j&gt;=<span class="number">9</span>) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">if</span> (board[i][j]==<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            <span class="function">vector&lt;<span class="type">bool</span>&gt; <span class="title">used_numbers</span><span class="params">(<span class="number">9</span>)</span></span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>;k&lt;<span class="number">9</span>;k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[i][k]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    used_numbers[board[i][k]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>;k&lt;<span class="number">9</span>;k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[k][j]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    used_numbers[board[k][j]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="type">int</span> grid_i = i / <span class="number">3</span>;</span><br><span class="line">            <span class="type">int</span> grid_j = j / <span class="number">3</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> m=<span class="number">3</span>*grid_i;m&lt;<span class="number">3</span>+<span class="number">3</span>*grid_i;m++) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> n=<span class="number">3</span>*grid_j;n&lt;<span class="number">3</span>+<span class="number">3</span>*grid_j;n++) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (board[m][n]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                        used_numbers[board[m][n]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> ii=<span class="number">0</span>;ii&lt;<span class="number">9</span>;ii++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (used_numbers[ii]==<span class="literal">false</span>) &#123;</span><br><span class="line">                    board[i][j] = ii+<span class="string">&#x27;1&#x27;</span>;</span><br><span class="line">                    <span class="keyword">if</span> (<span class="built_in">solveSudoku1</span>(board, i+(j+<span class="number">1</span>)/<span class="number">9</span>, (j+<span class="number">1</span>)%<span class="number">9</span>)) &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            board[i][j] = <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">solveSudoku1</span>(board, i+(j+<span class="number">1</span>)/<span class="number">9</span>, (j+<span class="number">1</span>)%<span class="number">9</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -4963,6 +4963,20 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/06/2020-12-06/</url>
+    <content><![CDATA[<h1 id="学习oracle使用">学习Oracle使用</h1>
+<p><a href="../oracledb/index">OracleDB</a></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Oracle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/07/2020-12-07/</url>
     <content><![CDATA[<h1 id="visio-画图如何添加自定义连接点">Visio 画图如何添加自定义连接点</h1>
 <p>在工具栏选中"连接点"</p>
@@ -4997,20 +5011,6 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       </categories>
       <tags>
         <tag>Visio</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/06/2020-12-06/</url>
-    <content><![CDATA[<h1 id="学习oracle使用">学习Oracle使用</h1>
-<p><a href="../oracledb/index">OracleDB</a></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Oracle</tag>
       </tags>
   </entry>
   <entry>
@@ -6179,6 +6179,37 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
       </categories>
   </entry>
   <entry>
+    <title>2023 年终总结</title>
+    <url>/2024/01/01/2023-final/</url>
+    <content><![CDATA[<h2 id="回顾">2023 回顾</h2>
+<ul>
+<li>1月: 开源投毒</li>
+<li>1-3月: Rust 教材</li>
+<li>4-5月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
+<li>3,5-10月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
+<li>7-11月: 参加 GLCC 开源活动</li>
+<li>8-12月: 搞浦发银行的项目</li>
+</ul>
+<h2 id="近况">近况</h2>
+<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
+<p>实验室: 宁波实验室人丁兴旺, hw稀稀拉拉, 反倒宁波更好一些</p>
+<h2 id="体会">体会</h2>
+<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
+<p>甚至不知道2023年都做了些什么(笑), 只能看周报回忆</p>
+<h2 id="希望">2024 希望</h2>
+<ul>
+<li>多读书</li>
+<li>多运动</li>
+<li>找到好工作</li>
+<li>学习唱歌</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2023</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Poems in DDLC</title>
     <url>/2022/01/07/2022-01-07-poems-in-ddlc/</url>
     <content><![CDATA[<style>
@@ -6350,37 +6381,6 @@ h1[id="Monika"]~blockquote {
       <tags>
         <tag>DDLC</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>2023 年终总结</title>
-    <url>/2024/01/01/2023-final/</url>
-    <content><![CDATA[<h2 id="回顾">2023 回顾</h2>
-<ul>
-<li>1月: 开源投毒</li>
-<li>1-3月: Rust 教材</li>
-<li>4-5月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
-<li>3,5-10月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
-<li>7-11月: 参加 GLCC 开源活动</li>
-<li>8-12月: 搞浦发银行的项目</li>
-</ul>
-<h2 id="近况">近况</h2>
-<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
-<p>实验室: 宁波实验室人丁兴旺, hw稀稀拉拉, 反倒宁波更好一些</p>
-<h2 id="体会">体会</h2>
-<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
-<p>甚至不知道2023年都做了些什么(笑), 只能看周报回忆</p>
-<h2 id="希望">2024 希望</h2>
-<ul>
-<li>多读书</li>
-<li>多运动</li>
-<li>找到好工作</li>
-<li>学习唱歌</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2023</category>
-      </categories>
   </entry>
   <entry>
     <title>近况</title>
@@ -8241,23 +8241,63 @@ I=\{
 <li><p>公用表表达式(CTE): WITH 临时表, WITH RECURSIVE</p></li>
 </ul>
 <h2 id="lecture-3-存储-part-1">Lecture 3: 存储 Part 1</h2>
-<ul>
-<li><p>易失性设备</p>
+<h3 id="易失性设备">易失性设备</h3>
 <p>一般支持高速随机按字节访问</p>
-<p>通常叫memory</p></li>
-<li><p>非易失性设备</p>
+<p>通常叫memory</p>
+<h3 id="非易失性设备">非易失性设备</h3>
 <p>一般支持按块/页存取</p>
 <p>通常顺序存取更快</p>
-<p>通常叫disk</p></li>
-<li><p>持久化内存 / 非易失性内存</p>
-<p>用的少 不讲</p></li>
-<li><p>NVMe SSDs</p>
-<p>仍然属于disk</p></li>
-<li><p>面向硬盘的DBMS</p>
-<p>Buffer Pool: 把需要用到的数据从硬盘搬到内存上</p>
-<p>能否利用OS的<code>mmap()</code>？不好，难以控制OS什么时候刷盘</p>
-<p>可以用的：<code>madvise</code>, <code>mlock</code>, <code>msync</code></p>
-<p>Storage Manager:</p></li>
+<p>通常叫disk</p>
+<h3 id="持久化内存-非易失性内存">持久化内存 / 非易失性内存</h3>
+<p>用的少 不讲</p>
+<h3 id="nvme-ssds">NVMe SSDs</h3>
+<p>仍然属于disk</p>
+<h3 id="面向硬盘的dbms">面向硬盘的DBMS</h3>
+<p>Buffer Pool: 把需要用到的数据页从硬盘搬到内存上</p>
+<p>能否利用OS的<code>mmap()</code>？不好，难以控制OS什么时候刷盘，可以用的：<code>madvise()</code>, <code>mlock()</code>, <code>msync()</code></p>
+<p>Storage Manager: 管理硬盘上存储的文件，记录文件包含的页，文件剩余的存储空间等</p>
+<h3 id="页">页</h3>
+<ul>
+<li>硬件页: 4K 可以保证原子写</li>
+<li>OS页：4K</li>
+<li>数据库页：1-16K</li>
+</ul>
+<h3 id="页堆">页堆</h3>
+<p>堆文件组织是一种组织页的方式。包括一个堆文件，其中包含无序的页集合。</p>
+<p>具体有两种组织方式：</p>
+<ol type="1">
+<li>链表：每个页指向下一个页，需要O(n)遍历，效率低</li>
+<li>页目录：维护特殊的页记录每个数据页的信息</li>
+</ol>
+<h3 id="页结构">页结构</h3>
+<ul>
+<li>页大小</li>
+<li>校验码</li>
+<li>版本</li>
+<li>事务可见性</li>
+<li>自包含</li>
+</ul>
+<p>两种页内数据组织方式：</p>
+<ol type="1">
+<li><p>分槽页</p>
+<p>现在大多数DBMS使用的</p>
+<p>每个slot存一个元组</p>
+<p>头部保存slot索引，元组从后往前增长</p></li>
+<li><p>结构化日志</p></li>
+</ol>
+<h3 id="元组结构">元组结构</h3>
+<p>元组是细粒度的数据，字节序列</p>
+<ul>
+<li>元组头</li>
+<li>元组数据</li>
+<li>UID</li>
+<li>逆正规化元组数据</li>
+</ul>
+<h2 id="lecture-4-存储-part-2">Lecture 4: 存储 Part 2</h2>
+<h3 id="结构化日志">结构化日志</h3>
+<p>分槽页的问题：</p>
+<ul>
+<li>内碎片：删除元组产生一个hole</li>
 </ul>
 ]]></content>
       <categories>
