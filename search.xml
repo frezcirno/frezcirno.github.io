@@ -2728,6 +2728,51 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </categories>
   </entry>
   <entry>
+    <title>linux-kernel 中断子系统</title>
+    <url>/2024/04/16/linux-kernel-interrupt/</url>
+    <content><![CDATA[<p>Linux 将中断处理流程划分成两个部分，一个是top half，另一个是bottom half。</p>
+<p>在执行top half时是关闭硬件中断的，即系统没办法响应后续的中断事件，因此应该保证top half尽可能短。</p>
+<p>把不那么紧急的事情defer到bottom half去做。</p>
+<h2 id="bottom-half">bottom half</h2>
+<p>bottom half有多个实现机制</p>
+<ul>
+<li><p>BH 最早的实现，已经弃用了</p></li>
+<li><p>Task queue 已经弃用了</p></li>
+<li><p>Softirq 运行在 interrupt context top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p></li>
+<li><p>tasklet 运行在 interrupt context</p></li>
+<li><p>workqueue 运行在 process context</p></li>
+</ul>
+<h2 id="softirq">Softirq</h2>
+<p>softirq和hardirq（硬件中断）对应，</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    HI_SOFTIRQ=<span class="number">0</span>,</span><br><span class="line">    TIMER_SOFTIRQ,</span><br><span class="line">    NET_TX_SOFTIRQ,</span><br><span class="line">    NET_RX_SOFTIRQ,</span><br><span class="line">    BLOCK_SOFTIRQ,</span><br><span class="line">    BLOCK_IOPOLL_SOFTIRQ,</span><br><span class="line">    TASKLET_SOFTIRQ,</span><br><span class="line">    SCHED_SOFTIRQ,</span><br><span class="line">    HRTIMER_SOFTIRQ,</span><br><span class="line">    RCU_SOFTIRQ,    <span class="comment">/* Preferable RCU should always be the last softirq */</span></span><br><span class="line">    NR_SOFTIRQS</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>softirq有三个处理时机</p>
+<ol type="1">
+<li>中断上下文 <code>irq_exit()</code> 的时候</li>
+<li>任意 <code>local_bh_enable()</code></li>
+<li><code>softirqd</code> 内核线程定期执行</li>
+</ol>
+<h2 id="tasklet">tasklet</h2>
+<p>per-cpu会有一个tasklet的链表</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_vec)</span>;</span><br><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_hi_vec)</span>;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Linux Kernel 网络</title>
+    <url>/2024/04/16/linux-kernel-network/</url>
+    <content><![CDATA[<h2 id="napi">NAPI</h2>
+<p>NAPI机制采用中断和轮询结合的方式收包</p>
+<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的backlog</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>softnet_data</p>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Oracle APEX学习</title>
     <url>/2020/12/07/oracle-apex/</url>
     <content><![CDATA[<h1 id="前言">前言</h1>
@@ -3841,19 +3886,6 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>123. 买卖股票的最佳时机 III</title>
-    <url>/2021/01/09/123/</url>
-    <content><![CDATA[<p>最多可以交易两次</p>
-<h2 id="思路">思路</h2>
-<p>动态规划, 用四个状态变量</p>
-<p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iii/solution/mai-mai-gu-piao-de-zui-jia-shi-ji-iii-by-wrnt/">官方题解</a></p>
-]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
     <title>1203. 项目管理</title>
     <url>/2021/01/12/1203/</url>
     <content><![CDATA[<p>双重拓扑排序: 组内 &amp; 组间</p>
@@ -3867,6 +3899,19 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       <tags>
         <tag>拓扑排序</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>123. 买卖股票的最佳时机 III</title>
+    <url>/2021/01/09/123/</url>
+    <content><![CDATA[<p>最多可以交易两次</p>
+<h2 id="思路">思路</h2>
+<p>动态规划, 用四个状态变量</p>
+<p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iii/solution/mai-mai-gu-piao-de-zui-jia-shi-ji-iii-by-wrnt/">官方题解</a></p>
+]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
   </entry>
   <entry>
     <title>1395. 统计作战单位数</title>
@@ -4014,10 +4059,11 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>318. 最大单词长度乘积</title>
-    <url>/2021/11/17/318/</url>
-    <content><![CDATA[<p>位运算</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">unsigned</span> <span class="title">to_uword</span><span class="params">(<span class="type">const</span> string &amp;word)</span> </span>&#123;</span><br><span class="line">        <span class="type">unsigned</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;c: word) &#123;</span><br><span class="line">            res |= <span class="number">1</span> &lt;&lt; (c - <span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">maxProduct</span><span class="params">(vector&lt;string&gt;&amp; words)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="type">unsigned</span>&gt; uwords;</span><br><span class="line">        uwords.<span class="built_in">reserve</span>(words.<span class="built_in">size</span>());</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;w: words) &#123;</span><br><span class="line">            uwords.<span class="built_in">push_back</span>(<span class="built_in">to_uword</span>(w));</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> m = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> n = words.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = i; j &lt; n; j++) &#123;</span><br><span class="line">                <span class="keyword">auto</span> &amp;s1 = uwords[i];</span><br><span class="line">                <span class="keyword">auto</span> &amp;s2 = uwords[j];</span><br><span class="line">                <span class="keyword">if</span> (s1 &amp; s2) <span class="keyword">continue</span>;</span><br><span class="line">                <span class="keyword">if</span> (<span class="type">int</span> r = words[i].<span class="built_in">size</span>() * words[j].<span class="built_in">size</span>(); r &gt; m) m = r;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    <title>37. 解数独</title>
+    <url>/2021/03/01/37/</url>
+    <content><![CDATA[<h2 id="思路">思路</h2>
+<p>DFS</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">solveSudoku</span><span class="params">(vector&lt;vector&lt;<span class="type">char</span>&gt;&gt;&amp; board)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">solveSudoku1</span>(board, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">solveSudoku1</span><span class="params">(vector&lt;vector&lt;<span class="type">char</span>&gt;&gt;&amp; board, <span class="type">int</span> i, <span class="type">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (i&gt;=<span class="number">9</span>||j&gt;=<span class="number">9</span>) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">if</span> (board[i][j]==<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            <span class="function">vector&lt;<span class="type">bool</span>&gt; <span class="title">used_numbers</span><span class="params">(<span class="number">9</span>)</span></span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>;k&lt;<span class="number">9</span>;k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[i][k]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    used_numbers[board[i][k]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>;k&lt;<span class="number">9</span>;k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[k][j]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    used_numbers[board[k][j]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="type">int</span> grid_i = i / <span class="number">3</span>;</span><br><span class="line">            <span class="type">int</span> grid_j = j / <span class="number">3</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> m=<span class="number">3</span>*grid_i;m&lt;<span class="number">3</span>+<span class="number">3</span>*grid_i;m++) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> n=<span class="number">3</span>*grid_j;n&lt;<span class="number">3</span>+<span class="number">3</span>*grid_j;n++) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (board[m][n]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                        used_numbers[board[m][n]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> ii=<span class="number">0</span>;ii&lt;<span class="number">9</span>;ii++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (used_numbers[ii]==<span class="literal">false</span>) &#123;</span><br><span class="line">                    board[i][j] = ii+<span class="string">&#x27;1&#x27;</span>;</span><br><span class="line">                    <span class="keyword">if</span> (<span class="built_in">solveSudoku1</span>(board, i+(j+<span class="number">1</span>)/<span class="number">9</span>, (j+<span class="number">1</span>)%<span class="number">9</span>)) &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            board[i][j] = <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">solveSudoku1</span>(board, i+(j+<span class="number">1</span>)/<span class="number">9</span>, (j+<span class="number">1</span>)%<span class="number">9</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -4025,11 +4071,10 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>37. 解数独</title>
-    <url>/2021/03/01/37/</url>
-    <content><![CDATA[<h2 id="思路">思路</h2>
-<p>DFS</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">solveSudoku</span><span class="params">(vector&lt;vector&lt;<span class="type">char</span>&gt;&gt;&amp; board)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">solveSudoku1</span>(board, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">solveSudoku1</span><span class="params">(vector&lt;vector&lt;<span class="type">char</span>&gt;&gt;&amp; board, <span class="type">int</span> i, <span class="type">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (i&gt;=<span class="number">9</span>||j&gt;=<span class="number">9</span>) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">if</span> (board[i][j]==<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            <span class="function">vector&lt;<span class="type">bool</span>&gt; <span class="title">used_numbers</span><span class="params">(<span class="number">9</span>)</span></span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>;k&lt;<span class="number">9</span>;k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[i][k]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    used_numbers[board[i][k]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>;k&lt;<span class="number">9</span>;k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[k][j]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    used_numbers[board[k][j]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="type">int</span> grid_i = i / <span class="number">3</span>;</span><br><span class="line">            <span class="type">int</span> grid_j = j / <span class="number">3</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> m=<span class="number">3</span>*grid_i;m&lt;<span class="number">3</span>+<span class="number">3</span>*grid_i;m++) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> n=<span class="number">3</span>*grid_j;n&lt;<span class="number">3</span>+<span class="number">3</span>*grid_j;n++) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (board[m][n]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                        used_numbers[board[m][n]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> ii=<span class="number">0</span>;ii&lt;<span class="number">9</span>;ii++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (used_numbers[ii]==<span class="literal">false</span>) &#123;</span><br><span class="line">                    board[i][j] = ii+<span class="string">&#x27;1&#x27;</span>;</span><br><span class="line">                    <span class="keyword">if</span> (<span class="built_in">solveSudoku1</span>(board, i+(j+<span class="number">1</span>)/<span class="number">9</span>, (j+<span class="number">1</span>)%<span class="number">9</span>)) &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            board[i][j] = <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">solveSudoku1</span>(board, i+(j+<span class="number">1</span>)/<span class="number">9</span>, (j+<span class="number">1</span>)%<span class="number">9</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    <title>318. 最大单词长度乘积</title>
+    <url>/2021/11/17/318/</url>
+    <content><![CDATA[<p>位运算</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">unsigned</span> <span class="title">to_uword</span><span class="params">(<span class="type">const</span> string &amp;word)</span> </span>&#123;</span><br><span class="line">        <span class="type">unsigned</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;c: word) &#123;</span><br><span class="line">            res |= <span class="number">1</span> &lt;&lt; (c - <span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">maxProduct</span><span class="params">(vector&lt;string&gt;&amp; words)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="type">unsigned</span>&gt; uwords;</span><br><span class="line">        uwords.<span class="built_in">reserve</span>(words.<span class="built_in">size</span>());</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;w: words) &#123;</span><br><span class="line">            uwords.<span class="built_in">push_back</span>(<span class="built_in">to_uword</span>(w));</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> m = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> n = words.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = i; j &lt; n; j++) &#123;</span><br><span class="line">                <span class="keyword">auto</span> &amp;s1 = uwords[i];</span><br><span class="line">                <span class="keyword">auto</span> &amp;s2 = uwords[j];</span><br><span class="line">                <span class="keyword">if</span> (s1 &amp; s2) <span class="keyword">continue</span>;</span><br><span class="line">                <span class="keyword">if</span> (<span class="type">int</span> r = words[i].<span class="built_in">size</span>() * words[j].<span class="built_in">size</span>(); r &gt; m) m = r;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -4918,20 +4963,6 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/06/2020-12-06/</url>
-    <content><![CDATA[<h1 id="学习oracle使用">学习Oracle使用</h1>
-<p><a href="../oracledb/index">OracleDB</a></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Oracle</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/07/2020-12-07/</url>
     <content><![CDATA[<h1 id="visio-画图如何添加自定义连接点">Visio 画图如何添加自定义连接点</h1>
 <p>在工具栏选中"连接点"</p>
@@ -4966,6 +4997,20 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       </categories>
       <tags>
         <tag>Visio</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/06/2020-12-06/</url>
+    <content><![CDATA[<h1 id="学习oracle使用">学习Oracle使用</h1>
+<p><a href="../oracledb/index">OracleDB</a></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Oracle</tag>
       </tags>
   </entry>
   <entry>
@@ -5243,7 +5288,7 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
   <entry>
     <title>每日小结</title>
     <url>/2020/12/25/2020-12-25/</url>
-    <content><![CDATA[<h1 id="java-答辩结束了-yeah">Java 答辩结束了, Yeah!</h1>
+    <content><![CDATA[<h1 id="java-答辩结束了-yeah">Java 答辩结束了, Yeah</h1>
 <p>今天开始刷题</p>
 <h1 id="hash-map-hash-set-vs-tree-map-tree-set">Hash Map, Hash Set vs Tree Map, Tree Set</h1>
 <p>c++中的<code>map</code>, <code>set</code>默认是treemap和treeset, 底层基于红黑树, 元素始终保持有序</p>
@@ -5271,9 +5316,9 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
 <tr class="even">
 <td>unordered_map</td>
 <td>hash</td>
-<td>O(logn)</td>
-<td>O(logn)</td>
-<td>O(logn)</td>
+<td>O(1)</td>
+<td>O(1)</td>
+<td>O(1)</td>
 </tr>
 </tbody>
 </table>
@@ -5298,9 +5343,9 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
 <tr class="even">
 <td>unordered_set</td>
 <td>hash</td>
-<td>O(logn)</td>
-<td>O(logn)</td>
-<td>O(logn)</td>
+<td>O(1)</td>
+<td>O(1)</td>
+<td>O(1)</td>
 </tr>
 </tbody>
 </table>
@@ -8166,9 +8211,54 @@ I=\{
       </categories>
   </entry>
   <entry>
-    <title>数据库系统</title>
+    <title>数据库系统 CMU 15-445</title>
     <url>/2024/04/15/database-system/</url>
-    <content><![CDATA[<p>TODO</p>
+    <content><![CDATA[<p>Fall 2022 的课程是 Andy Pavlo 大佬开的</p>
+<h2 id="lecture-1-背景">Lecture 1: 背景</h2>
+<ul>
+<li>DB vs DBMS</li>
+<li>平面文件数据库 vs 关系型数据库</li>
+<li>DML: 过程式 vs 声明式(SQL)</li>
+<li>关系代数: Select Projection Union Intersection Difference Product Join Observation</li>
+</ul>
+<h2 id="lecture-2-sql">Lecture 2: SQL</h2>
+<ul>
+<li><p>关系型语言</p></li>
+<li><p>SQL标准 历史</p></li>
+<li><p>Join</p></li>
+<li><p>聚合函数</p></li>
+<li><p>字符串操作: 大小写敏感 单引号 模式匹配</p></li>
+<li><p>日期和时间</p></li>
+<li><p>输出重定向</p></li>
+<li><p>输出控制: ASC DESC ORDER BY LIMIT</p></li>
+<li><p>嵌套子查询:</p>
+<p>SELECT in SELECT</p>
+<p>SELECT in FROM</p>
+<p>SELECT in WHERE</p>
+<p>通常难以优化</p>
+<p>输出处理: ALL ANY IN EXISTS</p></li>
+<li><p>窗口函数: OVER ORDER BY</p></li>
+<li><p>公用表表达式(CTE): WITH 临时表, WITH RECURSIVE</p></li>
+</ul>
+<h2 id="lecture-3-存储-part-1">Lecture 3: 存储 Part 1</h2>
+<ul>
+<li><p>易失性设备</p>
+<p>一般支持高速随机按字节访问</p>
+<p>通常叫memory</p></li>
+<li><p>非易失性设备</p>
+<p>一般支持按块/页存取</p>
+<p>通常顺序存取更快</p>
+<p>通常叫disk</p></li>
+<li><p>持久化内存 / 非易失性内存</p>
+<p>用的少 不讲</p></li>
+<li><p>NVMe SSDs</p>
+<p>仍然属于disk</p></li>
+<li><p>面向硬盘的DBMS</p>
+<p>Buffer Pool: 把需要用到的数据从硬盘搬到内存上</p>
+<p>能否利用OS的<code>mmap()</code>？不好，难以控制OS什么时候刷盘</p>
+<p>可以用的：<code>madvise</code>, <code>mlock</code>, <code>msync</code></p>
+<p>Storage Manager:</p></li>
+</ul>
 ]]></content>
       <categories>
         <category>learning-notes</category>
@@ -8256,6 +8346,56 @@ I=\{
       <categories>
         <category>learning-notes</category>
         <category>kaoyan</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>virtio 规范</title>
+    <url>/2024/04/16/virtio/</url>
+    <content><![CDATA[<p>VirtIO驱动定义了一组规范，只要guest和host按照此规范进行数据操作，就可以使虚拟机IO绕过内核空间而直接再用户空间的两个进程间传输数据，以此达到提高IO性能的目的。</p>
+<p>真实硬件具有复杂的细节，模拟复杂且效率低，让Guest访问虚拟设备的寄存器or内存时，会trap到QEMU的设备模拟代码。当我们只需要最基本的内外传输的功能时，Virtio是很好的选择。</p>
+<p>Virtio属于半虚拟化的一种，即Guest知道自己是虚拟出来的。</p>
+<p>具体实现有多种，最常见的是Virtio over PCI，也有Virtio over MMIO 和 Virtio over channel io。</p>
+<h2 id="virtio架构">Virtio架构</h2>
+<figure>
+<img src="arch.png" alt="" /><figcaption>virtio-arch</figcaption>
+</figure>
+<p>位于Guest中的部分称为前端。对于不同类型的设备有不同类型的驱动。源码位于Linux内核中。</p>
+<p>底层数据通道都是统一的。</p>
+<p>位于Host上的部分为后端。源码位于hypervisor中。</p>
+<h2 id="前端-virtio设备">前端 Virtio设备</h2>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">virtio_device</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">vqs</span>;</span> <span class="comment">// VQ</span></span><br><span class="line">    u64 features;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>features</code> 是 virtio_driver &amp; virtio_device 同时支持的通信特性，也就是前后端最终协商的通信特性。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">virtio_driver</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> (*probe)(<span class="keyword">struct</span> virtio_device *dev);</span><br><span class="line">    <span class="type">int</span> (*scan)(<span class="keyword">struct</span> virtio_device *dev);</span><br><span class="line">    <span class="type">int</span> (*remove)(<span class="keyword">struct</span> virtio_device *dev);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>设备加载和注销等</p>
+<h2 id="virtqueue">VirtQueue</h2>
+<p>Host和Guest之前通信的抽象数据通道称为 VirtQueue，具有双向数据收发的能力。</p>
+<p>根据实际设备收发能力，可以拥有一个或者多个VirtQueue。</p>
+<p>virtio-net默认有两条VirtQueue。</p>
+<p>VQ创建于PCI设备的<code>probe</code>阶段，由Guest侧创建，然后把地址传递给后端。</p>
+<h3 id="virtqueue_add-发送数据"><code>virtqueue_add()</code> 发送数据</h3>
+<p>VQ发送函数，负责把一个SG list放进VQ。</p>
+<h3 id="virtqueue_kick-通知后端"><code>virtqueue_kick()</code> 通知后端</h3>
+<h2 id="vring">VRing</h2>
+<p>VirtQueue的实现是利用VRing，即vring_virtqueue。</p>
+<p>VRing是实际进行数据传输的实现，整体结构包含三部门：Descriptor表和两个存放<code>Descriptor*</code>的Ring Buffer。</p>
+<p>两个Ring分别是Avail Ring和Used Ring，用于双向传递数据。Avail用于从内向外，Used用于从外向内，是站在Host角度命名的。</p>
+<p>每个Descriptor描述了一块数据区，主要包含Guest缓冲区的物理地址和长度。</p>
+<p>Host会从Avail Ring中取Descriptor，收取or填充数据并放入Used Ring中。</p>
+<h2 id="virtio-net">virtio-net</h2>
+<p>virtio-net把VQ进一步封装成<code>send_queue</code>和<code>receive_queue</code></p>
+<p>特定时机会调用<code>try_fill_recv</code>来向<code>receive_queue</code>中填充空buffer</p>
+<h2 id="virtio-blk">virtio-blk</h2>
+<h2 id="virtio-演进">Virtio 演进</h2>
+<h3 id="vhost">Vhost</h3>
+<p>开发者发现，原始的数据通路 Guest-virtio-qemu后端-Host系统调用-Host内核，最后一步总是要切换到内核态。</p>
+<p>为了省去这个开销，vhost技术将后端数据面放在Host内核中，由Host的一个内核线程负责处理IO。</p>
+<h3 id="vhost-user">Vhost-user</h3>
+<p>Vhost需要使用1:1的内核线程，不够灵活。</p>
+<p>Vhost-user将后端数据面放在了另一个用户态进程中(i.e., DPDK)。</p>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+        <category>virtualization</category>
       </categories>
   </entry>
   <entry>
