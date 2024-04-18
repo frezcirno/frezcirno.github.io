@@ -2728,19 +2728,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </categories>
   </entry>
   <entry>
-    <title>Linux Kernel 网络</title>
-    <url>/2024/04/16/linux-kernel-network/</url>
-    <content><![CDATA[<h2 id="napi">NAPI</h2>
-<p>NAPI机制采用中断和轮询结合的方式收包</p>
-<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的backlog</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>softnet_data</p>
-]]></content>
-      <categories>
-        <category>learning-notes</category>
-      </categories>
-  </entry>
-  <entry>
     <title>linux-kernel 中断子系统</title>
     <url>/2024/04/16/linux-kernel-interrupt/</url>
     <content><![CDATA[<p>Linux 将中断处理流程划分成两个部分，一个是top half，另一个是bottom half。</p>
@@ -2767,6 +2754,19 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
 <h2 id="tasklet">tasklet</h2>
 <p>per-cpu会有一个tasklet的链表</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_vec)</span>;</span><br><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_hi_vec)</span>;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Linux Kernel 网络</title>
+    <url>/2024/04/16/linux-kernel-network/</url>
+    <content><![CDATA[<h2 id="napi">NAPI</h2>
+<p>NAPI机制采用中断和轮询结合的方式收包</p>
+<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的backlog</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>softnet_data</p>
 ]]></content>
       <categories>
         <category>learning-notes</category>
@@ -3341,6 +3341,96 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       <tags>
         <tag>Linux</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>Python splitlines() 函数的坑</title>
+    <url>/2024/04/17/python-splitline/</url>
+    <content><![CDATA[<h2 id="str.splitlines">str.splitlines()</h2>
+<p>Python 标准库中的 <a href="https://docs.python.org/3/library/stdtypes.html#str.splitlines">str.splitlines()</a> 会在以下几种字符处分割字符串，不仅限于 <code>universal newlines</code> (<code>\r</code>,<code>\n</code>,<code>\r\n</code>):</p>
+<table>
+<thead>
+<tr class="header">
+<th>Representation</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>Line Feed</td>
+</tr>
+<tr class="even">
+<td> Carriage Return</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>Carriage Return + Line Feed</td>
+</tr>
+<tr class="even">
+<td> 0b</td>
+<td>Line Tabulation</td>
+</tr>
+<tr class="odd">
+<td> 0c</td>
+<td>Form Feed</td>
+</tr>
+<tr class="even">
+<td>1c</td>
+<td>File Separator</td>
+</tr>
+<tr class="odd">
+<td>1d</td>
+<td>Group Separator</td>
+</tr>
+<tr class="even">
+<td>1e</td>
+<td>Record Separator</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>Next Line (C1 Control Code)</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>Line Separator</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>Paragraph Separator</td>
+</tr>
+</tbody>
+</table>
+<h2 id="bytes.splitlines">bytes.splitlines()</h2>
+<p><a href="https://docs.python.org/3/library/stdtypes.html#bytes.splitlines">bytes.splitlines()</a> 严格按照 <code>universal newlines</code> 分割</p>
+<h2 id="readlines">readlines()</h2>
+<p><a href="https://docs.python.org/3/library/io.html#io.TextIOBase.readline">readlines()</a> 的行为和 <a href="https://docs.python.org/3/library/functions.html#open">open()</a> 时 newline 参数的值有关。</p>
+<table>
+<thead>
+<tr class="header">
+<th>open(newline=...)</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>None</td>
+<td>按照 <code>universal newlines</code> 分割，并且都会被转换为 <code>\n</code></td>
+</tr>
+<tr class="even">
+<td>''</td>
+<td>按照 <code>universal newlines</code> 分割，但是不会进行转换</td>
+</tr>
+<tr class="odd">
+<td>'', ', ''</td>
+<td>主要控制输出的结尾符</td>
+</tr>
+</tbody>
+</table>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
   </entry>
   <entry>
     <title>自签名 SSL 证书</title>
@@ -6179,37 +6269,6 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
       </categories>
   </entry>
   <entry>
-    <title>2023 年终总结</title>
-    <url>/2024/01/01/2023-final/</url>
-    <content><![CDATA[<h2 id="回顾">2023 回顾</h2>
-<ul>
-<li>1月: 开源投毒</li>
-<li>1-3月: Rust 教材</li>
-<li>4-5月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
-<li>3,5-10月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
-<li>7-11月: 参加 GLCC 开源活动</li>
-<li>8-12月: 搞浦发银行的项目</li>
-</ul>
-<h2 id="近况">近况</h2>
-<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
-<p>实验室: 宁波实验室人丁兴旺, hw稀稀拉拉, 反倒宁波更好一些</p>
-<h2 id="体会">体会</h2>
-<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
-<p>甚至不知道2023年都做了些什么(笑), 只能看周报回忆</p>
-<h2 id="希望">2024 希望</h2>
-<ul>
-<li>多读书</li>
-<li>多运动</li>
-<li>找到好工作</li>
-<li>学习唱歌</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2023</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Poems in DDLC</title>
     <url>/2022/01/07/2022-01-07-poems-in-ddlc/</url>
     <content><![CDATA[<style>
@@ -6383,6 +6442,37 @@ h1[id="Monika"]~blockquote {
       </tags>
   </entry>
   <entry>
+    <title>2023 年终总结</title>
+    <url>/2024/01/01/2023-final/</url>
+    <content><![CDATA[<h2 id="回顾">2023 回顾</h2>
+<ul>
+<li>1月: 开源投毒</li>
+<li>1-3月: Rust 教材</li>
+<li>4-5月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
+<li>3,5-10月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
+<li>7-11月: 参加 GLCC 开源活动</li>
+<li>8-12月: 搞浦发银行的项目</li>
+</ul>
+<h2 id="近况">近况</h2>
+<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
+<p>实验室: 宁波实验室人丁兴旺, hw稀稀拉拉, 反倒宁波更好一些</p>
+<h2 id="体会">体会</h2>
+<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
+<p>甚至不知道2023年都做了些什么(笑), 只能看周报回忆</p>
+<h2 id="希望">2024 希望</h2>
+<ul>
+<li>多读书</li>
+<li>多运动</li>
+<li>找到好工作</li>
+<li>学习唱歌</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2023</category>
+      </categories>
+  </entry>
+  <entry>
     <title>近况</title>
     <url>/2024/04/12/2024-04-13/</url>
     <content><![CDATA[<p>找实习中</p>
@@ -6444,6 +6534,7 @@ h1[id="Monika"]~blockquote {
 <li>迷你数据库内核 ✅</li>
 <li>迷你c编译器 ✅</li>
 <li>迷你docker ✅</li>
+<li>迷你S3对象存储</li>
 <li>迷你消息队列</li>
 <li>迷你JVM</li>
 <li>迷你RPC框架</li>
@@ -8625,6 +8716,114 @@ I=\{
         <category>misc</category>
         <category>tools</category>
       </categories>
+  </entry>
+  <entry>
+    <title>编译原理 阅读记录</title>
+    <url>/2024/04/15/dragon-book/</url>
+    <content><![CDATA[<p>标注:</p>
+<ul>
+<li>❓ = 不了解的</li>
+<li>❗️ = 想看的</li>
+</ul>
+<h2 id="chapter-1.-编译器结构">Chapter 1. 编译器结构</h2>
+<ul>
+<li>CISC &amp; RISC</li>
+<li>词法分析</li>
+<li>...</li>
+</ul>
+<h2 id="chapter-2.-简易语法制导翻译器实现">Chapter 2. 简易语法制导翻译器实现</h2>
+<p>使用java实现的编译器前端</p>
+<p>整体流程: 源代码 -- 词法分析 -- 语法分析 -- 中间代码生成 -- 三地址代码</p>
+<h3 id="语法">语法</h3>
+<p>文法 (a.k.a. 上下文无关文法 CFG) 用来描述某一类语言的模式</p>
+<p>文法不允许二义性 i.e., 对同一段文本串(终结符号串)有多种解释方式</p>
+<p>利用附加规则 (结合性 &amp; 优先级) 消除二义性</p>
+<h3 id="语法制导翻译">语法制导翻译</h3>
+<p>语法制导翻译: 在文法产生式上 进行某些逻辑处理 实现翻译</p>
+<h3 id="语法分析">语法分析</h3>
+<blockquote>
+<p>对于任何上下文无关文法，我们都可以构造出一个时间复杂度为O(n3)的语法分析器，它最多使用O(n3)的时间就可以完成一个长度为n的符号串的语法分析。</p>
+</blockquote>
+<p>但是现实中往往设计简单的文法 以实现O(n)的语法分析</p>
+<p>语法分析方法: 自顶向下 自底向上</p>
+<h3 id="词法分析">词法分析</h3>
+<h3 id="符号表">符号表</h3>
+<h3 id="中间代码">中间代码</h3>
+<p>IR的形式: 树形表示 线性表示</p>
+<h2 id="chapter-3.-词法分析">Chapter 3. 词法分析</h2>
+<ul>
+<li>正则表达式</li>
+<li>Lex</li>
+<li>自动机, DFA &amp; NFA</li>
+<li>NFA 转 DFA</li>
+</ul>
+<h2 id="chapter-4.-语法分析">Chapter 4. 语法分析</h2>
+<ul>
+<li>上下文无关文法</li>
+<li>LL(1) 文法</li>
+<li>LR 语法分析</li>
+<li>LALR</li>
+<li>Yacc</li>
+</ul>
+<h2 id="chapter-5.-语法制导翻译">Chapter 5. 语法制导翻译</h2>
+<ul>
+<li>语法制导定义 SDD</li>
+<li>合成属性 继承属性</li>
+<li>语法制导翻译 SDT</li>
+</ul>
+<h2 id="chapter-6.-中间代码生成">Chapter 6. 中间代码生成</h2>
+<p>AST怎么生成IR</p>
+<ul>
+<li>语法树</li>
+<li>三地址码 三元式 四元式 SSA Phi函数</li>
+<li>类型和声明</li>
+<li>表达式翻译</li>
+<li>类型检查</li>
+<li>控制流</li>
+<li>回填 ❗️</li>
+<li>Switch的翻译 ❗️</li>
+</ul>
+<h2 id="chapter-7.-运行时">Chapter 7. 运行时</h2>
+<ul>
+<li>栈</li>
+<li>堆</li>
+<li>内存分配</li>
+<li>GC ❗️</li>
+</ul>
+<h2 id="chapter-8.-代码生成">Chapter 8. 代码生成</h2>
+<ul>
+<li>目标机器模型</li>
+<li>基本块</li>
+<li>基本代码生成</li>
+<li>窥孔优化</li>
+<li>寄存器分配</li>
+<li>表达式生成优化</li>
+</ul>
+<h2 id="chapter-9.-机器无关优化">Chapter 9. 机器无关优化</h2>
+<ul>
+<li>数据流分析</li>
+<li>常量传播</li>
+<li>冗余消除</li>
+<li>循环 ❓</li>
+<li>基于区域的分析 ❓</li>
+<li>符号分析 ❗️</li>
+</ul>
+<h2 id="chapter-10.-指令级并行">Chapter 10. 指令级并行</h2>
+<h2 id="chapter-11.-并行-局部性优化">Chapter 11. 并行 &amp; 局部性优化</h2>
+<h2 id="chapter-12.-过程间分析">Chapter 12. 过程间分析</h2>
+<ul>
+<li>Datalog ❗️</li>
+<li>指针分析 ❗️</li>
+</ul>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+        <category>compiler-principle</category>
+        <category>dragon-book</category>
+      </categories>
+      <tags>
+        <tag>编译原理</tag>
+      </tags>
   </entry>
   <entry>
     <title>考研201 英语一 大纲</title>
