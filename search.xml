@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>C++ 类型推导</title>
-    <url>/2022/02/26/c++_type_deduction/</url>
-    <content><![CDATA[<h1 id="模板类型推导">模板类型推导</h1>
-<h1 id="auto类型推导">auto类型推导</h1>
-<h1 id="模板类型推导-1">模板类型推导</h1>
-]]></content>
-      <tags>
-        <tag>C++</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>word2vec</title>
     <url>/2023/10/28/word2vec/</url>
     <content><![CDATA[<h2 id="whats-it">What's it</h2>
@@ -247,6 +236,11 @@
 <li>key -&gt; hash到多个key</li>
 <li>快速判断元素是否存在于某个集合里面</li>
 </ul></li>
+<li>图算法
+<ul>
+<li>Dijkstra: BFS每个节点更新最短距离，单源，需要无负权边+无环</li>
+<li>Flord</li>
+</ul></li>
 </ul>
 <h3 id="体系结构">体系结构 ❓</h3>
 <ul>
@@ -340,12 +334,22 @@
 </ul></li>
 <li>进程间通信
 <ul>
-<li>管道/FIFO</li>
 <li>信号</li>
-<li>uds</li>
-<li>共享内存 shm{get,at}()</li>
+<li>利用锁
+<ul>
 <li>消息队列 msg{get,snd,rcv}()</li>
 <li>信号量 sem{init,post,wait}()</li>
+</ul></li>
+<li>利用文件
+<ul>
+<li>管道/FIFO</li>
+<li>UDS</li>
+<li>TCP</li>
+</ul></li>
+<li>利用内存
+<ul>
+<li>共享内存 shm{get,at}()</li>
+</ul></li>
 </ul></li>
 </ul></li>
 <li>锁
@@ -2791,6 +2795,15 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </categories>
   </entry>
   <entry>
+    <title>reading-books</title>
+    <url>/2024/04/15/reading-books/</url>
+    <content><![CDATA[<p><a href="https://doocs.github.io/technical-books/">值得一看的技术类书籍列表</a></p>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Oracle数据库学习</title>
     <url>/2020/12/03/oracledb/</url>
     <content><![CDATA[<h1 id="前言">前言</h1>
@@ -2933,15 +2946,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
 <li>创建用户</li>
 </ul></li>
 </ul>
-]]></content>
-      <categories>
-        <category>learning-notes</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>reading-books</title>
-    <url>/2024/04/15/reading-books/</url>
-    <content><![CDATA[<p><a href="https://doocs.github.io/technical-books/">值得一看的技术类书籍列表</a></p>
 ]]></content>
       <categories>
         <category>learning-notes</category>
@@ -3322,6 +3326,47 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </categories>
   </entry>
   <entry>
+    <title>C++ 并发操作</title>
+    <url>/2024/04/20/cpp-concurrency/</url>
+    <content><![CDATA[<h2 id="异步计算结果-stdfuturet">异步计算结果 <code>std::future&lt;T&gt;</code></h2>
+<p><code>std::future&lt;T&gt;</code> 表示一个异步计算过程的结果。</p>
+<p><code>std::future::wait()</code> 方法阻塞当前线程直至计算完成。如果计算已经完成，则直接返回。</p>
+<p><code>std::future::get()</code> 方法等待计算完成，并获取 <code>future&lt;T&gt;</code> 表示的值或异常。<code>get()</code> 方法会消耗掉当前 future 保存的值，因此只能调用一次。</p>
+<p><code>std::future::valid()</code> 方法表示当前 future 中是否还有值可以被获取，如果值已经被 get 过，则会返回 false。</p>
+<p><code>std::future::share()</code> 方法返回一个 <code>std::shared_future&lt;T&gt;</code>。</p>
+<p><code>std::future&lt;T&gt;</code> 是 move-only 的结构，且独占 <code>T</code> 的所有权。当多个对等的线程需要访问同一个期望值时，可以使用 copyable 的 <code>std::shared_future&lt;T&gt;</code>。注意，<code>std::shared_future&lt;T&gt;</code> 本身并不是线程安全的，需要每个线程拷贝并持有一个自己的 <code>std::shared_future&lt;T&gt;</code>。</p>
+<h2 id="异步生产者-stdpromiset">异步生产者 <code>std::promise&lt;T&gt;</code></h2>
+<p><code>std::promise&lt;T&gt;</code> 用于生产者提供一个 <code>std::future&lt;T&gt;</code> 及其中的值给消费者。<code>std::promise&lt;T&gt;::get_future()</code> 方法返回一个 <code>std::future&lt;T&gt;</code> 给消费者。</p>
+<p>对于生产者，使用 <code>std::promise&lt;T&gt;::set_value()</code> 方法填充 <code>future</code> 中的值；或者使用 <code>std::promise&lt;T&gt;::set_exception()</code> 方法填充 <code>future</code> 中的异常；</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> std::promise&lt;<span class="type">double</span>&gt; some_promise;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_value</span>(<span class="built_in">calculate_value</span>());</span><br><span class="line">&#125; <span class="built_in">catch</span>(...) &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_exception</span>(std::<span class="built_in">current_exception</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="异步执行-stdasync">异步执行 <code>std::async()</code></h2>
+<p><code>std::async</code> 是一个函数，它启动一个异步任务去执行指定的函数，返回一个表示计算结果的 <code>std::future</code></p>
+<p><code>std::async</code> 允许额外指定一个<code>std::launch</code>类型的参数来指定任务启动的方式，有以下几种启动策略：</p>
+<ul>
+<li><code>std::launch::async</code>: 任务必须在独立线程中执行，因此需要库去负责线程创建和销毁；</li>
+<li><code>std::launch::deferred</code>: 任务可以延迟到<code>wait()</code>或者<code>get()</code>的时候，在调用者线程上同步执行 (有点类似Rust Tokio的设计)；</li>
+<li><code>std::launch::async | std::launch::deferred</code>: 默认的方式，表示以上两种执行时机都可以，由具体实现去选择。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>C++ 类型推导</title>
+    <url>/2022/02/26/cpp-type-deduction/</url>
+    <content><![CDATA[<h1 id="模板类型推导">模板类型推导</h1>
+<h1 id="auto类型推导">auto类型推导</h1>
+<h1 id="模板类型推导-1">模板类型推导</h1>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>How to compile the linux kernel</title>
     <url>/2022/01/08/how-to-compile-linux-kernel/</url>
     <content><![CDATA[<p><img src="https://frezcirno.github.io/static/images/NewTux.svg" /></p>
@@ -3356,47 +3401,47 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
 </thead>
 <tbody>
 <tr class="odd">
-<td></td>
+<td><code>\n</code></td>
 <td>Line Feed</td>
 </tr>
 <tr class="even">
-<td> Carriage Return</td>
-<td></td>
+<td><code>\r</code></td>
+<td>Carriage Return</td>
 </tr>
 <tr class="odd">
-<td></td>
+<td><code>\r\n</code></td>
 <td>Carriage Return + Line Feed</td>
 </tr>
 <tr class="even">
-<td> 0b</td>
+<td><code>\v</code> or <code>\x0b</code></td>
 <td>Line Tabulation</td>
 </tr>
 <tr class="odd">
-<td> 0c</td>
+<td><code>\f</code> or <code>\x0c</code></td>
 <td>Form Feed</td>
 </tr>
 <tr class="even">
-<td>1c</td>
+<td><code>\x1c</code></td>
 <td>File Separator</td>
 </tr>
 <tr class="odd">
-<td>1d</td>
+<td><code>\x1d</code></td>
 <td>Group Separator</td>
 </tr>
 <tr class="even">
-<td>1e</td>
+<td><code>\x1e</code></td>
 <td>Record Separator</td>
 </tr>
 <tr class="odd">
-<td></td>
+<td><code>\x85</code></td>
 <td>Next Line (C1 Control Code)</td>
 </tr>
 <tr class="even">
-<td></td>
+<td><code>\u2028</code></td>
 <td>Line Separator</td>
 </tr>
 <tr class="odd">
-<td></td>
+<td><code>\u2029</code></td>
 <td>Paragraph Separator</td>
 </tr>
 </tbody>
@@ -3409,21 +3454,25 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
 <thead>
 <tr class="header">
 <th>open(newline=...)</th>
-<th>行为</th>
+<th>输入行为</th>
+<th>输出行为</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>None</td>
-<td>按照 <code>universal newlines</code> 分割，并且都会被转换为 <code>\n</code></td>
+<td>按照 <code>universal newlines</code> 分割，且会被自动转换为 <code>\n</code></td>
+<td>输出中的 <code>\n</code> 会被自动转换成 <code>os.linesep</code></td>
 </tr>
 <tr class="even">
-<td>''</td>
-<td>按照 <code>universal newlines</code> 分割，但是不会进行转换</td>
+<td><code>''</code></td>
+<td>按照 <code>universal newlines</code> 分割，不会进行转换</td>
+<td>不会进行转换</td>
 </tr>
 <tr class="odd">
-<td>'', ', ''</td>
-<td>主要控制输出的结尾符</td>
+<td><code>'\n'</code>, <code>'\r'</code>, <code>'\r\n'</code></td>
+<td>按照 <code>newline</code> 分割，不会进行转换</td>
+<td>输出中的 <code>\n</code> 会被自动转换成 <code>newline</code>参数的值</td>
 </tr>
 </tbody>
 </table>
@@ -4004,9 +4053,9 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>1395. 统计作战单位数</title>
-    <url>/2021/07/02/1395/</url>
-    <content><![CDATA[<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number[]</span>&#125; <span class="variable">rating</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="type">number</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> numTeams = <span class="keyword">function</span> (<span class="params">rating</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; rating.<span class="property">length</span> - <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">let</span> ri = rating[i];</span><br><span class="line">        <span class="keyword">let</span> countx1 = <span class="number">0</span>, countx2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">let</span> county1 = <span class="number">0</span>, county2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = <span class="number">0</span>; x &lt; i; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) countx1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) countx2++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = i + <span class="number">1</span>; x &lt; rating.<span class="property">length</span>; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) county1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) county2++;</span><br><span class="line">        &#125;</span><br><span class="line">        count += countx1 * county2 + countx2 * county1;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    <title>1584. 连接所有点的最小费用</title>
+    <url>/2021/01/19/1584/</url>
+    <content><![CDATA[<p>实际上是最小生成树</p>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -4014,9 +4063,9 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>1584. 连接所有点的最小费用</title>
-    <url>/2021/01/19/1584/</url>
-    <content><![CDATA[<p>实际上是最小生成树</p>
+    <title>1395. 统计作战单位数</title>
+    <url>/2021/07/02/1395/</url>
+    <content><![CDATA[<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number[]</span>&#125; <span class="variable">rating</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="type">number</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> numTeams = <span class="keyword">function</span> (<span class="params">rating</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; rating.<span class="property">length</span> - <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">let</span> ri = rating[i];</span><br><span class="line">        <span class="keyword">let</span> countx1 = <span class="number">0</span>, countx2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">let</span> county1 = <span class="number">0</span>, county2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = <span class="number">0</span>; x &lt; i; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) countx1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) countx2++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = i + <span class="number">1</span>; x &lt; rating.<span class="property">length</span>; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) county1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) county2++;</span><br><span class="line">        &#125;</span><br><span class="line">        count += countx1 * county2 + countx2 * county1;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -4573,6 +4622,88 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/02/2020-12-02/</url>
+    <content><![CDATA[<ul>
+<li><p>React</p>
+<ul>
+<li>children属性: 子元素构成的数组</li>
+</ul></li>
+<li><p>React-redux</p>
+<ul>
+<li><p>引入: <code>import &#123;...&#125; from 'react-redux'</code></p></li>
+<li><p><code>Store</code></p>
+<ul>
+<li><p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p></li>
+<li><p><code>createStore(reducer, initState)</code></p>
+<ul>
+<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
+</ul></li>
+</ul></li>
+<li><p><code>Reducer</code>: (state, action) =&gt; (newstate)</p></li>
+<li><p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component</p></li>
+<li><p><code>connect(mapStateToProps)(Component)</code></p>
+<ul>
+<li><p>map current states to <code>Component</code>'s props</p></li>
+<li><p><code>mapStateToProps</code>: is a function: (state) =&gt; { ...someProp }</p></li>
+<li><p>一般和<Provider>结合起来用</p></li>
+</ul></li>
+</ul></li>
+<li><p>React-Router</p>
+<ul>
+<li><p>引入: <code>import &#123;&#125; from 'react-router-dom'</code></p></li>
+<li><p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
+<ul>
+<li><p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p></li>
+<li><p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p></li>
+<li><p>参数化匹配</p>
+<ul>
+<li><p>参数定义: <code>path="/hsl/:h/:s/:l"</code></p></li>
+<li><p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p></li>
+</ul></li>
+</ul></li>
+<li><p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
+<ul>
+<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
+</ul></li>
+<li><p>嵌套使用:</p>
+<p><figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = <span class="title function_">useRouteMatch</span>(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">path</span>&#125;/<span class="attr">next</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">)</span></span><br></pre></td></tr></table></figure></p></li>
+</ul></li>
+<li><p>Vue-Router</p>
+<ul>
+<li><p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p></li>
+<li><p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p></li>
+<li><p><code>Router</code>: 在这里定义全局路由表</p></li>
+</ul></li>
+<li><p>Ubuntu 安装 rpm 包</p>
+<ul>
+<li><p>sudo apt install alien</p></li>
+<li><p>sudo alien packagename.rpm</p></li>
+<li><p>sudo apt install ./packagename.deb</p></li>
+<li><p>一步到位: sudo alien -i packagename.rpm</p></li>
+</ul></li>
+<li><p>Oracle 的连接方式</p>
+<ul>
+<li><p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p></li>
+<li><p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
+<ul>
+<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
+</ul></li>
+<li><p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
+<p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = LITTLECOMPUTER.ACME.ORG) // 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SID = MYSID)) // 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">// PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SERVICE_NAME = MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></p></li>
+</ul></li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>React</tag>
+        <tag>Oracle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/01/2020-12-01/</url>
     <content><![CDATA[<h1 id="转换dos格式行尾为unix行尾">转换dos格式行尾为unix行尾</h1>
 <ul>
@@ -4723,91 +4854,9 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       </categories>
       <tags>
         <tag>Linux</tag>
+        <tag>React</tag>
         <tag>Javascript</tag>
-        <tag>React</tag>
         <tag>npm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/02/2020-12-02/</url>
-    <content><![CDATA[<ul>
-<li><p>React</p>
-<ul>
-<li>children属性: 子元素构成的数组</li>
-</ul></li>
-<li><p>React-redux</p>
-<ul>
-<li><p>引入: <code>import &#123;...&#125; from 'react-redux'</code></p></li>
-<li><p><code>Store</code></p>
-<ul>
-<li><p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p></li>
-<li><p><code>createStore(reducer, initState)</code></p>
-<ul>
-<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
-</ul></li>
-</ul></li>
-<li><p><code>Reducer</code>: (state, action) =&gt; (newstate)</p></li>
-<li><p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component</p></li>
-<li><p><code>connect(mapStateToProps)(Component)</code></p>
-<ul>
-<li><p>map current states to <code>Component</code>'s props</p></li>
-<li><p><code>mapStateToProps</code>: is a function: (state) =&gt; { ...someProp }</p></li>
-<li><p>一般和<Provider>结合起来用</p></li>
-</ul></li>
-</ul></li>
-<li><p>React-Router</p>
-<ul>
-<li><p>引入: <code>import &#123;&#125; from 'react-router-dom'</code></p></li>
-<li><p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
-<ul>
-<li><p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p></li>
-<li><p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p></li>
-<li><p>参数化匹配</p>
-<ul>
-<li><p>参数定义: <code>path="/hsl/:h/:s/:l"</code></p></li>
-<li><p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p></li>
-</ul></li>
-</ul></li>
-<li><p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
-<ul>
-<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
-</ul></li>
-<li><p>嵌套使用:</p>
-<p><figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = <span class="title function_">useRouteMatch</span>(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">path</span>&#125;/<span class="attr">next</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">)</span></span><br></pre></td></tr></table></figure></p></li>
-</ul></li>
-<li><p>Vue-Router</p>
-<ul>
-<li><p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p></li>
-<li><p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p></li>
-<li><p><code>Router</code>: 在这里定义全局路由表</p></li>
-</ul></li>
-<li><p>Ubuntu 安装 rpm 包</p>
-<ul>
-<li><p>sudo apt install alien</p></li>
-<li><p>sudo alien packagename.rpm</p></li>
-<li><p>sudo apt install ./packagename.deb</p></li>
-<li><p>一步到位: sudo alien -i packagename.rpm</p></li>
-</ul></li>
-<li><p>Oracle 的连接方式</p>
-<ul>
-<li><p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p></li>
-<li><p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
-<ul>
-<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
-</ul></li>
-<li><p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
-<p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = LITTLECOMPUTER.ACME.ORG) // 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SID = MYSID)) // 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">// PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SERVICE_NAME = MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></p></li>
-</ul></li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>React</tag>
-        <tag>Oracle</tag>
       </tags>
   </entry>
   <entry>
@@ -5367,16 +5416,6 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/23/2020-12-23/</url>
-    <content><![CDATA[<h1 id="做java项目">做Java项目</h1>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/25/2020-12-25/</url>
     <content><![CDATA[<h1 id="java-答辩结束了-yeah">Java 答辩结束了, Yeah</h1>
 <p>今天开始刷题</p>
@@ -5474,6 +5513,16 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
         <tag>答辩</tag>
         <tag>数据结构</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/23/2020-12-23/</url>
+    <content><![CDATA[<h1 id="做java项目">做Java项目</h1>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
@@ -5844,6 +5893,37 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
+    <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
+    <url>/2021/03/14/2021-03-14/</url>
+    <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
+<h1 id="python-数据科学常用的库">Python 数据科学常用的库</h1>
+<p><img src="https://frezcirno.github.io/static/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" /></p>
+<h1 id="numpy-使用">Numpy 使用</h1>
+<h2 id="array-对象">array 对象</h2>
+<h1 id="matplotlib-使用">Matplotlib 使用</h1>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
+<h1 id="pandas-使用">Pandas 使用</h1>
+<h2 id="series-对象">Series 对象</h2>
+<h2 id="dataframe-对象">Dataframe 对象</h2>
+<p>博客更新日志：</p>
+<ul>
+<li>日记分类名字从「每日小结」改为「每日小结 Day Day Up」</li>
+<li>日记文章标题从今往后将取有意义的名字</li>
+<li>日记文件名改成更加标准的 ISO-8601 命名法</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>numpy</tag>
+        <tag>matplotlib</tag>
+        <tag>pandas</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>shell脚本编程</title>
     <url>/2021/01/29/2021-01-29/</url>
     <content><![CDATA[<h1 id="注释">注释</h1>
@@ -5954,37 +6034,6 @@ f[i][j - 2], &amp; p[j] = &#39;*&#39; ~and~ s[i] \neq p[j-1]
       </categories>
       <tags>
         <tag>shell</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
-    <url>/2021/03/14/2021-03-14/</url>
-    <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
-<h1 id="python-数据科学常用的库">Python 数据科学常用的库</h1>
-<p><img src="https://frezcirno.github.io/static/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" /></p>
-<h1 id="numpy-使用">Numpy 使用</h1>
-<h2 id="array-对象">array 对象</h2>
-<h1 id="matplotlib-使用">Matplotlib 使用</h1>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
-<h1 id="pandas-使用">Pandas 使用</h1>
-<h2 id="series-对象">Series 对象</h2>
-<h2 id="dataframe-对象">Dataframe 对象</h2>
-<p>博客更新日志：</p>
-<ul>
-<li>日记分类名字从「每日小结」改为「每日小结 Day Day Up」</li>
-<li>日记文章标题从今往后将取有意义的名字</li>
-<li>日记文件名改成更加标准的 ISO-8601 命名法</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>numpy</tag>
-        <tag>matplotlib</tag>
-        <tag>pandas</tag>
       </tags>
   </entry>
   <entry>
@@ -8302,9 +8351,20 @@ I=\{
       </categories>
   </entry>
   <entry>
+    <title>CMU-6.824 Fall 2023 课程记录</title>
+    <url>/2024/04/19/CMU-6-824/</url>
+    <content><![CDATA[<h2 id="project-0---cpp-primer">Project 0 - CPP Primer</h2>
+<h2 id="project-1---lru-k">Project 1 - LRU-K</h2>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+        <category>database-system</category>
+      </categories>
+  </entry>
+  <entry>
     <title>数据库系统 CMU 15-445</title>
     <url>/2024/04/15/database-system/</url>
-    <content><![CDATA[<p>Fall 2022 的课程是 Andy Pavlo 大佬开的</p>
+    <content><![CDATA[<p>Fall 的课程是 Andy Pavlo 大佬开的</p>
 <h2 id="lecture-1-背景">Lecture 1: 背景</h2>
 <ul>
 <li>DB vs DBMS</li>
