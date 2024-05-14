@@ -7984,7 +7984,7 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
       </categories>
   </entry>
   <entry>
-    <title>Mon May 13 2024 00:00:00 GMT+0000 (Coordinated Universal Time)</title>
+    <title>2024-05-13 日记</title>
     <url>/2024/05/12/2024-05-13/</url>
     <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
 <p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
@@ -11399,6 +11399,62 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
+    <title>erofs 相关资料整理</title>
+    <url>/2024/05/14/erofs-notes/</url>
+    <content><![CDATA[<h2 id="代码仓库"><a class="header-anchor-1" href="#代码仓库">#</a>代码仓库</h2>
+<ul>
+<li>EROFS 内核驱动仓库：<a href="https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git</a></li>
+<li>erofs-utils 仓库：<a href="https://github.com/erofs/erofs-utils">https://github.com/erofs/erofs-utils</a></li>
+<li>其他相关项目：<a href="https://github.com/erofs">https://github.com/erofs</a></li>
+</ul>
+<h2 id="文档"><a class="header-anchor-1" href="#文档">#</a>文档</h2>
+<ul>
+<li>ATC '19 论文主页：<a href="https://www.usenix.org/conference/atc19/presentation/gao">https://www.usenix.org/conference/atc19/presentation/gao</a></li>
+<li>内核 EROFS 文档：<a href="https://docs.kernel.org/filesystems/erofs.html">https://docs.kernel.org/filesystems/erofs.html</a></li>
+<li>EROFS 项目主页：<a href="https://erofs.docs.kernel.org/en/latest/#">https://erofs.docs.kernel.org/en/latest/#</a></li>
+<li>An introduction to EROFS (from LWN)：<a href="https://lwn.net/Articles/934047/">https://lwn.net/Articles/934047/</a></li>
+</ul>
+<h2 id="slide"><a class="header-anchor-1" href="#slide">#</a>Slide</h2>
+<ul>
+<li>ATC '19 汇报 Slides：<a href="https://www.usenix.org/sites/default/files/conference/protected-files/atc19_slides_gao.pdf">https://www.usenix.org/sites/default/files/conference/protected-files/atc19_slides_gao.pdf</a></li>
+<li>EROFS Everywhere: An Image-Based Kernel Approach for Various Use Cases@KubeCon China '23：<a href="https://static.sched.com/hosted_files/kccncosschn2023/13/OSS-China-2023-EROFS.pdf">https://static.sched.com/hosted_files/kccncosschn2023/13/OSS-China-2023-EROFS.pdf</a></li>
+<li>Image-based read-only filesystems (EROFS) 龙蜥社区：<a href="https://docs.google.com/presentation/d/16LwD-F0IKy8okkC8qB94v2YgDcWBBE26rmMn_s1Mqxc/edit">https://docs.google.com/presentation/d/16LwD-F0IKy8okkC8qB94v2YgDcWBBE26rmMn_s1Mqxc/edit</a></li>
+</ul>
+<h2 id="其他资源"><a class="header-anchor-1" href="#其他资源">#</a>其他资源</h2>
+<ul>
+<li>Linux-erofs Mail List：<a href="https://lists.ozlabs.org/listinfo/linux-erofs">https://lists.ozlabs.org/listinfo/linux-erofs</a></li>
+<li>EROFS文件系统这几年（一） —— 缘起：<a href="https://mp.weixin.qq.com/s/RU9JcpjIHargA_-oF9tTcg">https://mp.weixin.qq.com/s/RU9JcpjIHargA_-oF9tTcg</a></li>
+<li>EROFS文件系统生态进展（-2024年1月）：<a href="https://mp.weixin.qq.com/s/3QpbamujQSo378vXr7PlAA">https://mp.weixin.qq.com/s/3QpbamujQSo378vXr7PlAA</a></li>
+</ul>
+<h2 id="第三方"><a class="header-anchor-1" href="#第三方">#</a>第三方</h2>
+<ul>
+<li>论文阅读记录（by @SToPire大佬）：<a href="https://stopire.github.io/2023/05/07/EROFS-A-Compression-friendly-Readonly-File-System-for-Resource-scarce-Devices/">https://stopire.github.io/2023/05/07/EROFS-A-Compression-friendly-Readonly-File-System-for-Resource-scarce-Devices/</a></li>
+<li>EROFS压缩文件格式和读取流程分析（by @SToPire大佬）：<a href="https://stopire.github.io/2023/07/05/EROFS%E5%8E%8B%E7%BC%A9%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E5%92%8C%E8%AF%BB%E5%8F%96%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/">https://stopire.github.io/2023/07/05/EROFS压缩文件格式和读取流程分析/</a></li>
+<li>论文阅读（by @mwish）：<a href="https://zhuanlan.zhihu.com/p/663782594">https://zhuanlan.zhihu.com/p/663782594</a></li>
+<li>论文阅读（by elecfans）：<a href="https://bbs.elecfans.com/jishu_2296700_1_1.html">https://bbs.elecfans.com/jishu_2296700_1_1.html</a></li>
+<li>EROFS on-disk compact index 生成分析：<a href="https://tjtech.me/erofs-compacted-index-generation.html">https://tjtech.me/erofs-compacted-index-generation.html</a></li>
+<li>EROFS ztailpacking 特性实现详解：<a href="https://mp.weixin.qq.com/s/ZgKU68Jbgsk8bAK5eRR8EQ">https://mp.weixin.qq.com/s/ZgKU68Jbgsk8bAK5eRR8EQ</a></li>
+<li>EROFS 源码阅读笔记：<a href="https://blog.csdn.net/m0_37637511/article/details/124330158">https://blog.csdn.net/m0_37637511/article/details/124330158</a></li>
+<li>浅谈华为EROFS文件系统的两个主要技术：<a href="https://blog.csdn.net/shuangguo121/article/details/90901131">https://blog.csdn.net/shuangguo121/article/details/90901131</a></li>
+<li>用EROFS进行存储与备份：<a href="https://zhuanlan.zhihu.com/p/646322364">https://zhuanlan.zhihu.com/p/646322364</a></li>
+</ul>
+<h2 id="links"><a class="header-anchor-1" href="#links">#</a>Links</h2>
+<ul>
+<li>我的论文阅读记录：<a href="erofs-reading-note.md">erofs-reading-note</a></li>
+<li></li>
+</ul>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+        <category>erofs</category>
+      </categories>
+      <tags>
+        <tag>文件系统</tag>
+        <tag>操作系统</tag>
+        <tag>EROFS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>EROFS: A Compression-friendly ReadonlyFile System for Resource-scarce Devices</title>
     <url>/2024/05/09/erofs-reading-note/</url>
     <content><![CDATA[<h2 id="作者"><a class="header-anchor-1" href="#作者">#</a>作者</h2>
@@ -11514,6 +11570,8 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       <tags>
         <tag>文件系统</tag>
         <tag>操作系统</tag>
+        <tag>EROFS</tag>
+        <tag>论文阅读</tag>
       </tags>
   </entry>
   <entry>
