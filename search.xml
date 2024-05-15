@@ -11476,21 +11476,6 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
 <p><img src="erofs-layout.png" alt="" /></p>
 <p>和其他文件系统一样，EROFS镜像的开头也是<code>Super block</code>；然后是混合存储的元数据和数据区。</p>
 <p>TODO</p>
-<p>(补充) 以下参考 <a href="https://erofs.docs.kernel.org/en/latest/core_ondisk.html">Core on-disk format</a></p>
-<p>EROFS硬盘布局由<code>Super block</code> + <code>inode</code>区 + <code>data</code>区三部分组成。由于只读文件系统，所有存储的文件大小都是已知的，因此省去了<code>inode bitmap</code>和<code>data bitmap</code>节约空间。</p>
-<p>Superblock 大小为128字节，位于分区开始的第1024字节处，兼容以前的boot sector。Superblock 里面保存根目录的<code>inode_number</code>。</p>
-<p>Inode按照固定位置紧密存放，一个<code>inode</code>的物理地址计算为 <code>inode_start + inode_number * 32</code>；</p>
-<p>Inode 有两种大小：</p>
-<ul>
-<li>Compact版本 32字节；</li>
-<li>Extended版本 64字节；</li>
-</ul>
-<p>Inode 有三种数据布局：</p>
-<ul>
-<li><code>FLAT_PLAIN</code>：内容全部保存在<code>i_u</code>所指向的block中；</li>
-<li><code>FLAT_INLINE</code>：整块的内容全部保存在<code>i_u</code>所指向的block中，剩余的部分保存在inode metadata后面；</li>
-<li><code>CHUNK_BASED</code>：数据被分成多个<code>chunks</code>，每个<code>chunk</code>按照<code>PLAIN</code>方式布局数据；</li>
-</ul>
 <h4 id="解压策略"><a class="header-anchor-1" href="#解压策略">#</a>解压策略</h4>
 <p>商业版：少于4页时采用per-CPU解压，否则采用vmap解压；</p>
 <p>最新版：增加了in-place解压的优化。</p>
@@ -11519,11 +11504,11 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
-    <title>erofs 相关资料整理</title>
+    <title>EROFS 相关资料整理</title>
     <url>/2024/05/14/erofs-resource/</url>
     <content><![CDATA[<h2 id="代码仓库"><a class="header-anchor-1" href="#代码仓库">#</a>代码仓库</h2>
 <ul>
-<li>EROFS 内核驱动仓库：<a href="https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git</a></li>
+<li>EROFS 内核驱动仓库：<a href="https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git</a></li>
 <li>erofs-utils 仓库：<a href="https://github.com/erofs/erofs-utils">https://github.com/erofs/erofs-utils</a></li>
 <li>其他相关项目：<a href="https://github.com/erofs">https://github.com/erofs</a></li>
 </ul>
@@ -11575,14 +11560,40 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
-    <title>erofs-utils 代码阅读</title>
-    <url>/2024/05/12/erofs-utils-reading/</url>
-    <content><![CDATA[<p>erofs-utils 里面包括几个工具：</p>
+    <title>EROFS 源码阅读</title>
+    <url>/2024/05/12/erofs-source-reading/</url>
+    <content><![CDATA[<h2 id="erofs-in-tree-支持"><a class="header-anchor-1" href="#erofs-in-tree-支持">#</a>erofs in-tree 支持</h2>
+<p>in-tree 的代码也是模块的形式</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">module_init(erofs_module_init);</span><br><span class="line">module_exit(erofs_module_exit);</span><br><span class="line"></span><br><span class="line"><span class="comment">// in erofs_module_init()</span></span><br><span class="line">err = register_filesystem(&amp;erofs_fs_type);</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span> <span class="title">erofs_fs_type</span> =</span> &#123;</span><br><span class="line">	.owner          = THIS_MODULE,</span><br><span class="line">	.name           = <span class="string">&quot;erofs&quot;</span>,</span><br><span class="line">	.init_fs_context = erofs_init_fs_context, <span class="comment">// init -&gt;ops and -&gt;fs_private</span></span><br><span class="line">	.kill_sb        = erofs_kill_sb, <span class="comment">// shutdown a fs</span></span><br><span class="line">	.fs_flags       = FS_REQUIRES_DEV | FS_ALLOW_IDMAP,</span><br><span class="line">&#125;;</span><br><span class="line">MODULE_ALIAS_FS(<span class="string">&quot;erofs&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p><code>Kconfig</code> 中包含的一些选项：</p>
 <ul>
-<li><code>mkfs.erofs</code>: 创建一个 erofs 文件系统；</li>
-<li><code>fsck.erofs</code>: 检查 erofs 镜像的完整性；</li>
-<li><code>dump.erofs</code>: 导出 erofs 镜像中的相关细节；</li>
-<li><code>erofsfuse</code>: 用户态</li>
+<li><code>EROFS_FS_DEBUG</code> DEBUG支持</li>
+<li><code>EROFS_FS_XATTR</code> 拓展属性支持</li>
+<li><code>EROFS_FS_POSIX_ACL</code> ACL支持</li>
+<li><code>EROFS_FS_SECURITY</code> 安全标签支持</li>
+<li><code>EROFS_FS_ZIP</code> 压缩支持，默认只支持读取 LZ4 压缩的数据
+<ul>
+<li><code>EROFS_FS_ZIP_LZMA</code> 支持读取 microLZMA 压缩的数据</li>
+<li><code>EROFS_FS_ZIP_DEFLATE</code> 支持读取 DEFLATE 压缩的数据</li>
+<li><code>EROFS_FS_PCPU_KTHREAD</code> 用per-cpu的线程池去作异步数据解压缩
+<ul>
+<li><code>EROFS_FS_PCPU_KTHREAD_HIPRI</code> 把这些线程设为高优先级</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>EROFS_FS_ONDEMAND</code> 利用 fscache 实现 on-demand 读</li>
+</ul>
+<h3 id="初始化流程"><a class="header-anchor-1" href="#初始化流程">#</a>初始化流程</h3>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">fs_context_operations</span> <span class="title">erofs_context_ops</span> =</span> &#123;</span><br><span class="line">	.parse_param	= erofs_fc_parse_param, <span class="comment">// add a fs param</span></span><br><span class="line">	.get_tree       = erofs_fc_get_tree, <span class="comment">// get or create / and sb</span></span><br><span class="line">	.reconfigure    = erofs_fc_reconfigure, <span class="comment">// sb reconfiguration</span></span><br><span class="line">	.<span class="built_in">free</span>		= erofs_fc_free, <span class="comment">// clean up</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="inode-操作"><a class="header-anchor-1" href="#inode-操作">#</a>inode 操作</h3>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_generic_iops</span> =</span> &#123;</span><br><span class="line">	.getattr = erofs_getattr,</span><br><span class="line">	.listxattr = erofs_listxattr,</span><br><span class="line">	.get_inode_acl = erofs_get_acl,</span><br><span class="line">	.fiemap = erofs_fiemap,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_symlink_iops</span> =</span> &#123;</span><br><span class="line">	.get_link = page_get_link,</span><br><span class="line">	.getattr = erofs_getattr,</span><br><span class="line">	.listxattr = erofs_listxattr,</span><br><span class="line">	.get_inode_acl = erofs_get_acl,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_fast_symlink_iops</span> =</span> &#123;</span><br><span class="line">	.get_link = simple_get_link,</span><br><span class="line">	.getattr = erofs_getattr,</span><br><span class="line">	.listxattr = erofs_listxattr,</span><br><span class="line">	.get_inode_acl = erofs_get_acl,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="erofs-utils"><a class="header-anchor-1" href="#erofs-utils">#</a>erofs-utils</h2>
+<ul>
+<li><code>mkfs.erofs</code> 创建一个 erofs 文件系统；</li>
+<li><code>fsck.erofs</code> 检查 erofs 镜像的完整性；</li>
+<li><code>dump.erofs</code> 导出 erofs 镜像中的相关细节；</li>
+<li><code>erofsfuse</code> 用户态</li>
 </ul>
 <h2 id="mkfs"><a class="header-anchor-1" href="#mkfs">#</a>mkfs</h2>
 <h2 id="fsck"><a class="header-anchor-1" href="#fsck">#</a>fsck</h2>
