@@ -11399,10 +11399,41 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
+    <title>erofs 镜像布局分析</title>
+    <url>/2024/05/15/erofs-image-layout/</url>
+    <content><![CDATA[<p>以下参考 <a href="https://erofs.docs.kernel.org/en/latest/core_ondisk.html">Core on-disk format</a></p>
+<p>EROFS硬盘布局由<code>Super block</code> + <code>inode</code>区 + <code>data</code>区三部分组成。</p>
+<p>由于是只读文件系统，所有存储的文件大小都是已知的，因此相对于其他文件系统省去了<code>inode bitmap</code>和<code>data bitmap</code>的开销，节约空间。</p>
+<h2 id="super-block"><a class="header-anchor-1" href="#super-block">#</a>Super Block</h2>
+<p>Superblock 大小为128字节，位于分区开始的第1024字节处，兼容以前的boot sector。Superblock 里面保存根目录的<code>inode_number</code>。</p>
+<h2 id="inode"><a class="header-anchor-1" href="#inode">#</a>Inode</h2>
+<p>Inode按照固定位置紧密存放，一个<code>inode</code>的物理地址计算为 <code>inode_start + inode_number * 32</code>；</p>
+<p>Inode 有两种大小：</p>
+<ul>
+<li>Compact版本 32字节；</li>
+<li>Extended版本 64字节；</li>
+</ul>
+<p>Inode 有三种数据布局：</p>
+<ul>
+<li><code>FLAT_PLAIN</code>：内容全部保存在<code>i_u</code>所指向的block中；</li>
+<li><code>FLAT_INLINE</code>：整块的内容全部保存在<code>i_u</code>所指向的block中，剩余的部分保存在inode metadata后面；</li>
+<li><code>CHUNK_BASED</code>：数据被分成多个<code>chunks</code>，每个<code>chunk</code>按照<code>PLAIN</code>方式布局数据；</li>
+</ul>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+        <category>erofs</category>
+      </categories>
+      <tags>
+        <tag>文件系统</tag>
+        <tag>操作系统</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>EROFS: A Compression-friendly ReadonlyFile System for Resource-scarce Devices</title>
     <url>/2024/05/09/erofs-paper-reading/</url>
     <content><![CDATA[<h2 id="作者"><a class="header-anchor-1" href="#作者">#</a>作者</h2>
-<p>Gao Xiang @ 华为</p>
+<p>Gao Xiang @ 华为，MIngkai Dong @ IPADS @ SJTU</p>
 <p>USENIX ATC 2019</p>
 <h2 id="背景"><a class="header-anchor-1" href="#背景">#</a>背景</h2>
 <p>安卓系统本身对设备存储的占用越来越大。</p>
@@ -11475,6 +11506,7 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
 <h4 id="erofs镜像布局"><a class="header-anchor-1" href="#erofs镜像布局">#</a>EROFS镜像布局</h4>
 <p><img src="erofs-layout.png" alt="" /></p>
 <p>和其他文件系统一样，EROFS镜像的开头也是<code>Super block</code>；然后是混合存储的元数据和数据区。</p>
+<p>EROFS 允许元数据（inode，目录）和数据混合存储，即inline data，目的是提高局部性，减少I/O操作。</p>
 <p>TODO</p>
 <h4 id="解压策略"><a class="header-anchor-1" href="#解压策略">#</a>解压策略</h4>
 <p>商业版：少于4页时采用per-CPU解压，否则采用vmap解压；</p>
@@ -11519,6 +11551,7 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
 <li>EROFS 项目主页：<a href="https://erofs.docs.kernel.org/en/latest/#">https://erofs.docs.kernel.org/en/latest/#</a></li>
 <li>An introduction to EROFS (from LWN)：<a href="https://lwn.net/Articles/934047/">https://lwn.net/Articles/934047/</a></li>
 <li>EROFS 项目mannual：<a href="https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/about/">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/about/</a></li>
+<li>EROFS Introducing Mail：<a href="https://marc.info/?l=linux-fsdevel&amp;m=152776480425624">https://marc.info/?l=linux-fsdevel&amp;m=152776480425624</a></li>
 </ul>
 <h2 id="slide"><a class="header-anchor-1" href="#slide">#</a>Slide</h2>
 <ul>
@@ -11562,8 +11595,8 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
   <entry>
     <title>EROFS 源码阅读</title>
     <url>/2024/05/12/erofs-source-reading/</url>
-    <content><![CDATA[<h2 id="erofs-in-tree-支持"><a class="header-anchor-1" href="#erofs-in-tree-支持">#</a>erofs in-tree 支持</h2>
-<p>in-tree 的代码也是模块的形式</p>
+    <content><![CDATA[<h2 id="erofs-in-tree-驱动"><a class="header-anchor-1" href="#erofs-in-tree-驱动">#</a>erofs in-tree 驱动</h2>
+<p>in-tree 的代码也是模块的形式，以 <code>module_init</code> 开始</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line">module_init(erofs_module_init);</span><br><span class="line">module_exit(erofs_module_exit);</span><br><span class="line"></span><br><span class="line"><span class="comment">// in erofs_module_init()</span></span><br><span class="line">err = register_filesystem(&amp;erofs_fs_type);</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span> <span class="title">erofs_fs_type</span> =</span> &#123;</span><br><span class="line">	.owner          = THIS_MODULE,</span><br><span class="line">	.name           = <span class="string">&quot;erofs&quot;</span>,</span><br><span class="line">	.init_fs_context = erofs_init_fs_context, <span class="comment">// init -&gt;ops and -&gt;fs_private</span></span><br><span class="line">	.kill_sb        = erofs_kill_sb, <span class="comment">// shutdown a fs</span></span><br><span class="line">	.fs_flags       = FS_REQUIRES_DEV | FS_ALLOW_IDMAP,</span><br><span class="line">&#125;;</span><br><span class="line">MODULE_ALIAS_FS(<span class="string">&quot;erofs&quot;</span>);</span><br></pre></td></tr></table></figure>
 <p><code>Kconfig</code> 中包含的一些选项：</p>
 <ul>
@@ -11585,7 +11618,14 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
 <li><code>EROFS_FS_ONDEMAND</code> 利用 fscache 实现 on-demand 读</li>
 </ul>
 <h3 id="初始化流程"><a class="header-anchor-1" href="#初始化流程">#</a>初始化流程</h3>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">fs_context_operations</span> <span class="title">erofs_context_ops</span> =</span> &#123;</span><br><span class="line">	.parse_param	= erofs_fc_parse_param, <span class="comment">// add a fs param</span></span><br><span class="line">	.get_tree       = erofs_fc_get_tree, <span class="comment">// get or create / and sb</span></span><br><span class="line">	.reconfigure    = erofs_fc_reconfigure, <span class="comment">// sb reconfiguration</span></span><br><span class="line">	.<span class="built_in">free</span>		= erofs_fc_free, <span class="comment">// clean up</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">fs_context_operations</span> <span class="title">erofs_context_ops</span> =</span> &#123;</span><br><span class="line">	.parse_param	= erofs_fc_parse_param, <span class="comment">// add a fs param</span></span><br><span class="line">	.get_tree       = erofs_fc_get_tree, <span class="comment">// ~mount a fs</span></span><br><span class="line">	.reconfigure    = erofs_fc_reconfigure, <span class="comment">// sb reconfiguration</span></span><br><span class="line">	.<span class="built_in">free</span>		= erofs_fc_free, <span class="comment">// clean up</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="内核的-fs-context-结构"><a class="header-anchor-1" href="#内核的-fs-context-结构">#</a>内核的 <code>fs_context</code> 结构</h3>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">fs_context</span> &#123;</span></span><br><span class="line">	<span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">fs_context_operations</span> *<span class="title">ops</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span> *<span class="title">fs_type</span>;</span></span><br><span class="line">	<span class="type">void</span>			*fs_private;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">dentry</span>		*<span class="title">root</span>;</span>  <span class="comment">// the root of fs tree</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">user_namespace</span>	*<span class="title">user_ns</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">net</span>		*<span class="title">net_ns</span>;</span></span><br><span class="line">	<span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span>	*<span class="title">cred</span>;</span></span><br><span class="line">	<span class="type">char</span>			*source;  <span class="comment">// /dev/sda1 or host:/path, etc.</span></span><br><span class="line">	<span class="type">char</span>			*subtype;</span><br><span class="line">	<span class="type">void</span>			*security;</span><br><span class="line">	<span class="type">void</span>			*s_fs_info;  <span class="comment">// user data -&gt; erofs_sb_info</span></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span>		sb_flags;</span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span>		sb_flags_mask;</span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span>		s_iflags;</span><br><span class="line">	<span class="class"><span class="keyword">enum</span> <span class="title">fs_context_purpose</span>	<span class="title">purpose</span>:</span><span class="number">8</span>;</span><br><span class="line">	...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="erofs-的元数据-erofs-sb-info"><a class="header-anchor-1" href="#erofs-的元数据-erofs-sb-info">#</a>EROFS 的元数据 <code>erofs_sb_info</code></h3>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">erofs_sb_info</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">erofs_mount_opts</span> <span class="title">opt</span>;</span>	<span class="comment">/* options */</span></span><br><span class="line">	</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_EROFS_FS_ZIP</span></span><br><span class="line">	<span class="comment">/* list for all registered superblocks, mainly for shrinker */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">list</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">mutex</span> <span class="title">umount_mutex</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* managed XArray arranged in physical block number */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">xarray</span> <span class="title">managed_pslots</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> shrinker_run_no;</span><br><span class="line">	u16 available_compr_algs;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* pseudo inode to manage cached pages */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">managed_cache</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">erofs_sb_lz4_info</span> <span class="title">lz4</span>;</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span>	<span class="comment">/* CONFIG_EROFS_FS_ZIP */</span></span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">packed_inode</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">erofs_dev_context</span> *<span class="title">devs</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">dax_device</span> *<span class="title">dax_dev</span>;</span></span><br><span class="line">	u64 dax_part_off;</span><br><span class="line">	u64 total_blocks;</span><br><span class="line">	u32 primarydevice_blocks;</span><br><span class="line"></span><br><span class="line">	u32 meta_blkaddr;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_EROFS_FS_XATTR</span></span><br><span class="line">	u32 xattr_blkaddr;</span><br><span class="line">	u32 xattr_prefix_start;</span><br><span class="line">	u8 xattr_prefix_count;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">erofs_xattr_prefix_item</span> *<span class="title">xattr_prefixes</span>;</span></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> xattr_filter_reserved;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	u16 device_id_mask;	<span class="comment">/* valid bits of device id to be used */</span></span><br><span class="line"></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">char</span> islotbits;	<span class="comment">/* inode slot unit size in bit shift */</span></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">char</span> blkszbits;	<span class="comment">/* filesystem block size in bit shift */</span></span><br><span class="line"></span><br><span class="line">	u32 sb_size;			<span class="comment">/* total superblock size */</span></span><br><span class="line">	u32 build_time_nsec;</span><br><span class="line">	u64 build_time;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* what we really care is nid, rather than ino.. */</span></span><br><span class="line">	<span class="type">erofs_nid_t</span> root_nid;</span><br><span class="line">	<span class="type">erofs_nid_t</span> packed_nid;</span><br><span class="line">	<span class="comment">/* used for statfs, f_files - f_favail */</span></span><br><span class="line">	u64 inos;</span><br><span class="line"></span><br><span class="line">	u8 uuid[<span class="number">16</span>];                    <span class="comment">/* 128-bit uuid for volume */</span></span><br><span class="line">	u8 volume_name[<span class="number">16</span>];             <span class="comment">/* volume name */</span></span><br><span class="line">	u32 feature_compat;</span><br><span class="line">	u32 feature_incompat;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* sysfs support */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">kobject</span> <span class="title">s_kobj</span>;</span>		<span class="comment">/* /sys/fs/erofs/&lt;devname&gt; */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">completion</span> <span class="title">s_kobj_unregister</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* fscache support */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">fscache_volume</span> *<span class="title">volume</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">erofs_fscache</span> *<span class="title">s_fscache</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">erofs_domain</span> *<span class="title">domain</span>;</span></span><br><span class="line">	<span class="type">char</span> *fsid;</span><br><span class="line">	<span class="type">char</span> *domain_id;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>bdev.c</code> 中负责硬盘块操作</p>
+<p><a href="https://zhuanlan.zhihu.com/p/466272945">申请super_block</a></p>
+<p><code>erofs_fc_fill_super</code> 其实是从硬盘上读取数据，初始化user的sb信息</p>
 <h3 id="inode-操作"><a class="header-anchor-1" href="#inode-操作">#</a>inode 操作</h3>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_generic_iops</span> =</span> &#123;</span><br><span class="line">	.getattr = erofs_getattr,</span><br><span class="line">	.listxattr = erofs_listxattr,</span><br><span class="line">	.get_inode_acl = erofs_get_acl,</span><br><span class="line">	.fiemap = erofs_fiemap,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_symlink_iops</span> =</span> &#123;</span><br><span class="line">	.get_link = page_get_link,</span><br><span class="line">	.getattr = erofs_getattr,</span><br><span class="line">	.listxattr = erofs_listxattr,</span><br><span class="line">	.get_inode_acl = erofs_get_acl,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_fast_symlink_iops</span> =</span> &#123;</span><br><span class="line">	.get_link = simple_get_link,</span><br><span class="line">	.getattr = erofs_getattr,</span><br><span class="line">	.listxattr = erofs_listxattr,</span><br><span class="line">	.get_inode_acl = erofs_get_acl,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <h2 id="erofs-utils"><a class="header-anchor-1" href="#erofs-utils">#</a>erofs-utils</h2>
@@ -12577,6 +12617,21 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
       <tags>
         <tag>Linux</tag>
         <tag>计算机网络</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Tair 存储分析</title>
+    <url>/2024/05/14/tair/</url>
+    <content><![CDATA[<h2 id="1"><a class="header-anchor-1" href="#1">#</a>1</h2>
+<h2 id="2"><a class="header-anchor-1" href="#2">#</a>2</h2>
+<h2 id="3"><a class="header-anchor-1" href="#3">#</a>3</h2>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+        <category>tair</category>
+      </categories>
+      <tags>
+        <tag>Tair</tag>
       </tags>
   </entry>
   <entry>
