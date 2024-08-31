@@ -1191,6 +1191,12 @@
 </ul>
 </li>
 <li>malloc</li>
+<li>SAFINE:</li>
+<li>CRTP: <strong>C</strong>uriously <strong>R</strong>ecurring <strong>T</strong>emplate <strong>P</strong>attern
+<ul>
+<li>A 继承 SomeTemplate&lt;A&gt;</li>
+</ul>
+</li>
 </ul>
 <h3 id="golang"><a class="header-anchor-1" href="#golang">#</a>Golang</h3>
 <ul>
@@ -2439,6 +2445,15 @@
 </li>
 </ul>
 </li>
+<li>Log-Structured Merge Tree
+<ul>
+<li>vs B+Tree</li>
+<li>读放大</li>
+<li>写放大</li>
+<li>LevelDB</li>
+<li>RocksDB</li>
+</ul>
+</li>
 </ul>
 <h2 id="数据库内核"><a class="header-anchor-1" href="#数据库内核">#</a>数据库内核</h2>
 <ul>
@@ -2449,6 +2464,12 @@
 <li>Buffer Pool
 <ul>
 <li>文件系统缓存层</li>
+</ul>
+</li>
+<li>执行模型
+<ul>
+<li>火山模型/迭代器模型</li>
+<li>Batch模型</li>
 </ul>
 </li>
 </ul>
@@ -2636,6 +2657,7 @@
 <li>IaaS</li>
 <li>PaaS</li>
 <li>FaaS</li>
+<li>DBaaS</li>
 </ul>
 </li>
 <li>QEMU</li>
@@ -2645,6 +2667,8 @@
 <li>virtio
 <ul>
 <li>模拟PCI设备 麻烦</li>
+<li>VRing</li>
+<li>Kick</li>
 </ul>
 </li>
 </ul>
@@ -2826,11 +2850,19 @@
 <li>Java</li>
 <li>Golang</li>
 </ul>
+<h3 id="大数据"><a class="header-anchor-1" href="#大数据">#</a>大数据</h3>
+<ul>
+<li>Hadoop</li>
+<li>Spark</li>
+<li>Flink</li>
+<li>Kafka</li>
+<li>ClickHouse</li>
+</ul>
 <h2 id="todo"><a class="header-anchor-1" href="#todo">#</a>TODO</h2>
 <ul>
 <li>迷你OS 魔改xv6 three easy pieces ✅</li>
 <li>类似QEMU的ISA模拟器 ✅</li>
-<li>迷你数据库内核 类似LevelDB, RocksDB ✅</li>
+<li>迷你存储引擎 类似LevelDB, RocksDB ✅</li>
 <li>迷你c编译器 ✅</li>
 <li>迷你docker ✅</li>
 <li>迷你S3对象存储</li>
@@ -3771,7 +3803,7 @@
 <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Generate private key</span></span><br><span class="line">openssl genrsa -des3 -out myCA.key 2048</span><br><span class="line"><span class="comment"># Generate root certificate</span></span><br><span class="line">openssl req -x509 -new -nodes -key myCA.key -sha256 -days 825 -out myCA.pem \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Shanghai/L=Shanghai/O=/OU=/CN=My first CA&quot;</span></span><br></pre></td></tr></table></figure>
 <h2 id="信任-ca"><a class="header-anchor-1" href="#信任-ca">#</a>信任 CA</h2>
 <p>Ubuntu:</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">sudo <span class="built_in">cp</span> myCA.pem /usr/local/share/ca-certificates/myCA.crt</span><br><span class="line">sudo update-ca-certificates</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> myCA.pem /usr/local/share/ca-certificates/myCA.crt</span><br><span class="line"><span class="built_in">sudo</span> update-ca-certificates</span><br></pre></td></tr></table></figure>
 <h2 id="颁发证书！"><a class="header-anchor-1" href="#颁发证书！">#</a>颁发证书！</h2>
 <p>可以有多个域名/IP地址</p>
 <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Use your own domain name</span></span><br><span class="line">NAME=my.domain.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># Generate a private key</span></span><br><span class="line">openssl genrsa -out <span class="variable">$NAME</span>.key 2048</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a certificate-signing request</span></span><br><span class="line">openssl req -new -key <span class="variable">$NAME</span>.key -out <span class="variable">$NAME</span>.csr \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Shanghai/L=Shanghai/O=/OU=/CN=<span class="variable">$NAME</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a config file for the extensions</span></span><br><span class="line"><span class="built_in">cat</span> &gt;<span class="variable">$NAME</span>.ext &lt;&lt;-<span class="string">EOF</span></span><br><span class="line"><span class="string">authorityKeyIdentifier=keyid,issuer</span></span><br><span class="line"><span class="string">basicConstraints=CA:FALSE</span></span><br><span class="line"><span class="string">keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment</span></span><br><span class="line"><span class="string">subjectAltName = @alt_names</span></span><br><span class="line"><span class="string">[alt_names]</span></span><br><span class="line"><span class="string">DNS.1 = $NAME # Be sure to include the domain name here because Common Name is not so commonly honoured by itself</span></span><br><span class="line"><span class="string">DNS.2 = bar.$NAME # Optionally, add additional domains (I&#x27;ve added a subdomain here)</span></span><br><span class="line"><span class="string">IP.1 = 1.2.3.4 # Optionally, add an IP address (if the connection which you have planned requires it)</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create the signed certificate</span></span><br><span class="line">openssl x509 -req -<span class="keyword">in</span> <span class="variable">$NAME</span>.csr -CA myCA.pem -CAkey myCA.key -CAcreateserial \</span><br><span class="line">    -out <span class="variable">$NAME</span>.crt -days 825 -sha256 -extfile <span class="variable">$NAME</span>.ext</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> <span class="variable">$NAME</span>.crt <span class="variable">$NAME</span>.key &gt;<span class="variable">$NAME</span>.pem</span><br></pre></td></tr></table></figure>]]></content>
@@ -4041,7 +4073,7 @@
     <content><![CDATA[<p>寻找最长公共后缀</p>
 <p>注意:
 边界情况: 两条链没有交集, 其中一条链是另一条链的子链</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt; <span class="function"><span class="type">void</span> <span class="title">ERR</span><span class="params">(T x, string name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(x) ERR(x, #x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">map&lt;string, pair&lt;<span class="type">char</span>, string&gt;&gt; M;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    string w1, w2;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; w1 &gt;&gt; w2 &gt;&gt; n;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        string a, b;</span><br><span class="line">        <span class="type">char</span> c;</span><br><span class="line">        cin &gt;&gt; a &gt;&gt; c &gt;&gt; b;</span><br><span class="line">        M[a] = <span class="built_in">make_pair</span>(c, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    stack&lt;string&gt; s1, s2;</span><br><span class="line">    <span class="built_in">debug</span>(<span class="string">&quot;s1&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (string addr = w1; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s1.<span class="built_in">push</span>(addr);</span><br><span class="line">        <span class="built_in">debug</span>(addr);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">debug</span>(<span class="string">&quot;s2&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (string addr = w2; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s2.<span class="built_in">push</span>(addr);</span><br><span class="line">        <span class="built_in">debug</span>(addr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    string top = <span class="string">&quot;-1&quot;</span>;</span><br><span class="line">    <span class="keyword">while</span> (s1.<span class="built_in">size</span>() &amp;&amp; s2.<span class="built_in">size</span>() &amp;&amp; s1.<span class="built_in">top</span>() == s2.<span class="built_in">top</span>()) &#123;</span><br><span class="line">        top = s1.<span class="built_in">top</span>();</span><br><span class="line">        <span class="built_in">debug</span>(top);</span><br><span class="line">        s1.<span class="built_in">pop</span>();</span><br><span class="line">        s2.<span class="built_in">pop</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; top &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt; <span class="function"><span class="type">void</span> <span class="title">ERR</span><span class="params">(T x, string name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(x) ERR(x, #x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">map&lt;string, pair&lt;<span class="type">char</span>, string&gt;&gt; M;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    string w1, w2;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; w1 &gt;&gt; w2 &gt;&gt; n;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        string a, b;</span><br><span class="line">        <span class="type">char</span> c;</span><br><span class="line">        cin &gt;&gt; a &gt;&gt; c &gt;&gt; b;</span><br><span class="line">        M[a] = <span class="built_in">make_pair</span>(c, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    stack&lt;string&gt; s1, s2;</span><br><span class="line">    <span class="built_in">debug</span>(<span class="string">&quot;s1&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (string addr = w1; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s<span class="number">1.</span><span class="built_in">push</span>(addr);</span><br><span class="line">        <span class="built_in">debug</span>(addr);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">debug</span>(<span class="string">&quot;s2&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (string addr = w2; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s<span class="number">2.</span><span class="built_in">push</span>(addr);</span><br><span class="line">        <span class="built_in">debug</span>(addr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    string top = <span class="string">&quot;-1&quot;</span>;</span><br><span class="line">    <span class="keyword">while</span> (s<span class="number">1.</span><span class="built_in">size</span>() &amp;&amp; s<span class="number">2.</span><span class="built_in">size</span>() &amp;&amp; s<span class="number">1.</span><span class="built_in">top</span>() == s<span class="number">2.</span><span class="built_in">top</span>()) &#123;</span><br><span class="line">        top = s<span class="number">1.</span><span class="built_in">top</span>();</span><br><span class="line">        <span class="built_in">debug</span>(top);</span><br><span class="line">        s<span class="number">1.</span><span class="built_in">pop</span>();</span><br><span class="line">        s<span class="number">2.</span><span class="built_in">pop</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; top &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>PTA</category>
@@ -4099,7 +4131,7 @@
 <p>数据表按照某一列筛选后按另一列排序输出, 重复多次</p>
 <h2 id="优化"><a class="header-anchor-1" href="#优化">#</a>优化</h2>
 <p>按照输出的最大数量缩减原数据表</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unordered_map&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">person</span> &#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">int</span> worth;</span><br><span class="line">    <span class="built_in">person</span>(<span class="type">const</span> string &amp;name, <span class="type">const</span> <span class="type">int</span> &amp;age, <span class="type">const</span> <span class="type">int</span> &amp;worth)</span><br><span class="line">        : <span class="built_in">name</span>(name), <span class="built_in">age</span>(age), <span class="built_in">worth</span>(worth)</span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    vector&lt;person&gt; P;</span><br><span class="line">    <span class="type">int</span> n, k;</span><br><span class="line">    cin &gt;&gt; n &gt;&gt; k;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        string name;</span><br><span class="line">        <span class="type">int</span> age;</span><br><span class="line">        <span class="type">int</span> worth;</span><br><span class="line">        cin &gt;&gt; name &gt;&gt; age &gt;&gt; worth;</span><br><span class="line">        P.<span class="built_in">emplace_back</span>(name, age, worth);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sort</span>(P.<span class="built_in">begin</span>(), P.<span class="built_in">end</span>(), [](<span class="type">const</span> person &amp;p1, <span class="type">const</span> person &amp;p2) &#123;</span><br><span class="line">        <span class="built_in">return</span> (p1.worth != p2.worth ?</span><br><span class="line">                    p1.worth &gt; p2.worth :</span><br><span class="line">                    (p1.age != p2.age ? p1.age &lt; p2.age : p1.name &lt; p2.name));</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    vector&lt;person&gt; P1;</span><br><span class="line">    unordered_map&lt;<span class="type">int</span>, <span class="type">int</span>&gt; AgeCount;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (AgeCount[P[i].age] &lt;= <span class="number">100</span>) &#123;</span><br><span class="line">            AgeCount[P[i].age]++;</span><br><span class="line">            P1.<span class="built_in">emplace_back</span>(P[i]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; k; i++) &#123;</span><br><span class="line">        <span class="type">int</span> m, amin, amax, count = <span class="number">0</span>;</span><br><span class="line">        cin &gt;&gt; m &gt;&gt; amin &gt;&gt; amax;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Case #&quot;</span> &lt;&lt; i + <span class="number">1</span> &lt;&lt; <span class="string">&quot;:&quot;</span> &lt;&lt; endl;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;p : P1) &#123;</span><br><span class="line">            <span class="keyword">if</span> (p.age &gt;= amin &amp;&amp; p.age &lt;= amax) &#123;</span><br><span class="line">                cout &lt;&lt; p.name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; p.age &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; p.worth &lt;&lt; endl;</span><br><span class="line">                count++;</span><br><span class="line">                <span class="keyword">if</span> (count &gt;= m)</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (count == <span class="number">0</span>) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;None&quot;</span> &lt;&lt; endl;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unordered_map&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">person</span> &#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">int</span> worth;</span><br><span class="line">    <span class="built_in">person</span>(<span class="type">const</span> string &amp;name, <span class="type">const</span> <span class="type">int</span> &amp;age, <span class="type">const</span> <span class="type">int</span> &amp;worth)</span><br><span class="line">        : <span class="built_in">name</span>(name), <span class="built_in">age</span>(age), <span class="built_in">worth</span>(worth)</span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    vector&lt;person&gt; P;</span><br><span class="line">    <span class="type">int</span> n, k;</span><br><span class="line">    cin &gt;&gt; n &gt;&gt; k;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        string name;</span><br><span class="line">        <span class="type">int</span> age;</span><br><span class="line">        <span class="type">int</span> worth;</span><br><span class="line">        cin &gt;&gt; name &gt;&gt; age &gt;&gt; worth;</span><br><span class="line">        P.<span class="built_in">emplace_back</span>(name, age, worth);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sort</span>(P.<span class="built_in">begin</span>(), P.<span class="built_in">end</span>(), [](<span class="type">const</span> person &amp;p1, <span class="type">const</span> person &amp;p2) &#123;</span><br><span class="line">        <span class="built_in">return</span> (p<span class="number">1.</span>worth != p<span class="number">2.</span>worth ?</span><br><span class="line">                    p<span class="number">1.</span>worth &gt; p<span class="number">2.</span>worth :</span><br><span class="line">                    (p<span class="number">1.</span>age != p<span class="number">2.</span>age ? p<span class="number">1.</span>age &lt; p<span class="number">2.</span>age : p<span class="number">1.</span>name &lt; p<span class="number">2.</span>name));</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    vector&lt;person&gt; P1;</span><br><span class="line">    unordered_map&lt;<span class="type">int</span>, <span class="type">int</span>&gt; AgeCount;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (AgeCount[P[i].age] &lt;= <span class="number">100</span>) &#123;</span><br><span class="line">            AgeCount[P[i].age]++;</span><br><span class="line">            P<span class="number">1.</span><span class="built_in">emplace_back</span>(P[i]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; k; i++) &#123;</span><br><span class="line">        <span class="type">int</span> m, amin, amax, count = <span class="number">0</span>;</span><br><span class="line">        cin &gt;&gt; m &gt;&gt; amin &gt;&gt; amax;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Case #&quot;</span> &lt;&lt; i + <span class="number">1</span> &lt;&lt; <span class="string">&quot;:&quot;</span> &lt;&lt; endl;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;p : P1) &#123;</span><br><span class="line">            <span class="keyword">if</span> (p.age &gt;= amin &amp;&amp; p.age &lt;= amax) &#123;</span><br><span class="line">                cout &lt;&lt; p.name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; p.age &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; p.worth &lt;&lt; endl;</span><br><span class="line">                count++;</span><br><span class="line">                <span class="keyword">if</span> (count &gt;= m)</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (count == <span class="number">0</span>) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;None&quot;</span> &lt;&lt; endl;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -4242,7 +4274,7 @@ S&amp;=\sum_{i=1}^{n}{C_{i}a_{i}}\\
 </ol>
 <h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
 <p>用deque模拟一排</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;deque&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> first = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">typedef</span> pair&lt;string, <span class="type">int</span>&gt; person;</span><br><span class="line">    vector&lt;person&gt; P;</span><br><span class="line">    <span class="type">int</span> n, k;</span><br><span class="line">    cin &gt;&gt; n &gt;&gt; k;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        string name;</span><br><span class="line">        <span class="type">int</span> height;</span><br><span class="line">        cin &gt;&gt; name &gt;&gt; height;</span><br><span class="line">        P.<span class="built_in">emplace_back</span>(name, height);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sort</span>(P.<span class="built_in">begin</span>(), P.<span class="built_in">end</span>(), [](<span class="type">const</span> person &amp;p1, <span class="type">const</span> person &amp;p2) &#123;</span><br><span class="line">        <span class="keyword">return</span> p1.second != p2.second ? p1.second &gt; p2.second :</span><br><span class="line">                                        p1.first &lt; p2.first;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> rowcount = n / k;</span><br><span class="line">    <span class="type">int</span> rest = n % k;</span><br><span class="line">    deque&lt;<span class="type">int</span>&gt; row;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>, left = <span class="number">1</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (left)</span><br><span class="line">            row.<span class="built_in">push_back</span>(i);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            row.<span class="built_in">push_front</span>(i);</span><br><span class="line">        left = <span class="number">1</span> - left;</span><br><span class="line">        <span class="keyword">if</span> (row.<span class="built_in">size</span>() == rowcount + rest) &#123;</span><br><span class="line">            rest = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;i : row) &#123;</span><br><span class="line">                cout &lt;&lt; (first ? <span class="string">&quot;&quot;</span> : <span class="string">&quot; &quot;</span>) &lt;&lt; P[i].first;</span><br><span class="line">                first = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            first = <span class="number">1</span>;</span><br><span class="line">            cout &lt;&lt; endl;</span><br><span class="line">            row.<span class="built_in">clear</span>();</span><br><span class="line">            left = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;i : row) &#123;</span><br><span class="line">        cout &lt;&lt; (first ? <span class="string">&quot;&quot;</span> : <span class="string">&quot; &quot;</span>) &lt;&lt; P[i].first;</span><br><span class="line">        first = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;deque&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> first = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">typedef</span> pair&lt;string, <span class="type">int</span>&gt; person;</span><br><span class="line">    vector&lt;person&gt; P;</span><br><span class="line">    <span class="type">int</span> n, k;</span><br><span class="line">    cin &gt;&gt; n &gt;&gt; k;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        string name;</span><br><span class="line">        <span class="type">int</span> height;</span><br><span class="line">        cin &gt;&gt; name &gt;&gt; height;</span><br><span class="line">        P.<span class="built_in">emplace_back</span>(name, height);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sort</span>(P.<span class="built_in">begin</span>(), P.<span class="built_in">end</span>(), [](<span class="type">const</span> person &amp;p1, <span class="type">const</span> person &amp;p2) &#123;</span><br><span class="line">        <span class="keyword">return</span> p<span class="number">1.</span>second != p<span class="number">2.</span>second ? p<span class="number">1.</span>second &gt; p<span class="number">2.</span>second :</span><br><span class="line">                                        p<span class="number">1.f</span>irst &lt; p<span class="number">2.f</span>irst;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> rowcount = n / k;</span><br><span class="line">    <span class="type">int</span> rest = n % k;</span><br><span class="line">    deque&lt;<span class="type">int</span>&gt; row;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>, left = <span class="number">1</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (left)</span><br><span class="line">            row.<span class="built_in">push_back</span>(i);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            row.<span class="built_in">push_front</span>(i);</span><br><span class="line">        left = <span class="number">1</span> - left;</span><br><span class="line">        <span class="keyword">if</span> (row.<span class="built_in">size</span>() == rowcount + rest) &#123;</span><br><span class="line">            rest = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;i : row) &#123;</span><br><span class="line">                cout &lt;&lt; (first ? <span class="string">&quot;&quot;</span> : <span class="string">&quot; &quot;</span>) &lt;&lt; P[i].first;</span><br><span class="line">                first = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            first = <span class="number">1</span>;</span><br><span class="line">            cout &lt;&lt; endl;</span><br><span class="line">            row.<span class="built_in">clear</span>();</span><br><span class="line">            left = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;i : row) &#123;</span><br><span class="line">        cout &lt;&lt; (first ? <span class="string">&quot;&quot;</span> : <span class="string">&quot; &quot;</span>) &lt;&lt; P[i].first;</span><br><span class="line">        first = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>PTA</category>
@@ -4505,7 +4537,7 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
     <title>228. 汇总区间</title>
     <url>/2021/01/10/228/</url>
     <content><![CDATA[<p>水题, 注意边界情况</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">vector&lt;string&gt; <span class="title">summaryRanges</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> n = nums.<span class="built_in">size</span>();</span><br><span class="line">        <span class="type">int</span> last = (n&gt;<span class="number">0</span>?nums[<span class="number">0</span>]:<span class="number">0</span>);</span><br><span class="line">        vector&lt;string&gt; res;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;=n;i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(i==n || nums[i]!=nums[i<span class="number">-1</span>]+<span class="number">1</span>)&#123;</span><br><span class="line">                <span class="keyword">if</span> (last==nums[i<span class="number">-1</span>])&#123;</span><br><span class="line">                    res.<span class="built_in">push_back</span>(<span class="built_in">to_string</span>(last));</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    res.<span class="built_in">push_back</span>(<span class="built_in">to_string</span>(last)+<span class="string">&quot;-&gt;&quot;</span>+<span class="built_in">to_string</span>(nums[i<span class="number">-1</span>]));</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span>(i&lt;n) last=nums[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">vector&lt;string&gt; <span class="title">summaryRanges</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> n = nums.<span class="built_in">size</span>();</span><br><span class="line">        <span class="type">int</span> last = (n&gt;<span class="number">0</span>?nums[<span class="number">0</span>]:<span class="number">0</span>);</span><br><span class="line">        vector&lt;string&gt; res;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;=n;i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(i==n || nums[i]!=nums[i<span class="number">-1</span>]<span class="number">+1</span>)&#123;</span><br><span class="line">                <span class="keyword">if</span> (last==nums[i<span class="number">-1</span>])&#123;</span><br><span class="line">                    res.<span class="built_in">push_back</span>(<span class="built_in">to_string</span>(last));</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    res.<span class="built_in">push_back</span>(<span class="built_in">to_string</span>(last)+<span class="string">&quot;-&gt;&quot;</span>+<span class="built_in">to_string</span>(nums[i<span class="number">-1</span>]));</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span>(i&lt;n) last=nums[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -4574,7 +4606,7 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
     <url>/2021/03/01/37/</url>
     <content><![CDATA[<h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
 <p>DFS</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">solveSudoku</span><span class="params">(vector&lt;vector&lt;<span class="type">char</span>&gt;&gt;&amp; board)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">solveSudoku1</span>(board, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">solveSudoku1</span><span class="params">(vector&lt;vector&lt;<span class="type">char</span>&gt;&gt;&amp; board, <span class="type">int</span> i, <span class="type">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (i&gt;=<span class="number">9</span>||j&gt;=<span class="number">9</span>) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">if</span> (board[i][j]==<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            <span class="function">vector&lt;<span class="type">bool</span>&gt; <span class="title">used_numbers</span><span class="params">(<span class="number">9</span>)</span></span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>;k&lt;<span class="number">9</span>;k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[i][k]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    used_numbers[board[i][k]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>;k&lt;<span class="number">9</span>;k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[k][j]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    used_numbers[board[k][j]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="type">int</span> grid_i = i / <span class="number">3</span>;</span><br><span class="line">            <span class="type">int</span> grid_j = j / <span class="number">3</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> m=<span class="number">3</span>*grid_i;m&lt;<span class="number">3</span>+<span class="number">3</span>*grid_i;m++) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> n=<span class="number">3</span>*grid_j;n&lt;<span class="number">3</span>+<span class="number">3</span>*grid_j;n++) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (board[m][n]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                        used_numbers[board[m][n]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> ii=<span class="number">0</span>;ii&lt;<span class="number">9</span>;ii++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (used_numbers[ii]==<span class="literal">false</span>) &#123;</span><br><span class="line">                    board[i][j] = ii+<span class="string">&#x27;1&#x27;</span>;</span><br><span class="line">                    <span class="keyword">if</span> (<span class="built_in">solveSudoku1</span>(board, i+(j+<span class="number">1</span>)/<span class="number">9</span>, (j+<span class="number">1</span>)%<span class="number">9</span>)) &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            board[i][j] = <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">solveSudoku1</span>(board, i+(j+<span class="number">1</span>)/<span class="number">9</span>, (j+<span class="number">1</span>)%<span class="number">9</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">solveSudoku</span><span class="params">(vector&lt;vector&lt;<span class="type">char</span>&gt;&gt;&amp; board)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">solveSudoku1</span>(board, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">solveSudoku1</span><span class="params">(vector&lt;vector&lt;<span class="type">char</span>&gt;&gt;&amp; board, <span class="type">int</span> i, <span class="type">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (i&gt;=<span class="number">9</span>||j&gt;=<span class="number">9</span>) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">if</span> (board[i][j]==<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            <span class="function">vector&lt;<span class="type">bool</span>&gt; <span class="title">used_numbers</span><span class="params">(<span class="number">9</span>)</span></span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>;k&lt;<span class="number">9</span>;k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[i][k]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    used_numbers[board[i][k]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> k=<span class="number">0</span>;k&lt;<span class="number">9</span>;k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (board[k][j]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                    used_numbers[board[k][j]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="type">int</span> grid_i = i / <span class="number">3</span>;</span><br><span class="line">            <span class="type">int</span> grid_j = j / <span class="number">3</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> m=<span class="number">3</span>*grid_i;m&lt;<span class="number">3</span><span class="number">+3</span>*grid_i;m++) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> n=<span class="number">3</span>*grid_j;n&lt;<span class="number">3</span><span class="number">+3</span>*grid_j;n++) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (board[m][n]!=<span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                        used_numbers[board[m][n]-<span class="string">&#x27;1&#x27;</span>]=<span class="literal">true</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> ii=<span class="number">0</span>;ii&lt;<span class="number">9</span>;ii++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (used_numbers[ii]==<span class="literal">false</span>) &#123;</span><br><span class="line">                    board[i][j] = ii+<span class="string">&#x27;1&#x27;</span>;</span><br><span class="line">                    <span class="keyword">if</span> (<span class="built_in">solveSudoku1</span>(board, i+(j<span class="number">+1</span>)/<span class="number">9</span>, (j<span class="number">+1</span>)%<span class="number">9</span>)) &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            board[i][j] = <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">solveSudoku1</span>(board, i+(j<span class="number">+1</span>)/<span class="number">9</span>, (j<span class="number">+1</span>)%<span class="number">9</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -4610,7 +4642,7 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
     <title>4. 寻找两个正序数组的中位数</title>
     <url>/2020/12/13/4/</url>
     <content><![CDATA[<p>思路: 先归并排序, 再寻找中间位置</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums1, vector&lt;<span class="type">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> i=<span class="number">0</span>,j=<span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> len1=nums1.<span class="built_in">size</span>(),len2=nums2.<span class="built_in">size</span>(),len=len1+len2;</span><br><span class="line">        <span class="type">int</span> t, lastt;</span><br><span class="line">        <span class="keyword">while</span>(i+j&lt;=len/<span class="number">2</span>)&#123;</span><br><span class="line">            lastt=t;</span><br><span class="line">            <span class="keyword">if</span>(i&lt;len1 &amp;&amp; j&lt; len2)&#123;</span><br><span class="line">                <span class="type">int</span> n1=nums1[i];</span><br><span class="line">                <span class="type">int</span> n2=nums2[j];</span><br><span class="line">                <span class="keyword">if</span>(n1&lt;n2)&#123;</span><br><span class="line">                    t=n1;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    t=n2;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(i&lt;len1)&#123;</span><br><span class="line">                t=nums1[i++];</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                t=nums2[j++];</span><br><span class="line">            &#125;</span><br><span class="line">            cout&lt;&lt;i+j&lt;&lt;<span class="string">&quot;:&quot;</span>&lt;&lt;t&lt;&lt;endl;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (len%<span class="number">2</span>?t:(t+lastt)/<span class="number">2.0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums1, vector&lt;<span class="type">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> i=<span class="number">0</span>,j=<span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> len1=nums<span class="number">1.</span><span class="built_in">size</span>(),len2=nums<span class="number">2.</span><span class="built_in">size</span>(),len=len1+len2;</span><br><span class="line">        <span class="type">int</span> t, lastt;</span><br><span class="line">        <span class="keyword">while</span>(i+j&lt;=len/<span class="number">2</span>)&#123;</span><br><span class="line">            lastt=t;</span><br><span class="line">            <span class="keyword">if</span>(i&lt;len1 &amp;&amp; j&lt; len2)&#123;</span><br><span class="line">                <span class="type">int</span> n1=nums1[i];</span><br><span class="line">                <span class="type">int</span> n2=nums2[j];</span><br><span class="line">                <span class="keyword">if</span>(n1&lt;n2)&#123;</span><br><span class="line">                    t=n1;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    t=n2;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(i&lt;len1)&#123;</span><br><span class="line">                t=nums1[i++];</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                t=nums2[j++];</span><br><span class="line">            &#125;</span><br><span class="line">            cout&lt;&lt;i+j&lt;&lt;<span class="string">&quot;:&quot;</span>&lt;&lt;t&lt;&lt;endl;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (len%<span class="number">2</span>?t:(t+lastt)/<span class="number">2.0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -4690,7 +4722,7 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
     <url>/2020/12/15/738/</url>
     <content><![CDATA[<p>思路: 对于数字<code>x = an ... ai+1 ai ... a1 a0</code>, 如果任意相邻的<code>ai+1</code>,<code>ai</code>不符合单调递增, 就给原数字减去<code>(ai + 1) * 10 ^ i</code>, 减去之后得到的新数字即为<code>y</code></p>
 <p>可以发现, 若<code>x</code>与<code>y</code>不完全相同, 则最终结果在第一个不相同位之后的位必定全是<code>9</code>, 按此规律修正结果即可.</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">monotoneIncreasingDigits</span><span class="params">(<span class="type">int</span> N)</span> </span>&#123;</span><br><span class="line">        string s = <span class="built_in">to_string</span>(N);</span><br><span class="line">        string olds=s;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> bor=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=s.<span class="built_in">size</span>()<span class="number">-1</span>;i&gt;<span class="number">0</span>;i--)&#123;</span><br><span class="line">            <span class="keyword">if</span>(bor)&#123;</span><br><span class="line">                s[i]--;</span><br><span class="line">                s[i+<span class="number">1</span>]+=<span class="number">10</span>;</span><br><span class="line">                bor=<span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;s[i<span class="number">-1</span>])&#123;</span><br><span class="line">                <span class="comment">// -s[i]-1</span></span><br><span class="line">                s[i]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                s[i<span class="number">-1</span>]--;</span><br><span class="line">                <span class="keyword">if</span>(s[i<span class="number">-1</span>]&lt;<span class="string">&#x27;0&#x27;</span>) bor = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// fix</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;olds[i])&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="type">int</span> j=i+<span class="number">1</span>;j&lt;s.<span class="built_in">size</span>();j++)&#123;</span><br><span class="line">                    s[j]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// restore</span></span><br><span class="line">        <span class="type">int</span> val =<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            val=val*<span class="number">10</span>+s[i]-<span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">monotoneIncreasingDigits</span><span class="params">(<span class="type">int</span> N)</span> </span>&#123;</span><br><span class="line">        string s = <span class="built_in">to_string</span>(N);</span><br><span class="line">        string olds=s;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> bor=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=s.<span class="built_in">size</span>()<span class="number">-1</span>;i&gt;<span class="number">0</span>;i--)&#123;</span><br><span class="line">            <span class="keyword">if</span>(bor)&#123;</span><br><span class="line">                s[i]--;</span><br><span class="line">                s[i<span class="number">+1</span>]+=<span class="number">10</span>;</span><br><span class="line">                bor=<span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;s[i<span class="number">-1</span>])&#123;</span><br><span class="line">                <span class="comment">// -s[i]-1</span></span><br><span class="line">                s[i]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                s[i<span class="number">-1</span>]--;</span><br><span class="line">                <span class="keyword">if</span>(s[i<span class="number">-1</span>]&lt;<span class="string">&#x27;0&#x27;</span>) bor = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// fix</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;olds[i])&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="type">int</span> j=i<span class="number">+1</span>;j&lt;s.<span class="built_in">size</span>();j++)&#123;</span><br><span class="line">                    s[j]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// restore</span></span><br><span class="line">        <span class="type">int</span> val =<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            val=val*<span class="number">10</span>+s[i]-<span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -5915,7 +5947,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
 <li>不退出vim使用sudo保存文件</li>
 </ul>
 <p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">:w !sudo <span class="built_in">tee</span> % </span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">:w !<span class="built_in">sudo</span> <span class="built_in">tee</span> % </span><br></pre></td></tr></table></figure>
 <h1>echo 命令</h1>
 <p>echo命令用于将命令行参数输出到标准输出</p>
 <p>即: stdin -&gt; stdout</p>
@@ -6955,7 +6987,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
     <url>/2021/06/15/2021-06-15/</url>
     <content><![CDATA[<h1>python 自定义 JSON Encoder</h1>
 <p>继承 json.JSONEncoder 类, 重载 default 方法</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, self).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, self).default(o)</span><br></pre></td></tr></table></figure>]]></content>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).default(o)</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>daily</category>
         <category>2021</category>
@@ -7101,7 +7133,7 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
 </li>
 </ul>
 <p>开始编译并安装：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">make</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">make</span><br><span class="line"><span class="built_in">sudo</span> make install</span><br></pre></td></tr></table></figure>
 <p>环境变量配置：</p>
 <p>下面的<code>$INSTALLDIR</code>要换成对应的值。</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="built_in">export</span> PATH=<span class="string">&quot;<span class="variable">$INSTALLDIR</span>/bin:\$PATH&quot;</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="built_in">export</span> CPPFLAGS=<span class="string">&quot;-I<span class="variable">$INSTALLDIR</span>/include \$CPPFLAGS&quot;</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="built_in">export</span> LDFLAGS=<span class="string">&quot;-L<span class="variable">$INSTALLDIR</span>/lib64 -L<span class="variable">$INSTALLDIR</span>/lib \$LDFLAGS&quot;</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="built_in">export</span> LD_LIBRARY_PATH=<span class="string">&quot;<span class="variable">$INSTALLDIR</span>/lib64:<span class="variable">$INSTALLDIR</span>/lib:\$LD_LIBRARY_PATH&quot;</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br></pre></td></tr></table></figure>
@@ -7109,7 +7141,7 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
 <p>YouCompleteMe需要最低Python3.6的环境，如果不满足，则需要安装</p>
 <p>如果软件源中包含了满足要求的python版本，则可以直接安装；否则需要从源码编译。</p>
 <p>a. 直接从软件源安装</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt install python3.8 python3.8-dev</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install python3.8 python3.8-dev</span><br></pre></td></tr></table></figure>
 <p>b. 从源码编译Python3</p>
 <p>暂时没有用到，略过</p>
 <h2 id="编译-vim"><a class="header-anchor-1" href="#编译-vim">#</a>编译 VIM</h2>
@@ -7119,7 +7151,7 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
 <p>编译配置：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> vim/src</span><br><span class="line">./configure \</span><br><span class="line">    --with-features=huge \</span><br><span class="line">    --enable-multibyte \</span><br><span class="line">    --enable-pythoninterp=dynamic \</span><br><span class="line">    --with-python-config-dir=$(python2.7-config --configdir) \</span><br><span class="line">    --enable-python3interp=dynamic \</span><br><span class="line">    --with-python3-config-dir=$(python3.8-config --configdir) \</span><br><span class="line">    --enable-cscope \</span><br><span class="line">    --enable-gui=auto \</span><br><span class="line">    --enable-gtk2-check \</span><br><span class="line">    --enable-fontset \</span><br><span class="line">    --enable-largefile \</span><br><span class="line">    --disable-netbeans \</span><br><span class="line">    --with-compiledby=<span class="string">&quot;xxxxx@xx.com&quot;</span> \</span><br><span class="line">    --enable-fail-if-missing</span><br></pre></td></tr></table></figure>
 <p>编译安装：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">make</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">make</span><br><span class="line"><span class="built_in">sudo</span> make install</span><br></pre></td></tr></table></figure>
 <h2 id="安装-cmake"><a class="header-anchor-1" href="#安装-cmake">#</a>安装 CMAKE</h2>
 <p>下载cmake并安装：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3-linux-x86_64.sh</span><br><span class="line"><span class="built_in">chmod</span> +x cmake-3.21.3-linux-x86_64.sh</span><br><span class="line">./cmake-3.21.3-linux-x86_64.sh</span><br></pre></td></tr></table></figure>
@@ -8090,6 +8122,166 @@ f_Y(y) = \int_{-\infty}^{+\infty}f(x,y)dx
       </tags>
   </entry>
   <entry>
+    <title>ELF 文件格式</title>
+    <url>/2024/08/10/ELF-file-format/</url>
+    <content><![CDATA[<h2 id="宏观结构"><a class="header-anchor-1" href="#宏观结构">#</a>宏观结构</h2>
+<p><img src="ELF-file-format.png" alt="" /></p>
+<p>运行视角：分为若干个程序段（Segment），表示加载到内存时的地址和属性，例如是否可读, 是否可写, 是否可执行;</p>
+<p>链接视角：分为若干个程序节（Section），表示不同作用的程序组成部分，例如 .data, .rodata, .text;
+* 文件中的节区不能重叠，不允许一个字节存在于两个节区中的情况发生。</p>
+<p>一般来说一个Segment会包含多个Section，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Segment 1: Text Segment</span><br><span class="line">* .text</span><br><span class="line">* .rodata</span><br><span class="line">* .hash</span><br><span class="line">* .dynsym</span><br><span class="line">* .dynstr</span><br><span class="line">* .plt</span><br><span class="line">* .rel.got</span><br><span class="line"></span><br><span class="line">Segment 2: Data Segment</span><br><span class="line">* .data</span><br><span class="line">* .dynamic</span><br><span class="line">* .got</span><br><span class="line">* .bss</span><br></pre></td></tr></table></figure>
+<h2 id="数据类型定义"><a class="header-anchor-1" href="#数据类型定义">#</a>数据类型定义</h2>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* Type for a 16-bit quantity.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf32_Half;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf64_Half;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Types for signed and unsigned 32-bit quantities.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint32_t</span> Elf32_Word;</span><br><span class="line"><span class="keyword">typedef</span>	<span class="type">int32_t</span>  Elf32_Sword;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint32_t</span> Elf64_Word;</span><br><span class="line"><span class="keyword">typedef</span>	<span class="type">int32_t</span>  Elf64_Sword;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Types for signed and unsigned 64-bit quantities.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint64_t</span> Elf32_Xword;</span><br><span class="line"><span class="keyword">typedef</span>	<span class="type">int64_t</span>  Elf32_Sxword;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint64_t</span> Elf64_Xword;</span><br><span class="line"><span class="keyword">typedef</span>	<span class="type">int64_t</span>  Elf64_Sxword;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Type of addresses.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint32_t</span> Elf32_Addr;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint64_t</span> Elf64_Addr;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Type of file offsets.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint32_t</span> Elf32_Off;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint64_t</span> Elf64_Off;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Type for section indices, which are 16-bit quantities.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf32_Section;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf64_Section;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Type for version symbol information.  */</span></span><br><span class="line"><span class="keyword">typedef</span> Elf32_Half Elf32_Versym;</span><br><span class="line"><span class="keyword">typedef</span> Elf64_Half Elf64_Versym;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="elf-header-ehdr"><a class="header-anchor-1" href="#elf-header-ehdr">#</a>ELF Header (Ehdr)</h2>
+<ul>
+<li>魔数：<code>[0x7f, 'E', 'L', 'F']</code></li>
+<li>Phdr大小，Phdr个数</li>
+<li>Shdr大小，Shdr个数</li>
+<li>入口地址 <code>e_entry</code></li>
+</ul>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	e_ident[EI_NIDENT];	<span class="comment">/* Magic number and other info */</span></span><br><span class="line">  Elf32_Half	e_type;			<span class="comment">/* Object file type */</span></span><br><span class="line">  Elf32_Half	e_machine;		<span class="comment">/* Architecture */</span></span><br><span class="line">  Elf32_Word	e_version;		<span class="comment">/* Object file version */</span></span><br><span class="line">  Elf32_Addr	e_entry;		<span class="comment">/* Entry point virtual address */</span></span><br><span class="line">  Elf32_Off	e_phoff;		<span class="comment">/* Program header table file offset */</span></span><br><span class="line">  Elf32_Off	e_shoff;		<span class="comment">/* Section header table file offset */</span></span><br><span class="line">  Elf32_Word	e_flags;		<span class="comment">/* Processor-specific flags */</span></span><br><span class="line">  Elf32_Half	e_ehsize;		<span class="comment">/* ELF header size in bytes */</span></span><br><span class="line">  Elf32_Half	e_phentsize;		<span class="comment">/* Program header table entry size */</span></span><br><span class="line">  Elf32_Half	e_phnum;		<span class="comment">/* Program header table entry count */</span></span><br><span class="line">  Elf32_Half	e_shentsize;		<span class="comment">/* Section header table entry size */</span></span><br><span class="line">  Elf32_Half	e_shnum;		<span class="comment">/* Section header table entry count */</span></span><br><span class="line">  Elf32_Half	e_shstrndx;		<span class="comment">/* Section header string table index */</span></span><br><span class="line">&#125; Elf32_Ehdr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	e_ident[EI_NIDENT];	<span class="comment">/* Magic number and other info */</span></span><br><span class="line">  Elf64_Half	e_type;			<span class="comment">/* Object file type */</span></span><br><span class="line">  Elf64_Half	e_machine;		<span class="comment">/* Architecture */</span></span><br><span class="line">  Elf64_Word	e_version;		<span class="comment">/* Object file version */</span></span><br><span class="line">  Elf64_Addr	e_entry;		<span class="comment">/* Entry point virtual address */</span></span><br><span class="line">  Elf64_Off	e_phoff;		<span class="comment">/* Program header table file offset */</span></span><br><span class="line">  Elf64_Off	e_shoff;		<span class="comment">/* Section header table file offset */</span></span><br><span class="line">  Elf64_Word	e_flags;		<span class="comment">/* Processor-specific flags */</span></span><br><span class="line">  Elf64_Half	e_ehsize;		<span class="comment">/* ELF header size in bytes */</span></span><br><span class="line">  Elf64_Half	e_phentsize;		<span class="comment">/* Program header table entry size */</span></span><br><span class="line">  Elf64_Half	e_phnum;		<span class="comment">/* Program header table entry count */</span></span><br><span class="line">  Elf64_Half	e_shentsize;		<span class="comment">/* Section header table entry size */</span></span><br><span class="line">  Elf64_Half	e_shnum;		<span class="comment">/* Section header table entry count */</span></span><br><span class="line">  Elf64_Half	e_shstrndx;		<span class="comment">/* Section header string table index */</span></span><br><span class="line">&#125; Elf64_Ehdr;</span><br></pre></td></tr></table></figure>
+<h2 id="program-header-phdr"><a class="header-anchor-1" href="#program-header-phdr">#</a>Program Header (Phdr)</h2>
+<p>一般在文件开头紧邻 EHdr，有多个Phdr，起始偏移量由 <code>e_phoff</code> 指定，数量由 <code>e_phnum</code> 指定；</p>
+<ul>
+<li>p_vaddr 段加载的虚拟地址</li>
+<li>p_flags 段属性</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Word	p_type;			<span class="comment">/* Segment type */</span></span><br><span class="line">  Elf32_Off	p_offset;		<span class="comment">/* Segment file offset */</span></span><br><span class="line">  Elf32_Addr	p_vaddr;		<span class="comment">/* Segment virtual address */</span></span><br><span class="line">  Elf32_Addr	p_paddr;		<span class="comment">/* Segment physical address */</span></span><br><span class="line">  Elf32_Word	p_filesz;		<span class="comment">/* Segment size in file */</span></span><br><span class="line">  Elf32_Word	p_memsz;		<span class="comment">/* Segment size in memory */</span></span><br><span class="line">  Elf32_Word	p_flags;		<span class="comment">/* Segment flags */</span></span><br><span class="line">  Elf32_Word	p_align;		<span class="comment">/* Segment alignment */</span></span><br><span class="line">&#125; Elf32_Phdr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Word	p_type;			<span class="comment">/* Segment type */</span></span><br><span class="line">  Elf64_Word	p_flags;		<span class="comment">/* Segment flags */</span></span><br><span class="line">  Elf64_Off	p_offset;		<span class="comment">/* Segment file offset */</span></span><br><span class="line">  Elf64_Addr	p_vaddr;		<span class="comment">/* Segment virtual address */</span></span><br><span class="line">  Elf64_Addr	p_paddr;		<span class="comment">/* Segment physical address */</span></span><br><span class="line">  Elf64_Xword	p_filesz;		<span class="comment">/* Segment size in file */</span></span><br><span class="line">  Elf64_Xword	p_memsz;		<span class="comment">/* Segment size in memory */</span></span><br><span class="line">  Elf64_Xword	p_align;		<span class="comment">/* Segment alignment */</span></span><br><span class="line">&#125; Elf64_Phdr;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="section-header-shdr"><a class="header-anchor-1" href="#section-header-shdr">#</a>Section Header (Shdr)</h2>
+<p>一般在文件末尾，起始偏移量由 <code>e_shoff</code> 指定，数量由 <code>e_shnum</code> 指定；</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Word	sh_name;		<span class="comment">/* Section name (string tbl index) */</span></span><br><span class="line">  Elf32_Word	sh_type;		<span class="comment">/* Section type */</span></span><br><span class="line">  Elf32_Word	sh_flags;		<span class="comment">/* Section flags */</span></span><br><span class="line">  Elf32_Addr	sh_addr;		<span class="comment">/* Section virtual addr at execution */</span></span><br><span class="line">  Elf32_Off	sh_offset;		<span class="comment">/* Section file offset */</span></span><br><span class="line">  Elf32_Word	sh_size;		<span class="comment">/* Section size in bytes */</span></span><br><span class="line">  Elf32_Word	sh_link;		<span class="comment">/* Link to another section */</span></span><br><span class="line">  Elf32_Word	sh_info;		<span class="comment">/* Additional section information */</span></span><br><span class="line">  Elf32_Word	sh_addralign;		<span class="comment">/* Section alignment */</span></span><br><span class="line">  Elf32_Word	sh_entsize;		<span class="comment">/* Entry size if section holds table */</span></span><br><span class="line">&#125; Elf32_Shdr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Word	sh_name;		<span class="comment">/* Section name (string tbl index) */</span></span><br><span class="line">  Elf64_Word	sh_type;		<span class="comment">/* Section type */</span></span><br><span class="line">  Elf64_Xword	sh_flags;		<span class="comment">/* Section flags */</span></span><br><span class="line">  Elf64_Addr	sh_addr;		<span class="comment">/* Section virtual addr at execution */</span></span><br><span class="line">  Elf64_Off	sh_offset;		<span class="comment">/* Section file offset */</span></span><br><span class="line">  Elf64_Xword	sh_size;		<span class="comment">/* Section size in bytes */</span></span><br><span class="line">  Elf64_Word	sh_link;		<span class="comment">/* Link to another section */</span></span><br><span class="line">  Elf64_Word	sh_info;		<span class="comment">/* Additional section information */</span></span><br><span class="line">  Elf64_Xword	sh_addralign;		<span class="comment">/* Section alignment */</span></span><br><span class="line">  Elf64_Xword	sh_entsize;		<span class="comment">/* Entry size if section holds table */</span></span><br><span class="line">&#125; Elf64_Shdr;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="实例"><a class="header-anchor-1" href="#实例">#</a>实例</h2>
+<ul>
+<li>EHdr</li>
+<li>PHdr 1</li>
+<li>PHdr 2</li>
+<li>PHdr …</li>
+<li>Segment: PHDR (self)</li>
+<li>Segment: INTERP
+<ul>
+<li>---- .interp ----</li>
+<li><code>&quot;/lib64/ld-linux-x86-64.so.2&quot;</code></li>
+</ul>
+</li>
+<li>Segment: NOTE r–
+<ul>
+<li>---- .note.gnu.property ----</li>
+<li>---- .note.gnu.build-id ----</li>
+<li>---- .note.ABI-tag ----</li>
+</ul>
+</li>
+<li>Segment: GNU_HASH</li>
+<li>Segment: Symbol Table</li>
+<li>Segment: LOAD r-x
+<ul>
+<li>---- .init ----
+<ul>
+<li><code>_init_proc</code></li>
+</ul>
+</li>
+<li>---- .plt ----
+<ul>
+<li><code>sub_4020</code></li>
+<li><code>sub_4030</code></li>
+<li><code>...</code></li>
+</ul>
+</li>
+<li>---- .plt.got ----
+<ul>
+<li><code>free</code></li>
+<li><code>strcmp</code></li>
+<li><code>...</code></li>
+</ul>
+</li>
+<li>---- .plt.sec ----
+<ul>
+<li><code>___ctype_toupper_loc</code></li>
+<li><code>...</code></li>
+</ul>
+</li>
+<li>---- .text ----
+<ul>
+<li><code>loc_4D70</code></li>
+<li><code>...</code></li>
+</ul>
+</li>
+<li>---- .fini ----
+<ul>
+<li><code>_term_proc</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Segment: LOAD r–
+<ul>
+<li>---- .rodata ----
+<ul>
+<li><code>unk_19000</code></li>
+<li><code>...</code></li>
+</ul>
+</li>
+<li>---- .eh_frame_hdr ----</li>
+<li>---- .eh_frame ----</li>
+</ul>
+</li>
+<li>Segment: LOAD rw-
+<ul>
+<li>– Segment: PT_GNU_RELRO rw-</li>
+<li>---- .init_array ----
+<ul>
+<li><code>0x6E10</code></li>
+</ul>
+</li>
+<li>---- .fini_array ----
+<ul>
+<li><code>0x6DD0</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>SHdr 1:
+<ul>
+<li>---- .data.rel.ro ----</li>
+</ul>
+</li>
+<li>SHdr …n
+<ul>
+<li>– Segment: DYNAMIC rw-</li>
+<li><code>stru_22A38</code></li>
+<li>---- .got ----</li>
+<li>---- .data ----</li>
+<li>---- .bss ----</li>
+</ul>
+</li>
+<li>Segment: Externs</li>
+<li>Segment: String Table</li>
+<li></li>
+</ul>
+<h2 id="典型-section"><a class="header-anchor-1" href="#典型-section">#</a>典型 Section</h2>
+<p>Section 类型表：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NULL	  0		<span class="comment">/* Section header table entry unused */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_PROGBITS	  1		<span class="comment">/* Program data */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SYMTAB	  2		<span class="comment">/* Symbol table */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_STRTAB	  3		<span class="comment">/* String table */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_RELA	  4		<span class="comment">/* Relocation entries with addends */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HASH	  5		<span class="comment">/* Symbol hash table */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_DYNAMIC	  6		<span class="comment">/* Dynamic linking information */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NOTE	  7		<span class="comment">/* Notes */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NOBITS	  8		<span class="comment">/* Program space with no data (bss) */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_REL		  9		<span class="comment">/* Relocation entries, no addends */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SHLIB	  10		<span class="comment">/* Reserved */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_DYNSYM	  11		<span class="comment">/* Dynamic linker symbol table */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_INIT_ARRAY	  14		<span class="comment">/* Array of constructors */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_FINI_ARRAY	  15		<span class="comment">/* Array of destructors */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_PREINIT_ARRAY 16		<span class="comment">/* Array of pre-constructors */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GROUP	  17		<span class="comment">/* Section group */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SYMTAB_SHNDX  18		<span class="comment">/* Extended section indices */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_RELR	  19            <span class="comment">/* RELR relative relocations */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span>	SHT_NUM		  20		<span class="comment">/* Number of defined types.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOOS	  0x60000000	<span class="comment">/* Start OS-specific.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_ATTRIBUTES 0x6ffffff5	<span class="comment">/* Object attributes.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_HASH	  0x6ffffff6	<span class="comment">/* GNU-style hash table.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_LIBLIST	  0x6ffffff7	<span class="comment">/* Prelink library list */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_CHECKSUM	  0x6ffffff8	<span class="comment">/* Checksum for DSO content.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOSUNW	  0x6ffffffa	<span class="comment">/* Sun-specific low bound.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SUNW_move	  0x6ffffffa</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SUNW_COMDAT   0x6ffffffb</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SUNW_syminfo  0x6ffffffc</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_verdef	  0x6ffffffd	<span class="comment">/* Version definition section.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_verneed	  0x6ffffffe	<span class="comment">/* Version needs section.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_versym	  0x6fffffff	<span class="comment">/* Version symbol table.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HISUNW	  0x6fffffff	<span class="comment">/* Sun-specific high bound.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HIOS	  0x6fffffff	<span class="comment">/* End OS-specific type */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOPROC	  0x70000000	<span class="comment">/* Start of processor-specific */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HIPROC	  0x7fffffff	<span class="comment">/* End of processor-specific */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOUSER	  0x80000000	<span class="comment">/* Start of application-specific */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HIUSER	  0x8fffffff	<span class="comment">/* End of application-specific */</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="shstrtab-节名字符串表"><a class="header-anchor-1" href="#shstrtab-节名字符串表">#</a><code>.shstrtab</code> 节名字符串表</h3>
+<p>字符串表，存储ELF结构中所有的Section的名字。类型是 <code>SHT_STRTAB</code>；由EHdr中的 <code>e_shstrndx</code> 确定本节的位置；</p>
+<h3 id="dyntab-符号名字符串表"><a class="header-anchor-1" href="#dyntab-符号名字符串表">#</a><code>.dyntab</code> 符号名字符串表</h3>
+<p>类型 <code>SHT_STRTAB</code>; 存储程序中的符号名，包含变量名、函数名等；</p>
+<ul>
+<li>这部分信息在进行 <code>strip</code> 后就会消失</li>
+</ul>
+<h3 id="sht-symtab-符号表"><a class="header-anchor-1" href="#sht-symtab-符号表">#</a>SHT_SYMTAB 符号表</h3>
+<p>包含</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Word	st_name;		<span class="comment">/* Symbol name (string tbl index) */</span></span><br><span class="line">  Elf32_Addr	st_value;		<span class="comment">/* Symbol value */</span></span><br><span class="line">  Elf32_Word	st_size;		<span class="comment">/* Symbol size */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	st_info;		<span class="comment">/* Symbol type and binding */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	st_other;		<span class="comment">/* Symbol visibility */</span></span><br><span class="line">  Elf32_Section	st_shndx;		<span class="comment">/* Section index */</span></span><br><span class="line">&#125; Elf32_Sym;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Word	st_name;		<span class="comment">/* Symbol name (string tbl index) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	st_info;		<span class="comment">/* Symbol type and binding */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> st_other;		<span class="comment">/* Symbol visibility */</span></span><br><span class="line">  Elf64_Section	st_shndx;		<span class="comment">/* Section index */</span></span><br><span class="line">  Elf64_Addr	st_value;		<span class="comment">/* Symbol value */</span></span><br><span class="line">  Elf64_Xword	st_size;		<span class="comment">/* Symbol size */</span></span><br><span class="line">&#125; Elf64_Sym;</span><br></pre></td></tr></table></figure>
+<h3 id="dynamic-动态链接节"><a class="header-anchor-1" href="#dynamic-动态链接节">#</a><code>.dynamic</code> 动态链接节</h3>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+        <category>binary-analysis</category>
+      </categories>
+      <tags>
+        <tag>二进制</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>《编译原理》第二版阅读记录</title>
     <url>/2024/04/15/dragon-book/</url>
     <content><![CDATA[<p>标注:</p>
@@ -8442,7 +8634,7 @@ f_Y(y) = \int_{-\infty}^{+\infty}f(x,y)dx
 <figure class="highlight llvm"><table><tr><td class="code"><pre><span class="line"><span class="variable">%ptr</span> <span class="operator">=</span> <span class="keyword">alloca</span> &lt;<span class="keyword">type</span>&gt;</span><br></pre></td></tr></table></figure>
 <p>背后是栈指针的改变</p>
 <h3 id="load-store-读取-写入值"><a class="header-anchor-1" href="#load-store-读取-写入值">#</a>load store 读取/写入值</h3>
-<figure class="highlight llvm"><table><tr><td class="code"><pre><span class="line">&lt;result&gt; <span class="operator">=</span> <span class="keyword">load</span> [<span class="keyword">volatile</span>] &lt;ty&gt;<span class="punctuation">,</span> ptr &lt;pointer&gt;[<span class="punctuation">,</span> <span class="keyword">align</span> &lt;alignment&gt;]</span><br><span class="line"></span><br><span class="line"><span class="keyword">store</span> [<span class="keyword">volatile</span>] &lt;ty&gt; &lt;value&gt;<span class="punctuation">,</span> ptr &lt;pointer&gt;[<span class="punctuation">,</span> <span class="keyword">align</span> &lt;alignment&gt;]</span><br></pre></td></tr></table></figure>
+<figure class="highlight llvm"><table><tr><td class="code"><pre><span class="line">&lt;result&gt; <span class="operator">=</span> <span class="keyword">load</span> [<span class="keyword">volatile</span>] &lt;ty&gt;<span class="punctuation">,</span> <span class="type">ptr</span> &lt;pointer&gt;[<span class="punctuation">,</span> <span class="keyword">align</span> &lt;alignment&gt;]</span><br><span class="line"></span><br><span class="line"><span class="keyword">store</span> [<span class="keyword">volatile</span>] &lt;ty&gt; &lt;value&gt;<span class="punctuation">,</span> <span class="type">ptr</span> &lt;pointer&gt;[<span class="punctuation">,</span> <span class="keyword">align</span> &lt;alignment&gt;]</span><br></pre></td></tr></table></figure>
 <h3 id="指针偏移-get-element-pointer-gep"><a class="header-anchor-1" href="#指针偏移-get-element-pointer-gep">#</a>指针偏移 Get Element Pointer (GEP)</h3>
 <figure class="highlight llvm"><table><tr><td class="code"><pre><span class="line">&lt;result&gt; <span class="operator">=</span> <span class="keyword">getelementptr</span> &lt;ty&gt;<span class="punctuation">,</span> &lt;ty&gt;* &lt;ptrval&gt;<span class="punctuation">,</span> [<span class="type">i32</span> &lt;idx&gt;]+</span><br><span class="line"><span class="comment">; 语法: getelementptr 结果类型  数组类型* 数组变量  索引(可以有多个)</span></span><br></pre></td></tr></table></figure>
 <p>GEP 仅计算指针加上偏移后的值, 本身并不进行任何数据的访问或修改</p>
@@ -8465,7 +8657,7 @@ f_Y(y) = \int_{-\infty}^{+\infty}f(x,y)dx
 <h3 id="phi-指令"><a class="header-anchor-1" href="#phi-指令">#</a>Phi 指令</h3>
 <p>有时需要对已经定义的变量赋一个新的值 (例如循环变量)</p>
 <p>SSA 不允许这样做 -&gt; phi 运算</p>
-<figure class="highlight llvm"><table><tr><td class="code"><pre><span class="line">&lt;result&gt; <span class="operator">=</span> <span class="keyword">phi</span> &lt;ty&gt; [&lt;val<span class="number">0</span>&gt;<span class="punctuation">,</span> &lt;label<span class="number">0</span>&gt;]<span class="punctuation">,</span> [&lt;val<span class="number">1</span>&gt;<span class="punctuation">,</span> &lt;label<span class="number">1</span>&gt;] …</span><br></pre></td></tr></table></figure>
+<figure class="highlight llvm"><table><tr><td class="code"><pre><span class="line">&lt;result&gt; <span class="operator">=</span> <span class="keyword">phi</span> &lt;ty&gt; [&lt;val<span class="number">0</span>&gt;<span class="punctuation">,</span> &lt;<span class="type">label</span><span class="number">0</span>&gt;]<span class="punctuation">,</span> [&lt;val<span class="number">1</span>&gt;<span class="punctuation">,</span> &lt;<span class="type">label</span><span class="number">1</span>&gt;] …</span><br></pre></td></tr></table></figure>
 <p>根据前一个基本块是哪一个 选择对应的值</p>
 <h3 id="内置函数"><a class="header-anchor-1" href="#内置函数">#</a>内置函数</h3>
 <ul>
@@ -10928,7 +11120,7 @@ SNMP: 161/162</p>
 <p>也就是说，这些奇奇怪怪的参数其实是<code>std::pair</code>的一种构造方式，查看<code>std::pair</code>的构造函数证明了这一点：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="comment">/// Tag type for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">piecewise_construct_t</span> &#123; <span class="function"><span class="keyword">explicit</span> <span class="title">piecewise_construct_t</span><span class="params">()</span> </span>= <span class="keyword">default</span>; &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// Tag for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">piecewise_construct_t</span> piecewise_construct = <span class="built_in">piecewise_construct_t</span>();</span><br></pre></td></tr></table></figure>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In tuple */</span></span><br><span class="line"><span class="comment">/// Create a tuple of lvalue or rvalue references to the arguments</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Elements&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> tuple&lt;_Elements&amp;&amp;...&gt; <span class="title">forward_as_tuple</span><span class="params">(_Elements&amp;&amp;... __args)</span> <span class="keyword">noexcept</span> </span>&#123; </span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">tuple</span>&lt;_Elements&amp;&amp;...&gt;(std::forward&lt;_Elements&gt;(__args)...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">_T1</span>, <span class="keyword">class</span> <span class="title class_">_T2</span>&gt;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Args1, <span class="keyword">typename</span>... _Args2&gt;</span><br><span class="line">_GLIBCXX20_CONSTEXPR</span><br><span class="line"><span class="keyword">inline</span></span><br><span class="line">pair&lt;_T1, _T2&gt;::<span class="built_in">pair</span>(<span class="type">piecewise_construct_t</span>, tuple&lt;_Args1...&gt; __first, tuple&lt;_Args2...&gt; __second) : <span class="built_in">pair</span>(__first, __second,</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args1)&gt;::__type(),</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args2)&gt;::__type())</span><br><span class="line">&#123; &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">_T1</span>, <span class="keyword">class</span> <span class="title class_">_T2</span>&gt;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Args1, <span class="keyword">typename</span>... _Args2&gt;</span><br><span class="line">_GLIBCXX20_CONSTEXPR</span><br><span class="line"><span class="keyword">inline</span></span><br><span class="line">pair&lt;_T1, _T2&gt;::<span class="built_in">pair</span>(<span class="type">piecewise_construct_t</span>, tuple&lt;_Args<span class="number">1.</span>..&gt; __first, tuple&lt;_Args<span class="number">2.</span>..&gt; __second) : <span class="built_in">pair</span>(__first, __second,</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args1)&gt;::__type(),</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args2)&gt;::__type())</span><br><span class="line">&#123; &#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>learning-notes</category>
@@ -11046,7 +11238,7 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
   <entry>
     <title>CMU 15-445 数据库系统 课程笔记</title>
     <url>/2024/04/15/CMU-15-445-database-systems-fall-2023/</url>
-    <content><![CDATA[<p>Fall 的课程是 Andy Pavlo 大佬开的</p>
+    <content><![CDATA[<p>教师：Andy Pavlo</p>
 <h2 id="lecture-1-背景"><a class="header-anchor-1" href="#lecture-1-背景">#</a>Lecture 1: 背景</h2>
 <ul>
 <li>DB vs DBMS</li>
@@ -11237,7 +11429,7 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
 </ul>
 <h2 id="lecture-7-哈希表"><a class="header-anchor-1" href="#lecture-7-哈希表">#</a>Lecture 7: 哈希表</h2>
 <p>数据结构课几乎都学过，略</p>
-<p>XXHash3最nb</p>
+<p>SOTA哈希函数：XXHash3</p>
 <p>哈希表 = 哈希函数 + 哈希策略</p>
 <p>哈希策略：解决哈希冲突的方法</p>
 <p>静态哈希策略</p>
@@ -11280,8 +11472,173 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
 </blockquote>
 <p>TODO</p>
 <h2 id="lecture-12-13-查询执行"><a class="header-anchor-1" href="#lecture-12-13-查询执行">#</a>Lecture 12 &amp; 13: 查询执行</h2>
-<p>TODO</p>
-<h2 id="lecture-14-查询计划-优化"><a class="header-anchor-1" href="#lecture-14-查询计划-优化">#</a>Lecture 14: 查询计划 &amp; 优化</h2>
+<h3 id="查询计划-2"><a class="header-anchor-1" href="#查询计划-2">#</a>查询计划</h3>
+<p>DBMS 首先把 SQL 命令转换成查询计划 (query plan)，然后再执行，为了方便优化和debug；</p>
+<p>查询计划按照数的结构组织，数据从叶子节点计算到跟节点。</p>
+<h3 id="处理模型"><a class="header-anchor-1" href="#处理模型">#</a>处理模型</h3>
+<p>处理模型决定如何执行一个查询计划，主要有三种：</p>
+<ul>
+<li>迭代器模型 (aka, 火山模型, Pipeline模型)</li>
+<li>物化模型</li>
+<li>向量/批处理模型</li>
+</ul>
+<p>处理顺序可以是自顶向下，也可以是自底向上；</p>
+<ol>
+<li>
+<p>迭代器模型</p>
+<p><img src="iterator-model.png" alt="" /></p>
+</li>
+<li>
+<p>物化模型</p>
+<p>是迭代器模型的一种特例，每个operator在一次调用中处理完所有需要的数据；</p>
+<p>为了防止数据太多，DBMS可以传递limit信息给operator</p>
+</li>
+<li>
+<p>向量模型</p>
+<p>和迭代器模型类似，但是每次Next函数返回一批数据，而不是单个tuple；</p>
+<p>这样允许使用SIMD等指令优化速度；</p>
+</li>
+</ol>
+<h3 id="数据访问方法"><a class="header-anchor-1" href="#数据访问方法">#</a>数据访问方法</h3>
+<p>DBMS读数据有两种最基本的操作：Sequential Scan 和 Index Scan；</p>
+<p>针对Sequential Scan的优化方法：</p>
+<ul>
+<li>Prefetch</li>
+<li>Buffer Pool Bypass</li>
+<li>Parallelization</li>
+<li>Late Materialization</li>
+<li>Heap Clustering</li>
+<li>Approximate Queries</li>
+<li>Zone Map</li>
+</ul>
+<h3 id="修改数据"><a class="header-anchor-1" href="#修改数据">#</a>修改数据</h3>
+<p>会修改数据的Operator需要额外维护索引信息。</p>
+<p>UPDATE/DELETE Operator需要记录RID，否则会有万圣节问题</p>
+<p>万圣节问题：Update操作改变了tuple的位置，使得一条数据被scan了两遍；</p>
+<h3 id="表达式求值"><a class="header-anchor-1" href="#表达式求值">#</a>表达式求值</h3>
+<p>每个tuple都执行一遍表达式很慢，成熟的DBMS会根据cost模型决定要不要把表达式JIT编译；</p>
+<h3 id="分布式数据库"><a class="header-anchor-1" href="#分布式数据库">#</a>分布式数据库</h3>
+<p>现在大部分的DBMS都采用了thread per worker的方式；</p>
+<h3 id="io并行"><a class="header-anchor-1" href="#io并行">#</a>IO并行</h3>
+<p>多硬盘并行</p>
+<p>数据库分区</p>
+<h2 id="lecture-14-查询计划-查询优化"><a class="header-anchor-1" href="#lecture-14-查询计划-查询优化">#</a>Lecture 14: 查询计划 &amp; 查询优化</h2>
+<p>SQL是一种声明式语言，只说了要计算什么，但并没有说明如何去计算；</p>
+<p>DBMS需要先把SQL转换成实际的查询计划以便执行；</p>
+<p>IBM System R在1970s实现了第一个查询优化器，在此之前，人们普遍认为DBMS生成的查询计划不会比人写的更好；</p>
+<p>两种优化的策略：</p>
+<ul>
+<li>基于静态规则</li>
+<li>基于cost</li>
+</ul>
+<p>逻辑查询计划 vs 物理查询计划</p>
+<h3 id="逻辑查询优化"><a class="header-anchor-1" href="#逻辑查询优化">#</a>逻辑查询优化</h3>
+<h3 id="cost估计"><a class="header-anchor-1" href="#cost估计">#</a>Cost估计</h3>
+<p>直方图</p>
+<p>采样</p>
+<h2 id="lecture-15-并发控制理论"><a class="header-anchor-1" href="#lecture-15-并发控制理论">#</a>Lecture 15: 并发控制理论</h2>
+<p>两个并发的问题：</p>
+<ol>
+<li>并发控制：两个事务同时更新一条记录怎么处理；</li>
+<li>持久性：断电怎么保证状态正确；</li>
+</ol>
+<h3 id="事务"><a class="header-anchor-1" href="#事务">#</a>事务</h3>
+<p>最简单的实现是每次执行事务时，复制所有文件。</p>
+<p>事务的特性：</p>
+<ul>
+<li>原子性A：原子性确保事务中的所有操作都发生，或者不发生。</li>
+<li>一致性C：如果每个事务是一致的，并且数据库在事务开始时是一致的，那么在事务完成时保证数据库是一致的。如果数据满足所有验证规则（如约束、级联和触发器），则数据是一致的。</li>
+<li>隔离性I：隔离是指当一个事务执行时，它应该有一种错觉，即它与其他事务是隔离的。隔离可确保事务的并发执行应具有与事务的顺序执行相同的生成数据库状态。</li>
+<li>持久性D：如果事务提交，则其对数据库的影响应持续存在。</li>
+</ul>
+<h3 id="原子性"><a class="header-anchor-1" href="#原子性">#</a>原子性</h3>
+<p>实现原子性的两种方案：</p>
+<ul>
+<li>用日志记录所有操作：通过日志来实现事务回滚，在内存和硬盘都保存一份，常用；</li>
+<li>CoW创建Page的副本：回滚性能较好，运行时性能较差，不常用；</li>
+</ul>
+<h3 id="一致性"><a class="header-anchor-1" href="#一致性">#</a>一致性</h3>
+<ul>
+<li>数据库一致性：数据库准确地表示它正在建模的真实实体，并遵循完整性约束。（例如，一个人的年龄不能是负数）。此外，将来的事务应在数据库中看到过去提交的事务的影响。</li>
+<li>事务一致性：如果数据库在事务开始前是一致的，那么在事务开始之后也会保持一致。确保事务一致性是应用程序的责任。</li>
+</ul>
+<h3 id="隔离性"><a class="header-anchor-1" href="#隔离性">#</a>隔离性</h3>
+<p>事务仿佛在系统中单独运行，看不到并发事务的影响。</p>
+<p>并发控制：</p>
+<ul>
+<li>悲观</li>
+<li>乐观</li>
+</ul>
+<h3 id="持久性"><a class="header-anchor-1" href="#持久性">#</a>持久性</h3>
+<p>在崩溃或重新启动后，已提交事务的所有更改都必须是持久的（即持久的）。</p>
+<h2 id="lecture-16-两阶段锁"><a class="header-anchor-1" href="#lecture-16-两阶段锁">#</a>Lecture 16: 两阶段锁</h2>
+<ul>
+<li>Shared (S)：读锁</li>
+<li>Exclusive (X)：写锁</li>
+</ul>
+<p>两阶段锁是乐观并发控制方法的一种，特点是第一阶段只获取锁，第二阶段只释放锁；</p>
+<p>2PL能够保证冲突序列化；但是不能处理cascading aborts（回滚事务A导致事务B读到坏数据）；</p>
+<p>2PL会有脏读的问题，依然可能导致死锁；</p>
+<p>严格2PL：在2PL的基础上，还要求必须commit之后才能释放锁；</p>
+<p>严格2PL能处理cascading aborts，但是会降低并发度；</p>
+<p>死锁检测和死锁避免：略</p>
+<p>锁粒度：数据库级别，表级别，页级别，tuple级别</p>
+<p>意向锁：保证不同粒度的锁之间的互斥（例如表锁和表中的行锁）的锁，具体分为：</p>
+<ul>
+<li>Intention-Shared (IS)：整块区域的读锁；</li>
+<li>Intention-Exclusive (IX)：整块区域的写锁；</li>
+<li>Shared+Intention-Exclusive (SIX)：S+IX，表示事务要读全部行+更新部分行；</li>
+</ul>
+<p><img src="intention-locks.png" alt="" /></p>
+<h2 id="lecture-17-时间戳顺序"><a class="header-anchor-1" href="#lecture-17-时间戳顺序">#</a>Lecture 17: 时间戳顺序</h2>
+<p>时间戳顺序 (Timestamp ordering, T/O) 是一种不需要锁的并发控制手段；</p>
+<p>每个事务都会分配一个单调递增的唯一的时间戳，</p>
+<h3 id="基本时间戳顺序-basic-t-o"><a class="header-anchor-1" href="#基本时间戳顺序-basic-t-o">#</a>基本时间戳顺序 (BASIC T/O)</h3>
+<p>为每个tuple记录上一次读和写的时间戳，</p>
+<p>读操作：检查时间戳，如果是过去的；</p>
+<p>写操作：</p>
+<p>Thomas Write Rule：</p>
+<h3 id="乐观并发控制-occ"><a class="header-anchor-1" href="#乐观并发控制-occ">#</a>乐观并发控制 (OCC)</h3>
+<p>乐观并发控制 (OCC) 是另一种并发控制方案，为每个事务保存要操作的数据的副本；</p>
+<p>读操作：读数据复制一份</p>
+<p>校验操作</p>
+<p>写操作：</p>
+<h3 id="幻读问题"><a class="header-anchor-1" href="#幻读问题">#</a>幻读问题</h3>
+<p>因为一个事务可能会插入新数据，新的数据没有上锁；</p>
+<ol>
+<li>重新执行一遍scan：Commit的时候重新执行一遍WHERE字句；</li>
+<li>条件加锁：根据条件判断的结果加锁；</li>
+<li>索引加锁：利用索引键保护数据；
+<ol>
+<li>K-V锁：对单独一条数据的锁</li>
+<li>间隙锁：对两条数据之间空隙的锁，防止插入新数据；</li>
+<li>范围锁：对一段数据的锁；</li>
+<li>层次锁：</li>
+</ol>
+</li>
+</ol>
+<h3 id="隔离级别"><a class="header-anchor-1" href="#隔离级别">#</a>隔离级别</h3>
+<p>异常现象：</p>
+<ul>
+<li>脏读</li>
+<li>不可重复读</li>
+<li>幻读</li>
+<li>【NEW】丢失更新</li>
+<li>【NEW】Write skew</li>
+</ul>
+<p>SQL-92标准隔离级别</p>
+<ol>
+<li>序列化：Index Lock+严格2PL</li>
+<li>【NEW】快照隔离；</li>
+<li>可重复读：严格2PL</li>
+<li>【NEW】游标稳定性：IBM DB2默认级别，避免了丢失更新</li>
+<li>读已提交：写锁执行严格2PL，读锁在读后立即释放（Short duration）</li>
+<li>读未提交：写锁执行严格2PL，读不加锁</li>
+</ol>
+<p>额外的隔离级别：</p>
+<h2 id="lecture-18-mvcc"><a class="header-anchor-1" href="#lecture-18-mvcc">#</a>Lecture 18: MVCC</h2>
+<p>多版本并发控制 (MVCC) 是最广泛使用的数据库并发控制方法。</p>
+<h2 id="lecture-19-数据库日志"><a class="header-anchor-1" href="#lecture-19-数据库日志">#</a>Lecture 19: 数据库日志</h2>
 ]]></content>
       <categories>
         <category>learning-notes</category>
@@ -11399,7 +11756,7 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
-    <title>erofs 镜像布局分析</title>
+    <title>EROFS 镜像布局分析</title>
     <url>/2024/05/15/erofs-image-layout/</url>
     <content><![CDATA[<p>以下参考 <a href="https://erofs.docs.kernel.org/en/latest/core_ondisk.html">Core on-disk format</a></p>
 <p>EROFS硬盘布局由<code>Super block</code> + <code>inode</code>区 + <code>data</code>区三部分组成。</p>
@@ -11471,7 +11828,7 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
 </ol>
 <p>EROFS采用了滑动窗口来压缩数据，在 <code>输入大小到达 1MB</code> 或者 <code>输出大小到达 4k</code> 时输出一个新的block。</p>
 <h3 id="缓存层优化"><a class="header-anchor-1" href="#缓存层优化">#</a>缓存层优化</h3>
-<p>对于压缩型文件系统，为了保存解压后的数据，需要额外分配内存，这部分开销很大。</p>
+<p>对于压缩型文件系统，为了保存解压后的数据，需要额外分配内存，这部分对内存的需求很大。</p>
 <p>EROFS对于是否要读完整的块，采用了两种不同策略，以优化读性能：</p>
 <ul>
 <li>Cached I/O：正常使用内核的Page Cache；</li>
@@ -12528,7 +12885,7 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
 <h2 id="开始编译"><a class="header-anchor-1" href="#开始编译">#</a>开始编译</h2>
 <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">make -j $(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
 <h2 id="安装到系统中"><a class="header-anchor-1" href="#安装到系统中">#</a>安装到系统中</h2>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">sudo make INSTALL_MOD_STRIP=1 modules_install</span><br><span class="line">sudo make headers_install</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> make INSTALL_MOD_STRIP=1 modules_install</span><br><span class="line"><span class="built_in">sudo</span> make headers_install</span><br><span class="line"><span class="built_in">sudo</span> make install</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>learning-notes</category>
@@ -12617,21 +12974,6 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
       <tags>
         <tag>Linux</tag>
         <tag>计算机网络</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Tair 存储分析</title>
-    <url>/2024/05/14/tair/</url>
-    <content><![CDATA[<h2 id="1"><a class="header-anchor-1" href="#1">#</a>1</h2>
-<h2 id="2"><a class="header-anchor-1" href="#2">#</a>2</h2>
-<h2 id="3"><a class="header-anchor-1" href="#3">#</a>3</h2>
-]]></content>
-      <categories>
-        <category>learning-notes</category>
-        <category>tair</category>
-      </categories>
-      <tags>
-        <tag>Tair</tag>
       </tags>
   </entry>
   <entry>
@@ -12805,5 +13147,18 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
         <category>misc</category>
         <category>tools</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Tair 存储分析</title>
+    <url>/2024/05/14/nosql/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>learning-notes</category>
+        <category>database-system</category>
+        <category>nosql</category>
+      </categories>
+      <tags>
+        <tag>Tair</tag>
+      </tags>
   </entry>
 </search>
