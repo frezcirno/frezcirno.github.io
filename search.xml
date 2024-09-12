@@ -45,11 +45,11 @@
 </ul>
 <h2 id="c-与-a-如何取舍"><a class="header-anchor-1" href="#c-与-a-如何取舍">#</a>C 与 A 如何取舍</h2>
 <ol>
-<li>选择一致性: 对一致性要求较高的系统，例如:</li>
+<li>选择一致性 (CP): 对一致性要求较高的系统，例如:</li>
 </ol>
 <p>传统ACID数据库，服务注册中心 (Etcd, Zookeeper, Nacos)，HBase，金融系统，银行系统，与钱相关的</p>
 <ol start="2">
-<li>选择可用性:</li>
+<li>选择可用性 (AP):</li>
 </ol>
 <p>Eureka，Redis 集群，Nacos配置中心</p>
 ]]></content>
@@ -148,6 +148,7 @@
 <li>Linus Torvalds 技术大牛 构建了今天的互联网</li>
 </ul>
 </li>
+<li>字节的产品 抖音、今日头条、多闪、飞书、西瓜视频、火山小视频、faceU激萌、悟空问答、飞聊、皮皮虾、懂车帝、图虫</li>
 <li>优点
 <ul>
 <li>实事求是</li>
@@ -376,9 +377,10 @@
 <ul>
 <li>速度
 <ul>
-<li>L1: 1ns</li>
-<li>L2: 4ns</li>
-<li>Memory: 100ns</li>
+<li>L1: 1ns 64KB</li>
+<li>L2: 4ns 256KB</li>
+<li>L3: 10ns 8MB</li>
+<li>Memory: 100ns 8GB</li>
 </ul>
 </li>
 <li>拓扑
@@ -389,8 +391,21 @@
 </li>
 <li>多核缓存一致性
 <ul>
-<li>MESI协议 ❓</li>
-<li>MOESI协议 ❓</li>
+<li>MESI(梅西)协议
+<ul>
+<li>M: Modified</li>
+<li>E: Exclusive</li>
+<li>S: Shared</li>
+<li>I: Invalid</li>
+</ul>
+</li>
+<li>MOESI协议
+<ul>
+<li>O: Owner</li>
+<li>+允许多个CPU同时共享同一块缓存</li>
+<li>+性能更好</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -538,7 +553,11 @@
 <li>-&gt; 地址</li>
 </ul>
 </li>
-<li>Linux实际上跳过段机制</li>
+<li>Linux实际上不使用段机制
+<ul>
+<li>SegFault 检测实际上是通过设置页权限实现的</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -769,7 +788,7 @@
 <ul>
 <li>Connection: close 服务器回完resp就close
 <ul>
-<li>容易导致TIME_WAIT</li>
+<li>容易导致大量TIME_WAIT</li>
 </ul>
 </li>
 </ul>
@@ -996,11 +1015,50 @@
 <ul>
 <li>内存结构 ❓
 <ul>
-<li>堆结构</li>
+<li>程序计数器 PC</li>
+<li>Java栈: 和C++的栈类似</li>
+<li>本地方法栈(C栈): JNI方法的栈</li>
+<li>堆 Heap</li>
+<li>方法区
+<ul>
+<li>类信息</li>
+<li>静态变量</li>
+<li>常量</li>
+<li>JIT编译后的代码</li>
 </ul>
 </li>
-<li>垃圾回收GC ❓
+<li>直接内存(堆外内存): JNI直接分配的内存</li>
+</ul>
+</li>
+<li>堆Heap结构
 <ul>
+<li>新生代
+<ul>
+<li>Eden</li>
+<li>Survivor</li>
+</ul>
+</li>
+<li>老年代</li>
+<li>永久代</li>
+<li>元空间</li>
+</ul>
+</li>
+<li>类加载器
+<ul>
+<li>Bootstrap</li>
+<li>Extension</li>
+<li>Application</li>
+</ul>
+</li>
+<li>GC算法
+<ul>
+<li>引用计数
+<ul>
+<li>-循环引用</li>
+</ul>
+</li>
+<li>标记清除</li>
+<li>标记整理</li>
 <li>CMS
 <ul>
 <li>Minor GC</li>
@@ -1061,9 +1119,12 @@
 </li>
 </ul>
 </li>
-<li>map/set</li>
-<li>unordered_map/set</li>
+<li>vector/stack</li>
+<li>queue/deque</li>
 <li>list</li>
+<li>map/set</li>
+<li>multimap/multiset</li>
+<li>unordered_map/unordered_set</li>
 </ul>
 </li>
 <li>引用</li>
@@ -1087,41 +1148,42 @@
 <li>friend</li>
 </ul>
 </li>
-<li>继承
+<li>继承 &amp; 多态
 <ul>
 <li>保护级别 区别</li>
-<li>虚继承
+<li>关键字
 <ul>
-<li>防止菱形继承</li>
-<li>使得虚函数表更加复杂 且内存布局变化</li>
+<li>final 防止继承</li>
+<li>override 关键字 明确重写</li>
 </ul>
 </li>
-</ul>
-</li>
-<li>多态
-<ul>
 <li>虚函数
 <ul>
-<li>构造函数不能是虚函数</li>
-<li>基类析构函数必须是虚函数</li>
-<li>虚函数实现
-<ul>
+<li>Class() 不能是虚函数 否则无法调用</li>
+<li>~Class() 必须是虚函数</li>
+<li>纯虚函数: 没有实现(<code>=0</code>)的虚函数</li>
+</ul>
+</li>
 <li>抽象类
 <ul>
-<li>有虚函数</li>
+<li>包含 纯虚函数 的类</li>
 <li>不可以被new</li>
 </ul>
 </li>
 <li>虚函数表
 <ul>
-<li>每个类一个 编译器分配</li>
+<li>每个(继承抽象类的)类一个 编译器分配</li>
 <li>每个对象有一个隐式的虚表指针成员</li>
+<li>MRO中有几个独立的抽象类 就会有几个虚表指针</li>
 </ul>
 </li>
+<li>虚继承 virtual 继承
+<ul>
+<li>防止菱形继承</li>
+<li>使得虚函数表更加复杂 且内存布局变化</li>
 </ul>
 </li>
-</ul>
-</li>
+<li>对象切片问题: 派生类对象赋值给基类对象</li>
 </ul>
 </li>
 </ul>
@@ -1512,7 +1574,7 @@
 <li>聚簇索引
 <ul>
 <li>数据和索引放在一起存储 索引的叶子节点保存数据</li>
-<li>相对的 其他索引叫做二级索引</li>
+<li>相对的 其他索引叫做二级索引 次级索引</li>
 <li>举例 InnoDB</li>
 </ul>
 </li>
@@ -1573,24 +1635,70 @@
 </li>
 <li>事务 ✅
 <ul>
-<li>概念</li>
+<li>概念: BEGIN 和 COMMIT 包裹起来的一组SQL语句</li>
 <li>ACID ✅
 <ul>
-<li>原子性</li>
-<li>一致性</li>
-<li>隔离性</li>
-<li>持久性</li>
-</ul>
-</li>
-<li>问题 ❓
+<li>原子性: 事务要么全部执行 要么全部不执行</li>
+<li>一致性: 事务执行前后 数据库的完整性约束没有被破坏
 <ul>
-<li>脏读</li>
-<li>不可重复读: 在同一个事务中，多次读取同一数据返回的结果有所不同</li>
-<li>幻读: 一个事务读取了另一个事务插入的新纪录</li>
-<li>丢失修改</li>
+<li>例如A转账给B 两个账户总和不变</li>
 </ul>
 </li>
-<li>MySQL 如何保证 ACID ❓❓
+<li>隔离性: 事务之间互不干扰</li>
+<li>持久性: 事务提交后 数据库状态不会丢失 即使数据库崩溃</li>
+</ul>
+</li>
+<li>事务隔离级别
+<ul>
+<li>RU读未提交: 一个事务可以读取另一个事务未提交的数据
+<ul>
+<li>-脏读</li>
+</ul>
+</li>
+<li>RC读已提交: 一个事务只能读取另一个事务已提交的数据
+<ul>
+<li>对应方案: 行锁</li>
+<li>-不可重复读: 在同一个事务中，多次读取同一数据返回的结果有所不同</li>
+</ul>
+</li>
+<li>RR可重复读: 一个事务在执行期间看到的数据是一致的
+<ul>
+<li>对应方案: MVCC机制
+<ul>
+<li>事务开始创建一个Read View</li>
+<li>递增的事务id作为版本号</li>
+</ul>
+</li>
+<li>-幻读: 一个事务的写操作会导致另一个事务的查询结果不一致
+<ul>
+<li>e.g. 并发预订座位</li>
+<li>解决1: 物化冲突: 改SQL 用 FOR UPDATE 显式锁定</li>
+<li>解决2: 使用序列化隔离级别</li>
+<li>解决3: 使用范围锁，例如next-key lock</li>
+</ul>
+</li>
+<li>-Write Skew: 更新不同数据破坏了一致性
+<ul>
+<li>e.g. 至少有一个医生值班</li>
+<li>解决: 应用侧控制</li>
+</ul>
+</li>
+<li>-Lost Update: 两个事务同时更新同一行
+<ul>
+<li>e.g. 并发计数器+1</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>SI快照隔离</li>
+<li>S序列化 (完美)
+<ul>
+<li>-性能很差</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>MySQL 如何保证 ACID
 <ul>
 <li>保证原子性A
 <ul>
@@ -1600,45 +1708,6 @@
 <li>保证隔离性I
 <ul>
 <li>锁 + MVCC机制</li>
-<li>SQL标准隔离级别 ✅
-<ul>
-<li>RU读未提交 (问题: 脏读, 不可重复读, 幻读)</li>
-<li>RC读已提交 (问题: 不可重复读, 幻读)
-<ul>
-<li>事务开始创建一个Read View
-<ul>
-<li>+解决不可重复读, 幻读</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>RR可重复读 (问题: 幻读)
-<ul>
-<li>快照读
-<ul>
-<li>MVCC机制
-<ul>
-<li>事务开始创建一个Read View</li>
-<li>版本号</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>当前读
-<ul>
-<li>记录锁</li>
-<li>间隙锁 防止幻读</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>S序列化 (完美)
-<ul>
-<li>-性能很差</li>
-</ul>
-</li>
-</ul>
-</li>
 <li>锁
 <ul>
 <li>记录锁(行锁) 锁定行 (3)</li>
@@ -1652,9 +1721,8 @@
 <li>保证持久性D
 <ul>
 <li>WAL 先写日志</li>
-<li>Redo log
+<li>Redo log (innodb)
 <ul>
-<li>Innodb 日志</li>
 <li>用于防止 Buffer Pool 因为异步落盘 数据丢失</li>
 <li>两个文件循环写 为了性能</li>
 <li>格式
@@ -1878,26 +1946,26 @@
 </ul>
 </li>
 <li>发布订阅</li>
-<li>Redis集群
+<li>Redis 集群
 <ul>
 <li>主从
 <ul>
 <li>主库读写, 从库只读</li>
-<li>Gossip</li>
 <li>同步机制
 <ul>
-<li>全量复制</li>
+<li>老版本 low 全量复制</li>
+<li>新版本 增量复制</li>
 <li>基于长连接的命令传播</li>
-<li>增量复制</li>
 </ul>
 </li>
 </ul>
 </li>
-<li>主从+哨兵
+<li>主从+哨兵 Sentinel
 <ul>
-<li>一个Raft集群 负责维护Redis集群的可用性
+<li>哨兵: 一个集群 负责维护Redis集群的可用性
 <ul>
-<li>监控集群是否正常</li>
+<li>监控集群是否正常 INFO 探活</li>
+<li>类似Raft协议</li>
 <li>自动故障转移</li>
 <li>提供配置</li>
 <li>通知客户端</li>
@@ -1908,25 +1976,27 @@
 <li>选择数据最完整的从库作为主库</li>
 </ul>
 </li>
-<li>哨兵之间利用Raft算法选主</li>
+<li>哨兵脑裂问题
+<ul>
+<li>主节点虚假故障 丢失数据</li>
+<li>可以用min-slaves缓解 但是不能彻底解决</li>
+<li>换用强一致性的Zookeeper</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>Cluster模式
 <ul>
-<li>去中心化 不区分主从 每个节点存储不同的分片
+<li>去中心化 每个节点存储不同的分片
 <ul>
 <li>没有使用一致性hash 而是使用crc16(key)/16384</li>
 <li>存在迁出导入开销</li>
 </ul>
 </li>
+<li>可以组合主从模式</li>
+<li>GOSSIP协议同步路由表和节点状态等信息</li>
 <li>MOVED 重定向用户请求</li>
-</ul>
-</li>
-<li>脑裂问题
-<ul>
-<li>主节点虚假故障 丢失数据</li>
-<li>可以用min-slaves缓解 但是不能彻底解决</li>
-<li>换用强一致性的Zookeeper</li>
+<li>ASK</li>
 </ul>
 </li>
 </ul>
@@ -1937,6 +2007,7 @@
 <li>缓存击穿 热点key过期
 <ul>
 <li>设置热点key永不过期</li>
+<li>热点key加后缀散列</li>
 </ul>
 </li>
 <li>缓存雪崩 大量key同时失效
@@ -2016,7 +2087,7 @@
 </ul>
 </li>
 </ul>
-<h2 id="nginx"><a class="header-anchor-1" href="#nginx">#</a>Nginx</h2>
+<h2 id="nginx-openresty"><a class="header-anchor-1" href="#nginx-openresty">#</a>Nginx &amp; OpenResty</h2>
 <ul>
 <li>功能
 <ul>
@@ -2276,9 +2347,30 @@
 <li>-解决不了拜占庭问题</li>
 </ul>
 </li>
-<li>Raft ❓
+<li>Raft
 <ul>
 <li>关键点: 心跳同步log, 新log覆盖旧log, 选主过半数机制</li>
+<li>-解决不了拜占庭问题</li>
+<li>Log结构
+<ul>
+<li>Term</li>
+<li>Index</li>
+<li>Command</li>
+</ul>
+</li>
+<li>AppendEntries
+<ul>
+<li>Leader -&gt; Follower</li>
+<li>包含log</li>
+<li>用于同步log</li>
+</ul>
+</li>
+<li>RequestVote
+<ul>
+<li>Candidate -&gt; Follower</li>
+<li>用于选主</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>ZAB
@@ -2367,27 +2459,55 @@
 <li>强一致性</li>
 </ul>
 </li>
-<li>Consul
-*</li>
-</ul>
-</li>
-<li>Hive ❓</li>
-<li>分布式文件系统
-<ul>
-<li>GFS ❓</li>
-<li>HDFS ❓</li>
-</ul>
-</li>
-<li>Hadoop ❓</li>
-<li>表格存储
-<ul>
-<li>Google BigTable ❓</li>
-<li>HBase ❓</li>
+<li>Consul</li>
 </ul>
 </li>
 </ul>
 <h2 id="大数据"><a class="header-anchor-1" href="#大数据">#</a>大数据</h2>
 <ul>
+<li>
+<p>文件系统</p>
+<ul>
+<li>GFS ❓</li>
+<li>HDFS ❓</li>
+<li>TaobaoFS ❓</li>
+</ul>
+</li>
+<li>
+<p>NoSQL 数据库</p>
+<ul>
+<li>Google BigTable
+<ul>
+<li>分布式存储系统</li>
+<li>三个维度: 表名, 行键, 列键</li>
+<li>适合海量数据存储</li>
+<li>适合读多写少</li>
+</ul>
+</li>
+<li>HBase
+<ul>
+<li>OLTP 数据库 列式存储模型 底层是kv存储</li>
+<li>存储PB级别的海量数据 支持最多几万个稀疏列</li>
+<li>追求一致性，CP 系统</li>
+<li>相对于基于RocksDB的分布式存储系统，成本更高</li>
+</ul>
+</li>
+<li>Cassandra ❓</li>
+</ul>
+</li>
+<li>
+<p>数据分析</p>
+<ul>
+<li>Google Spanner ❓</li>
+<li>Google F1 ❓</li>
+<li>Hive
+<ul>
+<li>OLAP 数据仓库 大数据查询、处理和计算引擎</li>
+<li>使用 HQL 进行查询，底层转换成 MapReduce</li>
+</ul>
+</li>
+</ul>
+</li>
 <li>
 <p>Kafka -&gt; 消息队列</p>
 </li>
@@ -2427,9 +2547,57 @@
 </ul>
 <h2 id="存储"><a class="header-anchor-1" href="#存储">#</a>存储</h2>
 <ul>
-<li>块存储</li>
-<li>文件存储</li>
-<li>对象存储 ✅</li>
+<li>块存储
+<ul>
+<li>Ceph</li>
+</ul>
+</li>
+<li>文件存储
+<ul>
+<li>Ceph</li>
+<li>HDFS</li>
+</ul>
+</li>
+<li>对象存储
+<ul>
+<li>Ceph</li>
+<li>MinIO</li>
+</ul>
+</li>
+<li>KV存储
+<ul>
+<li>Redis</li>
+<li>LevelDB</li>
+<li>RocksDB</li>
+</ul>
+</li>
+<li>SSD
+<ul>
+<li>优点
+<ul>
+<li>读写速度快</li>
+<li>无噪音</li>
+<li>无碎片</li>
+</ul>
+</li>
+<li>缺点
+<ul>
+<li>寿命短</li>
+<li>价格高</li>
+<li>容量小</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Log-Structured Merge Tree
+<ul>
+<li>vs B+Tree</li>
+<li>读放大: 读取的数据量和用户写入的数据量之间的比值</li>
+<li>写放大: 用户写入的数据量和实际写入磁盘的数据量之间的比值</li>
+<li>LevelDB</li>
+<li>RocksDB</li>
+</ul>
+</li>
 <li>快照机制
 <ul>
 <li>COW
@@ -2443,15 +2611,6 @@
 <li>-有数据碎片</li>
 </ul>
 </li>
-</ul>
-</li>
-<li>Log-Structured Merge Tree
-<ul>
-<li>vs B+Tree</li>
-<li>读放大</li>
-<li>写放大</li>
-<li>LevelDB</li>
-<li>RocksDB</li>
 </ul>
 </li>
 </ul>
@@ -8126,13 +8285,12 @@ f_Y(y) = \int_{-\infty}^{+\infty}f(x,y)dx
     <url>/2024/08/10/ELF-file-format/</url>
     <content><![CDATA[<h2 id="宏观结构"><a class="header-anchor-1" href="#宏观结构">#</a>宏观结构</h2>
 <p><img src="ELF-file-format.png" alt="" /></p>
-<p>运行视角：分为若干个程序段（Segment），表示加载到内存时的地址和属性，例如是否可读, 是否可写, 是否可执行;</p>
-<p>链接视角：分为若干个程序节（Section），表示不同作用的程序组成部分，例如 .data, .rodata, .text;
-* 文件中的节区不能重叠，不允许一个字节存在于两个节区中的情况发生。</p>
+<p>运行视图：分为若干个程序段（Segment），一个段表示一种加载类型，包括需要加载到内存的地址和属性（是否可读, 是否可写, 是否可执行）；</p>
+<p>链接视图：分为若干个程序节（Section），表示不同作用的程序组成部分，用于链接，例如 .data, .rodata, .text；类似标签的作用；文件中的节区不能重叠；不允许一个字节存在于两个节区中的情况发生。</p>
 <p>一般来说一个Segment会包含多个Section，例如：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Segment 1: Text Segment</span><br><span class="line">* .text</span><br><span class="line">* .rodata</span><br><span class="line">* .hash</span><br><span class="line">* .dynsym</span><br><span class="line">* .dynstr</span><br><span class="line">* .plt</span><br><span class="line">* .rel.got</span><br><span class="line"></span><br><span class="line">Segment 2: Data Segment</span><br><span class="line">* .data</span><br><span class="line">* .dynamic</span><br><span class="line">* .got</span><br><span class="line">* .bss</span><br></pre></td></tr></table></figure>
 <h2 id="数据类型定义"><a class="header-anchor-1" href="#数据类型定义">#</a>数据类型定义</h2>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* Type for a 16-bit quantity.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf32_Half;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf64_Half;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Types for signed and unsigned 32-bit quantities.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint32_t</span> Elf32_Word;</span><br><span class="line"><span class="keyword">typedef</span>	<span class="type">int32_t</span>  Elf32_Sword;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint32_t</span> Elf64_Word;</span><br><span class="line"><span class="keyword">typedef</span>	<span class="type">int32_t</span>  Elf64_Sword;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Types for signed and unsigned 64-bit quantities.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint64_t</span> Elf32_Xword;</span><br><span class="line"><span class="keyword">typedef</span>	<span class="type">int64_t</span>  Elf32_Sxword;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint64_t</span> Elf64_Xword;</span><br><span class="line"><span class="keyword">typedef</span>	<span class="type">int64_t</span>  Elf64_Sxword;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Type of addresses.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint32_t</span> Elf32_Addr;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint64_t</span> Elf64_Addr;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Type of file offsets.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint32_t</span> Elf32_Off;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint64_t</span> Elf64_Off;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Type for section indices, which are 16-bit quantities.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf32_Section;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf64_Section;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Type for version symbol information.  */</span></span><br><span class="line"><span class="keyword">typedef</span> Elf32_Half Elf32_Versym;</span><br><span class="line"><span class="keyword">typedef</span> Elf64_Half Elf64_Versym;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* Type for a 16-bit quantity.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf32_Half;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf64_Half;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Types for signed and unsigned 32-bit quantities.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint32_t</span> Elf32_Word;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">int32_t</span>  Elf32_Sword;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint32_t</span> Elf64_Word;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">int32_t</span>  Elf64_Sword;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Types for signed and unsigned 64-bit quantities.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint64_t</span> Elf32_Xword;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">int64_t</span>  Elf32_Sxword;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint64_t</span> Elf64_Xword;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">int64_t</span>  Elf64_Sxword;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Type of addresses.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint32_t</span> Elf32_Addr;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint64_t</span> Elf64_Addr;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Type of file offsets.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint32_t</span> Elf32_Off;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint64_t</span> Elf64_Off;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Type for section indices, which are 16-bit quantities.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf32_Section;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf64_Section;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Type for version symbol information.  */</span></span><br><span class="line"><span class="keyword">typedef</span> Elf32_Half Elf32_Versym;</span><br><span class="line"><span class="keyword">typedef</span> Elf64_Half Elf64_Versym;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <h2 id="elf-header-ehdr"><a class="header-anchor-1" href="#elf-header-ehdr">#</a>ELF Header (Ehdr)</h2>
 <ul>
 <li>魔数：<code>[0x7f, 'E', 'L', 'F']</code></li>
@@ -8140,40 +8298,40 @@ f_Y(y) = \int_{-\infty}^{+\infty}f(x,y)dx
 <li>Shdr大小，Shdr个数</li>
 <li>入口地址 <code>e_entry</code></li>
 </ul>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	e_ident[EI_NIDENT];	<span class="comment">/* Magic number and other info */</span></span><br><span class="line">  Elf32_Half	e_type;			<span class="comment">/* Object file type */</span></span><br><span class="line">  Elf32_Half	e_machine;		<span class="comment">/* Architecture */</span></span><br><span class="line">  Elf32_Word	e_version;		<span class="comment">/* Object file version */</span></span><br><span class="line">  Elf32_Addr	e_entry;		<span class="comment">/* Entry point virtual address */</span></span><br><span class="line">  Elf32_Off	e_phoff;		<span class="comment">/* Program header table file offset */</span></span><br><span class="line">  Elf32_Off	e_shoff;		<span class="comment">/* Section header table file offset */</span></span><br><span class="line">  Elf32_Word	e_flags;		<span class="comment">/* Processor-specific flags */</span></span><br><span class="line">  Elf32_Half	e_ehsize;		<span class="comment">/* ELF header size in bytes */</span></span><br><span class="line">  Elf32_Half	e_phentsize;		<span class="comment">/* Program header table entry size */</span></span><br><span class="line">  Elf32_Half	e_phnum;		<span class="comment">/* Program header table entry count */</span></span><br><span class="line">  Elf32_Half	e_shentsize;		<span class="comment">/* Section header table entry size */</span></span><br><span class="line">  Elf32_Half	e_shnum;		<span class="comment">/* Section header table entry count */</span></span><br><span class="line">  Elf32_Half	e_shstrndx;		<span class="comment">/* Section header string table index */</span></span><br><span class="line">&#125; Elf32_Ehdr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	e_ident[EI_NIDENT];	<span class="comment">/* Magic number and other info */</span></span><br><span class="line">  Elf64_Half	e_type;			<span class="comment">/* Object file type */</span></span><br><span class="line">  Elf64_Half	e_machine;		<span class="comment">/* Architecture */</span></span><br><span class="line">  Elf64_Word	e_version;		<span class="comment">/* Object file version */</span></span><br><span class="line">  Elf64_Addr	e_entry;		<span class="comment">/* Entry point virtual address */</span></span><br><span class="line">  Elf64_Off	e_phoff;		<span class="comment">/* Program header table file offset */</span></span><br><span class="line">  Elf64_Off	e_shoff;		<span class="comment">/* Section header table file offset */</span></span><br><span class="line">  Elf64_Word	e_flags;		<span class="comment">/* Processor-specific flags */</span></span><br><span class="line">  Elf64_Half	e_ehsize;		<span class="comment">/* ELF header size in bytes */</span></span><br><span class="line">  Elf64_Half	e_phentsize;		<span class="comment">/* Program header table entry size */</span></span><br><span class="line">  Elf64_Half	e_phnum;		<span class="comment">/* Program header table entry count */</span></span><br><span class="line">  Elf64_Half	e_shentsize;		<span class="comment">/* Section header table entry size */</span></span><br><span class="line">  Elf64_Half	e_shnum;		<span class="comment">/* Section header table entry count */</span></span><br><span class="line">  Elf64_Half	e_shstrndx;		<span class="comment">/* Section header string table index */</span></span><br><span class="line">&#125; Elf64_Ehdr;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> e_ident[EI_NIDENT]; <span class="comment">/* Magic number and other info */</span></span><br><span class="line">  Elf32_Half e_type;   <span class="comment">/* Object file type */</span></span><br><span class="line">  Elf32_Half e_machine;  <span class="comment">/* Architecture */</span></span><br><span class="line">  Elf32_Word e_version;  <span class="comment">/* Object file version */</span></span><br><span class="line">  Elf32_Addr e_entry;  <span class="comment">/* Entry point virtual address */</span></span><br><span class="line">  Elf32_Off e_phoff;  <span class="comment">/* Program header table file offset */</span></span><br><span class="line">  Elf32_Off e_shoff;  <span class="comment">/* Section header table file offset */</span></span><br><span class="line">  Elf32_Word e_flags;  <span class="comment">/* Processor-specific flags */</span></span><br><span class="line">  Elf32_Half e_ehsize;  <span class="comment">/* ELF header size in bytes */</span></span><br><span class="line">  Elf32_Half e_phentsize;  <span class="comment">/* Program header table entry size */</span></span><br><span class="line">  Elf32_Half e_phnum;  <span class="comment">/* Program header table entry count */</span></span><br><span class="line">  Elf32_Half e_shentsize;  <span class="comment">/* Section header table entry size */</span></span><br><span class="line">  Elf32_Half e_shnum;  <span class="comment">/* Section header table entry count */</span></span><br><span class="line">  Elf32_Half e_shstrndx;  <span class="comment">/* Section header string table index */</span></span><br><span class="line">&#125; Elf32_Ehdr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> e_ident[EI_NIDENT]; <span class="comment">/* Magic number and other info */</span></span><br><span class="line">  Elf64_Half e_type;   <span class="comment">/* Object file type */</span></span><br><span class="line">  Elf64_Half e_machine;  <span class="comment">/* Architecture */</span></span><br><span class="line">  Elf64_Word e_version;  <span class="comment">/* Object file version */</span></span><br><span class="line">  Elf64_Addr e_entry;  <span class="comment">/* Entry point virtual address */</span></span><br><span class="line">  Elf64_Off e_phoff;  <span class="comment">/* Program header table file offset */</span></span><br><span class="line">  Elf64_Off e_shoff;  <span class="comment">/* Section header table file offset */</span></span><br><span class="line">  Elf64_Word e_flags;  <span class="comment">/* Processor-specific flags */</span></span><br><span class="line">  Elf64_Half e_ehsize;  <span class="comment">/* ELF header size in bytes */</span></span><br><span class="line">  Elf64_Half e_phentsize;  <span class="comment">/* Program header table entry size */</span></span><br><span class="line">  Elf64_Half e_phnum;  <span class="comment">/* Program header table entry count */</span></span><br><span class="line">  Elf64_Half e_shentsize;  <span class="comment">/* Section header table entry size */</span></span><br><span class="line">  Elf64_Half e_shnum;  <span class="comment">/* Section header table entry count */</span></span><br><span class="line">  Elf64_Half e_shstrndx;  <span class="comment">/* Section header string table index */</span></span><br><span class="line">&#125; Elf64_Ehdr;</span><br></pre></td></tr></table></figure>
 <h2 id="program-header-phdr"><a class="header-anchor-1" href="#program-header-phdr">#</a>Program Header (Phdr)</h2>
 <p>一般在文件开头紧邻 EHdr，有多个Phdr，起始偏移量由 <code>e_phoff</code> 指定，数量由 <code>e_phnum</code> 指定；</p>
 <ul>
 <li>p_vaddr 段加载的虚拟地址</li>
 <li>p_flags 段属性</li>
 </ul>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Word	p_type;			<span class="comment">/* Segment type */</span></span><br><span class="line">  Elf32_Off	p_offset;		<span class="comment">/* Segment file offset */</span></span><br><span class="line">  Elf32_Addr	p_vaddr;		<span class="comment">/* Segment virtual address */</span></span><br><span class="line">  Elf32_Addr	p_paddr;		<span class="comment">/* Segment physical address */</span></span><br><span class="line">  Elf32_Word	p_filesz;		<span class="comment">/* Segment size in file */</span></span><br><span class="line">  Elf32_Word	p_memsz;		<span class="comment">/* Segment size in memory */</span></span><br><span class="line">  Elf32_Word	p_flags;		<span class="comment">/* Segment flags */</span></span><br><span class="line">  Elf32_Word	p_align;		<span class="comment">/* Segment alignment */</span></span><br><span class="line">&#125; Elf32_Phdr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Word	p_type;			<span class="comment">/* Segment type */</span></span><br><span class="line">  Elf64_Word	p_flags;		<span class="comment">/* Segment flags */</span></span><br><span class="line">  Elf64_Off	p_offset;		<span class="comment">/* Segment file offset */</span></span><br><span class="line">  Elf64_Addr	p_vaddr;		<span class="comment">/* Segment virtual address */</span></span><br><span class="line">  Elf64_Addr	p_paddr;		<span class="comment">/* Segment physical address */</span></span><br><span class="line">  Elf64_Xword	p_filesz;		<span class="comment">/* Segment size in file */</span></span><br><span class="line">  Elf64_Xword	p_memsz;		<span class="comment">/* Segment size in memory */</span></span><br><span class="line">  Elf64_Xword	p_align;		<span class="comment">/* Segment alignment */</span></span><br><span class="line">&#125; Elf64_Phdr;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Word p_type;   <span class="comment">/* Segment type */</span></span><br><span class="line">  Elf32_Off p_offset;  <span class="comment">/* Segment file offset */</span></span><br><span class="line">  Elf32_Addr p_vaddr;  <span class="comment">/* Segment virtual address */</span></span><br><span class="line">  Elf32_Addr p_paddr;  <span class="comment">/* Segment physical address */</span></span><br><span class="line">  Elf32_Word p_filesz;  <span class="comment">/* Segment size in file */</span></span><br><span class="line">  Elf32_Word p_memsz;  <span class="comment">/* Segment size in memory */</span></span><br><span class="line">  Elf32_Word p_flags;  <span class="comment">/* Segment flags */</span></span><br><span class="line">  Elf32_Word p_align;  <span class="comment">/* Segment alignment */</span></span><br><span class="line">&#125; Elf32_Phdr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Word p_type;   <span class="comment">/* Segment type */</span></span><br><span class="line">  Elf64_Word p_flags;  <span class="comment">/* Segment flags */</span></span><br><span class="line">  Elf64_Off p_offset;  <span class="comment">/* Segment file offset */</span></span><br><span class="line">  Elf64_Addr p_vaddr;  <span class="comment">/* Segment virtual address */</span></span><br><span class="line">  Elf64_Addr p_paddr;  <span class="comment">/* Segment physical address */</span></span><br><span class="line">  Elf64_Xword p_filesz;  <span class="comment">/* Segment size in file */</span></span><br><span class="line">  Elf64_Xword p_memsz;  <span class="comment">/* Segment size in memory */</span></span><br><span class="line">  Elf64_Xword p_align;  <span class="comment">/* Segment alignment */</span></span><br><span class="line">&#125; Elf64_Phdr;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <h2 id="section-header-shdr"><a class="header-anchor-1" href="#section-header-shdr">#</a>Section Header (Shdr)</h2>
 <p>一般在文件末尾，起始偏移量由 <code>e_shoff</code> 指定，数量由 <code>e_shnum</code> 指定；</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Word	sh_name;		<span class="comment">/* Section name (string tbl index) */</span></span><br><span class="line">  Elf32_Word	sh_type;		<span class="comment">/* Section type */</span></span><br><span class="line">  Elf32_Word	sh_flags;		<span class="comment">/* Section flags */</span></span><br><span class="line">  Elf32_Addr	sh_addr;		<span class="comment">/* Section virtual addr at execution */</span></span><br><span class="line">  Elf32_Off	sh_offset;		<span class="comment">/* Section file offset */</span></span><br><span class="line">  Elf32_Word	sh_size;		<span class="comment">/* Section size in bytes */</span></span><br><span class="line">  Elf32_Word	sh_link;		<span class="comment">/* Link to another section */</span></span><br><span class="line">  Elf32_Word	sh_info;		<span class="comment">/* Additional section information */</span></span><br><span class="line">  Elf32_Word	sh_addralign;		<span class="comment">/* Section alignment */</span></span><br><span class="line">  Elf32_Word	sh_entsize;		<span class="comment">/* Entry size if section holds table */</span></span><br><span class="line">&#125; Elf32_Shdr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Word	sh_name;		<span class="comment">/* Section name (string tbl index) */</span></span><br><span class="line">  Elf64_Word	sh_type;		<span class="comment">/* Section type */</span></span><br><span class="line">  Elf64_Xword	sh_flags;		<span class="comment">/* Section flags */</span></span><br><span class="line">  Elf64_Addr	sh_addr;		<span class="comment">/* Section virtual addr at execution */</span></span><br><span class="line">  Elf64_Off	sh_offset;		<span class="comment">/* Section file offset */</span></span><br><span class="line">  Elf64_Xword	sh_size;		<span class="comment">/* Section size in bytes */</span></span><br><span class="line">  Elf64_Word	sh_link;		<span class="comment">/* Link to another section */</span></span><br><span class="line">  Elf64_Word	sh_info;		<span class="comment">/* Additional section information */</span></span><br><span class="line">  Elf64_Xword	sh_addralign;		<span class="comment">/* Section alignment */</span></span><br><span class="line">  Elf64_Xword	sh_entsize;		<span class="comment">/* Entry size if section holds table */</span></span><br><span class="line">&#125; Elf64_Shdr;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Word sh_name;  <span class="comment">/* Section name (string tbl index) */</span></span><br><span class="line">  Elf32_Word sh_type;  <span class="comment">/* Section type */</span></span><br><span class="line">  Elf32_Word sh_flags;  <span class="comment">/* Section flags */</span></span><br><span class="line">  Elf32_Addr sh_addr;  <span class="comment">/* Section virtual addr at execution */</span></span><br><span class="line">  Elf32_Off sh_offset;  <span class="comment">/* Section file offset */</span></span><br><span class="line">  Elf32_Word sh_size;  <span class="comment">/* Section size in bytes */</span></span><br><span class="line">  Elf32_Word sh_link;  <span class="comment">/* Link to another section */</span></span><br><span class="line">  Elf32_Word sh_info;  <span class="comment">/* Additional section information */</span></span><br><span class="line">  Elf32_Word sh_addralign;  <span class="comment">/* Section alignment */</span></span><br><span class="line">  Elf32_Word sh_entsize;  <span class="comment">/* Entry size if section holds table */</span></span><br><span class="line">&#125; Elf32_Shdr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Word sh_name;  <span class="comment">/* Section name (string tbl index) */</span></span><br><span class="line">  Elf64_Word sh_type;  <span class="comment">/* Section type */</span></span><br><span class="line">  Elf64_Xword sh_flags;  <span class="comment">/* Section flags */</span></span><br><span class="line">  Elf64_Addr sh_addr;  <span class="comment">/* Section virtual addr at execution */</span></span><br><span class="line">  Elf64_Off sh_offset;  <span class="comment">/* Section file offset */</span></span><br><span class="line">  Elf64_Xword sh_size;  <span class="comment">/* Section size in bytes */</span></span><br><span class="line">  Elf64_Word sh_link;  <span class="comment">/* Link to another section */</span></span><br><span class="line">  Elf64_Word sh_info;  <span class="comment">/* Additional section information */</span></span><br><span class="line">  Elf64_Xword sh_addralign;  <span class="comment">/* Section alignment */</span></span><br><span class="line">  Elf64_Xword sh_entsize;  <span class="comment">/* Entry size if section holds table */</span></span><br><span class="line">&#125; Elf64_Shdr;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <h2 id="实例"><a class="header-anchor-1" href="#实例">#</a>实例</h2>
 <ul>
 <li>EHdr</li>
 <li>PHdr 1</li>
 <li>PHdr 2</li>
 <li>PHdr …</li>
-<li>Segment: PHDR (self)</li>
-<li>Segment: INTERP
+<li>Segment: PT_PHDR (self)</li>
+<li>Segment: PT_INTERP
 <ul>
 <li>---- .interp ----</li>
 <li><code>&quot;/lib64/ld-linux-x86-64.so.2&quot;</code></li>
 </ul>
 </li>
-<li>Segment: NOTE r–
+<li>Segment: PT_NOTE r–
 <ul>
 <li>---- .note.gnu.property ----</li>
 <li>---- .note.gnu.build-id ----</li>
 <li>---- .note.ABI-tag ----</li>
 </ul>
 </li>
-<li>Segment: GNU_HASH</li>
+<li>Segment: PT_GNU_HASH</li>
 <li>Segment: Symbol Table</li>
-<li>Segment: LOAD r-x
+<li>Segment: PT_LOAD r-x
 <ul>
 <li>---- .init ----
 <ul>
@@ -8213,7 +8371,7 @@ f_Y(y) = \int_{-\infty}^{+\infty}f(x,y)dx
 </li>
 </ul>
 </li>
-<li>Segment: LOAD r–
+<li>Segment: PT_LOAD r–
 <ul>
 <li>---- .rodata ----
 <ul>
@@ -8225,9 +8383,9 @@ f_Y(y) = \int_{-\infty}^{+\infty}f(x,y)dx
 <li>---- .eh_frame ----</li>
 </ul>
 </li>
-<li>Segment: LOAD rw-
+<li>Segment: PT_LOAD rw-</li>
+<li>Segment: PT_GNU_RELRO rw-
 <ul>
-<li>– Segment: PT_GNU_RELRO rw-</li>
 <li>---- .init_array ----
 <ul>
 <li><code>0x6E10</code></li>
@@ -8247,7 +8405,7 @@ f_Y(y) = \int_{-\infty}^{+\infty}f(x,y)dx
 </li>
 <li>SHdr …n
 <ul>
-<li>– Segment: DYNAMIC rw-</li>
+<li>– Segment: PT_DYNAMIC rw-</li>
 <li><code>stru_22A38</code></li>
 <li>---- .got ----</li>
 <li>---- .data ----</li>
@@ -8258,9 +8416,19 @@ f_Y(y) = \int_{-\infty}^{+\infty}f(x,y)dx
 <li>Segment: String Table</li>
 <li></li>
 </ul>
+<h2 id="典型-segment"><a class="header-anchor-1" href="#典型-segment">#</a>典型 Segment</h2>
+<h3 id="pt-load"><a class="header-anchor-1" href="#pt-load">#</a>PT_LOAD</h3>
+<p>普通的需要加载的段</p>
+<h3 id="pt-interp"><a class="header-anchor-1" href="#pt-interp">#</a>PT_INTERP</h3>
+<p>包含一个C字符串，指向动态链接器的路径，</p>
+<p>当创建一个可执行文件时，如果依赖其它的动态链接库，那么链接编辑器会在可执行文件的程序头中加入一个 PT_INTERP 项，告诉系统这里需要使用动态链接器，一般链接器为ld。</p>
+<h3 id="pt-note"><a class="header-anchor-1" href="#pt-note">#</a>PT_NOTE</h3>
+<p>附加信息，例如ABI版本，构建ID等</p>
+<h3 id="pt-phdr"><a class="header-anchor-1" href="#pt-phdr">#</a>PT_PHDR</h3>
+<p>包含一个程序头表的副本，用于动态链接器的加载</p>
 <h2 id="典型-section"><a class="header-anchor-1" href="#典型-section">#</a>典型 Section</h2>
 <p>Section 类型表：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NULL	  0		<span class="comment">/* Section header table entry unused */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_PROGBITS	  1		<span class="comment">/* Program data */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SYMTAB	  2		<span class="comment">/* Symbol table */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_STRTAB	  3		<span class="comment">/* String table */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_RELA	  4		<span class="comment">/* Relocation entries with addends */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HASH	  5		<span class="comment">/* Symbol hash table */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_DYNAMIC	  6		<span class="comment">/* Dynamic linking information */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NOTE	  7		<span class="comment">/* Notes */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NOBITS	  8		<span class="comment">/* Program space with no data (bss) */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_REL		  9		<span class="comment">/* Relocation entries, no addends */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SHLIB	  10		<span class="comment">/* Reserved */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_DYNSYM	  11		<span class="comment">/* Dynamic linker symbol table */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_INIT_ARRAY	  14		<span class="comment">/* Array of constructors */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_FINI_ARRAY	  15		<span class="comment">/* Array of destructors */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_PREINIT_ARRAY 16		<span class="comment">/* Array of pre-constructors */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GROUP	  17		<span class="comment">/* Section group */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SYMTAB_SHNDX  18		<span class="comment">/* Extended section indices */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_RELR	  19            <span class="comment">/* RELR relative relocations */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span>	SHT_NUM		  20		<span class="comment">/* Number of defined types.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOOS	  0x60000000	<span class="comment">/* Start OS-specific.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_ATTRIBUTES 0x6ffffff5	<span class="comment">/* Object attributes.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_HASH	  0x6ffffff6	<span class="comment">/* GNU-style hash table.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_LIBLIST	  0x6ffffff7	<span class="comment">/* Prelink library list */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_CHECKSUM	  0x6ffffff8	<span class="comment">/* Checksum for DSO content.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOSUNW	  0x6ffffffa	<span class="comment">/* Sun-specific low bound.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SUNW_move	  0x6ffffffa</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SUNW_COMDAT   0x6ffffffb</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SUNW_syminfo  0x6ffffffc</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_verdef	  0x6ffffffd	<span class="comment">/* Version definition section.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_verneed	  0x6ffffffe	<span class="comment">/* Version needs section.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_versym	  0x6fffffff	<span class="comment">/* Version symbol table.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HISUNW	  0x6fffffff	<span class="comment">/* Sun-specific high bound.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HIOS	  0x6fffffff	<span class="comment">/* End OS-specific type */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOPROC	  0x70000000	<span class="comment">/* Start of processor-specific */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HIPROC	  0x7fffffff	<span class="comment">/* End of processor-specific */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOUSER	  0x80000000	<span class="comment">/* Start of application-specific */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HIUSER	  0x8fffffff	<span class="comment">/* End of application-specific */</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NULL   0  <span class="comment">/* Section header table entry unused */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_PROGBITS   1  <span class="comment">/* Program data */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SYMTAB   2  <span class="comment">/* Symbol table */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_STRTAB   3  <span class="comment">/* String table */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_RELA   4  <span class="comment">/* Relocation entries with addends */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HASH   5  <span class="comment">/* Symbol hash table */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_DYNAMIC   6  <span class="comment">/* Dynamic linking information */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NOTE   7  <span class="comment">/* Notes */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NOBITS   8  <span class="comment">/* Program space with no data (bss) */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_REL    9  <span class="comment">/* Relocation entries, no addends */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SHLIB   10  <span class="comment">/* Reserved */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_DYNSYM   11  <span class="comment">/* Dynamic linker symbol table */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_INIT_ARRAY   14  <span class="comment">/* Array of constructors */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_FINI_ARRAY   15  <span class="comment">/* Array of destructors */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_PREINIT_ARRAY 16  <span class="comment">/* Array of pre-constructors */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GROUP   17  <span class="comment">/* Section group */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SYMTAB_SHNDX  18  <span class="comment">/* Extended section indices */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_RELR   19            <span class="comment">/* RELR relative relocations */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NUM    20  <span class="comment">/* Number of defined types.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOOS   0x60000000 <span class="comment">/* Start OS-specific.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_ATTRIBUTES 0x6ffffff5 <span class="comment">/* Object attributes.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_HASH   0x6ffffff6 <span class="comment">/* GNU-style hash table.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_LIBLIST   0x6ffffff7 <span class="comment">/* Prelink library list */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_CHECKSUM   0x6ffffff8 <span class="comment">/* Checksum for DSO content.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOSUNW   0x6ffffffa <span class="comment">/* Sun-specific low bound.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SUNW_move   0x6ffffffa</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SUNW_COMDAT   0x6ffffffb</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SUNW_syminfo  0x6ffffffc</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_verdef   0x6ffffffd <span class="comment">/* Version definition section.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_verneed   0x6ffffffe <span class="comment">/* Version needs section.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_GNU_versym   0x6fffffff <span class="comment">/* Version symbol table.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HISUNW   0x6fffffff <span class="comment">/* Sun-specific high bound.  */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HIOS   0x6fffffff <span class="comment">/* End OS-specific type */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOPROC   0x70000000 <span class="comment">/* Start of processor-specific */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HIPROC   0x7fffffff <span class="comment">/* End of processor-specific */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOUSER   0x80000000 <span class="comment">/* Start of application-specific */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HIUSER   0x8fffffff <span class="comment">/* End of application-specific */</span></span></span><br></pre></td></tr></table></figure>
 <h3 id="shstrtab-节名字符串表"><a class="header-anchor-1" href="#shstrtab-节名字符串表">#</a><code>.shstrtab</code> 节名字符串表</h3>
 <p>字符串表，存储ELF结构中所有的Section的名字。类型是 <code>SHT_STRTAB</code>；由EHdr中的 <code>e_shstrndx</code> 确定本节的位置；</p>
 <h3 id="dyntab-符号名字符串表"><a class="header-anchor-1" href="#dyntab-符号名字符串表">#</a><code>.dyntab</code> 符号名字符串表</h3>
@@ -8270,7 +8438,7 @@ f_Y(y) = \int_{-\infty}^{+\infty}f(x,y)dx
 </ul>
 <h3 id="sht-symtab-符号表"><a class="header-anchor-1" href="#sht-symtab-符号表">#</a>SHT_SYMTAB 符号表</h3>
 <p>包含</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Word	st_name;		<span class="comment">/* Symbol name (string tbl index) */</span></span><br><span class="line">  Elf32_Addr	st_value;		<span class="comment">/* Symbol value */</span></span><br><span class="line">  Elf32_Word	st_size;		<span class="comment">/* Symbol size */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	st_info;		<span class="comment">/* Symbol type and binding */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	st_other;		<span class="comment">/* Symbol visibility */</span></span><br><span class="line">  Elf32_Section	st_shndx;		<span class="comment">/* Section index */</span></span><br><span class="line">&#125; Elf32_Sym;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Word	st_name;		<span class="comment">/* Symbol name (string tbl index) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	st_info;		<span class="comment">/* Symbol type and binding */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> st_other;		<span class="comment">/* Symbol visibility */</span></span><br><span class="line">  Elf64_Section	st_shndx;		<span class="comment">/* Section index */</span></span><br><span class="line">  Elf64_Addr	st_value;		<span class="comment">/* Symbol value */</span></span><br><span class="line">  Elf64_Xword	st_size;		<span class="comment">/* Symbol size */</span></span><br><span class="line">&#125; Elf64_Sym;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Word st_name;  <span class="comment">/* Symbol name (string tbl index) */</span></span><br><span class="line">  Elf32_Addr st_value;  <span class="comment">/* Symbol value */</span></span><br><span class="line">  Elf32_Word st_size;  <span class="comment">/* Symbol size */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> st_info;  <span class="comment">/* Symbol type and binding */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> st_other;  <span class="comment">/* Symbol visibility */</span></span><br><span class="line">  Elf32_Section st_shndx;  <span class="comment">/* Section index */</span></span><br><span class="line">&#125; Elf32_Sym;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Word st_name;  <span class="comment">/* Symbol name (string tbl index) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> st_info;  <span class="comment">/* Symbol type and binding */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> st_other;  <span class="comment">/* Symbol visibility */</span></span><br><span class="line">  Elf64_Section st_shndx;  <span class="comment">/* Section index */</span></span><br><span class="line">  Elf64_Addr st_value;  <span class="comment">/* Symbol value */</span></span><br><span class="line">  Elf64_Xword st_size;  <span class="comment">/* Symbol size */</span></span><br><span class="line">&#125; Elf64_Sym;</span><br></pre></td></tr></table></figure>
 <h3 id="dynamic-动态链接节"><a class="header-anchor-1" href="#dynamic-动态链接节">#</a><code>.dynamic</code> 动态链接节</h3>
 ]]></content>
       <categories>
@@ -11753,6 +11921,207 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       <tags>
         <tag>分布式系统</tag>
         <tag>Raft</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>电子电路</title>
+    <url>/2024/09/12/basic/</url>
+    <content><![CDATA[<h2 id="基本概念"><a class="header-anchor-1" href="#基本概念">#</a>基本概念</h2>
+<ul>
+<li>电荷Q 单位库伦C</li>
+<li>电场</li>
+<li>电流
+<ul>
+<li>1A = 1C/s</li>
+<li>电流方向
+<ul>
+<li>直流电流DC</li>
+<li>交流电流AC</li>
+<li>混合电流: 直流分量=平均值, 交流分量=偏离值</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>基尔霍夫电流定律 KCL</li>
+<li>电压定律</li>
+<li>电动势 单位伏特V
+<ul>
+<li>描述其他能量形式转化为电能的能力</li>
+</ul>
+</li>
+<li>电源 提供电动势
+<ul>
+<li>恒压源</li>
+<li>恒流源</li>
+<li>信号源</li>
+</ul>
+</li>
+<li>电压 单位伏特V
+<ul>
+<li>描述两点之间的电位差</li>
+<li>描述电能转化为其他能量形式的能力</li>
+<li>1V = 1J/C</li>
+<li>电位=对地电压
+<ul>
+<li>参考地G 电位为0</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>功率P
+<ul>
+<li>电路释放能量的速率</li>
+<li>1W = 1J/s = 1V*A</li>
+<li>P&lt;0 表示电路从外界吸收能量 释放电压和电流
+<ul>
+<li>例如 电容 电感</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>信号
+<ul>
+<li>带有信号的随时间空间变化的电压或电流</li>
+<li>确定性信号</li>
+<li>随机信号</li>
+<li>伪随机信号</li>
+</ul>
+</li>
+</ul>
+<h2 id="电路系统"><a class="header-anchor-1" href="#电路系统">#</a>电路系统</h2>
+<ul>
+<li>系统属性
+<ul>
+<li>线性/非线性: 线性系统满足叠加性和均匀性
+<ul>
+<li>叠加性 f(x1+x2) = f(x1) + f(x2)</li>
+<li>均匀性 f(ax) = af(x)</li>
+</ul>
+</li>
+<li>时变/时不变: 时变系统的输出取决于输入信号的时间
+<ul>
+<li>f(x(t)) = y(t) != f(x(t-t0)) = y(t-t0)</li>
+</ul>
+</li>
+<li>记忆/无记忆: 记忆系统的输出取决于输入信号的历史
+<ul>
+<li>记忆: 电容</li>
+<li>无记忆: 电阻</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>端口抽象与网络
+<ul>
+<li>端点: 从电路网络中引出的一个点 用于测量或者构建更大的网络</li>
+<li>端口: 电流始终相反的一对端点 (类似一个电路模块)</li>
+<li>端口条件: 一个电路系统只有能够定义出端口，才能够套用电路模型分析; 否则只能用电磁场方程求解</li>
+<li>多端口网络: 一个网络中有多个端口
+<ul>
+<li>一般有一个接地端点</li>
+</ul>
+</li>
+<li>电路功能一般是通过端口电量关系方程描述的
+<ul>
+<li>流控网络: 电压随电流变化</li>
+<li>压控网络: 电流随电压变化</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>端口连接
+<ul>
+<li>串联: 电流相同 电压相加</li>
+<li>并联: 电压相同 电流相加</li>
+<li>对接: 电压电流都相同</li>
+</ul>
+</li>
+<li>有源(active)网络: 能够自端口向外提供电能量
+<ul>
+<li>太阳能二极管</li>
+<li>初始v&gt;0的电容</li>
+<li>初始i&gt;0的电感</li>
+<li>否则是 无源(passive)网络</li>
+</ul>
+</li>
+<li>理想电源
+<ul>
+<li>理想电压源: 电压不随电流变化 v(t) = V</li>
+<li>理想电流源: 电流不随电压变化 i(t) = I</li>
+</ul>
+</li>
+<li>理想电阻 i(t) = v(t)/R
+<ul>
+<li>电导 G = 1/R</li>
+</ul>
+</li>
+<li>线性内阻电源 真实电源的简化模型
+<ul>
+<li>元件约束条件 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><msub><mi>I</mi><mrow><mi>S</mi><mn>0</mn></mrow></msub></mfrac><mo>+</mo><mfrac><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><msub><mi>V</mi><mrow><mi>S</mi><mn>0</mn></mrow></msub></mfrac><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\frac{i(t)}{I_{S0}} + \frac{v(t)}{V_{S0}} = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.4553em;vertical-align:-0.4453em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4453em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.4553em;vertical-align:-0.4453em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4453em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span></li>
+<li>正弦波电源 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><msub><mi>I</mi><mrow><mi>S</mi><mi>p</mi></mrow></msub></mfrac><mo>+</mo><mfrac><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><msub><mi>V</mi><mrow><mi>S</mi><mi>p</mi></mrow></msub></mfrac><mo>=</mo><mi>c</mi><mi>o</mi><mi>s</mi><mo stretchy="false">(</mo><mi>ω</mi><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\frac{i(t)}{I_{Sp}} + \frac{v(t)}{V_{Sp}} = cos(\omega t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.5525em;vertical-align:-0.5425em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">Sp</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2822em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5425em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.5525em;vertical-align:-0.5425em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">Sp</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2822em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5425em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">cos</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></li>
+<li>电压源(戴维南形式) <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>V</mi><mrow><mi>S</mi><mn>0</mn></mrow></msub><mo>+</mo><mi>R</mi><mo>∗</mo><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">v(t) = V_{S0} + R*i(t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></li>
+<li>电流源(诺顿形式) <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>I</mi><mrow><mi>S</mi><mn>0</mn></mrow></msub><mo>−</mo><mfrac><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mi>R</mi></mfrac></mrow><annotation encoding="application/x-tex">i(t) = I_{S0} - \frac{v(t)}{R}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.355em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.00773em;">R</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></li>
+<li>等效电路</li>
+</ul>
+</li>
+<li>等效电阻
+<ul>
+<li>短路 v(t)=0</li>
+<li>开路 i(t)=0</li>
+<li>开关 关闭时相当于短路，开启时相当于开路</li>
+<li>受控开关 有两个端口 端口1控制端口2的导通
+<ul>
+<li>逆变器 直流电源转交流电源</li>
+</ul>
+</li>
+<li>二极管
+<ul>
+<li>正向i随v接近指数增长</li>
+<li>简化模型相当于受控开关</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="电路元件"><a class="header-anchor-1" href="#电路元件">#</a>电路元件</h2>
+<ul>
+<li>电阻
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>R</mi><mo>∗</mo><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">u(t) = R*i(t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">u</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></li>
+</ul>
+</li>
+<li>二极管
+<ul>
+<li>PN结 阳极 阴极</li>
+<li>正向 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>I</mi><mi>s</mi></msub><mo stretchy="false">(</mo><msup><mi>e</mi><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><msub><mi>V</mi><mi>T</mi></msub></mrow></msup><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">i(t) = I_s(e^{v(t)/V_T}-1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.138em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">s</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span><span class="mord mtight">/</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span></span></span></span>
+<ul>
+<li>电压超过门槛值时导通 导通后电流随电压指数增长</li>
+</ul>
+</li>
+<li>反向几乎不导通 超出反向击穿电压后导通
+<ul>
+<li>作为稳压二极管</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>电容
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>C</mi><mo>∗</mo><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">q(t) = C*v(t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></li>
+</ul>
+</li>
+</ul>
+<h2 id="电路结构"><a class="header-anchor-1" href="#电路结构">#</a>电路结构</h2>
+<ul>
+<li>压控振荡器VCO</li>
+</ul>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+        <category>electronic</category>
+      </categories>
+      <tags>
+        <tag>电子电路</tag>
       </tags>
   </entry>
   <entry>
