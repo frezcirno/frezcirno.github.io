@@ -6566,9 +6566,9 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
 </li>
 <li>
 <p>克隆下来的项目包含子模块</p>
-  <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ git submodule init</span><br><span class="line">$ git submodule update</span><br></pre></td></tr></table></figure>
+  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule init</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update</span></span><br></pre></td></tr></table></figure>
 <p>或者</p>
-  <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ git submodule update --init --recursive</span><br></pre></td></tr></table></figure>
+  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update --init --recursive</span></span><br></pre></td></tr></table></figure>
 </li>
 <li>
 <p>子模块的更新</p>
@@ -6912,7 +6912,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
 <li>
 <p>使用systemd:</p>
 <p>先创建配置文件<code>/etc/systemd/system/clash.service</code></p>
-  <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Clash Daemon</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">ExecStart=/usr/local/bin/clash -d /etc/clash/</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Clash Daemon</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">ExecStart=/usr/local/bin/clash -d /etc/clash/</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
 <p>然后clash就成为了一个service, 可以通过systemctl命令启动, 通过journalctl命令查看日志等</p>
 </li>
 <li>
