@@ -4587,14 +4587,6 @@
       </tags>
   </entry>
   <entry>
-    <title>程序分析</title>
-    <url>/2023/10/31/program-analysis/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>program-analysis</category>
-      </categories>
-  </entry>
-  <entry>
     <title>测试</title>
     <url>/2024/05/14/1/</url>
     <content><![CDATA[]]></content>
@@ -4604,6 +4596,18 @@
       <tags>
         <tag>TODO</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>20 行代码速通 Safe Rust Double Free (整活向)</title>
+    <url>/2025/02/11/unsound-rust/</url>
+    <content><![CDATA[<p>受到 <a href="https://github.com/Speykious/cve-rs">cve-rs</a> 项目启发，利用 Type system 的固有 Unsoundness 实现一个经典的 Double Free。</p>
+<h2 id="代码"><a class="header-anchor-1" href="#代码">#</a>代码</h2>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="meta">#[inline(never)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> <span class="keyword">fn</span> <span class="title function_">lifetime_translator</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>, T: ?<span class="built_in">Sized</span>&gt;(_: &amp;<span class="symbol">&#x27;a</span> &amp;<span class="symbol">&#x27;b</span> (), x: &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T &#123;</span><br><span class="line">    x</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">expand</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>, T: ?<span class="built_in">Sized</span>&gt;(x: &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">f</span>: <span class="keyword">for</span>&lt;<span class="symbol">&#x27;x</span>&gt; <span class="title function_ invoke__">fn</span>(_, &amp;<span class="symbol">&#x27;x</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T = lifetime_translator;</span><br><span class="line">    <span class="title function_ invoke__">f</span>(STATIC_UNIT, x)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> STATIC_UNIT: &amp;&amp;() = &amp;&amp;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">dead</span> = <span class="title function_ invoke__">expand</span>(&amp;<span class="keyword">mut</span> <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]);</span><br><span class="line">    dead.<span class="title function_ invoke__">push</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="运行"><a class="header-anchor-1" href="#运行">#</a>运行</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">frezcirno@homelab:~/unsound-rust$ rustc unsound.rs </span><br><span class="line">frezcirno@homelab:~/unsound-rust$ ./unsound</span><br><span class="line">free(): double free detected in tcache 2</span><br><span class="line">已中止</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>rust</category>
+      </categories>
   </entry>
   <entry>
     <title>模糊测试 Fuzzing test</title>
@@ -12484,29 +12488,27 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
-    <title>MIT 6.824 分布式系统 Lab 1: MapReduce</title>
+    <title>MIT 6.824/6.5840 分布式系统 Lab 1: MapReduce</title>
     <url>/2024/03/25/mit-6.824-distributed-system-lab1/</url>
-    <content><![CDATA[<p>6.824 已经做完很久了，由于日常不怎么用得到，已经忘光了。</p>
-<p>重温一下，刚好更新到Spring 2024。</p>
-<p>本次 Lab 1 讲的是分布式计算的 MapReduce。</p>
-<h2 id="背景"><a class="header-anchor-1" href="#背景">#</a>背景</h2>
+    <content><![CDATA[<p>本次 Lab 1 讲的是分布式计算的 MapReduce。</p>
+<h2 id="1-背景"><a class="header-anchor-1" href="#1-背景">#</a>1. 背景</h2>
 <p>MapReduce 源自 Google 在 OSDI '04 发表的论文，论文的作者是 Jeff Dean 和 Sanjay。主要提出了一种简单、可拓展的分布式计算编程模型。</p>
-<p>对于用户来说，只需要实现 <code>Map()</code> 和 <code>Reduce()</code> 两个函数，即可享受到分布式计算的好处，这就是 MapReduce 的设计初衷。</p>
-<h2 id="思想"><a class="header-anchor-1" href="#思想">#</a>思想</h2>
+<p>对于用户来说，只需要实现 <code>Map()</code> 和 <code>Reduce()</code> 两个函数，即可享受到分布式计算的好处，这就是 MapReduce 的设计理念。</p>
+<h3 id="思想"><a class="header-anchor-1" href="#思想">#</a>思想</h3>
 <p>MapReduce 需要用户将计算过程表达成以下两个函数：</p>
 <ul>
 <li><code>Map(key, value) -&gt; list(ikey, ivalue)</code></li>
 <li><code>Reduce(ikey, list(ivalue)) -&gt; list(ivalue)</code></li>
 </ul>
-<p>到这里聪明的人可能已经感受到一点并行的思想，其实 MapReduce 是把一个任务分解成一系列子任务，每个子任务由 <code>Map</code> 函数去执行。这些子任务的输出会被重组，然后分门别类送到 <code>Reduce</code> 函数去执行。</p>
+<p>到这里大家可能已经感受到一点并行的思想，其实 MapReduce 是把一个任务分解成一系列子任务，每个子任务由 <code>Map</code> 函数去执行。这些子任务的输出会被重组，然后分门别类送到 <code>Reduce</code> 函数去执行。</p>
 <p>MapReduce 的 Motivation 是：</p>
 <ul>
 <li>很多大数据计算任务都是大量输入对应到小量的输出；</li>
 <li>分而治之，一个复杂计算任务往往可以分成多个更简单的部分；</li>
-<li>子任务之间往往可以并行执行； -&gt; Map</li>
+<li>子任务之间往往可以并行执行； -&gt; <code>Map</code></li>
 </ul>
-<p>怎么区分”多个更简单的部分”？使用ikey标示子任务。</p>
-<h2 id="mapreduce-程序示例"><a class="header-anchor-1" href="#mapreduce-程序示例">#</a>MapReduce 程序示例</h2>
+<p>怎么区分”多个更简单的部分”？使用<code>ikey</code>标示子任务。</p>
+<h2 id="2-mapreduce-程序示例"><a class="header-anchor-1" href="#2-mapreduce-程序示例">#</a>2. MapReduce 程序示例</h2>
 <h3 id="word-count"><a class="header-anchor-1" href="#word-count">#</a>Word Count</h3>
 <p>Word count任务是统计一批文本中每个词出现的数量</p>
 <p>Map任务：统计一个分块中的词频</p>
@@ -12521,47 +12523,84 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
 <h3 id="分布式排序"><a class="header-anchor-1" href="#分布式排序">#</a>分布式排序</h3>
 <p>Map任务：原样输出</p>
 <p>Reduce任务：原样输出</p>
-<h2 id="框架实现"><a class="header-anchor-1" href="#框架实现">#</a>框架实现</h2>
+<h2 id="3-框架实现"><a class="header-anchor-1" href="#3-框架实现">#</a>3. 框架实现</h2>
 <p>MapReduce 框架负责调度和执行用户编写的 Map 和 Reduce 任务。</p>
 <p>根据环境（机器配置，网络拓扑，故障概率，和存储成本）不同，可以有很多不同的实现方案</p>
 <h3 id="概览"><a class="header-anchor-1" href="#概览">#</a>概览</h3>
 <p>框架首先将输入数据分成<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span></span>块，然后对每一块分别执行<code>map</code>过程，这个过程是在多个机器上并行执行的；</p>
 <p>在<code>map</code>全部完成后，将中间结果按照某些策略分成<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span>块，然后并行执行<code>reduce</code>过程；</p>
-<h3 id="容错设计"><a class="header-anchor-1" href="#容错设计">#</a>容错设计</h3>
+<h3 id="主控节点数据结构"><a class="header-anchor-1" href="#主控节点数据结构">#</a>主控节点数据结构</h3>
+<ul>
+<li>任务状态：任务类型（<code>Map</code> or <code>Reduce</code>），执行状态（进行中 or 已完成），所在的机器</li>
+<li>数据状态：中间结果的存储位置和大小</li>
+</ul>
+<h3 id="分布式容错设计"><a class="header-anchor-1" href="#分布式容错设计">#</a>分布式容错设计</h3>
 <p>Worker节点的保障：Master节点会周期性地ping Worker节点；失联Worker节点已完成的任务会重新调度。</p>
 <p>Master节点的保障：Master节点会周期性做checkpoint方便故障时重新开始。</p>
-<p>出错时的语义保证：需要实现<code>map/reduce</code>任务提交是原子性的</p>
+<p>出错时的语义保证：需要实现<code>Map/Reduce</code>任务提交是原子性的</p>
 <ul>
-<li><code>map</code>任务通过提交临时文件名，由master做改名实现。</li>
-<li><code>reduce</code>任务完成时会把工作临时文件改名为目标文件。</li>
+<li><code>Map</code>任务通过提交临时文件名，由master做改名实现。</li>
+<li><code>Reduce</code>任务完成时会把工作临时文件改名为目标文件。</li>
 </ul>
-<h3 id="局部性"><a class="header-anchor-1" href="#局部性">#</a>局部性</h3>
+<h3 id="程序局部性"><a class="header-anchor-1" href="#程序局部性">#</a>程序局部性</h3>
 <p>分析局部性主要是考虑到带宽资源的限制。</p>
-<p>论文中实现的 MapReduce 是建立在 GFS (Google File System) 上的，GFS 会对文件进行分块然后保存三份副本。</p>
+<p>论文中实现的 MapReduce 框架是建立在 GFS (Google File System) 上的，GFS 会对文件进行分块然后保存三份副本。</p>
 <p>作者在实现时考虑到了底层GFS的影响，会尽量调度任务到有副本或者距离副本近的机器上。</p>
 <h3 id="任务划分粒度"><a class="header-anchor-1" href="#任务划分粒度">#</a>任务划分粒度</h3>
-<p>在 map 阶段，输入数据会被划分成 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span></span> 个分块，在 reduce 阶段，中间结果会被划分成 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> 个分块。</p>
-<h3 id="备份任务"><a class="header-anchor-1" href="#备份任务">#</a>备份任务</h3>
-<p>TODO</p>
-<h2 id="实现优化"><a class="header-anchor-1" href="#实现优化">#</a>实现优化</h2>
-<h2 id="回到-lab-1"><a class="header-anchor-1" href="#回到-lab-1">#</a>回到 Lab 1</h2>
-<p>Lab 1 是实现 MapReduce 框架的两个组件 <code>Coordinator</code>（ <code>Master</code>） 和 <code>Worker</code>。</p>
+<p>首先，输入数据会被划分成 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span></span> 个分块调用 <code>Map</code>，然后中间结果会被划分成 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> 个分块调用 <code>Reduce</code>。</p>
+<p>理想情况下，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> 应该<strong>远远大于</strong> Worker 机器数量：利于负载均衡、故障恢复、和任务均匀分发；</p>
+<p>取值上界：受限于主控节点的Memory，空间复杂度=<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>M</mi><mo>×</mo><mi>R</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(M\times R)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mclose">)</span></span></span></span></p>
+<p>实践经验：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> 影响中间结果文件的数量</p>
+<p>Google经验：2,000台Worker机器；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><mn>200</mn><mo separator="true">,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">M=200,000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">200</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">000</span></span></span></span>；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>5</mn><mo separator="true">,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">R=5,000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">5</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">000</span></span></span></span></p>
+<h3 id="备用任务"><a class="header-anchor-1" href="#备用任务">#</a>备用任务</h3>
+<p>一般来说，MapReduce框架计算的整体速度受制于少数“掉队者”，掉队的原因有很多，例如机器故障；</p>
+<p>当整个计算过程将要完成时，主控节点会将剩余的任务多安排一次（备用任务）。</p>
+<h2 id="4-一些细节优化"><a class="header-anchor-1" href="#4-一些细节优化">#</a>4. 一些细节优化</h2>
+<h3 id="分区函数"><a class="header-anchor-1" href="#分区函数">#</a>分区函数</h3>
+<p>提供给用户的分区函数，方便开发用；</p>
+<h3 id="数据处理顺序"><a class="header-anchor-1" href="#数据处理顺序">#</a>数据处理顺序</h3>
+<p>MapReduce框架保证同一个分区内，数据是按照key有序处理的，方便用户通过key访问结果文件；</p>
+<h3 id="合并器-combiner"><a class="header-anchor-1" href="#合并器-combiner">#</a>合并器 <code>Combiner</code></h3>
+<p>在一些任务中，中间结果划分不是均匀的，可能会导致大量中间结果分配到同一个<code>Reduce</code>任务去，打满网络带宽。</p>
+<p>例如Word count任务，会有大量的<code>&lt;the, 1&gt;</code>记录；</p>
+<p>为此MapReduce框架设计了一个可选的 <code>Combiner</code> 函数，在 <code>Map</code> 之后先对结果进行一次合并，再通过网络发出去；</p>
+<h3 id="输入输出类型"><a class="header-anchor-1" href="#输入输出类型">#</a>输入输出类型</h3>
+<p>MapReduce框架是支持多种输入文件格式，也支持用户自己实现一个<code>reader</code>接口。</p>
+<h3 id="副作用"><a class="header-anchor-1" href="#副作用">#</a>副作用</h3>
+<p>有时候用户在处理数据时可能想要一些辅助文件，这些是通过统一的一层<code>Application Writer</code>完成，这一层会处理原子更新文件（先写到临时文件然后再改名）之类的细节；</p>
+<p>对于多文件的情况，没有提供原子的两阶段提交，这一点需要用户自己保证；</p>
+<h3 id="跳过坏记录"><a class="header-anchor-1" href="#跳过坏记录">#</a>跳过坏记录</h3>
+<p>有时候用户的<code>Map</code>，<code>Reduce</code>可能会由于bug崩溃，MapReduce框架提供了一种可选的执行模式，可以自动检测确定性的崩溃数据，然后跳过这些记录；</p>
+<p>框架每次调度任务时会附带一个Sequence Number。每个Worker进程都会注册Signal Handler，捕获SegFault和BusError。当程序崩溃时，框架会给主控节点发一个&quot;Last gasp&quot;UDP数据包带上这个Seq Number。当框架检测到某一个记录崩溃超过一次，下次就会跳过。</p>
+<h3 id="本地执行"><a class="header-anchor-1" href="#本地执行">#</a>本地执行</h3>
+<p>为了方便用户Debug，框架提供了一种本地执行模式。</p>
+<h3 id="状态信息"><a class="header-anchor-1" href="#状态信息">#</a>状态信息</h3>
+<p>主控节点跑了一个HTTP服务，暴露内部的一些状态信息。</p>
+<h3 id="计数器"><a class="header-anchor-1" href="#计数器">#</a>计数器</h3>
+<p>框架提供了一个Counter对象，方便用户实现一些计数需求（可能是为了san check）</p>
+<h2 id="5-性能测试"><a class="header-anchor-1" href="#5-性能测试">#</a>5. 性能测试</h2>
+<h2 id="6-实践经验"><a class="header-anchor-1" href="#6-实践经验">#</a>6. 实践经验</h2>
+<h3 id="大规模索引任务"><a class="header-anchor-1" href="#大规模索引任务">#</a>大规模索引任务</h3>
+<p>收益巨大：</p>
 <ul>
-<li><code>Coordinator</code> 负责分发任务给 <code>Worker</code>，会启动一个 RPC Server；</li>
-<li><code>Worker</code> 从 <code>Coordinator</code> 那里获取 <code>Map</code> 或 <code>Reduce</code> 任务并执行。</li>
+<li><strong>简化业务逻辑</strong>：索引代码更简单、更小、更容易理解，因为处理容错、分布和并行化的代码隐藏在 MapReduce 库中。</li>
+<li><strong>关注点分离</strong>：MapReduce 库的性能足够好，我们可以将概念上不相关的计算分开，而不是将它们混合在一起以避免对数据进行额外的传递。这使得更改索引过程变得容易。</li>
+<li><strong>简化横向拓展</strong>：机器、网络导致的问题被框架处理了，使得横向拓展更简单，只需要加机器即可。</li>
+</ul>
+<h2 id="回到-lab-1"><a class="header-anchor-1" href="#回到-lab-1">#</a>回到 Lab 1</h2>
+<p>Lab 1 是实现 MapReduce 框架的两个组件 Coordinator（Master）和 Worker。</p>
+<ul>
+<li>Master 负责分发任务给 Worker，会启动一个 RPC Server；</li>
+<li>Worker 从 Master 那里获取 <code>Map</code> 或 <code>Reduce</code> 任务并执行。</li>
 </ul>
 <p>整个 MapReduce 框架包括：</p>
 <ul>
-<li><code>main/mrcoordinator.go</code> 是 <code>Coordinator</code> 的入口，会调用 <code>MakeCoordinator()</code> 然后等待；</li>
-<li><code>main/mrworker.go</code> 是 Worker 的入口，会加载用户程序获得 <code>mapf</code> 和 <code>reducef</code>，然后调用 <code>Worker</code>；</li>
-<li><code>mr/coordinator.go</code> 实现 <code>Coordinator</code> 的逻辑；</li>
-<li><code>mr/worker.go</code> 实现 <code>Worker</code> 的逻辑；</li>
+<li><code>main/mrcoordinator.go</code> 是 Master 的入口，会调用 <code>MakeCoordinator()</code> 然后等待；</li>
+<li><code>main/mrworker.go</code> 是 Worker 的入口，会加载用户程序（so库）获得 <code>Mapf</code> 和 <code>Reducef</code>，然后调用 Worker；</li>
+<li><code>mr/coordinator.go</code> 实现 Master 的逻辑；</li>
+<li><code>mr/worker.go</code> 实现 Worker 的逻辑；</li>
 <li>用户程序会被编译成 go plugin，被框架加载然后调用。</li>
 </ul>
-<h2 id="lab-2-raft"><a class="header-anchor-1" href="#lab-2-raft">#</a>Lab 2: Raft</h2>
-<p>Raft 是一种经典的分布式共识协议。</p>
-<p>节点状态: Follower、Candidate、Leader</p>
-<h2 id="lab-3"><a class="header-anchor-1" href="#lab-3">#</a>Lab 3:</h2>
 ]]></content>
       <categories>
         <category>learning-notes</category>
@@ -12571,23 +12610,6 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
         <tag>分布式系统</tag>
         <tag>MapReduce</tag>
         <tag>大数据</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MIT 6.824 分布式系统 Lab 2</title>
-    <url>/2024/05/07/mit-6.824-distributed-system-lab2/</url>
-    <content><![CDATA[<h2 id="lab-2-raft"><a class="header-anchor-1" href="#lab-2-raft">#</a>Lab 2: Raft</h2>
-<p>Raft 是一种经典的分布式共识协议。</p>
-<p>节点状态: Follower、Candidate、Leader</p>
-<h2 id="lab-3"><a class="header-anchor-1" href="#lab-3">#</a>Lab 3:</h2>
-]]></content>
-      <categories>
-        <category>learning-notes</category>
-        <category>distributed-system</category>
-      </categories>
-      <tags>
-        <tag>分布式系统</tag>
-        <tag>Raft</tag>
       </tags>
   </entry>
   <entry>
@@ -13029,6 +13051,10 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
 <li>波形发生器</li>
 </ul>
 </li>
+</ul>
+<h1>振荡电路</h1>
+<ul>
+<li>多谐振荡器: 用来产生在两种状态间变化的系统</li>
 </ul>
 ]]></content>
       <categories>
