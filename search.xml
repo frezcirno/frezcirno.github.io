@@ -3168,15 +3168,6 @@
       </categories>
   </entry>
   <entry>
-    <title>reading-books</title>
-    <url>/2024/04/15/reading-books/</url>
-    <content><![CDATA[<p><a href="https://doocs.github.io/technical-books/">值得一看的技术类书籍列表</a></p>
-]]></content>
-      <categories>
-        <category>learning-notes</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Oracle数据库学习</title>
     <url>/2020/12/03/oracledb/</url>
     <content><![CDATA[<h1>前言</h1>
@@ -3427,6 +3418,15 @@
 </ul>
 </li>
 </ul>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>reading-books</title>
+    <url>/2024/04/15/reading-books/</url>
+    <content><![CDATA[<p><a href="https://doocs.github.io/technical-books/">值得一看的技术类书籍列表</a></p>
 ]]></content>
       <categories>
         <category>learning-notes</category>
@@ -4296,6 +4296,31 @@
       </categories>
   </entry>
   <entry>
+    <title>短文本相似度：Jaro-Winkler 相似度</title>
+    <url>/2024/05/07/jaro-winkler-similarity/</url>
+    <content><![CDATA[<p>Jaro-Winkler similarity是由Matthew A. Jaro在1989年提出，William E. Winkler在1990年又进行了改进的算法，用于评估两个序列之间的编辑距离。</p>
+<p>对于字符串 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">s1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal">s</span><span class="mord">1</span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">s2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal">s</span><span class="mord">2</span></span></span></span>，Jaro相似度的计算公式为：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>s</mi><mi>i</mi><msub><mi>m</mi><mi>j</mi></msub><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><mi>m</mi><mo>=</mo><mn>0</mn></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mfrac><mn>1</mn><mn>3</mn></mfrac><mrow><mo fence="true">(</mo><mfrac><mi>m</mi><mrow><mi mathvariant="normal">∣</mi><msub><mi>s</mi><mn>1</mn></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo>+</mo><mfrac><mi>m</mi><mrow><mi mathvariant="normal">∣</mi><msub><mi>s</mi><mn>2</mn></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo>+</mo><mfrac><mrow><mi>m</mi><mo>−</mo><mi>t</mi></mrow><mi>m</mi></mfrac><mo fence="true">)</mo></mrow></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>otherwise</mtext></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">sim_j = \begin{cases}
+0 &amp;\text{if } m=0 \\
+\frac{1}{3}\left(
+ \frac{m}{|s_1|} +
+ \frac{m}{|s_2|} +
+ \frac{m-t}{m}
+\right) &amp;\text{otherwise}\\
+\end{cases}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9456em;vertical-align:-0.2861em;"></span><span class="mord mathnormal">s</span><span class="mord mathnormal">i</span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:3.24em;vertical-align:-1.37em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.87em;"><span style="top:-4.012em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.43em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size2">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8246em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size2">)</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.37em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.87em;"><span style="top:-4.012em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord text"><span class="mord">if </span></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">0</span></span></span><span style="top:-2.43em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord text"><span class="mord">otherwise</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.37em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>其中，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mi>s</mi><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">|s|</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord mathnormal">s</span><span class="mord">∣</span></span></span></span>表示字符串<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span>的长度；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span>表示两个字符串的匹配字符数</p>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>机器学习</tag>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Python splitlines() 函数的坑</title>
     <url>/2024/04/17/python-splitline/</url>
     <content><![CDATA[<h2 id="str-splitlines"><a class="header-anchor-1" href="#str-splitlines">#</a>str.splitlines()</h2>
@@ -4388,31 +4413,6 @@
       <categories>
         <category>misc</category>
       </categories>
-  </entry>
-  <entry>
-    <title>短文本相似度：Jaro-Winkler 相似度</title>
-    <url>/2024/05/07/jaro-winkler-similarity/</url>
-    <content><![CDATA[<p>Jaro-Winkler similarity是由Matthew A. Jaro在1989年提出，William E. Winkler在1990年又进行了改进的算法，用于评估两个序列之间的编辑距离。</p>
-<p>对于字符串 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">s1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal">s</span><span class="mord">1</span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">s2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal">s</span><span class="mord">2</span></span></span></span>，Jaro相似度的计算公式为：</p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>s</mi><mi>i</mi><msub><mi>m</mi><mi>j</mi></msub><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><mi>m</mi><mo>=</mo><mn>0</mn></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mfrac><mn>1</mn><mn>3</mn></mfrac><mrow><mo fence="true">(</mo><mfrac><mi>m</mi><mrow><mi mathvariant="normal">∣</mi><msub><mi>s</mi><mn>1</mn></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo>+</mo><mfrac><mi>m</mi><mrow><mi mathvariant="normal">∣</mi><msub><mi>s</mi><mn>2</mn></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo>+</mo><mfrac><mrow><mi>m</mi><mo>−</mo><mi>t</mi></mrow><mi>m</mi></mfrac><mo fence="true">)</mo></mrow></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>otherwise</mtext></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">sim_j = \begin{cases}
-0 &amp;\text{if } m=0 \\
-\frac{1}{3}\left(
- \frac{m}{|s_1|} +
- \frac{m}{|s_2|} +
- \frac{m-t}{m}
-\right) &amp;\text{otherwise}\\
-\end{cases}
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9456em;vertical-align:-0.2861em;"></span><span class="mord mathnormal">s</span><span class="mord mathnormal">i</span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:3.24em;vertical-align:-1.37em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.87em;"><span style="top:-4.012em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.43em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size2">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8246em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size2">)</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.37em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.87em;"><span style="top:-4.012em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord text"><span class="mord">if </span></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">0</span></span></span><span style="top:-2.43em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord text"><span class="mord">otherwise</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.37em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
-<p>其中，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mi>s</mi><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">|s|</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord mathnormal">s</span><span class="mord">∣</span></span></span></span>表示字符串<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span>的长度；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span>表示两个字符串的匹配字符数</p>
-]]></content>
-      <categories>
-        <category>misc</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>机器学习</tag>
-        <tag>算法</tag>
-      </tags>
   </entry>
   <entry>
     <title>RIME 输入法配置指南</title>
@@ -5188,9 +5188,12 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </tags>
   </entry>
   <entry>
-    <title>1395. 统计作战单位数</title>
-    <url>/2021/07/02/1395/</url>
-    <content><![CDATA[<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number[]</span>&#125; <span class="variable">rating</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="type">number</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> numTeams = <span class="keyword">function</span> (<span class="params">rating</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; rating.<span class="property">length</span> - <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">let</span> ri = rating[i];</span><br><span class="line">        <span class="keyword">let</span> countx1 = <span class="number">0</span>, countx2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">let</span> county1 = <span class="number">0</span>, county2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = <span class="number">0</span>; x &lt; i; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) countx1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) countx2++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = i + <span class="number">1</span>; x &lt; rating.<span class="property">length</span>; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) county1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) county2++;</span><br><span class="line">        &#125;</span><br><span class="line">        count += countx1 * county2 + countx2 * county1;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    <title>123. 买卖股票的最佳时机 III</title>
+    <url>/2021/01/09/123/</url>
+    <content><![CDATA[<p>最多可以交易两次</p>
+<h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
+<p>动态规划, 用四个状态变量</p>
+<p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iii/solution/mai-mai-gu-piao-de-zui-jia-shi-ji-iii-by-wrnt/">官方题解</a></p>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -5198,12 +5201,9 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>123. 买卖股票的最佳时机 III</title>
-    <url>/2021/01/09/123/</url>
-    <content><![CDATA[<p>最多可以交易两次</p>
-<h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
-<p>动态规划, 用四个状态变量</p>
-<p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iii/solution/mai-mai-gu-piao-de-zui-jia-shi-ji-iii-by-wrnt/">官方题解</a></p>
+    <title>1395. 统计作战单位数</title>
+    <url>/2021/07/02/1395/</url>
+    <content><![CDATA[<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number[]</span>&#125; <span class="variable">rating</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="type">number</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> numTeams = <span class="keyword">function</span> (<span class="params">rating</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; rating.<span class="property">length</span> - <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">let</span> ri = rating[i];</span><br><span class="line">        <span class="keyword">let</span> countx1 = <span class="number">0</span>, countx2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">let</span> county1 = <span class="number">0</span>, county2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = <span class="number">0</span>; x &lt; i; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) countx1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) countx2++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = i + <span class="number">1</span>; x &lt; rating.<span class="property">length</span>; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) county1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) county2++;</span><br><span class="line">        &#125;</span><br><span class="line">        count += countx1 * county2 + countx2 * county1;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -5453,22 +5453,22 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>738. 单调递增的数字</title>
-    <url>/2020/12/15/738/</url>
-    <content><![CDATA[<p>思路: 对于数字<code>x = an ... ai+1 ai ... a1 a0</code>, 如果任意相邻的<code>ai+1</code>,<code>ai</code>不符合单调递增, 就给原数字减去<code>(ai + 1) * 10 ^ i</code>, 减去之后得到的新数字即为<code>y</code></p>
-<p>可以发现, 若<code>x</code>与<code>y</code>不完全相同, 则最终结果在第一个不相同位之后的位必定全是<code>9</code>, 按此规律修正结果即可.</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">monotoneIncreasingDigits</span><span class="params">(<span class="type">int</span> N)</span> </span>&#123;</span><br><span class="line">        string s = <span class="built_in">to_string</span>(N);</span><br><span class="line">        string olds=s;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> bor=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=s.<span class="built_in">size</span>()<span class="number">-1</span>;i&gt;<span class="number">0</span>;i--)&#123;</span><br><span class="line">            <span class="keyword">if</span>(bor)&#123;</span><br><span class="line">                s[i]--;</span><br><span class="line">                s[i<span class="number">+1</span>]+=<span class="number">10</span>;</span><br><span class="line">                bor=<span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;s[i<span class="number">-1</span>])&#123;</span><br><span class="line">                <span class="comment">// -s[i]-1</span></span><br><span class="line">                s[i]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                s[i<span class="number">-1</span>]--;</span><br><span class="line">                <span class="keyword">if</span>(s[i<span class="number">-1</span>]&lt;<span class="string">&#x27;0&#x27;</span>) bor = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// fix</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;olds[i])&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="type">int</span> j=i<span class="number">+1</span>;j&lt;s.<span class="built_in">size</span>();j++)&#123;</span><br><span class="line">                    s[j]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// restore</span></span><br><span class="line">        <span class="type">int</span> val =<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            val=val*<span class="number">10</span>+s[i]-<span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>684. 冗余连接</title>
+    <url>/2021/01/13/684/</url>
+    <content><![CDATA[<h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
+<p>有环无向图中找出环上最后出现的边</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; parents;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">dj_root</span><span class="params">(<span class="type">int</span> a)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a==parents[a]? a: parents[a]=<span class="built_in">dj_root</span>(parents[a]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">dj_union</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span></span>&#123;</span><br><span class="line">        a=<span class="built_in">dj_root</span>(a);</span><br><span class="line">        b=<span class="built_in">dj_root</span>(b);</span><br><span class="line">        <span class="keyword">if</span> (a!=b) parents[a]=b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">findRedundantConnection</span><span class="params">(vector&lt;vector&lt;<span class="type">int</span>&gt;&gt;&amp; edges)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> n = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; edge: edges) &#123;</span><br><span class="line">            <span class="keyword">if</span> (edge[<span class="number">0</span>] &gt; n) n = edge[<span class="number">0</span>];</span><br><span class="line">            <span class="keyword">if</span> (edge[<span class="number">1</span>] &gt; n) n = edge[<span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        parents.<span class="built_in">resize</span>(n);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>; i&lt;n; i++)&#123;</span><br><span class="line">            parents[i] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; edge: edges) &#123;</span><br><span class="line">            <span class="type">int</span> a = edge[<span class="number">0</span>]<span class="number">-1</span>;</span><br><span class="line">            <span class="type">int</span> b = edge[<span class="number">1</span>]<span class="number">-1</span>;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">dj_root</span>(a) == <span class="built_in">dj_root</span>(b)) &#123;</span><br><span class="line">                <span class="keyword">return</span> edge;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">dj_union</span>(a, b);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> edges.<span class="built_in">back</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
       </categories>
   </entry>
   <entry>
-    <title>684. 冗余连接</title>
-    <url>/2021/01/13/684/</url>
-    <content><![CDATA[<h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
-<p>有环无向图中找出环上最后出现的边</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; parents;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">dj_root</span><span class="params">(<span class="type">int</span> a)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a==parents[a]? a: parents[a]=<span class="built_in">dj_root</span>(parents[a]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">dj_union</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span></span>&#123;</span><br><span class="line">        a=<span class="built_in">dj_root</span>(a);</span><br><span class="line">        b=<span class="built_in">dj_root</span>(b);</span><br><span class="line">        <span class="keyword">if</span> (a!=b) parents[a]=b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">findRedundantConnection</span><span class="params">(vector&lt;vector&lt;<span class="type">int</span>&gt;&gt;&amp; edges)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> n = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; edge: edges) &#123;</span><br><span class="line">            <span class="keyword">if</span> (edge[<span class="number">0</span>] &gt; n) n = edge[<span class="number">0</span>];</span><br><span class="line">            <span class="keyword">if</span> (edge[<span class="number">1</span>] &gt; n) n = edge[<span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        parents.<span class="built_in">resize</span>(n);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>; i&lt;n; i++)&#123;</span><br><span class="line">            parents[i] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; edge: edges) &#123;</span><br><span class="line">            <span class="type">int</span> a = edge[<span class="number">0</span>]<span class="number">-1</span>;</span><br><span class="line">            <span class="type">int</span> b = edge[<span class="number">1</span>]<span class="number">-1</span>;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">dj_root</span>(a) == <span class="built_in">dj_root</span>(b)) &#123;</span><br><span class="line">                <span class="keyword">return</span> edge;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">dj_union</span>(a, b);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> edges.<span class="built_in">back</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>738. 单调递增的数字</title>
+    <url>/2020/12/15/738/</url>
+    <content><![CDATA[<p>思路: 对于数字<code>x = an ... ai+1 ai ... a1 a0</code>, 如果任意相邻的<code>ai+1</code>,<code>ai</code>不符合单调递增, 就给原数字减去<code>(ai + 1) * 10 ^ i</code>, 减去之后得到的新数字即为<code>y</code></p>
+<p>可以发现, 若<code>x</code>与<code>y</code>不完全相同, 则最终结果在第一个不相同位之后的位必定全是<code>9</code>, 按此规律修正结果即可.</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">monotoneIncreasingDigits</span><span class="params">(<span class="type">int</span> N)</span> </span>&#123;</span><br><span class="line">        string s = <span class="built_in">to_string</span>(N);</span><br><span class="line">        string olds=s;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> bor=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=s.<span class="built_in">size</span>()<span class="number">-1</span>;i&gt;<span class="number">0</span>;i--)&#123;</span><br><span class="line">            <span class="keyword">if</span>(bor)&#123;</span><br><span class="line">                s[i]--;</span><br><span class="line">                s[i<span class="number">+1</span>]+=<span class="number">10</span>;</span><br><span class="line">                bor=<span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;s[i<span class="number">-1</span>])&#123;</span><br><span class="line">                <span class="comment">// -s[i]-1</span></span><br><span class="line">                s[i]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                s[i<span class="number">-1</span>]--;</span><br><span class="line">                <span class="keyword">if</span>(s[i<span class="number">-1</span>]&lt;<span class="string">&#x27;0&#x27;</span>) bor = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// fix</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;olds[i])&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="type">int</span> j=i<span class="number">+1</span>;j&lt;s.<span class="built_in">size</span>();j++)&#123;</span><br><span class="line">                    s[j]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// restore</span></span><br><span class="line">        <span class="type">int</span> val =<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            val=val*<span class="number">10</span>+s[i]-<span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -7178,6 +7178,21 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/28/2020-12-28/</url>
+    <content><![CDATA[<h1>su user 和 su - user的区别</h1>
+<p><code>$ su user</code>启动nologin shell</p>
+<p><code>$ su - user</code>启动login shell</p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/30/2020-12-30/</url>
     <content><![CDATA[<h1>计网答辩顺利</h1>
 <p>开心!</p>
@@ -7243,21 +7258,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       <tags>
         <tag>答辩</tag>
         <tag>计算机网络</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/28/2020-12-28/</url>
-    <content><![CDATA[<h1>su user 和 su - user的区别</h1>
-<p><code>$ su user</code>启动nologin shell</p>
-<p><code>$ su - user</code>启动login shell</p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -7378,20 +7378,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2021/01/05/2021-01-05/</url>
-    <content><![CDATA[<h1>关于DDL的疑惑</h1>
-<p>为什么ddl推迟, 开始肝ddl的时间也跟着推迟?</p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>摸鱼</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2021/01/07/2021-01-07/</url>
     <content><![CDATA[<h2 id="关于url末尾的斜杠"><a class="header-anchor-1" href="#关于url末尾的斜杠">#</a>关于URL末尾的斜杠</h2>
 <p>URL末尾有无斜杠会对按相对路径加载的资源造成影响</p>
@@ -7435,10 +7421,9 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2021/01/08/2021-01-08/</url>
-    <content><![CDATA[<h2 id="没什么成果的一天"><a class="header-anchor-1" href="#没什么成果的一天">#</a>没什么成果的一天</h2>
-<p>复习线代</p>
-<p>配Oracle, timesten</p>
+    <url>/2021/01/05/2021-01-05/</url>
+    <content><![CDATA[<h1>关于DDL的疑惑</h1>
+<p>为什么ddl推迟, 开始肝ddl的时间也跟着推迟?</p>
 ]]></content>
       <categories>
         <category>daily</category>
@@ -7472,6 +7457,21 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </categories>
       <tags>
         <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2021/01/08/2021-01-08/</url>
+    <content><![CDATA[<h2 id="没什么成果的一天"><a class="header-anchor-1" href="#没什么成果的一天">#</a>没什么成果的一天</h2>
+<p>复习线代</p>
+<p>配Oracle, timesten</p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>摸鱼</tag>
       </tags>
   </entry>
   <entry>
@@ -7729,21 +7729,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </tags>
   </entry>
   <entry>
-    <title>python 自定义 JSON Encoder</title>
-    <url>/2021/06/15/2021-06-15/</url>
-    <content><![CDATA[<h1>python 自定义 JSON Encoder</h1>
-<p>继承 json.JSONEncoder 类, 重载 default 方法</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).default(o)</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>json</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Rabin-Karp 算法</title>
     <url>/2021/07/02/2021-07-02/</url>
     <content><![CDATA[<h1>Rabin-Karp 算法</h1>
@@ -7913,6 +7898,21 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
       <tags>
         <tag>linux</tag>
         <tag>vim</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python 自定义 JSON Encoder</title>
+    <url>/2021/06/15/2021-06-15/</url>
+    <content><![CDATA[<h1>python 自定义 JSON Encoder</h1>
+<p>继承 json.JSONEncoder 类, 重载 default 方法</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).default(o)</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>json</tag>
       </tags>
   </entry>
   <entry>
@@ -12463,31 +12463,6 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
-    <title>设计数据密集型应用</title>
-    <url>/2024/09/18/DDIA/</url>
-    <content><![CDATA[<h2 id="第三章：存储与检索"><a class="header-anchor-1" href="#第三章：存储与检索">#</a>第三章：存储与检索</h2>
-<ul>
-<li>KV数据
-<ul>
-<li>哈希表</li>
-</ul>
-</li>
-<li>BitCask模型
-<ul>
-<li>磁盘保存Value, 内存保存<code>&#123; Key -&gt; Value Offset &#125;</code>的索引</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>learning-notes</category>
-        <category>database-system</category>
-      </categories>
-      <tags>
-        <tag>Database</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>MIT 6.824/6.5840 分布式系统 Lab 1: MapReduce</title>
     <url>/2024/03/25/mit-6.824-distributed-system-lab1/</url>
     <content><![CDATA[<p>本次 Lab 1 讲的是分布式计算的 MapReduce。</p>
@@ -12613,89 +12588,28 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
-    <title>插头插座相关中国国家标准</title>
-    <url>/2024/12/09/socket/</url>
-    <content><![CDATA[<p>现行插座国家标准一共 9 本，分别为：</p>
+    <title>设计数据密集型应用</title>
+    <url>/2024/09/18/DDIA/</url>
+    <content><![CDATA[<h2 id="第三章：存储与检索"><a class="header-anchor-1" href="#第三章：存储与检索">#</a>第三章：存储与检索</h2>
 <ul>
-<li>GB2099.1 家用和类似用途插头插座第 1 部分：通用要求、</li>
-<li>GB2099.2 家用和类似用途插头插座第 2 部分：器具插座的特殊要求、</li>
-<li>GB2099.3 家用和类似用途插头插座第 2-5 部分：<strong>转换器</strong>的特殊要求、</li>
-<li>GB2099.4 家用和类似用途插头插座第 2 部分：固定式无联锁带开关插座的特殊要求、</li>
-<li>GB2099.5 家用和类似用途插头插座第 2 部分：固定式有联锁带开关插座的特殊要求、</li>
-<li>GB2099.6 家用和类似用途插头插座第 2 部分：带熔断器插头的特殊要求、</li>
-<li>GB2099.7 家用和类似用途插头插座第 2-7 部分：<strong>延长线插座</strong>的特殊要求、</li>
-<li>GB2099.8 家用和类似用途插头插座第 2-4 部分：安全特低电压(SELV)插头插座的特殊要求、</li>
-<li>GB2099.9 家用和类似用途插头插座第 2-9 部分：<strong>信息插座</strong>（即光纤、电话线、宽带线等）的特殊要求</li>
+<li>KV数据
+<ul>
+<li>哈希表</li>
 </ul>
-<h1>1997 年</h1>
+</li>
+<li>BitCask模型
 <ul>
-<li>颁布 GB2099.1 ~ GB2099.6 六项新国标，分别规定了插头插座的通用要求和特殊要求。</li>
+<li>磁盘保存Value, 内存保存<code>&#123; Key -&gt; Value Offset &#125;</code>的索引</li>
 </ul>
-<h1>2008 年</h1>
-<ul>
-<li>修订 GB2099.3</li>
-</ul>
-<h1>2015 - 2017 年</h1>
-<ul>
-<li>颁布 <strong>GB2099.7</strong> 标准，规定了延长线插座（俗称插排、插线板）的特殊要求</li>
-<li>颁布 <strong>GB/T 2099.7</strong> 推荐标准，规定了延长线插座（俗称插排、插线板）的推荐标准（俗称<strong>排插新国标</strong>）</li>
-<li>颁布 GB2099.8 标准，规定了安全特低电压（SELV）插头插座的特殊要求</li>
-<li>颁布 GB2099.9 标准，规定了信息插座（即光纤、电话线、宽带线等）的特殊要求</li>
-<li>修订 GB2099.3</li>
-<li>颁布 GB/T 2099.3；</li>
-</ul>
-<ol>
-<li>
-<p>提高电源线导线线径。新国标要求，额定电流 10A 的延长线插排，导线的最小横截面积由原来的 0.75mm^2 提高到 1mm^2;额定 16A 的则从 1mm^2 提高到 1.5mm^2。</p>
 </li>
-<li>
-<p>淘汰万能插排。新国标要求插排允许将符合国标 GB 1002 要求的二孔插孔与三孔插孔排列组合，但不能相互重合或共用。这意味着万能插排正式退市禁用。</p>
-</li>
-<li>
-<p>插线板必须设置保护安全门，避免儿童因为手指或金属物体插入导致触电。</p>
-</li>
-<li>
-<p>增加插排材料的阻燃等级。新国标插排新增了明火针焰测试，要求针焰明火与插排接触 30 秒钟后不起燃，或者起燃后 30 秒后自动熄灭。</p>
-</li>
-<li>
-<p>必须获得 CCC 认证。新国标要求排插必须要通过国家强制性产品认证，即“CCC&quot;认证，消费者可以在排插的本体上观察是否有这个标志。</p>
-</li>
-<li>
-<p>新增了针焰测试项目，要求针焰明火与插座接触 30 秒钟后不起燃，或者起燃后 30 秒后自动熄灭</p>
-</li>
-</ol>
-<p><img src="./socket/63fe470bab15e5297.png_e1080.jpg" alt="alt text" /></p>
-<h1>2021</h1>
-<ul>
-<li>修订 GB2099.1</li>
-</ul>
-<h1>2022</h1>
-<ul>
-<li>修订 GB2099.3</li>
-</ul>
-<h1>2024</h1>
-<ul>
-<li>修订 GB 2099.7 标准</li>
 </ul>
 ]]></content>
       <categories>
         <category>learning-notes</category>
-        <category>electronic</category>
+        <category>database-system</category>
       </categories>
       <tags>
-        <tag>电子电路</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Verilog</title>
-    <url>/2024/09/21/verilog/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>learning-notes</category>
-        <category>electronic</category>
-      </categories>
-      <tags>
-        <tag>电子电路</tag>
+        <tag>Database</tag>
       </tags>
   </entry>
   <entry>
@@ -13143,6 +13057,92 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
 <li>多谐振荡器: 用来产生在两种状态间变化的系统</li>
 </ul>
 ]]></content>
+      <categories>
+        <category>learning-notes</category>
+        <category>electronic</category>
+      </categories>
+      <tags>
+        <tag>电子电路</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>插头插座相关中国国家标准</title>
+    <url>/2024/12/09/socket/</url>
+    <content><![CDATA[<p>现行插座国家标准一共 9 本，分别为：</p>
+<ul>
+<li>GB2099.1 家用和类似用途插头插座第 1 部分：通用要求、</li>
+<li>GB2099.2 家用和类似用途插头插座第 2 部分：器具插座的特殊要求、</li>
+<li>GB2099.3 家用和类似用途插头插座第 2-5 部分：<strong>转换器</strong>的特殊要求、</li>
+<li>GB2099.4 家用和类似用途插头插座第 2 部分：固定式无联锁带开关插座的特殊要求、</li>
+<li>GB2099.5 家用和类似用途插头插座第 2 部分：固定式有联锁带开关插座的特殊要求、</li>
+<li>GB2099.6 家用和类似用途插头插座第 2 部分：带熔断器插头的特殊要求、</li>
+<li>GB2099.7 家用和类似用途插头插座第 2-7 部分：<strong>延长线插座</strong>的特殊要求、</li>
+<li>GB2099.8 家用和类似用途插头插座第 2-4 部分：安全特低电压(SELV)插头插座的特殊要求、</li>
+<li>GB2099.9 家用和类似用途插头插座第 2-9 部分：<strong>信息插座</strong>（即光纤、电话线、宽带线等）的特殊要求</li>
+</ul>
+<h1>1997 年</h1>
+<ul>
+<li>颁布 GB2099.1 ~ GB2099.6 六项新国标，分别规定了插头插座的通用要求和特殊要求。</li>
+</ul>
+<h1>2008 年</h1>
+<ul>
+<li>修订 GB2099.3</li>
+</ul>
+<h1>2015 - 2017 年</h1>
+<ul>
+<li>颁布 <strong>GB2099.7</strong> 标准，规定了延长线插座（俗称插排、插线板）的特殊要求</li>
+<li>颁布 <strong>GB/T 2099.7</strong> 推荐标准，规定了延长线插座（俗称插排、插线板）的推荐标准（俗称<strong>排插新国标</strong>）</li>
+<li>颁布 GB2099.8 标准，规定了安全特低电压（SELV）插头插座的特殊要求</li>
+<li>颁布 GB2099.9 标准，规定了信息插座（即光纤、电话线、宽带线等）的特殊要求</li>
+<li>修订 GB2099.3</li>
+<li>颁布 GB/T 2099.3；</li>
+</ul>
+<ol>
+<li>
+<p>提高电源线导线线径。新国标要求，额定电流 10A 的延长线插排，导线的最小横截面积由原来的 0.75mm^2 提高到 1mm^2;额定 16A 的则从 1mm^2 提高到 1.5mm^2。</p>
+</li>
+<li>
+<p>淘汰万能插排。新国标要求插排允许将符合国标 GB 1002 要求的二孔插孔与三孔插孔排列组合，但不能相互重合或共用。这意味着万能插排正式退市禁用。</p>
+</li>
+<li>
+<p>插线板必须设置保护安全门，避免儿童因为手指或金属物体插入导致触电。</p>
+</li>
+<li>
+<p>增加插排材料的阻燃等级。新国标插排新增了明火针焰测试，要求针焰明火与插排接触 30 秒钟后不起燃，或者起燃后 30 秒后自动熄灭。</p>
+</li>
+<li>
+<p>必须获得 CCC 认证。新国标要求排插必须要通过国家强制性产品认证，即“CCC&quot;认证，消费者可以在排插的本体上观察是否有这个标志。</p>
+</li>
+<li>
+<p>新增了针焰测试项目，要求针焰明火与插座接触 30 秒钟后不起燃，或者起燃后 30 秒后自动熄灭</p>
+</li>
+</ol>
+<p><img src="./socket/63fe470bab15e5297.png_e1080.jpg" alt="alt text" /></p>
+<h1>2021</h1>
+<ul>
+<li>修订 GB2099.1</li>
+</ul>
+<h1>2022</h1>
+<ul>
+<li>修订 GB2099.3</li>
+</ul>
+<h1>2024</h1>
+<ul>
+<li>修订 GB 2099.7 标准</li>
+</ul>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+        <category>electronic</category>
+      </categories>
+      <tags>
+        <tag>电子电路</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Verilog</title>
+    <url>/2024/09/21/verilog/</url>
+    <content><![CDATA[]]></content>
       <categories>
         <category>learning-notes</category>
         <category>electronic</category>
@@ -14333,24 +14333,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </tags>
   </entry>
   <entry>
-    <title>Linux Kernel 网络子系统</title>
-    <url>/2024/04/16/linux-kernel-network-subsystem/</url>
-    <content><![CDATA[<h2 id="napi"><a class="header-anchor-1" href="#napi">#</a>NAPI</h2>
-<p>NAPI机制采用中断和轮询结合的方式收包</p>
-<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的backlog</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>softnet_data</p>
-]]></content>
-      <categories>
-        <category>learning-notes</category>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>计算机网络</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Linux Kernel 中断子系统</title>
     <url>/2024/04/16/linux-kernel-interrupt-subsystem/</url>
     <content><![CDATA[<p>Linux 将中断处理流程划分成两个部分，一个是top half，另一个是bottom half。</p>
@@ -14399,6 +14381,24 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
       <tags>
         <tag>Linux</tag>
         <tag>嵌入式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux Kernel 网络子系统</title>
+    <url>/2024/04/16/linux-kernel-network-subsystem/</url>
+    <content><![CDATA[<h2 id="napi"><a class="header-anchor-1" href="#napi">#</a>NAPI</h2>
+<p>NAPI机制采用中断和轮询结合的方式收包</p>
+<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的backlog</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>softnet_data</p>
+]]></content>
+      <categories>
+        <category>learning-notes</category>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>计算机网络</tag>
       </tags>
   </entry>
   <entry>
