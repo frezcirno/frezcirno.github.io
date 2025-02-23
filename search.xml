@@ -31,7 +31,7 @@
     <url>/2020/12/03/oracledb/</url>
     <content><![CDATA[<h1>前言</h1>
 <p>参考资料:</p>
-<p><a href="https://docs.oracle.com/en/database/oracle/oracle-database/index.html">Oracle官方文档</a></p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9kb2NzLm9yYWNsZS5jb20vZW4vZGF0YWJhc2Uvb3JhY2xlL29yYWNsZS1kYXRhYmFzZS9pbmRleC5odG1s">Oracle官方文档<i class="fa fa-external-link-alt"></i></span></p>
 <h1>Schema</h1>
 <p>Schema是表, 索引, 存储过程等等数据库对象(DB Object)的存储容器</p>
 <p>用户与Schema之间是<strong>一对一</strong>的关系</p>
@@ -282,7 +282,7 @@
   <entry>
     <title>reading-books</title>
     <url>/2024/04/15/reading-books/</url>
-    <content><![CDATA[<p><a href="https://doocs.github.io/technical-books/">值得一看的技术类书籍列表</a></p>
+    <content><![CDATA[<p><span class="exturl" data-url="aHR0cHM6Ly9kb29jcy5naXRodWIuaW8vdGVjaG5pY2FsLWJvb2tzLw==">值得一看的技术类书籍列表<i class="fa fa-external-link-alt"></i></span></p>
 ]]></content>
   </entry>
   <entry>
@@ -1487,7 +1487,7 @@ f_Y(y) = \int_{-\infty}^{+\infty}f(x,y)dx
   <entry>
     <title>MimiC编译器源码阅读</title>
     <url>/2024/05/06/mimic-reading/</url>
-    <content><![CDATA[<p><a href="https://github.com/ustb-owl/MimiC">MimiC</a> is a compiler of C subset (extended SysY language) by USTB NSCSCC team.</p>
+    <content><![CDATA[<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3VzdGItb3dsL01pbWlD">MimiC<i class="fa fa-external-link-alt"></i></span> is a compiler of C subset (extended SysY language) by USTB NSCSCC team.</p>
 <h2 id="使用说明"><a class="header-anchor-1" href="#使用说明">#</a>使用说明</h2>
 <h3 id="源语言定义"><a class="header-anchor-1" href="#源语言定义">#</a>源语言定义</h3>
 <figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">comp_unit</span>       ::= &#123;decl | type_def | func_def&#125;;</span><br><span class="line"><span class="attribute">decl</span>            ::= var_decl | func_decl;</span><br><span class="line"><span class="attribute">type_def</span>        ::= struct_def | enum_def | type_alias;</span><br><span class="line"><span class="attribute">func_def</span>        ::= func_header block;</span><br><span class="line"></span><br><span class="line"><span class="attribute">var_decl</span>        ::= type var_def &#123;<span class="string">&quot;,&quot;</span> var_def&#125; <span class="string">&quot;;&quot;</span>;</span><br><span class="line"><span class="attribute">var_def</span>         ::= ID_VAL &#123;<span class="string">&quot;[&quot;</span> expr <span class="string">&quot;]&quot;</span>&#125; [<span class="string">&quot;=&quot;</span> init_val];</span><br><span class="line"><span class="attribute">init_val</span>        ::= expr | <span class="string">&quot;&#123;&quot;</span> [init_val &#123;<span class="string">&quot;,&quot;</span> init_val&#125;] <span class="string">&quot;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="attribute">func_decl</span>       ::= func_header <span class="string">&quot;;&quot;</span>;</span><br><span class="line"><span class="attribute">func_header</span>     ::= type ID_VAL <span class="string">&quot;(&quot;</span> [func_params] <span class="string">&quot;)&quot;</span>;</span><br><span class="line"><span class="attribute">func_params</span>     ::= func_param &#123;<span class="string">&quot;,&quot;</span> func_param&#125;;</span><br><span class="line"><span class="attribute">func_param</span>      ::= type ID_VAL [<span class="string">&quot;[&quot;</span> [expr] <span class="string">&quot;]&quot;</span> &#123;<span class="string">&quot;[&quot;</span> expr <span class="string">&quot;]&quot;</span>&#125;];</span><br><span class="line"></span><br><span class="line"><span class="attribute">struct_def</span>      ::= <span class="string">&quot;struct&quot;</span> ID_VAL <span class="string">&quot;&#123;&quot;</span> &#123;struct_elem&#125; <span class="string">&quot;&#125;&quot;</span> <span class="string">&quot;;&quot;</span>;</span><br><span class="line"><span class="attribute">enum_def</span>        ::= <span class="string">&quot;enum&quot;</span> [ID_VAL] <span class="string">&quot;&#123;&quot;</span> enum_elems <span class="string">&quot;&#125;&quot;</span> <span class="string">&quot;;&quot;</span>;</span><br><span class="line"><span class="attribute">type_alias</span>      ::= <span class="string">&quot;typedef&quot;</span> type ID_VAL <span class="string">&quot;;&quot;</span>;</span><br><span class="line"><span class="attribute">struct_elem</span>     ::= type struct_elem_def &#123;<span class="string">&quot;,&quot;</span> struct_elem_def&#125; <span class="string">&quot;;&quot;</span>;</span><br><span class="line"><span class="attribute">struct_elem_def</span> ::= ID_VAL &#123;<span class="string">&quot;[&quot;</span> expr <span class="string">&quot;]&quot;</span>&#125;;</span><br><span class="line"><span class="attribute">enum_elems</span>      ::= ID_VAL [<span class="string">&quot;=&quot;</span> expr] [<span class="string">&quot;,&quot;</span> enum_elems] [<span class="string">&quot;,&quot;</span>];</span><br><span class="line"></span><br><span class="line"><span class="attribute">block</span>           ::= <span class="string">&quot;&#123;&quot;</span> &#123;block_item&#125; <span class="string">&quot;&#125;&quot;</span>;</span><br><span class="line"><span class="attribute">block_item</span>      ::= decl | type_def | stmt;</span><br><span class="line"></span><br><span class="line"><span class="attribute">stmt</span>            ::= bare | block | if_else | while | control;</span><br><span class="line"><span class="attribute">bare</span>            ::= expr <span class="string">&quot;;&quot;</span>;</span><br><span class="line"><span class="attribute">if_else</span>         ::= <span class="string">&quot;if&quot;</span> <span class="string">&quot;(&quot;</span> expr <span class="string">&quot;)&quot;</span> stmt [<span class="string">&quot;else&quot;</span> stmt];</span><br><span class="line"><span class="attribute">while</span>           ::= <span class="string">&quot;while&quot;</span> <span class="string">&quot;(&quot;</span> expr <span class="string">&quot;)&quot;</span> stmt;</span><br><span class="line"><span class="attribute">control</span>         ::= (<span class="string">&quot;break&quot;</span> | <span class="string">&quot;continue&quot;</span> | (<span class="string">&quot;return&quot;</span> [expr])) <span class="string">&quot;;&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="attribute">expr</span>            ::= cast &#123;bin_op cast&#125;;</span><br><span class="line"><span class="attribute">cast</span>            ::= &#123;<span class="string">&quot;(&quot;</span> type <span class="string">&quot;)&quot;</span>&#125; unary;</span><br><span class="line"><span class="attribute">unary</span>           ::= &#123;unary_op&#125; factor | <span class="string">&quot;sizeof&quot;</span> (factor | <span class="string">&quot;(&quot;</span> type <span class="string">&quot;)&quot;</span>);</span><br><span class="line"><span class="attribute">factor</span>          ::= value | index | func_call | access | <span class="string">&quot;(&quot;</span> expr <span class="string">&quot;)&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="attribute">bin_op</span>          ::= <span class="string">&quot;+&quot;</span>   | <span class="string">&quot;-&quot;</span>   | <span class="string">&quot;*&quot;</span>   | <span class="string">&quot;/&quot;</span>   | <span class="string">&quot;%&quot;</span>   | <span class="string">&quot;&amp;&quot;</span></span><br><span class="line">                  | <span class="string">&quot;|&quot;</span>   | <span class="string">&quot;^&quot;</span>   | <span class="string">&quot;&amp;&amp;&quot;</span>  | <span class="string">&quot;||&quot;</span>  | <span class="string">&quot;&lt;&lt;&quot;</span>  | <span class="string">&quot;&gt;&gt;&quot;</span></span><br><span class="line">                  | <span class="string">&quot;==&quot;</span>  | <span class="string">&quot;!=&quot;</span>  | <span class="string">&quot;&lt;&quot;</span>   | <span class="string">&quot;&lt;=&quot;</span>  | <span class="string">&quot;&gt;&quot;</span>   | <span class="string">&quot;&gt;=&quot;</span></span><br><span class="line">                  | <span class="string">&quot;=&quot;</span>   | <span class="string">&quot;+=&quot;</span>  | <span class="string">&quot;-=&quot;</span>  | <span class="string">&quot;*=&quot;</span>  | <span class="string">&quot;/=&quot;</span>  | <span class="string">&quot;%=&quot;</span></span><br><span class="line">                  | <span class="string">&quot;&amp;=&quot;</span>  | <span class="string">&quot;|=&quot;</span>  | <span class="string">&quot;^=&quot;</span>  | <span class="string">&quot;&lt;&lt;=&quot;</span> | <span class="string">&quot;&gt;&gt;=&quot;</span>;</span><br><span class="line"><span class="attribute">unary_op</span>        ::= <span class="string">&quot;+&quot;</span>   | <span class="string">&quot;-&quot;</span>   | <span class="string">&quot;!&quot;</span>   | <span class="string">&quot;~&quot;</span>   | <span class="string">&quot;*&quot;</span>   | <span class="string">&quot;&amp;&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="attribute">value</span>           ::= INT_VAL | CHAR_VAL | STR_VAL | ID_VAL;</span><br><span class="line"><span class="attribute">index</span>           ::= expr <span class="string">&quot;[&quot;</span> expr <span class="string">&quot;]&quot;</span>;</span><br><span class="line"><span class="attribute">func_call</span>       ::= expr <span class="string">&quot;(&quot;</span> [expr &#123;<span class="string">&quot;,&quot;</span> expr&#125;] <span class="string">&quot;)&quot;</span>;</span><br><span class="line"><span class="attribute">access</span>          ::= factor (<span class="string">&quot;.&quot;</span> | <span class="string">&quot;-&gt;&quot;</span>) ID_VAL;</span><br><span class="line"></span><br><span class="line"><span class="attribute">type</span>            ::= prim_type | struct_type | enum_type | const | pointer</span><br><span class="line">                  | user_type;</span><br><span class="line"><span class="attribute">prim_type</span>       ::= <span class="string">&quot;void&quot;</span> | [<span class="string">&quot;unsigned&quot;</span>] <span class="string">&quot;int&quot;</span> | <span class="string">&quot;char&quot;</span>;</span><br><span class="line"><span class="attribute">struct_type</span>     ::= <span class="string">&quot;struct&quot;</span> ID_VAL;</span><br><span class="line"><span class="attribute">enum_type</span>       ::= <span class="string">&quot;enum&quot;</span> ID_VAL;</span><br><span class="line"><span class="attribute">const</span>           ::= <span class="string">&quot;const&quot;</span> type;</span><br><span class="line"><span class="attribute">pointer</span>         ::= type <span class="string">&quot;*&quot;</span> &#123;<span class="string">&quot;*&quot;</span>&#125;;</span><br><span class="line"><span class="attribute">user_type</span>       ::= ID_VAL;</span><br></pre></td></tr></table></figure>
@@ -3818,7 +3818,7 @@ SNMP: 161/162</p>
 <p>STL中的堆是不支持元素更新的，但是我们可以利用元素上浮和元素下沉的操作实现元素更新。具体做法也很简单，根据元素是增大还是减小，调用对应操作保证符合堆的性质即可。</p>
 <p>不幸的是STL又没有暴露元素上浮和元素下沉的接口，于是只能自己写一个了。</p>
 <p>为了能够更新元素的值，给每个元素都附带了一个<code>key</code>标签，凭<code>key</code>去更新元素值，所以最终整个数据结构演变成了类似哈希表的结构。</p>
-<p>实现时顺便实现了<a href="https://www.wikiwand.com/en/D-ary_heap">D元堆</a>，元数作为模版参数。</p>
+<p>实现时顺便实现了<span class="exturl" data-url="aHR0cHM6Ly93d3cud2lraXdhbmQuY29tL2VuL0QtYXJ5X2hlYXA=">D元堆<i class="fa fa-external-link-alt"></i></span>，元数作为模版参数。</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * KeyedMinHeap is a min-heap that supports the following operations:</span></span><br><span class="line"><span class="comment"> * - Insert: Insert a key with a score into the heap</span></span><br><span class="line"><span class="comment"> * - Update: Update the score of a key in the heap</span></span><br><span class="line"><span class="comment"> * - TopKey: Get the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - TopScore: Get the minimum score</span></span><br><span class="line"><span class="comment"> * - Pop: Remove the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - Erase: Remove a key from the heap</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, std::<span class="type">size_t</span> ARITY = <span class="number">4</span>&gt;</span><br><span class="line"><span class="keyword">class</span> KeyedMinHeap &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">using</span> <span class="type">heap_index_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line">  <span class="keyword">using</span> <span class="type">score_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">KeyedMinHeap</span>() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Insert</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> score)</span> </span>&#123;</span><br><span class="line">    keys_map_[key] = heap_.<span class="built_in">size</span>();</span><br><span class="line">    heap_.<span class="built_in">emplace_back</span>(key, score);</span><br><span class="line">    <span class="built_in">BubbleUp</span>(heap_.<span class="built_in">size</span>() - <span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Increment</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second++;</span><br><span class="line">    <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Update</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> new_score)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    <span class="type">score_t</span> old_score = heap_[h_index].second;</span><br><span class="line">    <span class="keyword">if</span> (old_score == new_score) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second = new_score;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (new_score &lt; old_score) &#123;</span><br><span class="line">      <span class="built_in">BubbleUp</span>(h_index);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopKey</span><span class="params">()</span> <span class="type">const</span> -&gt; Key </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().first;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopScore</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">score_t</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().second;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Pop</span><span class="params">()</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> top_key = heap_.<span class="built_in">front</span>().first;</span><br><span class="line">    <span class="keyword">auto</span> last_key = heap_.<span class="built_in">back</span>().first;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(top_key);</span><br><span class="line">    keys_map_[last_key] = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_.<span class="built_in">front</span>(), heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleDown</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Erase</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> entry = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(entry != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">heap_index_t</span> index = entry-&gt;second;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(entry);</span><br><span class="line">    keys_map_[heap_.<span class="built_in">back</span>().first] = index;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_[index], heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleUp</span>(index);</span><br><span class="line">    <span class="built_in">BubbleDown</span>(index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Size</span><span class="params">()</span> <span class="type">const</span> -&gt; std::<span class="type">size_t</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">size</span>(); &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Empty</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">bool</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">empty</span>(); &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ParentIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123; <span class="keyword">return</span> (h_index - <span class="number">1</span>) / ARITY; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Returns the index of the child_number-th child of the node at index</span></span><br><span class="line">  <span class="comment">// The children are numbered from 1 to ARITY</span></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ChildIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index, std::<span class="type">size_t</span> child_number)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ARITY * h_index + child_number;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleUp</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (h_index != <span class="number">0</span>) &#123;</span><br><span class="line">      std::<span class="type">size_t</span> parent = <span class="built_in">ParentIndex</span>(h_index);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">auto</span> &amp;parent_entry = heap_[parent];</span><br><span class="line">      <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (entry.second &lt; parent_entry.second) &#123;</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[parent_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(entry, parent_entry);</span><br><span class="line">        h_index = parent;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleDown</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">      <span class="type">heap_index_t</span> smallest = h_index;</span><br><span class="line">      <span class="keyword">for</span> (std::<span class="type">size_t</span> i = <span class="number">1</span>; i &lt;= ARITY; ++i) &#123;</span><br><span class="line">        <span class="type">heap_index_t</span> child = <span class="built_in">ChildIndex</span>(h_index, i);</span><br><span class="line">        <span class="keyword">if</span> (child &lt; heap_.<span class="built_in">size</span>() &amp;&amp; heap_[child].second &lt; heap_[smallest].second) &#123;</span><br><span class="line">          smallest = child;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (smallest != h_index) &#123;</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;smallest_entry = heap_[smallest];</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[smallest_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(heap_[h_index], heap_[smallest]);</span><br><span class="line">        h_index = smallest;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  std::unordered_map&lt;Key, <span class="type">heap_index_t</span>&gt; keys_map_;</span><br><span class="line">  std::vector&lt;std::pair&lt;Key, <span class="type">score_t</span>&gt;&gt; heap_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>cpp</category>
@@ -5289,7 +5289,7 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
   <entry>
     <title>EROFS 镜像布局分析</title>
     <url>/2024/05/15/erofs-image-layout/</url>
-    <content><![CDATA[<p>以下参考 <a href="https://erofs.docs.kernel.org/en/latest/core_ondisk.html">Core on-disk format</a></p>
+    <content><![CDATA[<p>以下参考 <span class="exturl" data-url="aHR0cHM6Ly9lcm9mcy5kb2NzLmtlcm5lbC5vcmcvZW4vbGF0ZXN0L2NvcmVfb25kaXNrLmh0bWw=">Core on-disk format<i class="fa fa-external-link-alt"></i></span></p>
 <p>EROFS硬盘布局由<code>Super block</code> + <code>inode</code>区 + <code>data</code>区三部分组成。</p>
 <p>由于是只读文件系统，所有存储的文件大小都是已知的，因此相对于其他文件系统省去了<code>inode bitmap</code>和<code>data bitmap</code>的开销，节约空间。</p>
 <h2 id="super-block"><a class="header-anchor-1" href="#super-block">#</a>Super Block</h2>
@@ -5347,7 +5347,7 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
 <p>SquashFs 在解压数据的时候需要大量的临时内存。</p>
 <p>读写数据的时候需要多次分配内存用于page cache/保存解压缩后的数据等；</p>
 <p>在小内存机器上会额外加剧swapping开销；</p>
-<p>额外参考：<a href="https://source.android.google.cn/docs/core/ota/ab/ab_faqs?hl=zh-cn#why-didnt-you-use-squashfs">Android 为何不使用 SquashFS</a></p>
+<p>额外参考：<span class="exturl" data-url="aHR0cHM6Ly9zb3VyY2UuYW5kcm9pZC5nb29nbGUuY24vZG9jcy9jb3JlL290YS9hYi9hYl9mYXFzP2hsPXpoLWNuI3doeS1kaWRudC15b3UtdXNlLXNxdWFzaGZz">Android 为何不使用 SquashFS<i class="fa fa-external-link-alt"></i></span></p>
 <h2 id="erofs：增强的压缩文件系统"><a class="header-anchor-1" href="#erofs：增强的压缩文件系统">#</a>EROFS：增强的压缩文件系统</h2>
 <h3 id="fixed-sized-output-compression"><a class="header-anchor-1" href="#fixed-sized-output-compression">#</a>Fixed-sized output compression</h3>
 <p>为了缓解读放大的问题，EROFS对压缩后的数据（而非压缩前）分块，这样的好处有：</p>
@@ -5387,9 +5387,9 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
 <p>由于LZ4算法需要当前位置之前最多64KB的数据才能解压。EROFS会给每个CPU预先分配若干个物理页，作为vmap解压时存储数据的基本buffer。这些物理页会循环使用。</p>
 <h2 id="实现"><a class="header-anchor-1" href="#实现">#</a>实现</h2>
 <p>EROFS已经合并进内核。使用内核的4KB块大小，LZ4 (v1.8.3) 压缩算法，文件元数据没有被压缩。</p>
-<p><a href="https://github.com/erofs/atc19-erofs">atc19-erofs</a> 是合并进5.3-rc1的分支。</p>
-<p><a href="https://github.com/erofs/atc19-mkfs">atc19-mkfs</a>是论文版本的utils，最新版本在<a href="https://github.com/erofs/erofs-utils">erofs-utils</a>。</p>
-<p><a href="https://github.com/erofs/kmod-erofs">kmod-erofs (WIP)</a>是out-of-tree版本的erofs模块，还没完成。</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2F0YzE5LWVyb2Zz">atc19-erofs<i class="fa fa-external-link-alt"></i></span> 是合并进5.3-rc1的分支。</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2F0YzE5LW1rZnM=">atc19-mkfs<i class="fa fa-external-link-alt"></i></span>是论文版本的utils，最新版本在<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2Vyb2ZzLXV0aWxz">erofs-utils<i class="fa fa-external-link-alt"></i></span>。</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2ttb2QtZXJvZnM=">kmod-erofs (WIP)<i class="fa fa-external-link-alt"></i></span>是out-of-tree版本的erofs模块，还没完成。</p>
 <h4 id="erofs镜像布局"><a class="header-anchor-1" href="#erofs镜像布局">#</a>EROFS镜像布局</h4>
 <p><img src="erofs-layout.png" alt="" /></p>
 <p>和其他文件系统一样，EROFS镜像的开头也是<code>Super block</code>；然后是混合存储的元数据和数据区。</p>
@@ -5426,42 +5426,42 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
     <url>/2024/05/14/erofs-resource/</url>
     <content><![CDATA[<h2 id="代码仓库"><a class="header-anchor-1" href="#代码仓库">#</a>代码仓库</h2>
 <ul>
-<li>EROFS 内核驱动仓库：<a href="https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git</a></li>
-<li>erofs-utils 仓库：<a href="https://github.com/erofs/erofs-utils">https://github.com/erofs/erofs-utils</a></li>
-<li>其他相关项目：<a href="https://github.com/erofs">https://github.com/erofs</a></li>
+<li>EROFS 内核驱动仓库：<span class="exturl" data-url="aHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQveGlhbmcvZXJvZnMuZ2l0">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git<i class="fa fa-external-link-alt"></i></span></li>
+<li>erofs-utils 仓库：<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2Vyb2ZzLXV0aWxz">https://github.com/erofs/erofs-utils<i class="fa fa-external-link-alt"></i></span></li>
+<li>其他相关项目：<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2Zz">https://github.com/erofs<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 <h2 id="文档"><a class="header-anchor-1" href="#文档">#</a>文档</h2>
 <ul>
-<li>ATC '19 论文主页：<a href="https://www.usenix.org/conference/atc19/presentation/gao">https://www.usenix.org/conference/atc19/presentation/gao</a></li>
-<li>内核 EROFS 文档：<a href="https://docs.kernel.org/filesystems/erofs.html">https://docs.kernel.org/filesystems/erofs.html</a></li>
-<li>EROFS 项目主页：<a href="https://erofs.docs.kernel.org/en/latest/#">https://erofs.docs.kernel.org/en/latest/#</a></li>
-<li>An introduction to EROFS (from LWN)：<a href="https://lwn.net/Articles/934047/">https://lwn.net/Articles/934047/</a></li>
-<li>EROFS 项目mannual：<a href="https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/about/">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/about/</a></li>
-<li>EROFS Introducing Mail：<a href="https://marc.info/?l=linux-fsdevel&amp;m=152776480425624">https://marc.info/?l=linux-fsdevel&amp;m=152776480425624</a></li>
+<li>ATC '19 论文主页：<span class="exturl" data-url="aHR0cHM6Ly93d3cudXNlbml4Lm9yZy9jb25mZXJlbmNlL2F0YzE5L3ByZXNlbnRhdGlvbi9nYW8=">https://www.usenix.org/conference/atc19/presentation/gao<i class="fa fa-external-link-alt"></i></span></li>
+<li>内核 EROFS 文档：<span class="exturl" data-url="aHR0cHM6Ly9kb2NzLmtlcm5lbC5vcmcvZmlsZXN5c3RlbXMvZXJvZnMuaHRtbA==">https://docs.kernel.org/filesystems/erofs.html<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 项目主页：<span class="exturl" data-url="aHR0cHM6Ly9lcm9mcy5kb2NzLmtlcm5lbC5vcmcvZW4vbGF0ZXN0LyM=">https://erofs.docs.kernel.org/en/latest/#<i class="fa fa-external-link-alt"></i></span></li>
+<li>An introduction to EROFS (from LWN)：<span class="exturl" data-url="aHR0cHM6Ly9sd24ubmV0L0FydGljbGVzLzkzNDA0Ny8=">https://lwn.net/Articles/934047/<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 项目mannual：<span class="exturl" data-url="aHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQveGlhbmcvZXJvZnMtdXRpbHMuZ2l0L2Fib3V0Lw==">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/about/<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS Introducing Mail：<span class="exturl" data-url="aHR0cHM6Ly9tYXJjLmluZm8vP2w9bGludXgtZnNkZXZlbCZtPTE1Mjc3NjQ4MDQyNTYyNA==">https://marc.info/?l=linux-fsdevel&amp;m=152776480425624<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 <h2 id="slide"><a class="header-anchor-1" href="#slide">#</a>Slide</h2>
 <ul>
-<li>ATC '19 汇报 Slides：<a href="https://www.usenix.org/sites/default/files/conference/protected-files/atc19_slides_gao.pdf">https://www.usenix.org/sites/default/files/conference/protected-files/atc19_slides_gao.pdf</a></li>
-<li>EROFS Everywhere: An Image-Based Kernel Approach for Various Use Cases@KubeCon China '23：<a href="https://static.sched.com/hosted_files/kccncosschn2023/13/OSS-China-2023-EROFS.pdf">https://static.sched.com/hosted_files/kccncosschn2023/13/OSS-China-2023-EROFS.pdf</a></li>
-<li>Image-based read-only filesystems (EROFS) 龙蜥社区：<a href="https://docs.google.com/presentation/d/16LwD-F0IKy8okkC8qB94v2YgDcWBBE26rmMn_s1Mqxc/edit">https://docs.google.com/presentation/d/16LwD-F0IKy8okkC8qB94v2YgDcWBBE26rmMn_s1Mqxc/edit</a></li>
+<li>ATC '19 汇报 Slides：<span class="exturl" data-url="aHR0cHM6Ly93d3cudXNlbml4Lm9yZy9zaXRlcy9kZWZhdWx0L2ZpbGVzL2NvbmZlcmVuY2UvcHJvdGVjdGVkLWZpbGVzL2F0YzE5X3NsaWRlc19nYW8ucGRm">https://www.usenix.org/sites/default/files/conference/protected-files/atc19_slides_gao.pdf<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS Everywhere: An Image-Based Kernel Approach for Various Use Cases@KubeCon China '23：<span class="exturl" data-url="aHR0cHM6Ly9zdGF0aWMuc2NoZWQuY29tL2hvc3RlZF9maWxlcy9rY2NuY29zc2NobjIwMjMvMTMvT1NTLUNoaW5hLTIwMjMtRVJPRlMucGRm">https://static.sched.com/hosted_files/kccncosschn2023/13/OSS-China-2023-EROFS.pdf<i class="fa fa-external-link-alt"></i></span></li>
+<li>Image-based read-only filesystems (EROFS) 龙蜥社区：<span class="exturl" data-url="aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vcHJlc2VudGF0aW9uL2QvMTZMd0QtRjBJS3k4b2trQzhxQjk0djJZZ0RjV0JCRTI2cm1Nbl9zMU1xeGMvZWRpdA==">https://docs.google.com/presentation/d/16LwD-F0IKy8okkC8qB94v2YgDcWBBE26rmMn_s1Mqxc/edit<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 <h2 id="其他资源"><a class="header-anchor-1" href="#其他资源">#</a>其他资源</h2>
 <ul>
-<li>Linux-erofs Mail List：<a href="https://lists.ozlabs.org/listinfo/linux-erofs">https://lists.ozlabs.org/listinfo/linux-erofs</a></li>
-<li>EROFS文件系统这几年（一） —— 缘起：<a href="https://mp.weixin.qq.com/s/RU9JcpjIHargA_-oF9tTcg">https://mp.weixin.qq.com/s/RU9JcpjIHargA_-oF9tTcg</a></li>
-<li>EROFS文件系统生态进展（-2024年1月）：<a href="https://mp.weixin.qq.com/s/3QpbamujQSo378vXr7PlAA">https://mp.weixin.qq.com/s/3QpbamujQSo378vXr7PlAA</a></li>
+<li>Linux-erofs Mail List：<span class="exturl" data-url="aHR0cHM6Ly9saXN0cy5vemxhYnMub3JnL2xpc3RpbmZvL2xpbnV4LWVyb2Zz">https://lists.ozlabs.org/listinfo/linux-erofs<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS文件系统这几年（一） —— 缘起：<span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvUlU5SmNwaklIYXJnQV8tb0Y5dFRjZw==">https://mp.weixin.qq.com/s/RU9JcpjIHargA_-oF9tTcg<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS文件系统生态进展（-2024年1月）：<span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvM1FwYmFtdWpRU28zNzh2WHI3UGxBQQ==">https://mp.weixin.qq.com/s/3QpbamujQSo378vXr7PlAA<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 <h2 id="第三方"><a class="header-anchor-1" href="#第三方">#</a>第三方</h2>
 <ul>
-<li>论文阅读记录（by @SToPire大佬）：<a href="https://stopire.github.io/2023/05/07/EROFS-A-Compression-friendly-Readonly-File-System-for-Resource-scarce-Devices/">https://stopire.github.io/2023/05/07/EROFS-A-Compression-friendly-Readonly-File-System-for-Resource-scarce-Devices/</a></li>
-<li>EROFS压缩文件格式和读取流程分析（by @SToPire大佬）：<a href="https://stopire.github.io/2023/07/05/EROFS%E5%8E%8B%E7%BC%A9%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E5%92%8C%E8%AF%BB%E5%8F%96%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/">https://stopire.github.io/2023/07/05/EROFS压缩文件格式和读取流程分析/</a></li>
-<li>论文阅读（by @mwish）：<a href="https://zhuanlan.zhihu.com/p/663782594">https://zhuanlan.zhihu.com/p/663782594</a></li>
-<li>论文阅读（by elecfans）：<a href="https://bbs.elecfans.com/jishu_2296700_1_1.html">https://bbs.elecfans.com/jishu_2296700_1_1.html</a></li>
-<li>EROFS on-disk compact index 生成分析：<a href="https://tjtech.me/erofs-compacted-index-generation.html">https://tjtech.me/erofs-compacted-index-generation.html</a></li>
-<li>EROFS ztailpacking 特性实现详解：<a href="https://mp.weixin.qq.com/s/ZgKU68Jbgsk8bAK5eRR8EQ">https://mp.weixin.qq.com/s/ZgKU68Jbgsk8bAK5eRR8EQ</a></li>
-<li>EROFS 源码阅读笔记：<a href="https://blog.csdn.net/m0_37637511/article/details/124330158">https://blog.csdn.net/m0_37637511/article/details/124330158</a></li>
-<li>浅谈华为EROFS文件系统的两个主要技术：<a href="https://blog.csdn.net/shuangguo121/article/details/90901131">https://blog.csdn.net/shuangguo121/article/details/90901131</a></li>
-<li>用EROFS进行存储与备份：<a href="https://zhuanlan.zhihu.com/p/646322364">https://zhuanlan.zhihu.com/p/646322364</a></li>
+<li>论文阅读记录（by @SToPire大佬）：<span class="exturl" data-url="aHR0cHM6Ly9zdG9waXJlLmdpdGh1Yi5pby8yMDIzLzA1LzA3L0VST0ZTLUEtQ29tcHJlc3Npb24tZnJpZW5kbHktUmVhZG9ubHktRmlsZS1TeXN0ZW0tZm9yLVJlc291cmNlLXNjYXJjZS1EZXZpY2VzLw==">https://stopire.github.io/2023/05/07/EROFS-A-Compression-friendly-Readonly-File-System-for-Resource-scarce-Devices/<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS压缩文件格式和读取流程分析（by @SToPire大佬）：<span class="exturl" data-url="aHR0cHM6Ly9zdG9waXJlLmdpdGh1Yi5pby8yMDIzLzA3LzA1L0VST0ZTJUU1JThFJThCJUU3JUJDJUE5JUU2JTk2JTg3JUU0JUJCJUI2JUU2JUEwJUJDJUU1JUJDJThGJUU1JTkyJThDJUU4JUFGJUJCJUU1JThGJTk2JUU2JUI1JTgxJUU3JUE4JThCJUU1JTg4JTg2JUU2JTlFJTkwLw==">https://stopire.github.io/2023/07/05/EROFS压缩文件格式和读取流程分析/<i class="fa fa-external-link-alt"></i></span></li>
+<li>论文阅读（by @mwish）：<span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC82NjM3ODI1OTQ=">https://zhuanlan.zhihu.com/p/663782594<i class="fa fa-external-link-alt"></i></span></li>
+<li>论文阅读（by elecfans）：<span class="exturl" data-url="aHR0cHM6Ly9iYnMuZWxlY2ZhbnMuY29tL2ppc2h1XzIyOTY3MDBfMV8xLmh0bWw=">https://bbs.elecfans.com/jishu_2296700_1_1.html<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS on-disk compact index 生成分析：<span class="exturl" data-url="aHR0cHM6Ly90anRlY2gubWUvZXJvZnMtY29tcGFjdGVkLWluZGV4LWdlbmVyYXRpb24uaHRtbA==">https://tjtech.me/erofs-compacted-index-generation.html<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS ztailpacking 特性实现详解：<span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvWmdLVTY4SmJnc2s4YkFLNWVSUjhFUQ==">https://mp.weixin.qq.com/s/ZgKU68Jbgsk8bAK5eRR8EQ<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 源码阅读笔记：<span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L20wXzM3NjM3NTExL2FydGljbGUvZGV0YWlscy8xMjQzMzAxNTg=">https://blog.csdn.net/m0_37637511/article/details/124330158<i class="fa fa-external-link-alt"></i></span></li>
+<li>浅谈华为EROFS文件系统的两个主要技术：<span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NodWFuZ2d1bzEyMS9hcnRpY2xlL2RldGFpbHMvOTA5MDExMzE=">https://blog.csdn.net/shuangguo121/article/details/90901131<i class="fa fa-external-link-alt"></i></span></li>
+<li>用EROFS进行存储与备份：<span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC82NDYzMjIzNjQ=">https://zhuanlan.zhihu.com/p/646322364<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 <h2 id="links"><a class="header-anchor-1" href="#links">#</a>Links</h2>
 <ul>
@@ -5509,7 +5509,7 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
 <h3 id="erofs-的元数据-erofs-sb-info"><a class="header-anchor-1" href="#erofs-的元数据-erofs-sb-info">#</a>EROFS 的元数据 <code>erofs_sb_info</code></h3>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">erofs_sb_info</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">erofs_mount_opts</span> <span class="title">opt</span>;</span>	<span class="comment">/* options */</span></span><br><span class="line">	</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_EROFS_FS_ZIP</span></span><br><span class="line">	<span class="comment">/* list for all registered superblocks, mainly for shrinker */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">list</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">mutex</span> <span class="title">umount_mutex</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* managed XArray arranged in physical block number */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">xarray</span> <span class="title">managed_pslots</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> shrinker_run_no;</span><br><span class="line">	u16 available_compr_algs;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* pseudo inode to manage cached pages */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">managed_cache</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">erofs_sb_lz4_info</span> <span class="title">lz4</span>;</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span>	<span class="comment">/* CONFIG_EROFS_FS_ZIP */</span></span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">packed_inode</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">erofs_dev_context</span> *<span class="title">devs</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">dax_device</span> *<span class="title">dax_dev</span>;</span></span><br><span class="line">	u64 dax_part_off;</span><br><span class="line">	u64 total_blocks;</span><br><span class="line">	u32 primarydevice_blocks;</span><br><span class="line"></span><br><span class="line">	u32 meta_blkaddr;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_EROFS_FS_XATTR</span></span><br><span class="line">	u32 xattr_blkaddr;</span><br><span class="line">	u32 xattr_prefix_start;</span><br><span class="line">	u8 xattr_prefix_count;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">erofs_xattr_prefix_item</span> *<span class="title">xattr_prefixes</span>;</span></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> xattr_filter_reserved;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	u16 device_id_mask;	<span class="comment">/* valid bits of device id to be used */</span></span><br><span class="line"></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">char</span> islotbits;	<span class="comment">/* inode slot unit size in bit shift */</span></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">char</span> blkszbits;	<span class="comment">/* filesystem block size in bit shift */</span></span><br><span class="line"></span><br><span class="line">	u32 sb_size;			<span class="comment">/* total superblock size */</span></span><br><span class="line">	u32 build_time_nsec;</span><br><span class="line">	u64 build_time;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* what we really care is nid, rather than ino.. */</span></span><br><span class="line">	<span class="type">erofs_nid_t</span> root_nid;</span><br><span class="line">	<span class="type">erofs_nid_t</span> packed_nid;</span><br><span class="line">	<span class="comment">/* used for statfs, f_files - f_favail */</span></span><br><span class="line">	u64 inos;</span><br><span class="line"></span><br><span class="line">	u8 uuid[<span class="number">16</span>];                    <span class="comment">/* 128-bit uuid for volume */</span></span><br><span class="line">	u8 volume_name[<span class="number">16</span>];             <span class="comment">/* volume name */</span></span><br><span class="line">	u32 feature_compat;</span><br><span class="line">	u32 feature_incompat;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* sysfs support */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">kobject</span> <span class="title">s_kobj</span>;</span>		<span class="comment">/* /sys/fs/erofs/&lt;devname&gt; */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">completion</span> <span class="title">s_kobj_unregister</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* fscache support */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">fscache_volume</span> *<span class="title">volume</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">erofs_fscache</span> *<span class="title">s_fscache</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">erofs_domain</span> *<span class="title">domain</span>;</span></span><br><span class="line">	<span class="type">char</span> *fsid;</span><br><span class="line">	<span class="type">char</span> *domain_id;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p><code>bdev.c</code> 中负责硬盘块操作</p>
-<p><a href="https://zhuanlan.zhihu.com/p/466272945">申请super_block</a></p>
+<p><span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC80NjYyNzI5NDU=">申请super_block<i class="fa fa-external-link-alt"></i></span></p>
 <p><code>erofs_fc_fill_super</code> 其实是从硬盘上读取数据，初始化user的sb信息</p>
 <h3 id="inode-操作"><a class="header-anchor-1" href="#inode-操作">#</a>inode 操作</h3>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_generic_iops</span> =</span> &#123;</span><br><span class="line">	.getattr = erofs_getattr,</span><br><span class="line">	.listxattr = erofs_listxattr,</span><br><span class="line">	.get_inode_acl = erofs_get_acl,</span><br><span class="line">	.fiemap = erofs_fiemap,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_symlink_iops</span> =</span> &#123;</span><br><span class="line">	.get_link = page_get_link,</span><br><span class="line">	.getattr = erofs_getattr,</span><br><span class="line">	.listxattr = erofs_listxattr,</span><br><span class="line">	.get_inode_acl = erofs_get_acl,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_fast_symlink_iops</span> =</span> &#123;</span><br><span class="line">	.get_link = simple_get_link,</span><br><span class="line">	.getattr = erofs_getattr,</span><br><span class="line">	.listxattr = erofs_listxattr,</span><br><span class="line">	.get_inode_acl = erofs_get_acl,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
@@ -6332,7 +6332,7 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
 </li>
 <li>报文格式
 <ul>
-<li>GET / HTTP/1.1\r\nHost: <a href="http://xxx.com">xxx.com</a>\r\n\r\nPAYLOAD</li>
+<li>GET / HTTP/1.1\r\nHost: <span class="exturl" data-url="aHR0cDovL3h4eC5jb20=">xxx.com<i class="fa fa-external-link-alt"></i></span>\r\n\r\nPAYLOAD</li>
 <li>HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\nBODY</li>
 </ul>
 </li>
@@ -6872,7 +6872,7 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
 <ul>
 <li>链接
 <ul>
-<li><a href="http://xn--libc-p29ft733a.so">加载libc.so</a></li>
+<li><span class="exturl" data-url="aHR0cDovL3huLS1saWJjLXAyOWZ0NzMzYS5zbw==">加载libc.so<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 </li>
 <li>装载
@@ -8670,7 +8670,7 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
 </ul>
 <p>在 <code>entry.asm</code> 中定义了 <code>_start</code> 符号，这是程序的入口地址</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">    .section .text.entry</span><br><span class="line">    .globl _start</span><br><span class="line">_start:</span><br><span class="line">    la sp, boot_stack_top</span><br><span class="line">    call rust_main  ; 调用 rust_main 函数</span><br><span class="line"></span><br><span class="line">    ; 下面定义一些全局变量</span><br><span class="line">    ; boot_stack_lower_bound 是堆栈的起始地址，大小为 16 个 Page = 64KB</span><br><span class="line">    ; boot_stack_top 是堆栈的结束地址</span><br><span class="line">    .section .bss.stack</span><br><span class="line">    .globl boot_stack_lower_bound</span><br><span class="line">boot_stack_lower_bound:</span><br><span class="line">    .space 4096 * 16</span><br><span class="line">    .globl boot_stack_top</span><br><span class="line">boot_stack_top:</span><br></pre></td></tr></table></figure>
-<p>Rust语言的入口是 rust_main 函数，这个函数在 <a href="http://main.rs">main.rs</a> 中定义</p>
+<p>Rust语言的入口是 rust_main 函数，这个函数在 <span class="exturl" data-url="aHR0cDovL21haW4ucnM=">main.rs<i class="fa fa-external-link-alt"></i></span> 中定义</p>
 <figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="meta">#[no_mangle]</span></span><br><span class="line"><span class="comment">/// the rust entry-point of os</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">rust_main</span>() <span class="punctuation">-&gt;</span> ! &#123;</span><br><span class="line">    <span class="title function_ invoke__">clear_bss</span>();        <span class="comment">// 把 sbss 到 ebss 的内存清零</span></span><br><span class="line">    <span class="title function_ invoke__">kernel_log_info</span>();  <span class="comment">// 打印段的起始和结束地址，日志输出由SBI提供</span></span><br><span class="line">    mm::<span class="title function_ invoke__">init</span>();         <span class="comment">// 初始化内存管理（堆内存管理，页表管理）</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;[kernel] back to world!&quot;</span>);</span><br><span class="line">    mm::<span class="title function_ invoke__">remap_test</span>();</span><br><span class="line">    trap::<span class="title function_ invoke__">init</span>();</span><br><span class="line">    trap::<span class="title function_ invoke__">enable_timer_interrupt</span>();</span><br><span class="line">    timer::<span class="title function_ invoke__">set_next_trigger</span>();</span><br><span class="line">    task::<span class="title function_ invoke__">run_first_task</span>(); <span class="comment">// 运行第一个任务</span></span><br><span class="line">    <span class="built_in">panic!</span>(<span class="string">&quot;Unreachable in rust_main!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="内存管理子系统"><a class="header-anchor-1" href="#内存管理子系统">#</a>内存管理子系统</h3>
 <p>内存管理子系统主要包括：</p>
@@ -9549,7 +9549,7 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
     <title>How to compile the Linux kernel</title>
     <url>/2022/01/08/how-to-compile-linux-kernel/</url>
     <content><![CDATA[<p><img src="https://frezcirno.github.io/static/images/NewTux.svg" alt="" /></p>
-<h2 id="访问-https-www-kernel-org-查看最新的内核版本，获取下载链接"><a class="header-anchor-1" href="#访问-https-www-kernel-org-查看最新的内核版本，获取下载链接">#</a>访问 <a href="https://www.kernel.org/">https://www.kernel.org/</a> 查看最新的内核版本，获取下载链接</h2>
+<h2 id="访问-https-www-kernel-org-查看最新的内核版本，获取下载链接"><a class="header-anchor-1" href="#访问-https-www-kernel-org-查看最新的内核版本，获取下载链接">#</a>访问 <span class="exturl" data-url="aHR0cHM6Ly93d3cua2VybmVsLm9yZy8=">https://www.kernel.org/<i class="fa fa-external-link-alt"></i></span> 查看最新的内核版本，获取下载链接</h2>
 <h2 id="下载并解压到当前目录"><a class="header-anchor-1" href="#下载并解压到当前目录">#</a>下载并解压到当前目录</h2>
 <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">wget -qO- https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.13.tar.xz | tar Jxvf -</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cd</span> linux-5.15.13</span></span><br></pre></td></tr></table></figure>
 <h2 id="编译配置"><a class="header-anchor-1" href="#编译配置">#</a>编译配置</h2>
@@ -10013,28 +10013,28 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
 <ul>
 <li>6’HD:
 <ul>
-<li><a href="https://www.waveshare.net/wiki/6inch_HD_e-Paper_HAT#.E8.B5.84.E6.96.99">https://www.waveshare.net/wiki/6inch_HD_e-Paper_HAT#.E8.B5.84.E6.96.99</a></li>
-<li><a href="https://www.waveshare.net/w/upload/e/e9/6inch_HD_e-Paper_Specification.pdf">https://www.waveshare.net/w/upload/e/e9/6inch_HD_e-Paper_Specification.pdf</a></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly93d3cud2F2ZXNoYXJlLm5ldC93aWtpLzZpbmNoX0hEX2UtUGFwZXJfSEFUIy5FOC5CNS44NC5FNi45Ni45OQ==">https://www.waveshare.net/wiki/6inch_HD_e-Paper_HAT#.E8.B5.84.E6.96.99<i class="fa fa-external-link-alt"></i></span></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly93d3cud2F2ZXNoYXJlLm5ldC93L3VwbG9hZC9lL2U5LzZpbmNoX0hEX2UtUGFwZXJfU3BlY2lmaWNhdGlvbi5wZGY=">https://www.waveshare.net/w/upload/e/e9/6inch_HD_e-Paper_Specification.pdf<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 </li>
 <li>驱动板
 <ul>
 <li>IT8951
 <ul>
-<li><a href="https://www.waveshare.net/w/upload/1/18/IT8951_D_V0.2.4.3_20170728.pdf">https://www.waveshare.net/w/upload/1/18/IT8951_D_V0.2.4.3_20170728.pdf</a></li>
-<li><a href="https://www.ite.com.tw/tw/product/cate5/IT8951">https://www.ite.com.tw/tw/product/cate5/IT8951</a></li>
-<li>逆向分析 <a href="https://github.com/Hanley-Yao/WaveHack">https://github.com/Hanley-Yao/WaveHack</a></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly93d3cud2F2ZXNoYXJlLm5ldC93L3VwbG9hZC8xLzE4L0lUODk1MV9EX1YwLjIuNC4zXzIwMTcwNzI4LnBkZg==">https://www.waveshare.net/w/upload/1/18/IT8951_D_V0.2.4.3_20170728.pdf<i class="fa fa-external-link-alt"></i></span></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly93d3cuaXRlLmNvbS50dy90dy9wcm9kdWN0L2NhdGU1L0lUODk1MQ==">https://www.ite.com.tw/tw/product/cate5/IT8951<i class="fa fa-external-link-alt"></i></span></li>
+<li>逆向分析 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL0hhbmxleS1ZYW8vV2F2ZUhhY2s=">https://github.com/Hanley-Yao/WaveHack<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 </li>
-<li>2.13 寸微雪电子墨水屏驱动板 <a href="https://oshwhub.com/shadow27/mo-shui-ping-qu-dong-ban">https://oshwhub.com/shadow27/mo-shui-ping-qu-dong-ban</a></li>
-<li>4.2 寸佳显墨水屏驱动模块–三色 <a href="https://oshwhub.com/mimiww/kuo-zhan-mo-shui-ping">https://oshwhub.com/mimiww/kuo-zhan-mo-shui-ping</a></li>
-<li>ESP32 墨水屏驱动板 7.5 寸三色墨水屏 <a href="https://oshwhub.com/htsgr/mo-shui-ping">https://oshwhub.com/htsgr/mo-shui-ping</a></li>
-<li>EPDIY 开源多种墨水屏驱动板 <a href="https://github.com/vroland/epdiy">https://github.com/vroland/epdiy</a></li>
+<li>2.13 寸微雪电子墨水屏驱动板 <span class="exturl" data-url="aHR0cHM6Ly9vc2h3aHViLmNvbS9zaGFkb3cyNy9tby1zaHVpLXBpbmctcXUtZG9uZy1iYW4=">https://oshwhub.com/shadow27/mo-shui-ping-qu-dong-ban<i class="fa fa-external-link-alt"></i></span></li>
+<li>4.2 寸佳显墨水屏驱动模块–三色 <span class="exturl" data-url="aHR0cHM6Ly9vc2h3aHViLmNvbS9taW1pd3cva3VvLXpoYW4tbW8tc2h1aS1waW5n">https://oshwhub.com/mimiww/kuo-zhan-mo-shui-ping<i class="fa fa-external-link-alt"></i></span></li>
+<li>ESP32 墨水屏驱动板 7.5 寸三色墨水屏 <span class="exturl" data-url="aHR0cHM6Ly9vc2h3aHViLmNvbS9odHNnci9tby1zaHVpLXBpbmc=">https://oshwhub.com/htsgr/mo-shui-ping<i class="fa fa-external-link-alt"></i></span></li>
+<li>EPDIY 开源多种墨水屏驱动板 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3Zyb2xhbmQvZXBkaXk=">https://github.com/vroland/epdiy<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 </li>
 <li>成品参考
 <ul>
-<li>微雪 3.7 寸墨水屏版本阅读器 <a href="https://oshwhub.com/sammax/diy-wei-xue-3-7-cun-mo-shui-ping-txt-xiao-shuo-yue-du-qi">https://oshwhub.com/sammax/diy-wei-xue-3-7-cun-mo-shui-ping-txt-xiao-shuo-yue-du-qi</a></li>
+<li>微雪 3.7 寸墨水屏版本阅读器 <span class="exturl" data-url="aHR0cHM6Ly9vc2h3aHViLmNvbS9zYW1tYXgvZGl5LXdlaS14dWUtMy03LWN1bi1tby1zaHVpLXBpbmctdHh0LXhpYW8tc2h1by15dWUtZHUtcWk=">https://oshwhub.com/sammax/diy-wei-xue-3-7-cun-mo-shui-ping-txt-xiao-shuo-yue-du-qi<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 </li>
 </ul>
@@ -10072,7 +10072,7 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
     <title>Python splitlines() 函数的坑</title>
     <url>/2024/04/17/python-splitline/</url>
     <content><![CDATA[<h2 id="str-splitlines"><a class="header-anchor-1" href="#str-splitlines">#</a>str.splitlines()</h2>
-<p>Python 标准库中的 <a href="https://docs.python.org/3/library/stdtypes.html#str.splitlines">str.splitlines()</a> 会在以下几种字符处分割字符串，不仅限于 <code>universal newlines</code> (<code>\r</code>,<code>\n</code>,<code>\r\n</code>):</p>
+<p>Python 标准库中的 <span class="exturl" data-url="aHR0cHM6Ly9kb2NzLnB5dGhvbi5vcmcvMy9saWJyYXJ5L3N0ZHR5cGVzLmh0bWwjc3RyLnNwbGl0bGluZXM=">str.splitlines()<i class="fa fa-external-link-alt"></i></span> 会在以下几种字符处分割字符串，不仅限于 <code>universal newlines</code> (<code>\r</code>,<code>\n</code>,<code>\r\n</code>):</p>
 <table>
 <thead>
 <tr>
@@ -10128,9 +10128,9 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
 </tbody>
 </table>
 <h2 id="bytes-splitlines"><a class="header-anchor-1" href="#bytes-splitlines">#</a>bytes.splitlines()</h2>
-<p><a href="https://docs.python.org/3/library/stdtypes.html#bytes.splitlines">bytes.splitlines()</a> 严格按照 <code>universal newlines</code> 分割</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9kb2NzLnB5dGhvbi5vcmcvMy9saWJyYXJ5L3N0ZHR5cGVzLmh0bWwjYnl0ZXMuc3BsaXRsaW5lcw==">bytes.splitlines()<i class="fa fa-external-link-alt"></i></span> 严格按照 <code>universal newlines</code> 分割</p>
 <h2 id="readlines"><a class="header-anchor-1" href="#readlines">#</a>readlines()</h2>
-<p><a href="https://docs.python.org/3/library/io.html#io.TextIOBase.readline">readlines()</a> 的行为和 <a href="https://docs.python.org/3/library/functions.html#open">open()</a> 时 newline 参数的值有关。</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9kb2NzLnB5dGhvbi5vcmcvMy9saWJyYXJ5L2lvLmh0bWwjaW8uVGV4dElPQmFzZS5yZWFkbGluZQ==">readlines()<i class="fa fa-external-link-alt"></i></span> 的行为和 <span class="exturl" data-url="aHR0cHM6Ly9kb2NzLnB5dGhvbi5vcmcvMy9saWJyYXJ5L2Z1bmN0aW9ucy5odG1sI29wZW4=">open()<i class="fa fa-external-link-alt"></i></span> 时 newline 参数的值有关。</p>
 <table>
 <thead>
 <tr>
@@ -10185,7 +10185,7 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
 <p>RIME输入法自带用户数据同步功能，会将当前平台用户的所有配置和数据导出到 <code>&#123;sync_dir&#125;/&#123;install_id&#125;/</code> 目录下。例如内部会有一个 <code>xxx.userdb.txt</code> 文件，保存了当前用户的词库数据。</p>
 <p>同步是双向的，如果<code>&#123;sync_dir&#125;</code>下还存在其他用户目录，会将其导入到当前输入法中，并且更新<code>&#123;install_id&#125;</code>。</p>
 <h2 id="lua-拓展"><a class="header-anchor-1" href="#lua-拓展">#</a>Lua 拓展</h2>
-<p><a href="https://github.com/hchunhui/librime-lua">librime-lua</a>项目实现了用lua脚本拓展RIME的功能。</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2hjaHVuaHVpL2xpYnJpbWUtbHVh">librime-lua<i class="fa fa-external-link-alt"></i></span>项目实现了用lua脚本拓展RIME的功能。</p>
 <p>Ubuntu下可以直接安装 rime-plugin-lua 软件包</p>
 <h3 id="动态获取时间日期"><a class="header-anchor-1" href="#动态获取时间日期">#</a>动态获取时间日期</h3>
 <figure class="highlight lua"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">date_translator</span><span class="params">(input, seg)</span></span></span><br><span class="line">   <span class="keyword">if</span> (<span class="built_in">input</span> == <span class="string">&quot;date&quot;</span>) <span class="keyword">then</span></span><br><span class="line">      <span class="comment">--- Candidate(type, start, end, text, comment)</span></span><br><span class="line">      <span class="built_in">yield</span>(Candidate(<span class="string">&quot;date&quot;</span>, seg.start, seg._end, <span class="built_in">os</span>.<span class="built_in">date</span>(<span class="string">&quot;%Y-%m-%d&quot;</span>), <span class="string">&quot;&quot;</span>))</span><br><span class="line">      <span class="built_in">yield</span>(Candidate(<span class="string">&quot;date&quot;</span>, seg.start, seg._end, <span class="built_in">os</span>.<span class="built_in">date</span>(<span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>), <span class="string">&quot;&quot;</span>))</span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
@@ -10235,10 +10235,10 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
 </ul>
 <h2 id="moegoe"><a class="header-anchor-1" href="#moegoe">#</a>MoeGoe</h2>
 <ul>
-<li>B站UP主 CjangCjengh 开源 <a href="https://github.com/CjangCjengh/MoeGoe">https://github.com/CjangCjengh/MoeGoe</a></li>
+<li>B站UP主 CjangCjengh 开源 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL0NqYW5nQ2plbmdoL01vZUdvZQ==">https://github.com/CjangCjengh/MoeGoe<i class="fa fa-external-link-alt"></i></span></li>
 <li>VITS 工具化</li>
-<li>基于Tacotron2版 Demo <a href="https://www.bilibili.com/video/BV1rV4y177Z7/">https://www.bilibili.com/video/BV1rV4y177Z7/</a></li>
-<li>基于VITS版 MoeGoe工具 <a href="https://www.bilibili.com/video/BV1A8411t7sK/">https://www.bilibili.com/video/BV1A8411t7sK/</a></li>
+<li>基于Tacotron2版 Demo <span class="exturl" data-url="aHR0cHM6Ly93d3cuYmlsaWJpbGkuY29tL3ZpZGVvL0JWMXJWNHkxNzdaNy8=">https://www.bilibili.com/video/BV1rV4y177Z7/<i class="fa fa-external-link-alt"></i></span></li>
+<li>基于VITS版 MoeGoe工具 <span class="exturl" data-url="aHR0cHM6Ly93d3cuYmlsaWJpbGkuY29tL3ZpZGVvL0JWMUE4NDExdDdzSy8=">https://www.bilibili.com/video/BV1A8411t7sK/<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 <h2 id="fastpitch"><a class="header-anchor-1" href="#fastpitch">#</a>Fastpitch</h2>
 <h2 id="vits2"><a class="header-anchor-1" href="#vits2">#</a>VITS2</h2>
@@ -10248,22 +10248,22 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
 </ul>
 <h2 id="sovits-so-vits-svc-🔥🔥🔥"><a class="header-anchor-1" href="#sovits-so-vits-svc-🔥🔥🔥">#</a>SoVITS / so-vits-svc 🔥🔥🔥</h2>
 <ul>
-<li>B站UP主 Rcell 开源 <a href="https://github.com/innnky/so-vits-svc">https://github.com/innnky/so-vits-svc</a> (已删)</li>
+<li>B站UP主 Rcell 开源 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2lubm5reS9zby12aXRzLXN2Yw==">https://github.com/innnky/so-vits-svc<i class="fa fa-external-link-alt"></i></span> (已删)</li>
 <li>歌声转换 (Singing Voice Conversion) 任务</li>
 <li>技术实现: 把 VITS2 中的 text encoder 替换为 SoftVC 中的 HuBERT</li>
-<li>荣誉: 时代周刊评价 2023 最佳发明 <a href="https://time.com/collection/best-inventions-2023/6327135/so-vits-svc/">https://time.com/collection/best-inventions-2023/6327135/so-vits-svc/</a></li>
-<li>一些训练好的声音模型: <a href="https://huggingface.co/spaces/zomehwh/vits-models/tree/main/pretrained_models">https://huggingface.co/spaces/zomehwh/vits-models/tree/main/pretrained_models</a></li>
+<li>荣誉: 时代周刊评价 2023 最佳发明 <span class="exturl" data-url="aHR0cHM6Ly90aW1lLmNvbS9jb2xsZWN0aW9uL2Jlc3QtaW52ZW50aW9ucy0yMDIzLzYzMjcxMzUvc28tdml0cy1zdmMv">https://time.com/collection/best-inventions-2023/6327135/so-vits-svc/<i class="fa fa-external-link-alt"></i></span></li>
+<li>一些训练好的声音模型: <span class="exturl" data-url="aHR0cHM6Ly9odWdnaW5nZmFjZS5jby9zcGFjZXMvem9tZWh3aC92aXRzLW1vZGVscy90cmVlL21haW4vcHJldHJhaW5lZF9tb2RlbHM=">https://huggingface.co/spaces/zomehwh/vits-models/tree/main/pretrained_models<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 <h2 id="ai峰哥"><a class="header-anchor-1" href="#ai峰哥">#</a>AI峰哥</h2>
 <ul>
-<li>效果演示: <a href="https://www.bilibili.com/video/BV1w24y1c7z9/">https://www.bilibili.com/video/BV1w24y1c7z9/</a></li>
+<li>效果演示: <span class="exturl" data-url="aHR0cHM6Ly93d3cuYmlsaWJpbGkuY29tL3ZpZGVvL0JWMXcyNHkxYzd6OS8=">https://www.bilibili.com/video/BV1w24y1c7z9/<i class="fa fa-external-link-alt"></i></span></li>
 <li>Idea: Fastpitch + NLP模型</li>
-<li>MassTTS: <a href="https://github.com/anyvoiceai/MassTTS">https://github.com/anyvoiceai/MassTTS</a></li>
-<li>ChatGLM-6B: <a href="https://github.com/lich99/ChatGLM-finetune-LoRA">https://github.com/lich99/ChatGLM-finetune-LoRA</a></li>
+<li>MassTTS: <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2FueXZvaWNlYWkvTWFzc1RUUw==">https://github.com/anyvoiceai/MassTTS<i class="fa fa-external-link-alt"></i></span></li>
+<li>ChatGLM-6B: <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2xpY2g5OS9DaGF0R0xNLWZpbmV0dW5lLUxvUkE=">https://github.com/lich99/ChatGLM-finetune-LoRA<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 <h2 id="bert-vits2"><a class="header-anchor-1" href="#bert-vits2">#</a>BERT-VITS2</h2>
 <ul>
-<li>B站 fishaudio 开源 <a href="https://www.bilibili.com/video/BV18E421371Q/">https://www.bilibili.com/video/BV18E421371Q/</a> <a href="https://github.com/fishaudio/Bert-VITS2">https://github.com/fishaudio/Bert-VITS2</a></li>
+<li>B站 fishaudio 开源 <span class="exturl" data-url="aHR0cHM6Ly93d3cuYmlsaWJpbGkuY29tL3ZpZGVvL0JWMThFNDIxMzcxUS8=">https://www.bilibili.com/video/BV18E421371Q/<i class="fa fa-external-link-alt"></i></span> <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Zpc2hhdWRpby9CZXJ0LVZJVFMy">https://github.com/fishaudio/Bert-VITS2<i class="fa fa-external-link-alt"></i></span></li>
 <li>启发自 AI峰哥</li>
 <li>技术实现: 把 VITS2 中的 text encoder 替换为 BERT</li>
 </ul>
@@ -10273,26 +10273,26 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
 </ul>
 <h2 id="rvc"><a class="header-anchor-1" href="#rvc">#</a>RVC</h2>
 <ul>
-<li>B站UP主 花儿不哭 开源 <a href="https://www.bilibili.com/video/BV1pm4y1z7Gm/">https://www.bilibili.com/video/BV1pm4y1z7Gm/</a></li>
+<li>B站UP主 花儿不哭 开源 <span class="exturl" data-url="aHR0cHM6Ly93d3cuYmlsaWJpbGkuY29tL3ZpZGVvL0JWMXBtNHkxejdHbS8=">https://www.bilibili.com/video/BV1pm4y1z7Gm/<i class="fa fa-external-link-alt"></i></span></li>
 <li>声音转换 (Voice Conversion) 任务</li>
 <li>10分钟样本</li>
 </ul>
 <h2 id="gpt-sovits"><a class="header-anchor-1" href="#gpt-sovits">#</a>GPT-SoVITS</h2>
 <ul>
-<li>B站UP主 花儿不哭 开源 <a href="https://www.bilibili.com/video/BV12g4y1m7Uw/">https://www.bilibili.com/video/BV12g4y1m7Uw/</a></li>
+<li>B站UP主 花儿不哭 开源 <span class="exturl" data-url="aHR0cHM6Ly93d3cuYmlsaWJpbGkuY29tL3ZpZGVvL0JWMTJnNHkxbTdVdy8=">https://www.bilibili.com/video/BV12g4y1m7Uw/<i class="fa fa-external-link-alt"></i></span></li>
 <li>声音转换 (Voice Conversion) 任务</li>
 <li>RVC 延续, 只需 5 ~ 10s 样本</li>
 </ul>
 <h2 id="fish-speech"><a class="header-anchor-1" href="#fish-speech">#</a>fish-speech</h2>
 <ul>
-<li><a href="https://github.com/fishaudio/fish-speech">https://github.com/fishaudio/fish-speech</a></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Zpc2hhdWRpby9maXNoLXNwZWVjaA==">https://github.com/fishaudio/fish-speech<i class="fa fa-external-link-alt"></i></span></li>
 <li>Zero-shot TTS 任务</li>
 <li>基于自回归模型</li>
 <li>一段 5s 音频样本即可生成语音</li>
 </ul>
 <h2 id="chattts"><a class="header-anchor-1" href="#chattts">#</a>ChatTTS</h2>
 <ul>
-<li>AI峰哥新版本 <a href="https://github.com/2noise/ChatTTS">https://github.com/2noise/ChatTTS</a></li>
+<li>AI峰哥新版本 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tLzJub2lzZS9DaGF0VFRT">https://github.com/2noise/ChatTTS<i class="fa fa-external-link-alt"></i></span></li>
 <li>TTS 任务, 对话场景, 支持细粒度控制和韵律</li>
 <li>支持通过 LoRA 微调实现不同音色</li>
 </ul>
@@ -10304,7 +10304,7 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
   <entry>
     <title>网站内容优化</title>
     <url>/2024/04/25/website-optimization/</url>
-    <content><![CDATA[<p>今天用 <a href="https://web.dev/measure/">lighthouse</a> 分析博客的性能，发现几个之前不了解的问题，记录一下。</p>
+    <content><![CDATA[<p>今天用 <span class="exturl" data-url="aHR0cHM6Ly93ZWIuZGV2L21lYXN1cmUv">lighthouse<i class="fa fa-external-link-alt"></i></span> 分析博客的性能，发现几个之前不了解的问题，记录一下。</p>
 <h2 id="避免在主线程跑复杂-js"><a class="header-anchor-1" href="#避免在主线程跑复杂-js">#</a>避免在主线程跑复杂 JS</h2>
 <p>live2d.js 很耗时</p>
 <h2 id="内嵌关键-js-css，延迟非关键-js-css"><a class="header-anchor-1" href="#内嵌关键-js-css，延迟非关键-js-css">#</a>内嵌关键 JS/CSS，延迟非关键 JS/CSS</h2>
@@ -10348,7 +10348,7 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
   <entry>
     <title>20 行代码速通 Safe Rust Double Free (整活向)</title>
     <url>/2025/02/11/unsound-rust/</url>
-    <content><![CDATA[<p>受到 <a href="https://github.com/Speykious/cve-rs">cve-rs</a> 项目启发，利用 Type system 的固有 Unsoundness 实现一个经典的 Double Free。</p>
+    <content><![CDATA[<p>受到 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL1NwZXlraW91cy9jdmUtcnM=">cve-rs<i class="fa fa-external-link-alt"></i></span> 项目启发，利用 Type system 的固有 Unsoundness 实现一个经典的 Double Free。</p>
 <h2 id="代码"><a class="header-anchor-1" href="#代码">#</a>代码</h2>
 <figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="meta">#[inline(never)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> <span class="keyword">fn</span> <span class="title function_">lifetime_translator</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>, T: ?<span class="built_in">Sized</span>&gt;(_: &amp;<span class="symbol">&#x27;a</span> &amp;<span class="symbol">&#x27;b</span> (), x: &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T &#123;</span><br><span class="line">    x</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">expand</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>, T: ?<span class="built_in">Sized</span>&gt;(x: &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">f</span>: <span class="keyword">for</span>&lt;<span class="symbol">&#x27;x</span>&gt; <span class="title function_ invoke__">fn</span>(_, &amp;<span class="symbol">&#x27;x</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T = lifetime_translator;</span><br><span class="line">    <span class="title function_ invoke__">f</span>(STATIC_UNIT, x)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> STATIC_UNIT: &amp;&amp;() = &amp;&amp;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">dead</span> = <span class="title function_ invoke__">expand</span>(&amp;<span class="keyword">mut</span> <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]);</span><br><span class="line">    dead.<span class="title function_ invoke__">push</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="运行"><a class="header-anchor-1" href="#运行">#</a>运行</h2>
@@ -10390,21 +10390,21 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
 <p>Listeners: To print results of symbolic analysis (path conditions, test vectors or test sequences); to influence the search</p>
 <h1>相关资源</h1>
 <ul>
-<li><a href="https://yannicnoller.notion.site/Symbolic-PathFinder-Setup-47fe784d81614f98b4525f260618fa35#fcd2bd4dea0d4daa9dab83520da68fe1">jpf-symbc 作者的 notion 笔记</a></li>
-<li><a href="https://mir.cs.illinois.edu/marinov/rio2011/JPF-58.pdf">JavaPathfinder Tutorial 02/2010</a></li>
-<li><a href="https://www.slideserve.com/omer/jpf-tutorial">JPF Tutorial – Part 2 Symbolic PathFinder – Symbolic Execution of Java Byte-code</a></li>
-<li><a href="https://fm.csl.sri.com/SSFT11/JPF-lecture-2.pdf">Java Pathfinder Lecture 2: Under the Hood</a></li>
-<li><a href="https://www.uio.no/studier/emner/matnat/ifi/INF5140/v15/slides/jpf.pdf">Java Path Finder 2015</a></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly95YW5uaWNub2xsZXIubm90aW9uLnNpdGUvU3ltYm9saWMtUGF0aEZpbmRlci1TZXR1cC00N2ZlNzg0ZDgxNjE0Zjk4YjQ1MjVmMjYwNjE4ZmEzNSNmY2QyYmQ0ZGVhMGQ0ZGFhOWRhYjgzNTIwZGE2OGZlMQ==">jpf-symbc 作者的 notion 笔记<i class="fa fa-external-link-alt"></i></span></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly9taXIuY3MuaWxsaW5vaXMuZWR1L21hcmlub3YvcmlvMjAxMS9KUEYtNTgucGRm">JavaPathfinder Tutorial 02/2010<i class="fa fa-external-link-alt"></i></span></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly93d3cuc2xpZGVzZXJ2ZS5jb20vb21lci9qcGYtdHV0b3JpYWw=">JPF Tutorial – Part 2 Symbolic PathFinder – Symbolic Execution of Java Byte-code<i class="fa fa-external-link-alt"></i></span></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly9mbS5jc2wuc3JpLmNvbS9TU0ZUMTEvSlBGLWxlY3R1cmUtMi5wZGY=">Java Pathfinder Lecture 2: Under the Hood<i class="fa fa-external-link-alt"></i></span></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly93d3cudWlvLm5vL3N0dWRpZXIvZW1uZXIvbWF0bmF0L2lmaS9JTkY1MTQwL3YxNS9zbGlkZXMvanBmLnBkZg==">Java Path Finder 2015<i class="fa fa-external-link-alt"></i></span></li>
 <li></li>
 </ul>
 <h1>安装和配置</h1>
-<p>安装配置文档竟在<a href="https://yannicnoller.notion.site/Symbolic-PathFinder-Setup-47fe784d81614f98b4525f260618fa35#fcd2bd4dea0d4daa9dab83520da68fe1">作者的 notion 笔记</a>里面…</p>
+<p>安装配置文档竟在<span class="exturl" data-url="aHR0cHM6Ly95YW5uaWNub2xsZXIubm90aW9uLnNpdGUvU3ltYm9saWMtUGF0aEZpbmRlci1TZXR1cC00N2ZlNzg0ZDgxNjE0Zjk4YjQ1MjVmMjYwNjE4ZmEzNSNmY2QyYmQ0ZGVhMGQ0ZGFhOWRhYjgzNTIwZGE2OGZlMQ==">作者的 notion 笔记<i class="fa fa-external-link-alt"></i></span>里面…</p>
 <p>下面讲一下笔者的踩坑经验</p>
 <ol>
 <li>克隆项目</li>
 </ol>
 <p><code>jpf-core</code> 和 <code>jpf-symbc</code> 放在同一个目录下面</p>
-<p><code>jpf-core</code> 要用这个版本 -&gt; <a href="https://github.com/yannicnoller/jpf-core">https://github.com/yannicnoller/jpf-core</a></p>
+<p><code>jpf-core</code> 要用这个版本 -&gt; <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3lhbm5pY25vbGxlci9qcGYtY29yZQ==">https://github.com/yannicnoller/jpf-core<i class="fa fa-external-link-alt"></i></span></p>
 <figure class="highlight console"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── jpf-core</span><br><span class="line">└── jpf-symbc</span><br></pre></td></tr></table></figure>
 <ol start="2">
 <li>编译项目</li>
@@ -10892,7 +10892,7 @@ S&amp;=\sum_{i=1}^{n}{C_{i}a_{i}}\\
     <url>/2020/12/15/index/</url>
     <content><![CDATA[<p>leetcode medium 纯算法题偏少, 准备每日加一道PTA.</p>
 <p><strong>目标</strong>: 每天一道PTA甲级 [PAT (Advanced Level) Practice]</p>
-<p>题号就roll一个<a href="http://katty.top:8888/api/rand?from=1&amp;to=156">随机数</a></p>
+<p>题号就roll一个<span class="exturl" data-url="aHR0cDovL2thdHR5LnRvcDo4ODg4L2FwaS9yYW5kP2Zyb209MSZ0bz0xNTY=">随机数<i class="fa fa-external-link-alt"></i></span></p>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -10975,7 +10975,7 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
     <content><![CDATA[<p>双重拓扑排序: 组内 &amp; 组间</p>
 <p>拓扑排序</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">topSort</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; deg, vector&lt;vector&lt;<span class="type">int</span>&gt;&gt;&amp; graph, vector&lt;<span class="type">int</span>&gt;&amp; items)</span> </span>&#123;</span><br><span class="line">    queue&lt;<span class="type">int</span>&gt; Q;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; item: items) &#123;</span><br><span class="line">        <span class="keyword">if</span> (deg[item] == <span class="number">0</span>) &#123;</span><br><span class="line">            Q.<span class="built_in">push</span>(item);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; res;</span><br><span class="line">    <span class="keyword">while</span> (!Q.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">        <span class="type">int</span> u = Q.<span class="built_in">front</span>(); </span><br><span class="line">        Q.<span class="built_in">pop</span>();</span><br><span class="line">        res.<span class="built_in">emplace_back</span>(u);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; v: graph[u]) &#123;</span><br><span class="line">            <span class="keyword">if</span> (--deg[v] == <span class="number">0</span>) &#123;</span><br><span class="line">                Q.<span class="built_in">push</span>(v);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="built_in">size</span>() == items.<span class="built_in">size</span>() ? res : vector&lt;<span class="type">int</span>&gt;&#123;&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><a href="https://leetcode-cn.com/problems/sort-items-by-groups-respecting-dependencies/solution/xiang-mu-guan-li-by-leetcode-solution-3e7j/">官方题解</a></p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9sZWV0Y29kZS1jbi5jb20vcHJvYmxlbXMvc29ydC1pdGVtcy1ieS1ncm91cHMtcmVzcGVjdGluZy1kZXBlbmRlbmNpZXMvc29sdXRpb24veGlhbmctbXUtZ3Vhbi1saS1ieS1sZWV0Y29kZS1zb2x1dGlvbi0zZTdqLw==">官方题解<i class="fa fa-external-link-alt"></i></span></p>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -10991,7 +10991,7 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
     <content><![CDATA[<p>最多可以交易两次</p>
 <h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
 <p>动态规划, 用四个状态变量</p>
-<p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iii/solution/mai-mai-gu-piao-de-zui-jia-shi-ji-iii-by-wrnt/">官方题解</a></p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9sZWV0Y29kZS1jbi5jb20vcHJvYmxlbXMvYmVzdC10aW1lLXRvLWJ1eS1hbmQtc2VsbC1zdG9jay1paWkvc29sdXRpb24vbWFpLW1haS1ndS1waWFvLWRlLXp1aS1qaWEtc2hpLWppLWlpaS1ieS13cm50Lw==">官方题解<i class="fa fa-external-link-alt"></i></span></p>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -11009,20 +11009,20 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>1584. 连接所有点的最小费用</title>
-    <url>/2021/01/19/1584/</url>
-    <content><![CDATA[<p>实际上是最小生成树</p>
-]]></content>
+    <title>1833. 雪糕的最大数量</title>
+    <url>/2021/07/02/1833/</url>
+    <content><![CDATA[<p>排序</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number[]</span>&#125; <span class="variable">costs</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number</span>&#125; <span class="variable">coins</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="type">number</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> maxIceCream = <span class="keyword">function</span> (<span class="params">costs, coins</span>) &#123;</span><br><span class="line">    costs.<span class="title function_">sort</span>(<span class="function">(<span class="params">a, b</span>) =&gt;</span> a - b);</span><br><span class="line">    <span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; costs.<span class="property">length</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (costs[i] &lt;= coins) &#123;</span><br><span class="line">            coins -= costs[i];</span><br><span class="line">            count++;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
       </categories>
   </entry>
   <entry>
-    <title>1833. 雪糕的最大数量</title>
-    <url>/2021/07/02/1833/</url>
-    <content><![CDATA[<p>排序</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number[]</span>&#125; <span class="variable">costs</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number</span>&#125; <span class="variable">coins</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="type">number</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> maxIceCream = <span class="keyword">function</span> (<span class="params">costs, coins</span>) &#123;</span><br><span class="line">    costs.<span class="title function_">sort</span>(<span class="function">(<span class="params">a, b</span>) =&gt;</span> a - b);</span><br><span class="line">    <span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; costs.<span class="property">length</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (costs[i] &lt;= coins) &#123;</span><br><span class="line">            coins -= costs[i];</span><br><span class="line">            count++;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>1584. 连接所有点的最小费用</title>
+    <url>/2021/01/19/1584/</url>
+    <content><![CDATA[<p>实际上是最小生成树</p>
+]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -11490,7 +11490,7 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
 <h1>React 入门</h1>
 <h2 id="复习-javascript"><a class="header-anchor-1" href="#复习-javascript">#</a>复习 JavaScript</h2>
 <ul>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/A_re-introduction_to_JavaScript">很好的文章</a></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvZW4tVVMvZG9jcy9XZWIvSmF2YVNjcmlwdC9BX3JlLWludHJvZHVjdGlvbl90b19KYXZhU2NyaXB0">很好的文章<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 <h1>Vue 和 React 路由模块的区别</h1>
 <h2 id="vue-路由"><a class="header-anchor-1" href="#vue-路由">#</a>Vue 路由</h2>
@@ -12468,48 +12468,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/07/2020-12-07/</url>
-    <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
-<p>在工具栏选中&quot;连接点&quot;</p>
-<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
-<p>有时候可能需要多点几次</p>
-<h1>为什么校园网这么卡</h1>
-<h1>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkhomedir_helper &lt;username&gt;</span></span><br></pre></td></tr></table></figure>
-<h1>xargs 命令</h1>
-<p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
-<p>xargs后面的命令默认是echo</p>
-<p>即: stdin -&gt; **argv</p>
-<h1>tee 命令</h1>
-<p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
-<p>可以用来复制文件</p>
-<ul>
-<li>输出管道中某一段的内容:</li>
-</ul>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">... | <span class="built_in">tee</span> &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>不退出vim使用sudo保存文件</li>
-</ul>
-<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
-<h1>echo 命令</h1>
-<p>echo命令用于将命令行参数输出到标准输出</p>
-<p>即: stdin -&gt; stdout</p>
-<h1>awk 命令</h1>
-<p>强大的字符串处理工具</p>
-<p>最基本的用法:
-<code>awk '&#123;print$1,$2&#125;'</code></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Visio</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/09/2020-12-09/</url>
     <content><![CDATA[<h1>Spring学习</h1>
 <h2 id="ioc容器"><a class="header-anchor-1" href="#ioc容器">#</a>IoC容器</h2>
@@ -12562,7 +12520,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
 <p>CORS标准允许服务器指定谁可以访问该服务器上的资源, 以及该如何访问这些资源</p>
 <p>所以说其实是保护服务器端, 防止恶意网站窃取数据</p>
 <h1>信息安全之盲水印</h1>
-<p><a href="https://www.zhihu.com/question/50735753">妙啊</a></p>
+<p><span class="exturl" data-url="aHR0cHM6Ly93d3cuemhpaHUuY29tL3F1ZXN0aW9uLzUwNzM1NzUz">妙啊<i class="fa fa-external-link-alt"></i></span></p>
 ]]></content>
       <categories>
         <category>daily</category>
@@ -12572,6 +12530,48 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>Java</tag>
         <tag>ORM框架</tag>
         <tag>CORS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/07/2020-12-07/</url>
+    <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
+<p>在工具栏选中&quot;连接点&quot;</p>
+<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
+<p>有时候可能需要多点几次</p>
+<h1>为什么校园网这么卡</h1>
+<h1>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkhomedir_helper &lt;username&gt;</span></span><br></pre></td></tr></table></figure>
+<h1>xargs 命令</h1>
+<p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
+<p>xargs后面的命令默认是echo</p>
+<p>即: stdin -&gt; **argv</p>
+<h1>tee 命令</h1>
+<p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
+<p>可以用来复制文件</p>
+<ul>
+<li>输出管道中某一段的内容:</li>
+</ul>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">... | <span class="built_in">tee</span> &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>不退出vim使用sudo保存文件</li>
+</ul>
+<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
+<h1>echo 命令</h1>
+<p>echo命令用于将命令行参数输出到标准输出</p>
+<p>即: stdin -&gt; stdout</p>
+<h1>awk 命令</h1>
+<p>强大的字符串处理工具</p>
+<p>最基本的用法:
+<code>awk '&#123;print$1,$2&#125;'</code></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Visio</tag>
       </tags>
   </entry>
   <entry>
@@ -12623,7 +12623,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
     <content><![CDATA[<h1>C++ STL中unique的用法</h1>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>, <span class="keyword">class</span> <span class="title class_">BinaryPredicate</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last,</span></span></span><br><span class="line"><span class="params"><span class="function">                           BinaryPredicate pred )</span></span>;</span><br></pre></td></tr></table></figure>
 <p>将[first, last)之间, <strong>相邻</strong>的多个相同元素合并为一个, 返回指向不重复部分末尾的迭代器. 多和sort函数一起使用</p>
-<p>例: 使用unique实现<a href="https://oi-wiki.org/misc/discrete/">离散化</a>:</p>
+<p>例: 使用unique实现<span class="exturl" data-url="aHR0cHM6Ly9vaS13aWtpLm9yZy9taXNjL2Rpc2NyZXRlLw==">离散化<i class="fa fa-external-link-alt"></i></span>:</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// vector&lt;int&gt; array;</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">auto</span> disc = array;</span><br><span class="line"><span class="built_in">sort</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>());</span><br><span class="line">disc.<span class="built_in">erase</span>(<span class="built_in">unique</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>()), disc.<span class="built_in">end</span>())</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; disc.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">  disc[i] = <span class="built_in">lower_bound</span>(array.<span class="built_in">begin</span>(), array.<span class="built_in">end</span>(), disc[i]) - array.<span class="built_in">begin</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 那么disc就可以作为离散化之后的索引</span></span><br><span class="line"><span class="comment">// disc[i] = array中第i种元素的最小下标</span></span><br></pre></td></tr></table></figure>
 <h1>CCFCSP</h1>
 <p>今天考了CCF CSP.</p>
@@ -12921,7 +12921,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
 <p>项目配置全部写在<code>application.[properties|yml]</code>中, 框架会自动识别</p>
 <p>也可以自己定义一些key, 在代码中通过<code>@Value(&quot;xxx.yyy&quot;)</code>注入</p>
 <h3 id="jwt鉴权"><a class="header-anchor-1" href="#jwt鉴权">#</a>JWT鉴权</h3>
-<p><a href="https://jwt.io/">JWT</a>的三部分: <code>Header.Payload.Signature</code></p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9qd3QuaW8v">JWT<i class="fa fa-external-link-alt"></i></span>的三部分: <code>Header.Payload.Signature</code></p>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Header</span> = &#123;<span class="string">&quot;alg&quot;</span>:<span class="string">&quot;HS256&quot;</span>,<span class="string">&quot;typ&quot;</span>:<span class="string">&quot;JWT&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Payload</span> = &#123;<span class="string">&quot;sub&quot;</span>:<span class="string">&quot;1234567890&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;John Doe&quot;</span>,<span class="string">&quot;iat&quot;</span>:<span class="number">1516239022</span>&#125;</span><br><span class="line"></span><br><span class="line">_Header64 = <span class="title function_">base64UrlEncode</span>(<span class="title class_">Header</span>)</span><br><span class="line">_Payload64 = <span class="title function_">base64UrlEncode</span>(<span class="title class_">Payload</span>)</span><br><span class="line"></span><br><span class="line"><span class="title class_">Signature</span> = <span class="title class_">HMACSHA256</span>(<span class="string">`<span class="subst">$&#123;_Header64&#125;</span>.<span class="subst">$&#123;_Payload64&#125;</span>`</span>, $&#123;your-<span class="number">256</span>-bit-secret&#125;)</span><br><span class="line"></span><br><span class="line"><span class="variable constant_">JWT</span> = <span class="string">`<span class="subst">$&#123;_Header64&#125;</span>.<span class="subst">$&#123;_Payload64&#125;</span>.<span class="subst">$&#123;Signature&#125;</span>`</span></span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
@@ -13203,12 +13203,12 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
 </thead>
 <tbody>
 <tr>
-<td><a href="http://foobar.com/example">foobar.com/example</a><b>/</b></td>
+<td><span class="exturl" data-url="aHR0cDovL2Zvb2Jhci5jb20vZXhhbXBsZQ==">foobar.com/example<i class="fa fa-external-link-alt"></i></span><b>/</b></td>
 <td><strong>/example/index.html</strong></td>
 <td><strong>/example</strong></td>
 </tr>
 <tr>
-<td><a href="http://foobar.com/example">foobar.com/example</a></td>
+<td><span class="exturl" data-url="aHR0cDovL2Zvb2Jhci5jb20vZXhhbXBsZQ==">foobar.com/example<i class="fa fa-external-link-alt"></i></span></td>
 <td><strong>/example.html</strong></td>
 <td><strong>/</strong></td>
 </tr>
@@ -13633,14 +13633,14 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
     <content><![CDATA[<h1>YouCompleteMe插件</h1>
 <h1>配置步骤</h1>
 <h2 id="编译支持-c-17-的-gcc"><a class="header-anchor-1" href="#编译支持-c-17-的-gcc">#</a>编译支持 C++17 的 GCC</h2>
-<p>gcc源代码以ftp的形式发布，除了gnu官方的服务器外，在世界各地都有镜像站，国内靠谱的镜像站有<a href="https://mirrors.aliyun.com/gnu/gcc/">阿里云</a>等。</p>
+<p>gcc源代码以ftp的形式发布，除了gnu官方的服务器外，在世界各地都有镜像站，国内靠谱的镜像站有<span class="exturl" data-url="aHR0cHM6Ly9taXJyb3JzLmFsaXl1bi5jb20vZ251L2djYy8=">阿里云<i class="fa fa-external-link-alt"></i></span>等。</p>
 <p>下载源码并解压:</p>
 <p>这里使用9.4.0版</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget https://mirrors.aliyun.com/gnu/gcc/gcc-9.4.0/gcc-9.4.0.tar.gz</span><br><span class="line">tar -zxf gcc-9.4.0.tar.gz</span><br></pre></td></tr></table></figure>
 <p>创建编译用的目录，我一般习惯命名为build：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> build &amp;&amp; <span class="built_in">cd</span> build</span><br></pre></td></tr></table></figure>
 <p>编译配置：</p>
-<p>此处可配置的选项极多，具体含义可以在<a href="https://gcc.gnu.org/install/configure.html">gcc网站</a>上查询. 如果不知道应该加什么参数，可以参考系统上已有的gcc的配置参数：<code>gcc -v</code>。</p>
+<p>此处可配置的选项极多，具体含义可以在<span class="exturl" data-url="aHR0cHM6Ly9nY2MuZ251Lm9yZy9pbnN0YWxsL2NvbmZpZ3VyZS5odG1s">gcc网站<i class="fa fa-external-link-alt"></i></span>上查询. 如果不知道应该加什么参数，可以参考系统上已有的gcc的配置参数：<code>gcc -v</code>。</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">../configure -v \</span><br><span class="line">    --prefix=/usr/local</span><br><span class="line">    --enable-languages=c,c++ \</span><br><span class="line">    --with-gcc-major-version-only \</span><br><span class="line">    --enable-shared \</span><br><span class="line">    --enable-linker-build-id \</span><br><span class="line">    --without-included-gettext \</span><br><span class="line">    --enable-threads=posix \</span><br><span class="line">    --enable-nls \</span><br><span class="line">    --enable-bootstrap \</span><br><span class="line">    --enable-clocale=gnu \</span><br><span class="line">    --enable-libstdcxx-debug \</span><br><span class="line">    --enable-libstdcxx-time=<span class="built_in">yes</span> \</span><br><span class="line">    --with-default-libstdcxx-abi=new \</span><br><span class="line">    --enable-gnu-unique-object \</span><br><span class="line">    --disable-vtable-verify \</span><br><span class="line">    --enable-libmpx \</span><br><span class="line">    --enable-plugin \</span><br><span class="line">    --enable-default-pie \</span><br><span class="line">    --with-system-zlib \</span><br><span class="line">    --with-target-system-zlib \</span><br><span class="line">    --enable-multiarch \</span><br><span class="line">    --disable-werror \</span><br><span class="line">    --with-arch-32=i686 \</span><br><span class="line">    --with-abi=m64 \</span><br><span class="line">    --with-multilib-list=m32,m64,mx32 \</span><br><span class="line">    --enable-multilib \</span><br><span class="line">    --with-tune=generic \</span><br><span class="line">    --enable-offload-targets=nvptx-none \</span><br><span class="line">    --without-cuda-driver \</span><br><span class="line">    --enable-checking=release \</span><br><span class="line">    --build=x86_64-linux-gnu \</span><br><span class="line">    --host=x86_64-linux-gnu \</span><br><span class="line">    --target=x86_64-linux-gnu</span><br></pre></td></tr></table></figure>
 <p>此处解释几个关键配置</p>
 <ul>
