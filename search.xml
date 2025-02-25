@@ -4751,6 +4751,314 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
       </tags>
   </entry>
   <entry>
+    <title>The Google File System 论文阅读</title>
+    <url>/2025/02/23/the-google-file-system/</url>
+    <content><![CDATA[<p>很早就想读读大名鼎鼎的 GFS 的论文了，这次终于抽出时间好好读一下。</p>
+<h2 id="0-摘要"><a class="header-anchor-1" href="#0-摘要">#</a>0. 摘要</h2>
+<p>GFS 是一个可伸缩的分布式文件系统，用于大的、分布式的数据密集型应用。
+GFS 在运行在廉价的商用硬件上运行的同时，对外提供容错性。
+服务大量客户端时，能提供良好的总性能。</p>
+<p>在 Google 的环境中经过了实际考验。</p>
+<h2 id="1-引言"><a class="header-anchor-1" href="#1-引言">#</a>1. 引言</h2>
+<p>GFS 的设计目标：高性能、伸缩性、可靠性、可用性。</p>
+<ol>
+<li>在大规模系统中，组件故障是常态。因此持续监测，错误检测，容错性和自动恢复是必须包含的部分；</li>
+<li>预期文件会很大，常见的是 GB 级别；</li>
+<li>大多数 workload 模式是追加写而非覆盖写，文件写入后只会被读取，读取通常是顺序读。
+因此关键点在于保证追加写的性能和原子性；</li>
+<li>协同设计上层应用和 FS 的 API 对提供整个系统的弹性有好处。例如放宽一致性约束简化应用程序。</li>
+</ol>
+<h2 id="2-设计概述"><a class="header-anchor-1" href="#2-设计概述">#</a>2. 设计概述</h2>
+<h3 id="2-1-假设"><a class="header-anchor-1" href="#2-1-假设">#</a>2.1 假设</h3>
+<ol>
+<li>使用经常故障的廉价商用硬件</li>
+<li>保存相当多的大文件</li>
+<li>读 workload 主要是大量顺序读和少量随机读</li>
+<li>写 workload 主要是大块的追加写</li>
+<li>需要给追加写操作提供明确的并发语义</li>
+<li>高带宽比低延迟更重要</li>
+</ol>
+<h3 id="2-2-接口"><a class="header-anchor-1" href="#2-2-接口">#</a>2.2 接口</h3>
+<p>GFS 提供的文件系统接口有：create, delete, open, close, read, write, snapshot 和 record append。</p>
+<p>record append 是原子性的追加写操作，用于多个客户端并发写入同一个文件。</p>
+<h3 id="2-3-架构"><a class="header-anchor-1" href="#2-3-架构">#</a>2.3 架构</h3>
+<p>GFS 包括一个 master 节点，多个 chunkserver 节点。都是普通 Linux 机器上运行的用户态进程。</p>
+<p>文件会分成固定大小的 chunks，每个 chunk 有一个全局唯一的 64-bit 的 chunk handle 作为标识。
+chunkserver 将 chunks 保存在本地磁盘上，通过 chunk handle 去读写，可以只读写其中某一段。
+为了数据可靠性，每个 chunk 会被复制到多个 chunkserver 上，默认是 3 副本。</p>
+<p>master 负责元数据管理，包括 namespace, ACL 信息, 文件到 chunk 的映射，chunk 的位置信息。
+还负责控制全局的任务，例如 chunk 租约管理, 垃圾回收, chunk 迁移。
+master 通过 HeartBeat 消息给 chunkserver 分发任务和回收状态。</p>
+<p>GFS 客户端是一个用户态库的形式，和应用程序链接在一起。提供用户态的类文件系统接口。</p>
+<p>因为大多数应用程序都是流式访问大文件，客户端和 chunkserver 都不缓存数据。
+这样避免了缓存一致性问题，可以简化实现。
+因为 Linux 本身对磁盘文件会有缓存，chunkserver 也不缓存数据。</p>
+<h3 id="2-4-master-设计"><a class="header-anchor-1" href="#2-4-master-设计">#</a>2.4 Master 设计</h3>
+<p>单个 Master 可以简化设计，因为所有信息都保存在这个节点上，所以可以使用更高级的 chunk 的放置策略。
+但是必须注意最小化 Master 对读写的参与，避免单点形成系统瓶颈。
+客户端先问 Master 获取 chunk 的位置信息，然后直接和 chunkserver 通信。
+这个位置信息会缓存一段时间。</p>
+<p>客户端的读操作：</p>
+<ol>
+<li>由于 chunk 大小固定，客户端先将欲访问的 byte range 转换成 chunk index</li>
+<li>向 Master 请求 chunk 的位置信息。客户端缓存这个信息一段时间。</li>
+<li>客户端和最近的持有该 chunk 的 chunkserver 通信，获取实际数据。</li>
+</ol>
+<h3 id="2-5-chunk-大小"><a class="header-anchor-1" href="#2-5-chunk-大小">#</a>2.5 Chunk 大小</h3>
+<p>大 chunk 的好处：</p>
+<ol>
+<li>减少客户端和 Master 之间的交互次数</li>
+<li>应用程序对文件的操作具有局部性，可以减少与 chunkserver 的通信</li>
+<li>减小了元数据的大小，使之可以放在内存中</li>
+</ol>
+<p>坏处：</p>
+<ol>
+<li>对小文件不友好，容易导致局部热点。
+一个例子：一个 exe 文件写到 GFS 上，然后很多机器同时拉取这个文件去执行。
+临时解决方案是提高这个文件的备份数量，并且让读机器随机启动。
+长期解决方案是允许客户端之间 P2P 分发文件。</li>
+</ol>
+<h3 id="2-6-元数据"><a class="header-anchor-1" href="#2-6-元数据">#</a>2.6 元数据</h3>
+<p>Master 节点保存三类元数据：</p>
+<ol>
+<li>文件和 chunk 的 namespace</li>
+<li>文件到 chunk 的映射</li>
+<li>chunk 的每个副本的位置信息。</li>
+</ol>
+<p>所有这些元数据都存在内存中。2 和 3 还会额外通过 Operation Log 的方式持久化到本地磁盘上。</p>
+<h4 id="2-6-1-内存数据结构"><a class="header-anchor-1" href="#2-6-1-内存数据结构">#</a>2.6.1 内存数据结构</h4>
+<p>Master 会周期性地扫描所有的状态，用于当 chunkserver 故障的时候，实现 chunk 垃圾回收，再复制等操作；以及在 chunkserver 间平衡负载和磁盘空间。</p>
+<p>一个潜在的考虑是，整个系统可能被内存大小限制。但实际上没问题，每个 64MB 的 chunk 仅需要 64B 的元数据。</p>
+<p>相对于单点的种种好处（简单性、可靠性、性能、弹性），多花费一点内存，这个 trade-off 是值得的。</p>
+<h4 id="2-6-2-chunk-位置"><a class="header-anchor-1" href="#2-6-2-chunk-位置">#</a>2.6.2 chunk 位置</h4>
+<p>Master 节点不持久化 chunk 的位置信息，而是在开机时从 chunkserver 处轮询一遍。</p>
+<p>如果持久化 chunk 位置信息，就需要额外的机制保证两者同步，增加了复杂度。</p>
+<p>另一个理解方式是: chunkserver 对于自己持有的 chunks 有最终决定权，因此 master 在保存一次位置信息是多余的。</p>
+<h3 id="2-6-3-operation-log"><a class="header-anchor-1" href="#2-6-3-operation-log">#</a>2.6.3 Operation Log</h3>
+<p>Operation Log 记录了对元数据的修改，是整个 GFS 的关键。</p>
+<p>因此我们需要保证元数据持久化完毕之前，不能暴露给客户端看到。
+GFS 会把 Operation Log 复制到多个远程机器上，而且只有所有机器上都落盘完成，才会回应客户端。
+Master 会累计几条 Log，然后一次性刷入磁盘。</p>
+<p>Master 机器会重放所有的 Operation Log 来恢复状态。为了加快恢复速度，Master 会定期生成 checkpoint。
+Checkpoint 采用了压缩 B 树的形式，可以快速加载到内存中。</p>
+<p>为了防止 Checkpoint 过程阻塞住 Master 的正常操作，Master 会先切换到一个新的 Log 文件，然后在单独的线程中生成 Checkpoint。</p>
+<p>老旧的 checkpoint 和 Log 可以直接删掉了，但实践中，会保存一段时间，以防止意外的故障。</p>
+<h2 id="2-7-一致性模型"><a class="header-anchor-1" href="#2-7-一致性模型">#</a>2.7 一致性模型</h2>
+<p>GFS 采用了一种宽松的一致性模型。</p>
+<h3 id="2-7-1-gfs-的承诺"><a class="header-anchor-1" href="#2-7-1-gfs-的承诺">#</a>2.7.1 GFS 的承诺</h3>
+<p>对于 namespace 的变更（例如文件创建）操作是原子的。对文件内容的修改不是原子的。
+我们首先定义一段数据区域是：</p>
+<ul>
+<li>
+<p>一致的（consistent）：如果所有 client 都能读到一样的数据</p>
+</li>
+<li>
+<p>确定的（defined）：如果该区域是 consistent，而且 client 能够读到自己刚刚写入的数据</p>
+</li>
+<li>
+<p>串行写: 数据区域是一致且确定的，因为只有一个 client 写入。</p>
+</li>
+<li>
+<p>并发写: 是一致的但不是确定的，因为所有 client 都能读到一样的数据，但是不确定是哪一个写入。</p>
+</li>
+<li>
+<p>写失败: 会导致数据区域 inconsistent，因为 client 读到的数据不一样。</p>
+</li>
+</ul>
+<p>GFS 有两种写的方法：</p>
+<ul>
+<li>write: 写入到指定的 offset</li>
+<li>record append: 原子地写入到文件末尾，at least once 语义, 返回写入的 offset</li>
+</ul>
+<h3 id="2-7-2-对应用程序的影响"><a class="header-anchor-1" href="#2-7-2-对应用程序的影响">#</a>2.7.2 对应用程序的影响</h3>
+<p>GFS 应用程序只要进行一些简单的修改，就可以适应这种一致性模型。</p>
+<ul>
+<li>依赖追加写而不是覆盖写</li>
+<li>做 checkpoint</li>
+<li>写能够自校验、自定位的数据</li>
+</ul>
+<h2 id="3-系统交互"><a class="header-anchor-1" href="#3-系统交互">#</a>3. 系统交互</h2>
+<p>设计的目标是尽可能减小 Master 在所有操作中的参与。</p>
+<h3 id="3-1-租约和变更顺序"><a class="header-anchor-1" href="#3-1-租约和变更顺序">#</a>3.1 租约和变更顺序</h3>
+<p><em>变更</em>是一次修改文件数据或者 chunk 元数据的操作，例如写或者追加。
+变更需要在 chunk 的所有副本上进行。</p>
+<p>GFS 使用租约来维持多个副本之前修改顺序的一致性。
+Master 会给一个 chunk 的一个副本颁发一个租约，称之为 <em>primary</em>。
+由 primary 选择一个所有副本之间修改的顺序，所有副本会按照这个顺序来修改。</p>
+<p>租约有 60 秒的有效期，但是如果时间不够，primary 可以请求 master 续约。
+续约通过 HeartBeat 消息来完成。
+Master 可以随时撤销租约，例如当 primary 故障。</p>
+<p>GFS 的写过程如下：</p>
+<ol>
+<li>客户端向 Master 请求 chunk 的位置信息，包括谁是 primary 还有其他副本的位置。
+如果此时没有 primary，Master 会选择一个。</li>
+<li>Master 回复 primary 的身份和其他副本的位置。客户端会缓存这个信息一段时间。除非 primary 故障，客户端不会重新请求 Master。</li>
+<li>客户端以任意顺序把数据推送到每一个副本上。每个 chunkserver 会把收到的数据先放进一个 LRU 缓存中，等待被取走或者过期。</li>
+<li>当所有的副本都确认收到了数据，客户端会通知 primary，发送一个写请求。
+然后 Primary 会给每个客户端的写请求分配一个序列号。</li>
+<li>Primary 把写请求转发给所有涉及到的副本，每个其他副本按照 primary 执行的序列号顺序来从 LRU 缓存中取数据然后写入。</li>
+<li>其他副本写入成功后，会回复 primary。</li>
+<li>Primary 收到所有回复后，会回复客户端。如果有副本写入失败，也会报告给客户端。</li>
+</ol>
+<p>如果一次写操作跨越了 chunk 边界，那么客户端会把这个操作分成多个写操作，然后按照上面的方式处理。
+因此可能导致修改区域处在一致但不确定的状态。</p>
+<h3 id="3-2-数据流"><a class="header-anchor-1" href="#3-2-数据流">#</a>3.2 数据流</h3>
+<p>GFS 将数据流和控制流解耦。</p>
+<p>为了最大限度利用机器网络带宽，数据是在 chunkserver 中链式传递而非星型传递。</p>
+<p>为了尽可能避免撞到网络瓶颈和慢链路，每台机器会优先把数据转发给最近的、没有收到过数据的机器。</p>
+<p>复用 TCP 连接发送数据以减小延迟。</p>
+<h3 id="3-3-原子记录追加"><a class="header-anchor-1" href="#3-3-原子记录追加">#</a>3.3 原子记录追加</h3>
+<p>GFS 提供了一种原子的追加写操作，称之为 record append。
+客户端只需要提供数据，GFS 会找到合适的地方写入然后返回 offset，GFS 提供 at least once 的语义。</p>
+<p>record append 仍然延续 GFS 的写过程，除了一点不同：</p>
+<ul>
+<li>客户端会把所有数据都推送到文件的最后一个 chunk。</li>
+<li>Primary 会检查追加是否会导致新增 chunk，如果会，则会在当前 chunk 末尾填充空洞，其他副本同理，然后叫客户端去重试。</li>
+<li>否则，Primary 会把数据写入到 chunk 的最后，然后返回 offset。</li>
+</ul>
+<p>如果某个副本上执行追加失败，客户端会重试这个操作。因此，GFS <strong>不保证所有副本都有相同的数据</strong>，只保证写操作 at least once。</p>
+<p>实际上，有可能会出现这种情况：primary 的数据比其他副本的数据要长。（待确认）</p>
+<h3 id="3-4-快照"><a class="header-anchor-1" href="#3-4-快照">#</a>3.4 快照</h3>
+<p>快照操作用于给文件或者目录快速创建一个副本，同时尽可能减小对写操作的中断。</p>
+<p>和 AFS 类似，GFS 使用了 CoW 的方式来实现快照。
+当 master 收到一个快照请求时，会先把所有涉及到的 chunk 的租期都收回。阻塞住后续的写操作，防止影响当前快照。</p>
+<p>在全部租期都被收回或者过期后，master 就会把这个操作（指快照操作）先写到磁盘上的 WAL 上，然后再改内存数据结构。</p>
+<p>新创建的快照文件会和原始文件指向相同的 chunk。
+当客户端第一次想要写入一个快照过的 chunk C 的时候，master 就会注意到 chunk C 的引用计数大于 1，此时 master 会进行 CoW：</p>
+<ul>
+<li>先创建一个新的 chunk handle C’；</li>
+<li>要求每个持有 C 的 chunkserver 复制一份 C 作为 C’。</li>
+</ul>
+<p>然后再正常处理写请求。</p>
+<p>这里要求 chunkserver 复制有一个好处是不需要占用网络带宽，因为复制是在 chunkserver 本地进行的。</p>
+<h2 id="4-master-操作"><a class="header-anchor-1" href="#4-master-操作">#</a>4. Master 操作</h2>
+<p>Master 负责管理整个系统的元数据。</p>
+<h3 id="4-1-命名空间管理和锁"><a class="header-anchor-1" href="#4-1-命名空间管理和锁">#</a>4.1 命名空间管理和锁</h3>
+<p>很多 master 的操作是很慢的，例如打快照会导致撤回所有租约。
+GFS 通过减小锁的粒度来提高并发度。</p>
+<p>GFS 没有使用每个目录一个数据结构的方式表示文件和目录，而是采用了类似多级查找表的结构。
+由于文件系统是层级结构，使用前缀压缩可以节约很多空间。</p>
+<p>每一级目录都有一把读写锁，每次变更操作都需要获取从根目录到目标目录的所有锁。举例：</p>
+<ul>
+<li>创建/home/user/foo：需要 /home 和 /home/user 的读锁，/home/user/foo 的写锁；</li>
+<li>快照/home/user 到/save/user：需要 /home 和 /save 的读锁，/home/user 和 /save/user 的写锁；</li>
+</ul>
+<p>由于文件数量可能很多，读写锁对象都是动态懒分配的，并且一旦不用就会删掉。</p>
+<p>为了防止死锁，GFS 会按照目录的路径顺序，以及字典序来获取锁。</p>
+<h3 id="4-2-副本放置策略"><a class="header-anchor-1" href="#4-2-副本放置策略">#</a>4.2 副本放置策略</h3>
+<p>GFS 集群的网路拓扑是分层的，每个机房有多个机架，每个机架有多个机器。
+GFS 会尽量把副本放在不同的机架上，以防止单个机架故障。</p>
+<h3 id="4-3-创建、再备份和再平衡"><a class="header-anchor-1" href="#4-3-创建、再备份和再平衡">#</a>4.3 创建、再备份和再平衡</h3>
+<h4 id="chunk-创建"><a class="header-anchor-1" href="#chunk-创建">#</a>chunk 创建</h4>
+<p>当 Master 创建一个 chunk 时，需要决定这个 chunk 的副本放在哪些 chunkserver 上。主要考虑这些因素：</p>
+<ol>
+<li>优先放置在磁盘剩余空间较多的 chunkserver 上。</li>
+<li>优先放置在近期新文件较少的 chunkserver 上。因为 Google 的 workload 大多是 <em>append-once-read-many</em> 类型。</li>
+<li>分散副本，避免放在同一个机架上。</li>
+</ol>
+<h4 id="chunk-再备份"><a class="header-anchor-1" href="#chunk-再备份">#</a>chunk 再备份</h4>
+<p>当 chunk 的副本数量低于用户设定的目标数量时，Master 就会进行<em>再备份</em>。
+这种情况发生的原因有：chunkserver 掉线，chunkserver 数据损坏，或者用户期望提高。再备份时也会做一些优化，例如优先备份 live file，其次是最近删除的文件。
+当某些失败的 chunk 影响了应用程序运行时，GFS 会提高这些文件的优先级，加快恢复的过程。</p>
+<p>Master 每次会选择一个优先级最高的 chunk，然后要求 chunkservers 去复制这个 chunk。新副本的放置策略和创建 chunk 时一样。
+为了防止再备份操作压倒客户端的流量，Master 会限制再备份的速度。</p>
+<h4 id="chunk-再平衡"><a class="header-anchor-1" href="#chunk-再平衡">#</a>chunk 再平衡</h4>
+<p>Master 周期性地检查当前的副本分布，移动副本以达到更好的磁盘利用率和负载均衡。
+通过再平衡操作，Master 逐渐填满新的 chunkserver 而不是一口气填满。
+再平衡的策略也和前面类似。</p>
+<h3 id="4-4-垃圾回收"><a class="header-anchor-1" href="#4-4-垃圾回收">#</a>4.4 垃圾回收</h3>
+<p>文件删除之后，GFS 不会立即回收可用的物理空间。而是在文件和 chunk 级别进行懒惰回收。</p>
+<h4 id="4-4-1-机制"><a class="header-anchor-1" href="#4-4-1-机制">#</a>4.4.1 机制</h4>
+<p>在 GFS 上删除的文件会被重命名为一个名字包含删除时间戳的隐藏文件。
+这个文件在 Master 的定期扫描中会被发现，如果这个文件已经被删除超过 3 天，那么这个文件会被真正删除。
+在真正删除之前，这个隐藏文件都是可以被正常读的，而且可以被恢复（通过重命名为正常文件名）。
+当隐藏文件被真正删除，相关的内存中的元数据也会被删除。</p>
+<p>在对 chunk namespace 的日常扫描中，Master 会发现一些不再被引用的 chunk，这些 chunk 会在和 chunkserver 通信对数据的时候被发现并回收。</p>
+<h4 id="4-4-2-一些讨论"><a class="header-anchor-1" href="#4-4-2-一些讨论">#</a>4.4.2 一些讨论</h4>
+<p>采用懒惰回收的方式有一些好处：</p>
+<ol>
+<li>简单，可靠：避免删除文件失败导致数据删不掉</li>
+<li>均摊了删除操作的开销，不会给 Master 带来额外的压力</li>
+<li>增加误删除的恢复机会</li>
+</ol>
+<p>相对地，也有坏处：</p>
+<ul>
+<li>用户想要释放磁盘空间的时候，不能立即释放</li>
+<li>对于反复创建和删除临时文件的程序不友好</li>
+</ul>
+<p>一点小优化是，如果再删除一次已经删除的文件，就加速删除过程。</p>
+<h3 id="4-5-陈旧副本检测"><a class="header-anchor-1" href="#4-5-陈旧副本检测">#</a>4.5 陈旧副本检测</h3>
+<p>如果 chunkserver 挂了，然后丢失了变更，那么这个 chunk 的副本就会变成陈旧的。
+Master 会维护一个每个 chunk 的版本号来区分陈旧的副本。</p>
+<p>Master 每一次授权租期的时候，都会让该 chunk 的版本号加一，然后提醒所有最新的副本。Master 和副本都会将新的版本号持久化。
+如果某一个副本挂了，Master 下一次重启的时候就会发现这个副本的版本号比其他的小，然后会把这个副本标记为陈旧的。
+如果 Master 看到了一个更大的版本号，说明 Master 在授权租期的时候挂了，因此就会把大的版本号当成最新的（没看懂，存疑）。</p>
+<p>Master 在垃圾回收过程中移除陈旧的副本。
+为了防止客户端读到陈旧的数据，在实际移除之前，Master 也会假装陈旧的副本是不存在。
+除此以外，Master 在回复客户端 Primary 身份、以及叫 chunkserver 复制 chunk 的时候，也会带上这个 chunk 的版本号，以便客户端和 chunkserver 去校验，确保读到的数据是最新的。</p>
+<h2 id="5-容错和诊断"><a class="header-anchor-1" href="#5-容错和诊断">#</a>5. 容错和诊断</h2>
+<h3 id="5-1-高可用"><a class="header-anchor-1" href="#5-1-高可用">#</a>5.1 高可用</h3>
+<p>GFS 集群保持高可用的两个策略是：快速回复和复制。</p>
+<h4 id="5-1-1-快速恢复"><a class="header-anchor-1" href="#5-1-1-快速恢复">#</a>5.1.1 快速恢复</h4>
+<p>Master 和 chunkserver 都设计成可以快速重启的（几秒钟恢复状态）。
+即使重启了，对其他部分的影响也仅仅是小卡顿一下，直到网络请求超时重试。</p>
+<h4 id="5-1-2-chunk-复制"><a class="header-anchor-1" href="#5-1-2-chunk-复制">#</a>5.1.2 chunk 复制</h4>
+<p>每个 chunk 会被复制到多个机架的多个 chunkserver 上。
+用户可以为不同的目录设置不同的副本数量，以适应不同的容错需求。默认是 3 副本。</p>
+<p>除了复制外，GFS 还在探索使用一些跨服务器的冗余技术，例如奇偶校验码等。</p>
+<h4 id="5-1-3-master-复制"><a class="header-anchor-1" href="#5-1-3-master-复制">#</a>5.1.3 Master 复制</h4>
+<p>为了可靠性，Master 状态也有副本。Master 的 Operation log 和快照都会被复制到多个机器上。
+一条变更只有在所有机器上都落盘成功后，才会认为是已提交。
+如果机器挂了，守护进程会在其他持有 logs 的机器上新建一个 Master 进程。
+客户端只会用 Master 的 canonical name 来连接 Master，一般是一个 DNS 名字，方便 Master 迁移。</p>
+<p>Master 会有一些只读副本，对外提供读服务，用于增强系统的读性能。
+这些只读副本会读取备份机器上的 Operation log 并重放，因此会稍微落后于 Master。
+只读副本启动时也会轮询一遍所有的 chunkserver。</p>
+<h3 id="5-2-数据完整性"><a class="header-anchor-1" href="#5-2-数据完整性">#</a>5.2 数据完整性</h3>
+<p>每个 chunkserver 都会用校验码来校验自己保存的 chunk 数据的完整性。
+注意 GFS 不承诺多个副本之间的数据一致性，只保证 at least once 语义。</p>
+<p>具体来说，每个 chunk 会拆分成 64KB 的块，每个块会计算一个 32 位的校验码。
+校验码会在内存和磁盘上都保存一份。</p>
+<p>每次有客户端或者其他 chunkserver 读数据的时候，chunkserver 会读取（读取范围覆盖到的）数据块然后验证校验码。
+如果校验码不对，chunkserver 不会返回数据，而是会报错。请求方就会去其他副本上读取数据。
+当找到一个正确的数据块后，Master 就会通知这个 chunkserver 删掉这个坏的副本。</p>
+<p>校验码对读性能的影响很小。而且客户端代码在读取的时候会对齐到块边界，</p>
+<p>校验码计算针对追加写操作做了深度的优化。GFS 的校验码实现了增量计算，只需要计算新增的数据块的校验码。</p>
+<p>对于覆盖写操作，需要先读取写入范围的起始和结束块，进行校验，然后再写入新的数据，计算新的校验码。
+如果不检查起始和结束块的校验码，那么可能会导致数据不一致。</p>
+<p>当 chunkserver 空闲的时候，可以扫描和校验不活跃的 chunk，以检验很少读的 chunk 的完整性。
+如果发现坏的数据块，Master 可以通知 chunkserver 删掉这个坏的副本。</p>
+<h3 id="5-3-诊断工具"><a class="header-anchor-1" href="#5-3-诊断工具">#</a>5.3 诊断工具</h3>
+<p>为了方便 debug，GFS 生成诊断日志记录关键事件和所有的网络请求和响应。</p>
+<h2 id="6-评估"><a class="header-anchor-1" href="#6-评估">#</a>6. 评估</h2>
+<h3 id="6-1-微基准测试"><a class="header-anchor-1" href="#6-1-微基准测试">#</a>6.1 微基准测试</h3>
+<p>测试环境：1 个 Master，2 个 Master 副本，16 个 chunkserver，和 16 个 client。
+19 台机器，每台机器两颗 1.4GHz PIII CPU，2GB 内存，2 块 80GB 5,400 rpm 硬盘。
+通过一台 HP 2524 交换机（100 Mbps 全双工以太网）连接在一起。</p>
+<h4 id="6-1-1-读性能"><a class="header-anchor-1" href="#6-1-1-读性能">#</a>6.1.1 读性能</h4>
+<p>N 个 client 并发读取 320GB 文件中的随机 4MB 范围，重复 256 次。</p>
+<h4 id="6-1-2-写性能"><a class="header-anchor-1" href="#6-1-2-写性能">#</a>6.1.2 写性能</h4>
+<h4 id="6-1-3-追加性能"><a class="header-anchor-1" href="#6-1-3-追加性能">#</a>6.1.3 追加性能</h4>
+<h3 id="6-2-真实世界集群"><a class="header-anchor-1" href="#6-2-真实世界集群">#</a>6.2 真实世界集群</h3>
+<h3 id="6-3-workload-分解"><a class="header-anchor-1" href="#6-3-workload-分解">#</a>6.3 Workload 分解</h3>
+<h2 id="7-实验"><a class="header-anchor-1" href="#7-实验">#</a>7. 实验</h2>
+<h2 id="8-相关工作"><a class="header-anchor-1" href="#8-相关工作">#</a>8. 相关工作</h2>
+<h2 id="9-结论"><a class="header-anchor-1" href="#9-结论">#</a>9. 结论</h2>
+<h2 id="参考"><a class="header-anchor-1" href="#参考">#</a>参考</h2>
+<ul>
+<li><span class="exturl" data-url="aHR0cHM6Ly9zdGF0aWMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL21lZGlhL3Jlc2VhcmNoLmdvb2dsZS5jb20vemgtQ04vL2FyY2hpdmUvZ2ZzLXNvc3AyMDAzLnBkZg==">The Google File System<i class="fa fa-external-link-alt"></i></span></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly93d3cucXRtdW5pYW8uY29tLzIwMTkvMDUvMjYvZ2ZzLw==">GFS —— 取舍的艺术<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+]]></content>
+      <categories>
+        <category>distributed-system</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+        <tag>GFS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>电子电路基础</title>
     <url>/2024/09/12/basic/</url>
     <content><![CDATA[<h2 id="基本概念"><a class="header-anchor-1" href="#基本概念">#</a>基本概念</h2>
@@ -11009,20 +11317,20 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>1833. 雪糕的最大数量</title>
-    <url>/2021/07/02/1833/</url>
-    <content><![CDATA[<p>排序</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number[]</span>&#125; <span class="variable">costs</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number</span>&#125; <span class="variable">coins</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="type">number</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> maxIceCream = <span class="keyword">function</span> (<span class="params">costs, coins</span>) &#123;</span><br><span class="line">    costs.<span class="title function_">sort</span>(<span class="function">(<span class="params">a, b</span>) =&gt;</span> a - b);</span><br><span class="line">    <span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; costs.<span class="property">length</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (costs[i] &lt;= coins) &#123;</span><br><span class="line">            coins -= costs[i];</span><br><span class="line">            count++;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>1584. 连接所有点的最小费用</title>
+    <url>/2021/01/19/1584/</url>
+    <content><![CDATA[<p>实际上是最小生成树</p>
+]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
       </categories>
   </entry>
   <entry>
-    <title>1584. 连接所有点的最小费用</title>
-    <url>/2021/01/19/1584/</url>
-    <content><![CDATA[<p>实际上是最小生成树</p>
-]]></content>
+    <title>1833. 雪糕的最大数量</title>
+    <url>/2021/07/02/1833/</url>
+    <content><![CDATA[<p>排序</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number[]</span>&#125; <span class="variable">costs</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number</span>&#125; <span class="variable">coins</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="type">number</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> maxIceCream = <span class="keyword">function</span> (<span class="params">costs, coins</span>) &#123;</span><br><span class="line">    costs.<span class="title function_">sort</span>(<span class="function">(<span class="params">a, b</span>) =&gt;</span> a - b);</span><br><span class="line">    <span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; costs.<span class="property">length</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (costs[i] &lt;= coins) &#123;</span><br><span class="line">            coins -= costs[i];</span><br><span class="line">            count++;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -11609,6 +11917,157 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/02/2020-12-02/</url>
+    <content><![CDATA[<ul>
+<li>
+<p>React</p>
+<ul>
+<li>children属性: 子元素构成的数组</li>
+</ul>
+</li>
+<li>
+<p>React-redux</p>
+<ul>
+<li>
+<p>引入: <code>import &#123;...&#125; from 'react-redux'</code></p>
+</li>
+<li>
+<p><code>Store</code></p>
+<ul>
+<li>
+<p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
+</li>
+<li>
+<p><code>createStore(reducer, initState)</code></p>
+<ul>
+<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
+</li>
+<li>
+<p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component</p>
+</li>
+<li>
+<p><code>connect(mapStateToProps)(Component)</code></p>
+<ul>
+<li>
+<p>map current states to <code>Component</code>’s props</p>
+</li>
+<li>
+<p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
+</li>
+<li>
+<p>一般和<Provider>结合起来用</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>React-Router</p>
+<ul>
+<li>
+<p>引入: <code>import &#123;&#125; from 'react-router-dom'</code></p>
+</li>
+<li>
+<p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
+<ul>
+<li>
+<p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
+</li>
+<li>
+<p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
+</li>
+<li>
+<p>参数化匹配</p>
+<ul>
+<li>
+<p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
+</li>
+<li>
+<p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
+<ul>
+<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
+</ul>
+</li>
+<li>
+<p>嵌套使用:</p>
+  <figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = <span class="title function_">useRouteMatch</span>(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">path</span>&#125;/<span class="attr">next</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">)</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p>Vue-Router</p>
+<ul>
+<li>
+<p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
+</li>
+<li>
+<p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
+</li>
+<li>
+<p><code>Router</code>: 在这里定义全局路由表</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Ubuntu 安装 rpm 包</p>
+<ul>
+<li>
+<p>sudo apt install alien</p>
+</li>
+<li>
+<p>sudo alien packagename.rpm</p>
+</li>
+<li>
+<p>sudo apt install ./packagename.deb</p>
+</li>
+<li>
+<p>一步到位: sudo alien -i packagename.rpm</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Oracle 的连接方式</p>
+<ul>
+<li>
+<p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
+</li>
+<li>
+<p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
+<ul>
+<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
+</ul>
+</li>
+<li>
+<p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
+  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = LITTLECOMPUTER.ACME.ORG) // 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SID = MYSID)) // 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">// PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SERVICE_NAME = MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>React</tag>
+        <tag>Oracle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/01/2020-12-01/</url>
     <content><![CDATA[<h1>转换dos格式行尾为unix行尾</h1>
 <ul>
@@ -11886,160 +12345,9 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
       <tags>
         <tag>Linux</tag>
+        <tag>React</tag>
         <tag>Javascript</tag>
-        <tag>React</tag>
         <tag>npm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/02/2020-12-02/</url>
-    <content><![CDATA[<ul>
-<li>
-<p>React</p>
-<ul>
-<li>children属性: 子元素构成的数组</li>
-</ul>
-</li>
-<li>
-<p>React-redux</p>
-<ul>
-<li>
-<p>引入: <code>import &#123;...&#125; from 'react-redux'</code></p>
-</li>
-<li>
-<p><code>Store</code></p>
-<ul>
-<li>
-<p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
-</li>
-<li>
-<p><code>createStore(reducer, initState)</code></p>
-<ul>
-<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
-</li>
-<li>
-<p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component</p>
-</li>
-<li>
-<p><code>connect(mapStateToProps)(Component)</code></p>
-<ul>
-<li>
-<p>map current states to <code>Component</code>’s props</p>
-</li>
-<li>
-<p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
-</li>
-<li>
-<p>一般和<Provider>结合起来用</p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p>React-Router</p>
-<ul>
-<li>
-<p>引入: <code>import &#123;&#125; from 'react-router-dom'</code></p>
-</li>
-<li>
-<p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
-<ul>
-<li>
-<p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
-</li>
-<li>
-<p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
-</li>
-<li>
-<p>参数化匹配</p>
-<ul>
-<li>
-<p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
-</li>
-<li>
-<p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
-<ul>
-<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
-</ul>
-</li>
-<li>
-<p>嵌套使用:</p>
-  <figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = <span class="title function_">useRouteMatch</span>(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">path</span>&#125;/<span class="attr">next</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">)</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li>
-<p>Vue-Router</p>
-<ul>
-<li>
-<p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
-</li>
-<li>
-<p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
-</li>
-<li>
-<p><code>Router</code>: 在这里定义全局路由表</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Ubuntu 安装 rpm 包</p>
-<ul>
-<li>
-<p>sudo apt install alien</p>
-</li>
-<li>
-<p>sudo alien packagename.rpm</p>
-</li>
-<li>
-<p>sudo apt install ./packagename.deb</p>
-</li>
-<li>
-<p>一步到位: sudo alien -i packagename.rpm</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Oracle 的连接方式</p>
-<ul>
-<li>
-<p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
-</li>
-<li>
-<p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
-<ul>
-<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
-</ul>
-</li>
-<li>
-<p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
-  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = LITTLECOMPUTER.ACME.ORG) // 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SID = MYSID)) // 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">// PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SERVICE_NAME = MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>React</tag>
-        <tag>Oracle</tag>
       </tags>
   </entry>
   <entry>
@@ -12468,6 +12776,48 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/07/2020-12-07/</url>
+    <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
+<p>在工具栏选中&quot;连接点&quot;</p>
+<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
+<p>有时候可能需要多点几次</p>
+<h1>为什么校园网这么卡</h1>
+<h1>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkhomedir_helper &lt;username&gt;</span></span><br></pre></td></tr></table></figure>
+<h1>xargs 命令</h1>
+<p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
+<p>xargs后面的命令默认是echo</p>
+<p>即: stdin -&gt; **argv</p>
+<h1>tee 命令</h1>
+<p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
+<p>可以用来复制文件</p>
+<ul>
+<li>输出管道中某一段的内容:</li>
+</ul>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">... | <span class="built_in">tee</span> &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>不退出vim使用sudo保存文件</li>
+</ul>
+<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
+<h1>echo 命令</h1>
+<p>echo命令用于将命令行参数输出到标准输出</p>
+<p>即: stdin -&gt; stdout</p>
+<h1>awk 命令</h1>
+<p>强大的字符串处理工具</p>
+<p>最基本的用法:
+<code>awk '&#123;print$1,$2&#125;'</code></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Visio</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/09/2020-12-09/</url>
     <content><![CDATA[<h1>Spring学习</h1>
 <h2 id="ioc容器"><a class="header-anchor-1" href="#ioc容器">#</a>IoC容器</h2>
@@ -12530,48 +12880,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>Java</tag>
         <tag>ORM框架</tag>
         <tag>CORS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/07/2020-12-07/</url>
-    <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
-<p>在工具栏选中&quot;连接点&quot;</p>
-<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
-<p>有时候可能需要多点几次</p>
-<h1>为什么校园网这么卡</h1>
-<h1>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkhomedir_helper &lt;username&gt;</span></span><br></pre></td></tr></table></figure>
-<h1>xargs 命令</h1>
-<p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
-<p>xargs后面的命令默认是echo</p>
-<p>即: stdin -&gt; **argv</p>
-<h1>tee 命令</h1>
-<p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
-<p>可以用来复制文件</p>
-<ul>
-<li>输出管道中某一段的内容:</li>
-</ul>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">... | <span class="built_in">tee</span> &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>不退出vim使用sudo保存文件</li>
-</ul>
-<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
-<h1>echo 命令</h1>
-<p>echo命令用于将命令行参数输出到标准输出</p>
-<p>即: stdin -&gt; stdout</p>
-<h1>awk 命令</h1>
-<p>强大的字符串处理工具</p>
-<p>最基本的用法:
-<code>awk '&#123;print$1,$2&#125;'</code></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Visio</tag>
       </tags>
   </entry>
   <entry>
