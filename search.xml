@@ -5030,20 +5030,86 @@ Master 会维护一个每个 chunk 的版本号来区分陈旧的副本。</p>
 如果发现坏的数据块，Master 可以通知 chunkserver 删掉这个坏的副本。</p>
 <h3 id="5-3-诊断工具"><a class="header-anchor-1" href="#5-3-诊断工具">#</a>5.3 诊断工具</h3>
 <p>为了方便 debug，GFS 生成诊断日志记录关键事件和所有的网络请求和响应。</p>
-<h2 id="6-评估"><a class="header-anchor-1" href="#6-评估">#</a>6. 评估</h2>
-<h3 id="6-1-微基准测试"><a class="header-anchor-1" href="#6-1-微基准测试">#</a>6.1 微基准测试</h3>
-<p>测试环境：1 个 Master，2 个 Master 副本，16 个 chunkserver，和 16 个 client。
+<!-- ## 6. 评估
+
+### 6.1 微基准测试
+
+测试环境：1 个 Master，2 个 Master 副本，16 个 chunkserver，和 16 个 client。
 19 台机器，每台机器两颗 1.4GHz PIII CPU，2GB 内存，2 块 80GB 5,400 rpm 硬盘。
-通过一台 HP 2524 交换机（100 Mbps 全双工以太网）连接在一起。</p>
-<h4 id="6-1-1-读性能"><a class="header-anchor-1" href="#6-1-1-读性能">#</a>6.1.1 读性能</h4>
-<p>N 个 client 并发读取 320GB 文件中的随机 4MB 范围，重复 256 次。</p>
-<h4 id="6-1-2-写性能"><a class="header-anchor-1" href="#6-1-2-写性能">#</a>6.1.2 写性能</h4>
-<h4 id="6-1-3-追加性能"><a class="header-anchor-1" href="#6-1-3-追加性能">#</a>6.1.3 追加性能</h4>
-<h3 id="6-2-真实世界集群"><a class="header-anchor-1" href="#6-2-真实世界集群">#</a>6.2 真实世界集群</h3>
-<h3 id="6-3-workload-分解"><a class="header-anchor-1" href="#6-3-workload-分解">#</a>6.3 Workload 分解</h3>
-<h2 id="7-实验"><a class="header-anchor-1" href="#7-实验">#</a>7. 实验</h2>
-<h2 id="8-相关工作"><a class="header-anchor-1" href="#8-相关工作">#</a>8. 相关工作</h2>
-<h2 id="9-结论"><a class="header-anchor-1" href="#9-结论">#</a>9. 结论</h2>
+通过一台 HP 2524 交换机（100 Mbps 全双工以太网）连接在一起。
+
+#### 6.1.1 读性能
+
+N 个 client 并发读取 320GB 文件中的随机 4MB 范围，重复 256 次。
+
+#### 6.1.2 写性能
+
+#### 6.1.3 追加性能
+
+### 6.2 真实世界集群
+
+### 6.3 Workload 分解
+
+## 7. 实验
+
+## 8. 相关工作
+
+## 9. 结论 -->
+<h2 id="gfs-faq"><a class="header-anchor-1" href="#gfs-faq">#</a>GFS - FAQ</h2>
+<p>翻译自 <span class="exturl" data-url="aHR0cHM6Ly9wZG9zLmNzYWlsLm1pdC5lZHUvNi44MjQvcGFwZXJzL2dmcy1mYXEudHh0">MIT 6.824<i class="fa fa-external-link-alt"></i></span>.</p>
+<h3 id="q1-只有一个-master-是好的设计吗？"><a class="header-anchor-1" href="#q1-只有一个-master-是好的设计吗？">#</a>Q1. 只有一个 Master 是好的设计吗？</h3>
+<p>长期来看不是。Google 发表在 ACM Queue 上的文章 <em>GFS: Evolution on Fast Forward</em> 中提到了，在长期实践中，GFS 的很多设计都是有问题的。
+文件的数量一直增长，把所有文件元数据都放在单点 Master 的内存中是不合理的。
+随着客户端的数量增长，单点 Master 的 CPU 也会逐渐变得不够用。
+实际上，GFS 切换 Master 需要人工干预，因此很慢。
+下一代 GFS，Colossus，已经用了多个 Master，而且有更加自动化的 Master HA。</p>
+<h3 id="q2-gfs-的-record-append-为什么是-at-least-once-语义？"><a class="header-anchor-1" href="#q2-gfs-的-record-append-为什么是-at-least-once-语义？">#</a>Q2. GFS 的 record append 为什么是 at least once 语义？</h3>
+<p>在第 3.1 节的第 7 步中提到，如果写入在任意副本上失败，客户端会重试。
+这会导致数据在没有失败的副本上被追加多次。
+另一种设计方案是对客户端请求做去重，不管发生任意故障（例如，在客户端第一次请求和重试之间，Primary 故障）
+你将在实验 3（指 6.824 的 Raft）中实现这样的设计，但这会显著增加复杂性和性能开销。</p>
+<h3 id="q3-应用程序怎么识别-chunk-中的-padding-和-duplicate-record？"><a class="header-anchor-1" href="#q3-应用程序怎么识别-chunk-中的-padding-和-duplicate-record？">#</a>Q3. 应用程序怎么识别 chunk 中的 padding 和 duplicate record？</h3>
+<p>为了检测 padding，应用程序可以在有效记录的开头放置一个可预测的 magic number，或者包含一个 checksum，该校验和仅在记录有效时才会有效。</p>
+<p>应用程序可以通过在记录中包含 Unique ID 来检测重复记录。然后，如果它读取到一个与之前记录具有相同 ID 的记录，它就知道这些记录是重复的。</p>
+<p>GFS 为应用程序提供了一个库来处理这些情况。GFS 设计的这一方面实际上将复杂性从 GFS 转移到了应用程序，这可能并不理想。</p>
+<h3 id="q4-既然-record-append-写入的位置是不确定的，那么应用程序如何找到他们写入的数据？"><a class="header-anchor-1" href="#q4-既然-record-append-写入的位置是不确定的，那么应用程序如何找到他们写入的数据？">#</a>Q4. 既然 record append 写入的位置是不确定的，那么应用程序如何找到他们写入的数据？</h3>
+<p>追加操作（以及 GFS 整体）主要面向那些需要顺序读取整个文件的应用程序。
+这类应用程序会扫描文件以查找有效记录（参见 Q3），因此它们不需要提前知道记录的具体位置。
+例如，文件可能包含一组并发网络爬虫遇到的 URL。任何特定 URL 的文件偏移量并不重要；读取者只需要能够读取整个 URL 集合即可。</p>
+<h3 id="q7-基于-posix-api-开发的应用程序适配到-gfs-上需要修改吗？"><a class="header-anchor-1" href="#q7-基于-posix-api-开发的应用程序适配到-gfs-上需要修改吗？">#</a>Q7. 基于 POSIX API 开发的应用程序适配到 GFS 上需要修改吗？</h3>
+<p>是的，但是 GFS 是为了新开发的程序设计的，例如 Google 的 MapReduce。</p>
+<h3 id="q10-假如-s1-是某一个-chunk-的-primary，然后-master-和-s1-之间的网断了。master-会选另一个-s2-作为-primary。因为-s1-没有实际挂掉，那么系统中会有两个-primary-吗？"><a class="header-anchor-1" href="#q10-假如-s1-是某一个-chunk-的-primary，然后-master-和-s1-之间的网断了。master-会选另一个-s2-作为-primary。因为-s1-没有实际挂掉，那么系统中会有两个-primary-吗？">#</a>Q10. 假如 S1 是某一个 chunk 的 Primary，然后 Master 和 S1 之间的网断了。Master 会选另一个 S2 作为 Primary。因为 S1 没有实际挂掉，那么系统中会有两个 Primary 吗？</h3>
+<p>这样会出大问题，因为会有两个 Primary 会同时进行不同的更新操作。
+幸运的是，GFS 的租约设计避免了这种情况。Master 给 S1 一个 60s 的租约。
+S1 会在过期之后主动退位。S1 退位之前，Master 不会给其他 chunkserver 发送租约。
+所以 S1 停止之前，S2 不会成为 Primary。</p>
+<p>（PS. 但是怎么保证 Master 和 S1 的时间同步呢？）</p>
+<h3 id="q12-google-还在用-gfs-吗？"><a class="header-anchor-1" href="#q12-google-还在用-gfs-吗？">#</a>Q12. Google 还在用 GFS 吗？</h3>
+<p>传言说 GFS 已经被 Colossus 取代了。它们的设计目标一直，性能和容错性都有所提高。
+此外，很多 Google 内部的应用程序已经迁移到了 BigTable、Spanner 之类的类数据库系统。
+然而，大部分 GFS 的设计都跑到了 HDFS 里面。</p>
+<p>拓展阅读：<span class="exturl" data-url="aHR0cHM6Ly9jbG91ZC5nb29nbGUuY29tL2Jsb2cvcHJvZHVjdHMvc3RvcmFnZS1kYXRhLXRyYW5zZmVyL2EtcGVlay1iZWhpbmQtY29sb3NzdXMtZ29vZ2xlcy1maWxlLXN5c3RlbQ==">Colossus under the hood: a peek into Google’s scalable storage system
+<i class="fa fa-external-link-alt"></i></span></p>
+<h3 id="q13-gfs-为了性能和简单性而牺牲正确性，这在多大程度上是可以接受的？"><a class="header-anchor-1" href="#q13-gfs-为了性能和简单性而牺牲正确性，这在多大程度上是可以接受的？">#</a>Q13. GFS 为了性能和简单性而牺牲正确性，这在多大程度上是可以接受的？</h3>
+<p>这是分布式系统中一个反复出现的主题。
+强一致性通常需要复杂的协议，并且需要通信和等待回复（正如我们将在接下来的几节课中看到的那样）。
+通过利用特定应用程序类别可以容忍弱一致性的特点，可以设计出具有良好性能和足够一致性的系统。
+例如，GFS 针对 MapReduce 应用程序进行了优化，这些应用程序需要对大文件进行高性能读取，并且能够容忍文件中的空洞、记录多次出现以及不一致的读取。
+另一方面，GFS 并不适合用于存储银行的账户余额。</p>
+<h3 id="q16-内部碎片是什么？懒惰分配有什么好处？"><a class="header-anchor-1" href="#q16-内部碎片是什么？懒惰分配有什么好处？">#</a>Q16. 内部碎片是什么？懒惰分配有什么好处？</h3>
+<p>内部碎片是指当系统使用的分配单元大于请求分配所需的空间时，浪费的空间。如果 GFS 以 64MB 为单位分配磁盘空间，那么一个 1 字节的文件将浪费近 64MB 的磁盘空间。</p>
+<p>GFS 通过懒惰分配磁盘空间来避免这个问题。每个数据块都是一个 Linux 文件，而 Linux 文件系统使用几十 KB 的块大小；因此，当应用程序创建一个 1 字节的 GFS 文件时，该文件的数据块仅消耗一个 Linux 磁盘块，而不是 64MB。</p>
+<p>(PS. 估计就是用 fallocate，实际写入数据时才真正分配空间)</p>
+<h3 id="q17-gfs-从弱一致性上获得了什么好处？"><a class="header-anchor-1" href="#q17-gfs-从弱一致性上获得了什么好处？">#</a>Q17. GFS 从弱一致性上获得了什么好处？</h3>
+<p>更容易理解的角度是，假如 GFS 需要实现更强的一致性，需要补充的工作。</p>
+<p>Primary 不应让 Secondaries 执行写入操作，除非所有 Secondaries 都能够完成该操作。这可能需要两轮通信：</p>
+<ul>
+<li>第一轮询问所有 Secondaries 是否存活并能够承诺在请求时执行写入操作，以及（如果所有 Secondaries 都回答“是”）</li>
+<li>第二轮通知 Secondaries 提交写入操作。</li>
+</ul>
+<p>如果 Primary 挂了，某些 Secondaries 可能错过了 Primary 发送的最后几条更新消息。这将导致剩余的 Secondaries 拥有略微不同的副本。在恢复操作之前，新的 Primary 应确保所有 Secondaries 拥有完全相同的副本。</p>
+<p>由于客户端在怀疑出现问题时会重新发送请求，Primary 需要过滤掉已经执行过的操作。</p>
+<p>客户端缓存了数据块的位置，并且可能向持有过时副本的 chunkserver 发送读取请求。GFS 需要一种方式来确保这种读取不会成功。</p>
 <h2 id="参考"><a class="header-anchor-1" href="#参考">#</a>参考</h2>
 <ul>
 <li><span class="exturl" data-url="aHR0cHM6Ly9zdGF0aWMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL21lZGlhL3Jlc2VhcmNoLmdvb2dsZS5jb20vemgtQ04vL2FyY2hpdmUvZ2ZzLXNvc3AyMDAzLnBkZg==">The Google File System<i class="fa fa-external-link-alt"></i></span></li>
@@ -11917,157 +11983,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/02/2020-12-02/</url>
-    <content><![CDATA[<ul>
-<li>
-<p>React</p>
-<ul>
-<li>children属性: 子元素构成的数组</li>
-</ul>
-</li>
-<li>
-<p>React-redux</p>
-<ul>
-<li>
-<p>引入: <code>import &#123;...&#125; from 'react-redux'</code></p>
-</li>
-<li>
-<p><code>Store</code></p>
-<ul>
-<li>
-<p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
-</li>
-<li>
-<p><code>createStore(reducer, initState)</code></p>
-<ul>
-<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
-</li>
-<li>
-<p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component</p>
-</li>
-<li>
-<p><code>connect(mapStateToProps)(Component)</code></p>
-<ul>
-<li>
-<p>map current states to <code>Component</code>’s props</p>
-</li>
-<li>
-<p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
-</li>
-<li>
-<p>一般和<Provider>结合起来用</p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p>React-Router</p>
-<ul>
-<li>
-<p>引入: <code>import &#123;&#125; from 'react-router-dom'</code></p>
-</li>
-<li>
-<p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
-<ul>
-<li>
-<p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
-</li>
-<li>
-<p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
-</li>
-<li>
-<p>参数化匹配</p>
-<ul>
-<li>
-<p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
-</li>
-<li>
-<p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
-<ul>
-<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
-</ul>
-</li>
-<li>
-<p>嵌套使用:</p>
-  <figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = <span class="title function_">useRouteMatch</span>(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">path</span>&#125;/<span class="attr">next</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">)</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li>
-<p>Vue-Router</p>
-<ul>
-<li>
-<p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
-</li>
-<li>
-<p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
-</li>
-<li>
-<p><code>Router</code>: 在这里定义全局路由表</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Ubuntu 安装 rpm 包</p>
-<ul>
-<li>
-<p>sudo apt install alien</p>
-</li>
-<li>
-<p>sudo alien packagename.rpm</p>
-</li>
-<li>
-<p>sudo apt install ./packagename.deb</p>
-</li>
-<li>
-<p>一步到位: sudo alien -i packagename.rpm</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Oracle 的连接方式</p>
-<ul>
-<li>
-<p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
-</li>
-<li>
-<p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
-<ul>
-<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
-</ul>
-</li>
-<li>
-<p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
-  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = LITTLECOMPUTER.ACME.ORG) // 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SID = MYSID)) // 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">// PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SERVICE_NAME = MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>React</tag>
-        <tag>Oracle</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/01/2020-12-01/</url>
     <content><![CDATA[<h1>转换dos格式行尾为unix行尾</h1>
 <ul>
@@ -12345,9 +12260,160 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
       <tags>
         <tag>Linux</tag>
-        <tag>React</tag>
         <tag>Javascript</tag>
+        <tag>React</tag>
         <tag>npm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/02/2020-12-02/</url>
+    <content><![CDATA[<ul>
+<li>
+<p>React</p>
+<ul>
+<li>children属性: 子元素构成的数组</li>
+</ul>
+</li>
+<li>
+<p>React-redux</p>
+<ul>
+<li>
+<p>引入: <code>import &#123;...&#125; from 'react-redux'</code></p>
+</li>
+<li>
+<p><code>Store</code></p>
+<ul>
+<li>
+<p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
+</li>
+<li>
+<p><code>createStore(reducer, initState)</code></p>
+<ul>
+<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
+</li>
+<li>
+<p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component</p>
+</li>
+<li>
+<p><code>connect(mapStateToProps)(Component)</code></p>
+<ul>
+<li>
+<p>map current states to <code>Component</code>’s props</p>
+</li>
+<li>
+<p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
+</li>
+<li>
+<p>一般和<Provider>结合起来用</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>React-Router</p>
+<ul>
+<li>
+<p>引入: <code>import &#123;&#125; from 'react-router-dom'</code></p>
+</li>
+<li>
+<p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
+<ul>
+<li>
+<p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
+</li>
+<li>
+<p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
+</li>
+<li>
+<p>参数化匹配</p>
+<ul>
+<li>
+<p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
+</li>
+<li>
+<p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
+<ul>
+<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
+</ul>
+</li>
+<li>
+<p>嵌套使用:</p>
+  <figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = <span class="title function_">useRouteMatch</span>(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">path</span>&#125;/<span class="attr">next</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">)</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p>Vue-Router</p>
+<ul>
+<li>
+<p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
+</li>
+<li>
+<p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
+</li>
+<li>
+<p><code>Router</code>: 在这里定义全局路由表</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Ubuntu 安装 rpm 包</p>
+<ul>
+<li>
+<p>sudo apt install alien</p>
+</li>
+<li>
+<p>sudo alien packagename.rpm</p>
+</li>
+<li>
+<p>sudo apt install ./packagename.deb</p>
+</li>
+<li>
+<p>一步到位: sudo alien -i packagename.rpm</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Oracle 的连接方式</p>
+<ul>
+<li>
+<p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
+</li>
+<li>
+<p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
+<ul>
+<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
+</ul>
+</li>
+<li>
+<p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
+  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = LITTLECOMPUTER.ACME.ORG) // 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SID = MYSID)) // 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">// PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SERVICE_NAME = MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>React</tag>
+        <tag>Oracle</tag>
       </tags>
   </entry>
   <entry>
