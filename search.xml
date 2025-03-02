@@ -4393,6 +4393,247 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
+    <title>Bigtable: A Distributed Storage System for Structured Data 论文阅读</title>
+    <url>/2025/02/27/bigtable-a-distributed-storage-system/</url>
+    <content><![CDATA[<p>发表于 OSDI’06</p>
+<h2 id="0-摘要"><a class="header-anchor-1" href="#0-摘要">#</a>0. 摘要</h2>
+<p>Bigtable 是一个分布式存储系统，用于管理结构化数据，能够扩展到巨大的规模：PB 级别的数据，数千台机器。
+Google 的很多项目都保存在 Bigtable 中，包括 网页索引，Google Earth 和 Google Finance。</p>
+<h2 id="1-引言"><a class="header-anchor-1" href="#1-引言">#</a>1. 引言</h2>
+<p>Bigtable 从很多方面像一个数据库：它与数据库有很多类似的策略。
+并行数据库，内存数据库已经实现了缩放性和高性能，但是 Bigtable 提供了不同的接口。
+Bigtable 不支持完整的关系模型；取而代之，它提供一个简单的数据模型，还支持动态改变数据布局和格式。
+而且允许客户端对底层存储的数据的局部性进行推理。
+数据使用行和列名进行索引，行列是任意的字符串。
+Bigtable 把数据视为字符串，需要客户端序列化和反序列化后使用。
+客户端能够通过细致地控制 schema 来控制数据的局部性。
+最后，Bigtable 的 schema 有参数控制能否在 OOM 的时候继续提供服务。</p>
+<h2 id="2-数据模型"><a class="header-anchor-1" href="#2-数据模型">#</a>2. 数据模型</h2>
+<p>Bigtable 是一个稀疏、分布式、持久化的多维排序映射表。
+这个表是通过行键、列键和时间戳索引的。
+表中的值是字节串。</p>
+<p>(row:string, column:string, time:int64) -&gt; string</p>
+<p>Google 分析了很多潜在的应用场景，最终敲定了这个数据模型。</p>
+<h3 id="行键"><a class="header-anchor-1" href="#行键">#</a>行键</h3>
+<p>表格中的行键是任意的字符串，最大可以是 64KB，典型值是 10-100 字节。</p>
+<p>Bigtable 会按照字典序排序行键。表中的所有行会被动态划分为更小的区间，称为 tablet，是数据分散和负载均衡的单元。
+客户端能够控制行键的格式，以便于控制数据的局部性。
+例如，在 Google 的 Webtable 中，行键是反转的 hostname，这样 <span class="exturl" data-url="aHR0cDovL21hcHMuZ29vZ2xlLmNvbS9pbmRleC5odG1s">maps.google.com/index.html<i class="fa fa-external-link-alt"></i></span> 就会存储在 com.google.maps/index.html 的位置。</p>
+<h3 id="列族（column-family-cf）"><a class="header-anchor-1" href="#列族（column-family-cf）">#</a>列族（Column Family, CF）</h3>
+<p>列键被分成若干组，称为<em>列族</em>，列族是基本的 ACL 单元。
+一个列族中的所有数据通常都是同一种类型（同一个列族的会放在一起压缩）。
+列族必须在表创建时指定，写入数据之后就不能修改。
+预期的列族数量是很小的，最多是几百个，而且很少会改变。
+相对来说，表中的列数量没有上限。</p>
+<p>列键使用 <code>family:qualifier</code> 的形式命名。其中 <code>family</code> 必须是可打印的字符，<code>qualifier</code> 可以是任意的字节串。
+例如 Webtable 中的一个列族是 <code>language</code>，用于存储网页的语言。<code>language</code> 列族中只有一个列键，存储语言 ID。
+另一个列族是 <code>anchor</code>，其中每一个列名是指向的站点的名字，值是链接文本。
+例如 Webtable 中的一条数据可能是这样的：</p>
+<table>
+<thead>
+<tr>
+<th>Row Key</th>
+<th>contents</th>
+<th>anchor:cnnsi.com</th>
+<th>anchor:my.look.ca</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“com.cnn.www”</td>
+<td>“&lt;html&gt;”</td>
+<td>“CNN”</td>
+<td>“<span class="exturl" data-url="aHR0cDovL0NOTi5jb20=">CNN.com<i class="fa fa-external-link-alt"></i></span>”</td>
+</tr>
+</tbody>
+</table>
+<p>访问控制和磁盘和内存统计都是在列族级别进行的。
+因此可以管理多种不同的应用程序：有的写入新的基本数据，有的读基本数据然后创建衍生数据，有的只能读取已有的数据。</p>
+<h3 id="时间戳"><a class="header-anchor-1" href="#时间戳">#</a>时间戳</h3>
+<p>Bigtable 中的每个单元都可以包含相同数据的多个版本，这些版本通过时间戳进行索引。
+Bigtable 的时间戳是 64 位整数，这个时间戳可以由 Bigtable 自动生成（使用现实世界的毫秒），也可以由客户端提供。
+如果由客户端提供，需要保证并发写的时候，多个客户端的时间戳是不冲突的。
+Bigtable 会按照时间戳的逆序存储数据，这样最新的数据会被最先读取。</p>
+<p>为了更容易地管理多版本数据，Bigtable 提供了两个 CF 级别的设置：允许 Bigtable 自动回收旧版本的数据。客户端可以选择保留多少个版本，或者只保留最新的版本。</p>
+<p>在 Webtable 中，<code>contents</code>列存储的数据的时间戳是文档的实际爬取时间，而且设置了只保存最新 3 个版本。</p>
+<h2 id="3-api"><a class="header-anchor-1" href="#3-api">#</a>3. API</h2>
+<p>Bigtable API 提供了这些方法：</p>
+<ul>
+<li>创建、删除表和 CF</li>
+<li>修改集群</li>
+<li>修改表</li>
+<li>修改 CF 的元数据，例如 ACL</li>
+<li>读写数据</li>
+<li>扫描数据</li>
+<li>把一组操作打包成一个原子操作</li>
+</ul>
+<p>Bigtable 还支持更高级的操作，例如：</p>
+<ul>
+<li>单行事务：可以对单行数据进行原子的读-修改-写操作</li>
+<li>单元格作为计数器</li>
+<li>在服务器的地址空间中执行客户端提供的 Sawzall 代码（PS. 类似 lua in redis）
+Sawzall 的 API 不能写数据，但是可以进行一些复杂的数据变换、过滤和聚合操作。</li>
+</ul>
+<p>Bigtable 可以和 MapReduce 结合使用，Google 写了很多包装器，用于在 MapReduce 任务中读写 Bigtable。</p>
+<h2 id="4-基本构建块"><a class="header-anchor-1" href="#4-基本构建块">#</a>4. 基本构建块</h2>
+<p>Bigtable 是建立在其他几个 Google 系统之上的：</p>
+<ul>
+<li>GFS（Google File System）：用于存储日志和数据</li>
+<li>集群管理系统：调度任务，管理资源，处理机器故障，和监控集群状态</li>
+<li>SSTable：文件格式</li>
+<li>Chubby：分布式锁服务</li>
+</ul>
+<p>Bigtable 内部使用了 Google <em>SSTable</em> 文件格式。
+一个 SSTable 提供一个持久化的、有序的、不可变的 K-V 映射，其中 K 和 V 都是任意的字节串。
+SSTable 提供的操作有：</p>
+<ul>
+<li>按 key 查找 value</li>
+<li>迭代特定范围内的所有 key-value 对</li>
+</ul>
+<p>SSTable 内部包含一个块序列（块大小可变，默认 64KB）。SSTable 文件末尾存储着块索引，用于定位块。当 SSTable 文件被打开时，块索引会被读入内存。
+每次查询操作只需要一个磁盘 seek 操作：首先在内存索引中二分查找到块的位置，然后读取块。
+可选地，SSTable 可以被完全映射到内存中，这样就不需要访问磁盘了。</p>
+<p>Bigtable 还依赖于高可用和持久化地分布式锁服务 Chubby。
+Chubby 服务包含 5 个副本，其中一个会被选举为 Master，依赖于 Paxos 算法保证副本数据一致性。
+Chubby 提供了一个由目录和文件组成的命名空间，每个目录或文件都可以用作锁，而且读写文件的操作是原子的。
+Chubby 客户端库提供对 Chubby 文件的一致性缓存，每个客户端都维持着一个 <em>session</em>。
+如果客户端在超时时间内没有成功续约，则会过期，并失去所有的锁。
+Chubby 客户端可以注册 callback，当锁的状态发生变化时，会调用这个 callback。</p>
+<p>Bigtable 用 Chubby 实现这些任务：</p>
+<ul>
+<li>保证任意时刻最多只有一个 Master</li>
+<li>保存 Bigtable 数据的 bootstrap 位置</li>
+<li>发现 tablet 服务器的位置，处理 tablet 服务器的后事</li>
+<li>存储 schema 信息：每个表的 CF</li>
+<li>存储 ACL</li>
+</ul>
+<p>Bigtable 强依赖于 Chubby，如果 Chubby 不可用，Bigtable 也不可用。
+Google 衡量了由于 Chubby 问题导致的 Bigtable 不可用的平均时间，
+在 14 个 Bigtable 集群，使用 11 个 Chubby 实例，这个时间只占 0.0047%。
+受影响最严重的单个集群，这个时间占 0.00326%。</p>
+<h2 id="5-实现"><a class="header-anchor-1" href="#5-实现">#</a>5. 实现</h2>
+<p>Bigtable 的实现包含三部分：链接到应用程序中的客户端库、一个 Master 进程和若干个 Tablet Server 进程。
+Tablet Server 可以动态地增加或删除。</p>
+<p>Master 负责：</p>
+<ul>
+<li>分配 Tablet 到 Tablet Server</li>
+<li>检测 Tablet Server 的增删</li>
+<li>均衡 Tablet Server 的负载</li>
+<li>垃圾回收 GFS 中的文件</li>
+<li>处理 Schema 变更（例如表和 CF 的增删）。</li>
+</ul>
+<p>Tablet Server 负责管理 tablet（每个 Tablet Server 通常会管理 10 个到 1000 个 tablet）。
+Tablet Server 处理客户端的读写请求，还有分割过大的 tablet。</p>
+<p>和许多单主节点的分布式存储系统（比如 GFS）一样，客户端数据不会流过 Master 节点，而是直接和 Tablet Server 通信。
+因为客户端不依赖于 Master 来获取 Tablet 位置信息，大多数客户端从来不会和 Master 通信。因此 Master 的任务是很轻松的。</p>
+<p>一个 Bigtable 集群存储多个表，每个表由一系列的 tablet 组成，每个 tablet 包含了一段行范围内的数据。
+初始时，每个表只有一个 tablet。随着表的增长，tablet 会被分割成更多更小的 tablet，默认 tablet 的大小是 100-200 MB。</p>
+<h3 id="5-1-tablet-位置"><a class="header-anchor-1" href="#5-1-tablet-位置">#</a>5.1 Tablet 位置</h3>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Level 0  |          Chubby file</span><br><span class="line">         |              |</span><br><span class="line">Level 1  |         META_DATA1</span><br><span class="line">         |        /   |    |  \</span><br><span class="line">         |       /    |    |   \</span><br><span class="line">Level 2  |   META2 META3 META4 ...</span><br><span class="line">         |    /|\   /|\   /|\  ...</span><br><span class="line">Level 3  | USER1..  ...   ...  ...</span><br></pre></td></tr></table></figure>
+<p>Bigtable 使用了和 B+ 树同构的三级层次结构来存储 tablet 位置信息。
+第 0 级是一个保存于 Chubby 中的文件，保存着 <em>root tablet</em> 的位置信息。</p>
+<p>Root tablet 是 METADATA 表的第一个 tablet，而且不会被分割。</p>
+<p>METADATA 表是整个系统的元数据表，其中保存着所有其他表的 tablet 位置信息。
+其行键是表名和末尾行的编码，值是 tablet 的位置信息。
+METADATA 中的每一行都存储着大约 1KB 的数据。
+按照保守估计，每个 tablet 128MB 的话，三级的 METADATA 表可以存储 2^34 个 tablet 的位置。</p>
+<p>客户端库会缓存 Tablet 的位置信息。
+如果客户端没有缓存，或者发现缓存的位置信息不正确，那么它就会递归地到上一级查找。
+如果没有缓存，这种定位方法需要 3 个 RT，加上 1 次 Chubby 读。
+如果缓存不对，那么最多需要 6 个 RT，加上 1 次 Chubby 读。
+虽然 tablet 位置是保存在内存中的，即不需要访问 GFS，但是这种定位方法还是很慢。
+为了加速一般情况，Bigtable 会让客户端预取 tablet 位置信息，每次读的时候都多读几个 tablet 的位置信息。</p>
+<p>为方便 debug，METADATA 表中还会存储每个 tablet 的时间日志。</p>
+<h3 id="5-2-tablet-分配"><a class="header-anchor-1" href="#5-2-tablet-分配">#</a>5.2 Tablet 分配</h3>
+<p>每个 tablet 只会分配给一个 Tablet Server。
+Master 负责记录活着的 Tablet Server，以及 Tablet 到 Tablet Server 的映射关系。
+如果一个 tablet 还没有分配，而且有空闲空间的 Tablet Server，那么 Master 就会把这个 tablet 分配给这个 Tablet Server，通过发送一个 tablet load 请求。</p>
+<p>Bigtable 使用 Chubby 追踪 Tablet Server 的状态。
+当一个 Tablet Server 启动时，它会在 Chubby 的特定目录下创建一个名字唯一的文件（Server file），并且获取文件的排他锁。
+Master 会监听这个目录来发现新的 Tablet Server。
+如果一个 Tablet Server 丢失了这个排它锁，那么它就不再对外提供服务。它会先检查 Server file 是否存在，如果存在就尝试重新获取锁，否则就会直接退出。
+当 Tablet Server 结束时，它会释放锁给 Master。</p>
+<p>Master 需要负责检测 Tablet Server 是否在工作，如果没有工作，就要尽快把它负责的 tablet 重新分配给其他 Tablet Server。
+Master 会定期询问 Tablet Server 是否还持有 Server file 的锁，如果没有，或者一直超时，Master 就会尝试拿一下这个 tablet 的锁。
+如果 Master 拿到了说明 Chubby 正常，Tablet Server 不正常，就会把这个 Server file 删掉，让 Tablet Server 自行退出；然后把它负责的 tablet 标记为未分配。
+为了确保 Bigtable 集群不会受 Master 和 Chubby 之间网络的影响，Master 的 Chubby session 过期，就会直接退出。</p>
+<p>当集群管理系统拉起一个 Master 的时候，它需要先看看都有哪些 tablet。</p>
+<ol>
+<li>Master 获取一个 master lock</li>
+<li>扫描 Server file 目录，找到所有活着的 Tablet Server</li>
+<li>与每一个 Tablet Server 通信，询问它们负责的 tablet</li>
+<li>扫描 METADATA 表，找到所有的 tablet：此时可以找到未分配的 tablet</li>
+</ol>
+<p>一个问题是如果 METADATA tablet 还没有分配的话，Master 就没办法找到 METADATA，那步骤 4 就进行不了。
+因此在步骤 4 之前，Master 会先检查 root tablet 有没有分配，如果没有分配，就会特地把 root 标记为未分配。</p>
+<p>已有 tablet 的集合只有创建或删除整个表的时候才会变化，两个已有的 tablet 会合并成一个大的，或者一个大的会被分割成两个小的。
+Master 能够记录这些变更，因为除最后一个 tablet 之外的所有 tablet 都是由它初始化的。而 Tablet 分裂是由 Tablet Server 完成的。
+Tablet Server 把分裂出来的新 tablet 信息记录在 METADATA 表中，然后通知 Master。
+如果通知消息丢失了，当 Master 要求 Tablet Server 加载分裂出来的 tablet 时，Master 就会找到这个新 tablet。</p>
+<h3 id="5-3-tablet-服务"><a class="header-anchor-1" href="#5-3-tablet-服务">#</a>5.3 Tablet 服务</h3>
+<p>Tablet 的持久化状态是保存在 GFS 中的。
+更新操作会被记录成 commit log，其中保存着 redo 记录。
+在这些更新中，最近提交的更新会被保存在内存中的一个称为 memtable 的有序数据结构中。
+为了恢复一个 Tablet，Tablet Server 需要先从 METADATA 表中找到这个 tablet 的元数据，包括组成这个 tablet 的一系列 SSTable 文件，还有一系列 redo 点，即指向 commit log 的指针。
+Tablet Server 会把这些 SSTable 文件的索引加载到内存中，然后通过应用自 redo 点开始的所有更新来重建 memtable。</p>
+<p>写操作：</p>
+<ol>
+<li>Server 检查是否合法，是否有权限（通过读取 Chubby 中的 ACL）</li>
+<li>有效的变更会被写入 commit log：会分批写入提高吞吐量</li>
+<li>变更会被写入 memtable</li>
+</ol>
+<p>读操作：</p>
+<ol>
+<li>Server 检查是否合法，是否有权限（通过读取 Chubby 中的 ACL）</li>
+<li>在由一系列 SSTable 和 memtable 组成的数据视图中查找数据</li>
+</ol>
+<p>tablet 分裂和合并不影响读写操作。</p>
+<h3 id="5-4-数据回收"><a class="header-anchor-1" href="#5-4-数据回收">#</a>5.4 数据回收</h3>
+<p><em>Minor compaction</em>：写入数据的时候，memtable 会增大，当增加到一定程度时，就会被冻结，然后转换成 SSTable 写入 GFS。于此同时，新的 memtable 会被创建。</p>
+<p>Minor compaction 的目的是：</p>
+<ul>
+<li>减小内存占用</li>
+<li>减少重启时的恢复时间</li>
+</ul>
+<p>Minor compaction 不影响读写操作。</p>
+<p>每次 minor 都会创建一个新的 SSTable。如果一直增加下去，读的时候就需要合并很多 SSTable。
+因此 Bigtable 会定期在后台执行 <em>merging compaction</em>，也叫 <em>major compaction</em>。
+Major compaction 会把多个 SSTable + memtable 合并成一个 SSTable。
+合并的时候，会把被删除的数据去掉。</p>
+<p>Major compaction 的目的是：</p>
+<ul>
+<li>回收删除数据占用的空间</li>
+<li>保证被删除的数据能够及时消失（对敏感数据）</li>
+</ul>
+<h2 id="6-细化"><a class="header-anchor-1" href="#6-细化">#</a>6 细化</h2>
+<p>为了实现高性能，高可用，高可靠性，Bigtable 实现上还做了很多细节优化。</p>
+<h3 id="局部性分组"><a class="header-anchor-1" href="#局部性分组">#</a>局部性分组</h3>
+<h3 id="压缩"><a class="header-anchor-1" href="#压缩">#</a>压缩</h3>
+<h3 id="缓存以提升读性能"><a class="header-anchor-1" href="#缓存以提升读性能">#</a>缓存以提升读性能</h3>
+<h3 id="布隆过滤器"><a class="header-anchor-1" href="#布隆过滤器">#</a>布隆过滤器</h3>
+<h3 id="提交日志实现"><a class="header-anchor-1" href="#提交日志实现">#</a>提交日志实现</h3>
+<h3 id="加速-tablet-恢复"><a class="header-anchor-1" href="#加速-tablet-恢复">#</a>加速 Tablet 恢复</h3>
+<h3 id="利用不可变性"><a class="header-anchor-1" href="#利用不可变性">#</a>利用不可变性</h3>
+<h2 id="7-性能评估"><a class="header-anchor-1" href="#7-性能评估">#</a>7 性能评估</h2>
+<h2 id="8-现实世界的应用"><a class="header-anchor-1" href="#8-现实世界的应用">#</a>8 现实世界的应用</h2>
+<h2 id="8-1-google-analytics"><a class="header-anchor-1" href="#8-1-google-analytics">#</a>8.1 Google Analytics</h2>
+<h2 id="8-2-google-earth"><a class="header-anchor-1" href="#8-2-google-earth">#</a>8.2 Google Earth</h2>
+<h2 id="8-3-个性化搜索"><a class="header-anchor-1" href="#8-3-个性化搜索">#</a>8.3 个性化搜索</h2>
+<h2 id="9-教训"><a class="header-anchor-1" href="#9-教训">#</a>9 教训</h2>
+<h2 id="10-相关工作"><a class="header-anchor-1" href="#10-相关工作">#</a>10 相关工作</h2>
+<h2 id="11-结论"><a class="header-anchor-1" href="#11-结论">#</a>11 结论</h2>
+<h1>FAQ</h1>
+<h3 id="1-gfs-可能出现重复记录或者-padding，bigtable-如何处理这种情况？"><a class="header-anchor-1" href="#1-gfs-可能出现重复记录或者-padding，bigtable-如何处理这种情况？">#</a>1. GFS 可能出现重复记录或者 padding，Bigtable 如何处理这种情况？</h3>
+]]></content>
+      <categories>
+        <category>distributed-system</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+        <tag>Bigtable</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>MIT 6.824/6.5840 分布式系统 Lab 1: MapReduce</title>
     <url>/2024/03/25/mit-6.824-distributed-system-lab1/</url>
     <content><![CDATA[<p>本次 Lab 1 讲的是分布式计算的 MapReduce。</p>
@@ -9941,17 +10182,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </tags>
   </entry>
   <entry>
-    <title>Linux Kernel 文件子系统</title>
-    <url>/2024/04/30/linux-kernel-file-subsystem/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Linux Kernel 中断子系统</title>
     <url>/2024/04/16/linux-kernel-interrupt-subsystem/</url>
     <content><![CDATA[<p>Linux 将中断处理流程划分成两个部分，一个是top half，另一个是bottom half。</p>
@@ -9999,6 +10229,17 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
       <tags>
         <tag>Linux</tag>
         <tag>嵌入式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux Kernel 文件子系统</title>
+    <url>/2024/04/30/linux-kernel-file-subsystem/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -10709,17 +10950,6 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
       </tags>
   </entry>
   <entry>
-    <title>测试</title>
-    <url>/2024/05/14/1/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>project</category>
-      </categories>
-      <tags>
-        <tag>TODO</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>20 行代码速通 Safe Rust Double Free (整活向)</title>
     <url>/2025/02/11/unsound-rust/</url>
     <content><![CDATA[<p>受到 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL1NwZXlraW91cy9jdmUtcnM=">cve-rs<i class="fa fa-external-link-alt"></i></span> 项目启发，利用 Type system 的固有 Unsoundness 实现一个经典的 Double Free。</p>
@@ -10730,6 +10960,17 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
       <categories>
         <category>rust</category>
       </categories>
+  </entry>
+  <entry>
+    <title>测试</title>
+    <url>/2024/05/14/1/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>project</category>
+      </categories>
+      <tags>
+        <tag>TODO</tag>
+      </tags>
   </entry>
   <entry>
     <title>模糊测试 Fuzzing test</title>
@@ -11403,6 +11644,16 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
+    <title>2. 两数相加</title>
+    <url>/2020/12/25/2/</url>
+    <content><![CDATA[<p>指针</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">addTwoNumbers</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;</span><br><span class="line">        ListNode*p1=l1,*p2=l2,*p3,*last=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="type">int</span> up=<span class="number">0</span>;</span><br><span class="line">        ListNode* root=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">        p3=root;</span><br><span class="line">        <span class="keyword">while</span>(p1 || p2 || up)&#123;</span><br><span class="line">            <span class="type">int</span> n1=<span class="number">0</span>,n2=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span>(p1)&#123;n1=p1-&gt;val;p1=p1-&gt;next;&#125;</span><br><span class="line">            <span class="keyword">if</span>(p2)&#123;n2=p2-&gt;val;p2=p2-&gt;next;&#125;</span><br><span class="line">            up+=n1+n2;</span><br><span class="line">            p3-&gt;val=up%<span class="number">10</span>;</span><br><span class="line">            last=p3;</span><br><span class="line">            p3=p3-&gt;next=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">            up/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">delete</span> last-&gt;next;</span><br><span class="line">        last-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
     <title>189. 旋转数组</title>
     <url>/2021/01/08/189/</url>
     <content><![CDATA[<h2 id="题意"><a class="header-anchor-1" href="#题意">#</a>题意</h2>
@@ -11419,16 +11670,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       <tags>
         <tag>GCD</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>2. 两数相加</title>
-    <url>/2020/12/25/2/</url>
-    <content><![CDATA[<p>指针</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">addTwoNumbers</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;</span><br><span class="line">        ListNode*p1=l1,*p2=l2,*p3,*last=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="type">int</span> up=<span class="number">0</span>;</span><br><span class="line">        ListNode* root=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">        p3=root;</span><br><span class="line">        <span class="keyword">while</span>(p1 || p2 || up)&#123;</span><br><span class="line">            <span class="type">int</span> n1=<span class="number">0</span>,n2=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span>(p1)&#123;n1=p1-&gt;val;p1=p1-&gt;next;&#125;</span><br><span class="line">            <span class="keyword">if</span>(p2)&#123;n2=p2-&gt;val;p2=p2-&gt;next;&#125;</span><br><span class="line">            up+=n1+n2;</span><br><span class="line">            p3-&gt;val=up%<span class="number">10</span>;</span><br><span class="line">            last=p3;</span><br><span class="line">            p3=p3-&gt;next=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">            up/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">delete</span> last-&gt;next;</span><br><span class="line">        last-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
   </entry>
   <entry>
     <title>205. 同构字符串</title>
@@ -11892,84 +12133,144 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/11/30/2020-11-30/</url>
-    <content><![CDATA[<h1>Github Developer Settings</h1>
-<ul>
+    <url>/2020/12/02/2020-12-02/</url>
+    <content><![CDATA[<ul>
 <li>
-<p>GitHub Apps</p>
-</li>
-<li>
-<p>OAuth Apps</p>
+<p>React</p>
 <ul>
-<li>需要用到Github API的App</li>
+<li>children属性: 子元素构成的数组</li>
 </ul>
 </li>
 <li>
-<p>Personal access tokens</p>
+<p>React-redux</p>
 <ul>
 <li>
-<p>Tokens you have generated that can be used to access the GitHub API.</p>
+<p>引入: <code>import &#123;...&#125; from 'react-redux'</code></p>
 </li>
 <li>
-<p>权限类似于账号+密码登录</p>
+<p><code>Store</code></p>
+<ul>
+<li>
+<p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
 </li>
+<li>
+<p><code>createStore(reducer, initState)</code></p>
+<ul>
+<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
 </ul>
 </li>
 </ul>
-<h1>Github Actions</h1>
+</li>
+<li>
+<p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
+</li>
+<li>
+<p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component</p>
+</li>
+<li>
+<p><code>connect(mapStateToProps)(Component)</code></p>
 <ul>
 <li>
-<p>类似Travis-CI的持续集成平台</p>
+<p>map current states to <code>Component</code>’s props</p>
 </li>
 <li>
-<p>使用方法</p>
-<ul>
-<li>
-<p>在项目根目录创建 .github/workflows</p>
+<p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
 </li>
 <li>
-<p>继续创建 pages.yml</p>
-</li>
-<li>
-<p>关键字: jobs, runs-on, steps, name, uses, with等等</p>
-</li>
-</ul>
-</li>
-</ul>
-<h1>Hexo博客评论系统</h1>
-<ul>
-<li>
-<p>Gitalk</p>
-<ul>
-<li>
-<p>利用Github Issues功能实现的评论系统, 开源</p>
-</li>
-<li>
-<p>不支持回复评论</p>
-</li>
-<li>
-<p>修改评论需要打开对应的Issue页修改</p>
-</li>
-<li>
-<p>登录需要的Github权限太高(Github自身问题)</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Disqus</p>
-<ul>
-<li>
-<p>界面好看</p>
-</li>
-<li>
-<p>需要翻墙才能正常使用</p>
+<p>一般和<Provider>结合起来用</p>
 </li>
 </ul>
 </li>
 </ul>
-<h1>Code-Server</h1>
+</li>
+<li>
+<p>React-Router</p>
 <ul>
-<li>浏览器端的vscode</li>
+<li>
+<p>引入: <code>import &#123;&#125; from 'react-router-dom'</code></p>
+</li>
+<li>
+<p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
+<ul>
+<li>
+<p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
+</li>
+<li>
+<p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
+</li>
+<li>
+<p>参数化匹配</p>
+<ul>
+<li>
+<p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
+</li>
+<li>
+<p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
+<ul>
+<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
+</ul>
+</li>
+<li>
+<p>嵌套使用:</p>
+  <figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = <span class="title function_">useRouteMatch</span>(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">path</span>&#125;/<span class="attr">next</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">)</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p>Vue-Router</p>
+<ul>
+<li>
+<p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
+</li>
+<li>
+<p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
+</li>
+<li>
+<p><code>Router</code>: 在这里定义全局路由表</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Ubuntu 安装 rpm 包</p>
+<ul>
+<li>
+<p>sudo apt install alien</p>
+</li>
+<li>
+<p>sudo alien packagename.rpm</p>
+</li>
+<li>
+<p>sudo apt install ./packagename.deb</p>
+</li>
+<li>
+<p>一步到位: sudo alien -i packagename.rpm</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Oracle 的连接方式</p>
+<ul>
+<li>
+<p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
+</li>
+<li>
+<p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
+<ul>
+<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
+</ul>
+</li>
+<li>
+<p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
+  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = LITTLECOMPUTER.ACME.ORG) // 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SID = MYSID)) // 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">// PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SERVICE_NAME = MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
 </ul>
 ]]></content>
       <categories>
@@ -11977,8 +12278,8 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
         <category>2020</category>
       </categories>
       <tags>
-        <tag>Github</tag>
-        <tag>Hexo</tag>
+        <tag>React</tag>
+        <tag>Oracle</tag>
       </tags>
   </entry>
   <entry>
@@ -12260,160 +12561,9 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
       <tags>
         <tag>Linux</tag>
+        <tag>React</tag>
         <tag>Javascript</tag>
-        <tag>React</tag>
         <tag>npm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/02/2020-12-02/</url>
-    <content><![CDATA[<ul>
-<li>
-<p>React</p>
-<ul>
-<li>children属性: 子元素构成的数组</li>
-</ul>
-</li>
-<li>
-<p>React-redux</p>
-<ul>
-<li>
-<p>引入: <code>import &#123;...&#125; from 'react-redux'</code></p>
-</li>
-<li>
-<p><code>Store</code></p>
-<ul>
-<li>
-<p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
-</li>
-<li>
-<p><code>createStore(reducer, initState)</code></p>
-<ul>
-<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
-</li>
-<li>
-<p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component</p>
-</li>
-<li>
-<p><code>connect(mapStateToProps)(Component)</code></p>
-<ul>
-<li>
-<p>map current states to <code>Component</code>’s props</p>
-</li>
-<li>
-<p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
-</li>
-<li>
-<p>一般和<Provider>结合起来用</p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p>React-Router</p>
-<ul>
-<li>
-<p>引入: <code>import &#123;&#125; from 'react-router-dom'</code></p>
-</li>
-<li>
-<p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
-<ul>
-<li>
-<p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
-</li>
-<li>
-<p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
-</li>
-<li>
-<p>参数化匹配</p>
-<ul>
-<li>
-<p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
-</li>
-<li>
-<p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
-<ul>
-<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
-</ul>
-</li>
-<li>
-<p>嵌套使用:</p>
-  <figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = <span class="title function_">useRouteMatch</span>(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">path</span>&#125;/<span class="attr">next</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">)</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li>
-<p>Vue-Router</p>
-<ul>
-<li>
-<p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
-</li>
-<li>
-<p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
-</li>
-<li>
-<p><code>Router</code>: 在这里定义全局路由表</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Ubuntu 安装 rpm 包</p>
-<ul>
-<li>
-<p>sudo apt install alien</p>
-</li>
-<li>
-<p>sudo alien packagename.rpm</p>
-</li>
-<li>
-<p>sudo apt install ./packagename.deb</p>
-</li>
-<li>
-<p>一步到位: sudo alien -i packagename.rpm</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Oracle 的连接方式</p>
-<ul>
-<li>
-<p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
-</li>
-<li>
-<p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
-<ul>
-<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
-</ul>
-</li>
-<li>
-<p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
-  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = LITTLECOMPUTER.ACME.ORG) // 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SID = MYSID)) // 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">// PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SERVICE_NAME = MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>React</tag>
-        <tag>Oracle</tag>
       </tags>
   </entry>
   <entry>
@@ -12722,6 +12872,97 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/11/30/2020-11-30/</url>
+    <content><![CDATA[<h1>Github Developer Settings</h1>
+<ul>
+<li>
+<p>GitHub Apps</p>
+</li>
+<li>
+<p>OAuth Apps</p>
+<ul>
+<li>需要用到Github API的App</li>
+</ul>
+</li>
+<li>
+<p>Personal access tokens</p>
+<ul>
+<li>
+<p>Tokens you have generated that can be used to access the GitHub API.</p>
+</li>
+<li>
+<p>权限类似于账号+密码登录</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Github Actions</h1>
+<ul>
+<li>
+<p>类似Travis-CI的持续集成平台</p>
+</li>
+<li>
+<p>使用方法</p>
+<ul>
+<li>
+<p>在项目根目录创建 .github/workflows</p>
+</li>
+<li>
+<p>继续创建 pages.yml</p>
+</li>
+<li>
+<p>关键字: jobs, runs-on, steps, name, uses, with等等</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Hexo博客评论系统</h1>
+<ul>
+<li>
+<p>Gitalk</p>
+<ul>
+<li>
+<p>利用Github Issues功能实现的评论系统, 开源</p>
+</li>
+<li>
+<p>不支持回复评论</p>
+</li>
+<li>
+<p>修改评论需要打开对应的Issue页修改</p>
+</li>
+<li>
+<p>登录需要的Github权限太高(Github自身问题)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Disqus</p>
+<ul>
+<li>
+<p>界面好看</p>
+</li>
+<li>
+<p>需要翻墙才能正常使用</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Code-Server</h1>
+<ul>
+<li>浏览器端的vscode</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Github</tag>
+        <tag>Hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/05/2020-12-05/</url>
     <content><![CDATA[<h1>Java Spring 框架学习</h1>
 <p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
@@ -12929,27 +13170,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/10/2020-12-10/</url>
-    <content><![CDATA[<h1>Java的ORM框架 vs Python的ORM框架</h1>
-<p>TODO: 待更新</p>
-<h1>为什么需要CORS? CORS是为了保护谁?</h1>
-<p>CORS标准允许服务器指定谁可以访问该服务器上的资源, 以及该如何访问这些资源</p>
-<p>所以说其实是保护服务器端, 防止恶意网站窃取数据</p>
-<h1>信息安全之盲水印</h1>
-<p><span class="exturl" data-url="aHR0cHM6Ly93d3cuemhpaHUuY29tL3F1ZXN0aW9uLzUwNzM1NzUz">妙啊<i class="fa fa-external-link-alt"></i></span></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>ORM框架</tag>
-        <tag>CORS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/11/2020-12-11/</url>
     <content><![CDATA[<h1>Linux 内核提权</h1>
 <ul>
@@ -12979,6 +13199,27 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>信息安全</tag>
         <tag>GCC使用</tag>
         <tag>NCRE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/10/2020-12-10/</url>
+    <content><![CDATA[<h1>Java的ORM框架 vs Python的ORM框架</h1>
+<p>TODO: 待更新</p>
+<h1>为什么需要CORS? CORS是为了保护谁?</h1>
+<p>CORS标准允许服务器指定谁可以访问该服务器上的资源, 以及该如何访问这些资源</p>
+<p>所以说其实是保护服务器端, 防止恶意网站窃取数据</p>
+<h1>信息安全之盲水印</h1>
+<p><span class="exturl" data-url="aHR0cHM6Ly93d3cuemhpaHUuY29tL3F1ZXN0aW9uLzUwNzM1NzUz">妙啊<i class="fa fa-external-link-alt"></i></span></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>ORM框架</tag>
+        <tag>CORS</tag>
       </tags>
   </entry>
   <entry>
@@ -13648,28 +13889,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2021/01/10/2021-01-10/</url>
-    <content><![CDATA[<h2 id="模运算的性质-程序设计版"><a class="header-anchor-1" href="#模运算的性质-程序设计版">#</a>模运算的性质(程序设计版)</h2>
-<p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>+</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a + b)\bmod p = (a\bmod p + b\bmod p)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>−</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>−</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a - b)\bmod p = (a\bmod p - b\bmod p)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>×</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>×</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a \times b)\bmod p = (a\bmod p \times b\bmod p)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><msup><mi>a</mi><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><msup><mo stretchy="false">)</mo><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a^b)\bmod p = ((a\bmod p)^b)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">((</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2021/01/12/2021-01-12/</url>
     <content><![CDATA[<h2 id="c-11-新-特性之右值引用"><a class="header-anchor-1" href="#c-11-新-特性之右值引用">#</a>c++11(新?)特性之右值引用</h2>
 <h3 id="右值"><a class="header-anchor-1" href="#右值">#</a>右值</h3>
@@ -13728,6 +13947,28 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2021/01/10/2021-01-10/</url>
+    <content><![CDATA[<h2 id="模运算的性质-程序设计版"><a class="header-anchor-1" href="#模运算的性质-程序设计版">#</a>模运算的性质(程序设计版)</h2>
+<p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>+</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a + b)\bmod p = (a\bmod p + b\bmod p)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>−</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>−</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a - b)\bmod p = (a\bmod p - b\bmod p)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>×</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>×</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a \times b)\bmod p = (a\bmod p \times b\bmod p)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><msup><mi>a</mi><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><msup><mo stretchy="false">)</mo><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a^b)\bmod p = ((a\bmod p)^b)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">((</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2021/01/19/2021-01-19/</url>
     <content><![CDATA[<h2 id="近期任务"><a class="header-anchor-1" href="#近期任务">#</a>近期任务</h2>
 <ul>
@@ -13755,6 +13996,37 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <category>daily</category>
         <category>2021</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
+    <url>/2021/03/14/2021-03-14/</url>
+    <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
+<h1>Python 数据科学常用的库</h1>
+<p><img src="https://frezcirno.github.io/static/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" alt="" /></p>
+<h1>Numpy 使用</h1>
+<h2 id="array-对象"><a class="header-anchor-1" href="#array-对象">#</a>array 对象</h2>
+<h1>Matplotlib 使用</h1>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
+<h1>Pandas 使用</h1>
+<h2 id="series-对象"><a class="header-anchor-1" href="#series-对象">#</a>Series 对象</h2>
+<h2 id="dataframe-对象"><a class="header-anchor-1" href="#dataframe-对象">#</a>Dataframe 对象</h2>
+<p>博客更新日志：</p>
+<ul>
+<li>日记分类名字从「每日小结」改为「每日小结 Day Day Up」</li>
+<li>日记文章标题从今往后将取有意义的名字</li>
+<li>日记文件名改成更加标准的 ISO-8601 命名法</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>numpy</tag>
+        <tag>matplotlib</tag>
+        <tag>pandas</tag>
+      </tags>
   </entry>
   <entry>
     <title>shell脚本编程</title>
@@ -13867,37 +14139,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </categories>
       <tags>
         <tag>shell</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
-    <url>/2021/03/14/2021-03-14/</url>
-    <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
-<h1>Python 数据科学常用的库</h1>
-<p><img src="https://frezcirno.github.io/static/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" alt="" /></p>
-<h1>Numpy 使用</h1>
-<h2 id="array-对象"><a class="header-anchor-1" href="#array-对象">#</a>array 对象</h2>
-<h1>Matplotlib 使用</h1>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
-<h1>Pandas 使用</h1>
-<h2 id="series-对象"><a class="header-anchor-1" href="#series-对象">#</a>Series 对象</h2>
-<h2 id="dataframe-对象"><a class="header-anchor-1" href="#dataframe-对象">#</a>Dataframe 对象</h2>
-<p>博客更新日志：</p>
-<ul>
-<li>日记分类名字从「每日小结」改为「每日小结 Day Day Up」</li>
-<li>日记文章标题从今往后将取有意义的名字</li>
-<li>日记文件名改成更加标准的 ISO-8601 命名法</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>numpy</tag>
-        <tag>matplotlib</tag>
-        <tag>pandas</tag>
       </tags>
   </entry>
   <entry>
