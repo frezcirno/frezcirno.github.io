@@ -3853,6 +3853,98 @@ SNMP: 161/162</p>
       </tags>
   </entry>
   <entry>
+    <title>C++11（新？）特性之右值引用</title>
+    <url>/2021/01/12/cpp-right-value/</url>
+    <content><![CDATA[<h2 id="右值"><a class="header-anchor-1" href="#右值">#</a>右值</h2>
+<p>不能放到赋值表达式左侧的值，例如:</p>
+<ul>
+<li>字面量 <code>1</code>，<code>&quot;Hello&quot;</code>，<code>'c'</code></li>
+<li>返回值而非引用的函数调用 <code>foo()</code></li>
+<li>运算结果 <code>a + b</code></li>
+</ul>
+<p>右值不能被直接赋值给一个<strong>非常</strong>引用，只能先赋给一个变量再取引用</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span>&amp; ref = <span class="number">9</span>; <span class="comment">// error，“invalid initialization of non-const reference of type int&amp; from an rvalue of type int”</span></span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; const_ref = <span class="number">9</span>; <span class="comment">// only allow this</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> nine = <span class="number">9</span>;</span><br><span class="line"><span class="type">int</span>&amp; ref = nine; <span class="comment">// ok</span></span><br></pre></td></tr></table></figure>
+<p>上述特性在泛型函数重载时会带来一些问题，这导致我们不得不对有无 const 两种情况分别重载</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T，<span class="keyword">typename</span> A1&gt;</span><br><span class="line"><span class="function">std::unique_ptr&lt;T&gt; <span class="title">factory</span><span class="params">(A1&amp; a1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> std::<span class="built_in">unique_ptr</span>&lt;T&gt;(<span class="keyword">new</span> <span class="built_in">T</span>(a1));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">factory</span>&lt;foo&gt;(<span class="number">5</span>); <span class="comment">// error，a1-&gt;int&amp;，can not bind to literal 5</span></span><br></pre></td></tr></table></figure>
+<h2 id="右值引用"><a class="header-anchor-1" href="#右值引用">#</a>右值引用</h2>
+<p>顾名思义，就是对右值的引用</p>
+<h2 id="增加右值引用的好处"><a class="header-anchor-1" href="#增加右值引用的好处">#</a>增加右值引用的好处</h2>
+<p>增加了右值引用之后，我们具备了识别和重载右值的能力</p>
+<h3 id="进一步消除不必要的复制"><a class="header-anchor-1" href="#进一步消除不必要的复制">#</a>进一步消除不必要的复制</h3>
+<p>在 c++11 之前，临时变量的创建一直是难以处理的问题. 有时这些临时变量可以被编译器优化（例如返回值优化），但是这并不总是可行的，通常这会导致高昂的对象复制成本.</p>
+<p>考虑下面的代码：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function">vector&lt;string&gt; <span class="title">make_poem</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    vector&lt;string&gt; lines;</span><br><span class="line">    lines.<span class="built_in">push_back</span>(<span class="string">&quot;Hello&quot;</span>);</span><br><span class="line">    lines.<span class="built_in">push_back</span>(<span class="string">&quot;World&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> lines; <span class="comment">// 1.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    vector&lt;string&gt; poem;</span><br><span class="line">    poem = <span class="built_in">make_poem</span>(); <span class="comment">// 2.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>理论上这里最多可能发生两次复制操作：</p>
+<ol>
+<li>
+<p>返回临时变量</p>
+</li>
+<li>
+<p>vector 赋值</p>
+</li>
+</ol>
+<p>其中，第一次的复制操作可能会被编译器优化掉(RVO)，然而第二次复制是不可避免的</p>
+<p>当然我们可以通过其他方法来避免这次复制，比如通过指针或者传递一个已经填充好的 vector</p>
+<p>有了右值引用之后，我们可以就可以对右值进行特殊化处理，从而避免多余的复制(移动构造函数和=运算符重载)，例如</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// copy</span></span><br><span class="line"><span class="built_in">foo</span>(foo <span class="type">const</span>&amp; other)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>-&gt;length = other.length;</span><br><span class="line">    <span class="keyword">this</span>-&gt;ptr = <span class="keyword">new</span> <span class="type">int</span>[other.length];</span><br><span class="line">    <span class="built_in">copy</span>(other.ptr，other.ptr + other.length，<span class="keyword">this</span>-&gt;ptr);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 与之对应的move</span></span><br><span class="line"><span class="built_in">foo</span>(foo&amp;&amp; other)</span><br><span class="line">&#123;</span><br><span class="line">   <span class="keyword">this</span>-&gt;length = other.length;</span><br><span class="line">   <span class="keyword">this</span>-&gt;ptr = other.ptr;</span><br><span class="line">   other.length = <span class="number">0</span>;</span><br><span class="line">   other.ptr = <span class="literal">nullptr</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="移动语义的引入"><a class="header-anchor-1" href="#移动语义的引入">#</a>移动语义的引入</h3>
+<p>可以显式指定某个资源被移交给另一个函数，自己不再需要</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">Resource resource;</span><br><span class="line"><span class="built_in">foo</span>(<span class="built_in">move</span>(resource)); <span class="comment">// 不再需要resource，可以全权交给foo函数，将会调用foo(Resource&amp;&amp;)</span></span><br></pre></td></tr></table></figure>
+<p>对于有些不能被复制的资源(如<code>std::unique_ptr</code>，<code>std::thread</code>等等)，这是很有用的</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">std::string s;</span><br><span class="line"><span class="function">std::string <span class="title">another</span><span class="params">(s)</span></span>;           <span class="comment">// calls std::string(const std::string&amp;);</span></span><br><span class="line"><span class="function">std::string <span class="title">more</span><span class="params">(std::string(s))</span></span>; <span class="comment">// calls std::string(std::string&amp;&amp;);</span></span><br></pre></td></tr></table></figure>
+<h3 id="模板的完美转发"><a class="header-anchor-1" href="#模板的完美转发">#</a>模板的完美转发</h3>
+<p>引入右值后，出现了一个新问题，观察下面的代码：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">bar</span><span class="params">(<span class="type">int</span>&amp; x)</span>  </span>&#123; std::cout &lt;&lt; <span class="string">&quot;左值引用\n&quot;</span>; &#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">bar</span><span class="params">(<span class="type">int</span>&amp;&amp; x)</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;右值引用\n&quot;</span>; &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 函数内部的具名参数变量始终是左值</span></span><br><span class="line">    <span class="built_in">bar</span>(t);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">foo</span>(<span class="number">5</span>); <span class="comment">// 5是右值，但是t是左值</span></span><br></pre></td></tr></table></figure>
+<p>按照 C++ 的定义，当参数被传递到函数内部时，无论外部如何传递，函数内部的参数变量本身一定是具名的，因此被视为左值。
+那么就导致了：</p>
+<ul>
+<li>右值的语义在函数传递过程中被丢失</li>
+<li>右值需要被复制成左值（函数参数），有性能损耗</li>
+</ul>
+<p>我们可以通过 <code>std::forward</code> 来实现完美转发，这指的是函数模板可以将自己的参数完好无损地转发给内部调用的其他函数中</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T&amp;&amp; t)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果传入参数是左值 U：则 `T = U&amp;`，`typeof(t) = T&amp;&amp; = U&amp; &amp;&amp; = U&amp;`</span></span><br><span class="line">    <span class="comment">// 如果传入参数是右值 U&amp;&amp;：则 `T = U`，`typeof(t) = T&amp;&amp; = U&amp;&amp;`</span></span><br><span class="line">    <span class="comment">// 函数内部的具名参数变量始终是左值</span></span><br><span class="line">    <span class="built_in">bar</span>(std::forward&lt;T&gt;(t));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="实现"><a class="header-anchor-1" href="#实现">#</a>实现</h2>
+<p><code>move</code>函数: 提醒编译器重载时选择移动构造函数</p>
+<p>利用移动交换两个变量:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">move_swap</span><span class="params">(Res &amp;a，Res &amp;b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Res t = <span class="built_in">move</span>(a);</span><br><span class="line">    a = <span class="built_in">move</span>(b);</span><br><span class="line">    b = <span class="built_in">move</span>(t);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1>RVO 和 NRVO</h1>
+<p>返回值优化（Return value optimization，缩写为 RVO）是 C++的一项编译优化技术。即删除保持函数返回值的临时对象。这可能会省略两次复制构造函数，<strong>即使复制构造函数有副作用</strong>。</p>
+]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>CPP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++ 模版函数重载匹配规则</title>
+    <url>/2025/03/03/cpp-template-matching/</url>
+    <content><![CDATA[<h2 id="1-非模板函数优先"><a class="header-anchor-1" href="#1-非模板函数优先">#</a>1. 非模板函数优先</h2>
+<p>如果有非模版函数，优先调用非模版函数。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;&#125;          <span class="comment">// 非模板函数</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T x)</span> </span>&#123;&#125;  <span class="comment">// 模板函数</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">foo</span>(<span class="number">5</span>);  <span class="comment">// 调用非模板函数 void foo(int)</span></span><br></pre></td></tr></table></figure>
+<h2 id="2-更特化的模板优先"><a class="header-anchor-1" href="#2-更特化的模板优先">#</a>2. 更特化的模板优先</h2>
+<p>如果多个模板可行，编译器选择更特化（更具体）的模板版本。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T x)</span> </span>&#123;&#125;      <span class="comment">// 通用模板</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T* x)</span> </span>&#123;&#125;     <span class="comment">// 更特化的指针版本</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">foo</span>(&amp;x);  <span class="comment">// 调用指针版本的 f&lt;int*&gt;(int*)</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-精确匹配优于类型转换"><a class="header-anchor-1" href="#3-精确匹配优于类型转换">#</a>3. 精确匹配优于类型转换</h2>
+<p>若参数匹配需要隐式类型转换，模板生成的精确匹配版本优先于需要转换的非模板函数。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(<span class="type">double</span> x)</span> </span>&#123;&#125;        <span class="comment">// 非模板函数，需要 int→double 转换</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T x)</span> </span>&#123;&#125;  <span class="comment">// 模板生成 f&lt;int&gt;(int)</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">foo</span>(<span class="number">5</span>);  <span class="comment">// 调用模板函数 f&lt;int&gt;(int)（无需转换）</span></span><br></pre></td></tr></table></figure>
+<h2 id="4-引用和值类型的优先级"><a class="header-anchor-1" href="#4-引用和值类型的优先级">#</a>4. 引用和值类型的优先级</h2>
+<p>引用类型（尤其是 T&amp;&amp; 万能引用）可能影响匹配：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T&amp;&amp; x)</span> </span>&#123;&#125;  <span class="comment">// 万能引用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;&#125;          <span class="comment">// 非模板函数</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">foo</span>(<span class="number">5</span>);    <span class="comment">// 调用非模板函数（精确匹配）</span></span><br><span class="line"><span class="built_in">foo</span>(x);    <span class="comment">// x 是 int 变量，调用模板函数 f&lt;int&amp;&gt;(int&amp;)（更匹配左值）</span></span><br></pre></td></tr></table></figure>
+<h2 id="5-若存在多个同样好的匹配，编译器报错："><a class="header-anchor-1" href="#5-若存在多个同样好的匹配，编译器报错：">#</a>5. 若存在多个同样好的匹配，编译器报错：</h2>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T x)</span> </span>&#123;&#125;</span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T* x)</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">f</span>(&amp;x);  <span class="comment">// 歧义：T=int*（通用模板） vs. T=int（指针模板）</span></span><br></pre></td></tr></table></figure>
+<h2 id="6-可变参数模板优先级最低"><a class="header-anchor-1" href="#6-可变参数模板优先级最低">#</a>6. 可变参数模板优先级最低</h2>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span>... Args&gt; <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(Args... args)</span> </span>&#123;&#125;  <span class="comment">// 最低优先级</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T x)</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(<span class="number">5</span>);  <span class="comment">// 调用非可变参数模板 f&lt;int&gt;(int)</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>CPP</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>CMU 15-445 数据库系统 实验</title>
     <url>/2024/05/03/CMU-15-445-database-systems-fall-2023-projects/</url>
     <content><![CDATA[<h2 id="project-0-c-primer"><a class="header-anchor-1" href="#project-0-c-primer">#</a>Project 0 - C++ Primer</h2>
@@ -10182,6 +10274,17 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </tags>
   </entry>
   <entry>
+    <title>Linux Kernel 文件子系统</title>
+    <url>/2024/04/30/linux-kernel-file-subsystem/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Linux Kernel 中断子系统</title>
     <url>/2024/04/16/linux-kernel-interrupt-subsystem/</url>
     <content><![CDATA[<p>Linux 将中断处理流程划分成两个部分，一个是top half，另一个是bottom half。</p>
@@ -10229,17 +10332,6 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
       <tags>
         <tag>Linux</tag>
         <tag>嵌入式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux Kernel 文件子系统</title>
-    <url>/2024/04/30/linux-kernel-file-subsystem/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -10950,6 +11042,17 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
       </tags>
   </entry>
   <entry>
+    <title>测试</title>
+    <url>/2024/05/14/1/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>project</category>
+      </categories>
+      <tags>
+        <tag>TODO</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>20 行代码速通 Safe Rust Double Free (整活向)</title>
     <url>/2025/02/11/unsound-rust/</url>
     <content><![CDATA[<p>受到 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL1NwZXlraW91cy9jdmUtcnM=">cve-rs<i class="fa fa-external-link-alt"></i></span> 项目启发，利用 Type system 的固有 Unsoundness 实现一个经典的 Double Free。</p>
@@ -10960,17 +11063,6 @@ top half中<code>raise_softirq(nr)</code>，每个cpu串行执行</p>
       <categories>
         <category>rust</category>
       </categories>
-  </entry>
-  <entry>
-    <title>测试</title>
-    <url>/2024/05/14/1/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>project</category>
-      </categories>
-      <tags>
-        <tag>TODO</tag>
-      </tags>
   </entry>
   <entry>
     <title>模糊测试 Fuzzing test</title>
@@ -11644,16 +11736,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>2. 两数相加</title>
-    <url>/2020/12/25/2/</url>
-    <content><![CDATA[<p>指针</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">addTwoNumbers</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;</span><br><span class="line">        ListNode*p1=l1,*p2=l2,*p3,*last=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="type">int</span> up=<span class="number">0</span>;</span><br><span class="line">        ListNode* root=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">        p3=root;</span><br><span class="line">        <span class="keyword">while</span>(p1 || p2 || up)&#123;</span><br><span class="line">            <span class="type">int</span> n1=<span class="number">0</span>,n2=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span>(p1)&#123;n1=p1-&gt;val;p1=p1-&gt;next;&#125;</span><br><span class="line">            <span class="keyword">if</span>(p2)&#123;n2=p2-&gt;val;p2=p2-&gt;next;&#125;</span><br><span class="line">            up+=n1+n2;</span><br><span class="line">            p3-&gt;val=up%<span class="number">10</span>;</span><br><span class="line">            last=p3;</span><br><span class="line">            p3=p3-&gt;next=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">            up/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">delete</span> last-&gt;next;</span><br><span class="line">        last-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
     <title>189. 旋转数组</title>
     <url>/2021/01/08/189/</url>
     <content><![CDATA[<h2 id="题意"><a class="header-anchor-1" href="#题意">#</a>题意</h2>
@@ -11670,6 +11752,16 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       <tags>
         <tag>GCD</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>2. 两数相加</title>
+    <url>/2020/12/25/2/</url>
+    <content><![CDATA[<p>指针</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">addTwoNumbers</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;</span><br><span class="line">        ListNode*p1=l1,*p2=l2,*p3,*last=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="type">int</span> up=<span class="number">0</span>;</span><br><span class="line">        ListNode* root=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">        p3=root;</span><br><span class="line">        <span class="keyword">while</span>(p1 || p2 || up)&#123;</span><br><span class="line">            <span class="type">int</span> n1=<span class="number">0</span>,n2=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span>(p1)&#123;n1=p1-&gt;val;p1=p1-&gt;next;&#125;</span><br><span class="line">            <span class="keyword">if</span>(p2)&#123;n2=p2-&gt;val;p2=p2-&gt;next;&#125;</span><br><span class="line">            up+=n1+n2;</span><br><span class="line">            p3-&gt;val=up%<span class="number">10</span>;</span><br><span class="line">            last=p3;</span><br><span class="line">            p3=p3-&gt;next=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">            up/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">delete</span> last-&gt;next;</span><br><span class="line">        last-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
   </entry>
   <entry>
     <title>205. 同构字符串</title>
@@ -11740,21 +11832,21 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>3. 无重复字符的最长子串</title>
-    <url>/2021/03/01/3/</url>
-    <content><![CDATA[<h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
-<p>滑动窗口</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(string s)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        unordered_set&lt;<span class="type">char</span>&gt; cur_group;</span><br><span class="line">        <span class="type">int</span> end = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (end &lt; s.<span class="built_in">size</span>() &amp;&amp; cur_group.<span class="built_in">find</span>(s[end]) == cur_group.<span class="built_in">end</span>()) &#123;</span><br><span class="line">            cur_group.<span class="built_in">insert</span>(s[end++]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> max_length = cur_group.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; s.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            cur_group.<span class="built_in">erase</span>(s[i]);</span><br><span class="line">            <span class="keyword">while</span> (end &lt; s.<span class="built_in">size</span>() &amp;&amp; cur_group.<span class="built_in">find</span>(s[end]) == cur_group.<span class="built_in">end</span>()) &#123;</span><br><span class="line">                cur_group.<span class="built_in">insert</span>(s[end++]);</span><br><span class="line">            &#125;</span><br><span class="line">            max_length = std::<span class="built_in">max</span>(max_length, cur_group.<span class="built_in">size</span>());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max_length;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>318. 最大单词长度乘积</title>
+    <url>/2021/11/17/318/</url>
+    <content><![CDATA[<p>位运算</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">unsigned</span> <span class="title">to_uword</span><span class="params">(<span class="type">const</span> string &amp;word)</span> </span>&#123;</span><br><span class="line">        <span class="type">unsigned</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;c: word) &#123;</span><br><span class="line">            res |= <span class="number">1</span> &lt;&lt; (c - <span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">maxProduct</span><span class="params">(vector&lt;string&gt;&amp; words)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="type">unsigned</span>&gt; uwords;</span><br><span class="line">        uwords.<span class="built_in">reserve</span>(words.<span class="built_in">size</span>());</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;w: words) &#123;</span><br><span class="line">            uwords.<span class="built_in">push_back</span>(<span class="built_in">to_uword</span>(w));</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> m = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> n = words.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = i; j &lt; n; j++) &#123;</span><br><span class="line">                <span class="keyword">auto</span> &amp;s1 = uwords[i];</span><br><span class="line">                <span class="keyword">auto</span> &amp;s2 = uwords[j];</span><br><span class="line">                <span class="keyword">if</span> (s1 &amp; s2) <span class="keyword">continue</span>;</span><br><span class="line">                <span class="keyword">if</span> (<span class="type">int</span> r = words[i].<span class="built_in">size</span>() * words[j].<span class="built_in">size</span>(); r &gt; m) m = r;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
       </categories>
   </entry>
   <entry>
-    <title>318. 最大单词长度乘积</title>
-    <url>/2021/11/17/318/</url>
-    <content><![CDATA[<p>位运算</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">unsigned</span> <span class="title">to_uword</span><span class="params">(<span class="type">const</span> string &amp;word)</span> </span>&#123;</span><br><span class="line">        <span class="type">unsigned</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;c: word) &#123;</span><br><span class="line">            res |= <span class="number">1</span> &lt;&lt; (c - <span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">maxProduct</span><span class="params">(vector&lt;string&gt;&amp; words)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="type">unsigned</span>&gt; uwords;</span><br><span class="line">        uwords.<span class="built_in">reserve</span>(words.<span class="built_in">size</span>());</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;w: words) &#123;</span><br><span class="line">            uwords.<span class="built_in">push_back</span>(<span class="built_in">to_uword</span>(w));</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> m = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> n = words.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = i; j &lt; n; j++) &#123;</span><br><span class="line">                <span class="keyword">auto</span> &amp;s1 = uwords[i];</span><br><span class="line">                <span class="keyword">auto</span> &amp;s2 = uwords[j];</span><br><span class="line">                <span class="keyword">if</span> (s1 &amp; s2) <span class="keyword">continue</span>;</span><br><span class="line">                <span class="keyword">if</span> (<span class="type">int</span> r = words[i].<span class="built_in">size</span>() * words[j].<span class="built_in">size</span>(); r &gt; m) m = r;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>3. 无重复字符的最长子串</title>
+    <url>/2021/03/01/3/</url>
+    <content><![CDATA[<h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
+<p>滑动窗口</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(string s)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        unordered_set&lt;<span class="type">char</span>&gt; cur_group;</span><br><span class="line">        <span class="type">int</span> end = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (end &lt; s.<span class="built_in">size</span>() &amp;&amp; cur_group.<span class="built_in">find</span>(s[end]) == cur_group.<span class="built_in">end</span>()) &#123;</span><br><span class="line">            cur_group.<span class="built_in">insert</span>(s[end++]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> max_length = cur_group.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; s.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            cur_group.<span class="built_in">erase</span>(s[i]);</span><br><span class="line">            <span class="keyword">while</span> (end &lt; s.<span class="built_in">size</span>() &amp;&amp; cur_group.<span class="built_in">find</span>(s[end]) == cur_group.<span class="built_in">end</span>()) &#123;</span><br><span class="line">                cur_group.<span class="built_in">insert</span>(s[end++]);</span><br><span class="line">            &#125;</span><br><span class="line">            max_length = std::<span class="built_in">max</span>(max_length, cur_group.<span class="built_in">size</span>());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max_length;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -11818,16 +11910,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>49. 字母异位词分组</title>
-    <url>/2020/12/14/49/</url>
-    <content><![CDATA[<p>思路: 字符串排序后作为key, 存到map中再转成vector返回, AC</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    vector&lt;vector&lt;string&gt;&gt; <span class="built_in">groupAnagrams</span>(vector&lt;string&gt;&amp; strs) &#123;</span><br><span class="line">        map&lt;string, vector&lt;string&gt;&gt; m;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;strs.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            string s=strs[i];</span><br><span class="line">            <span class="built_in">sort</span>(s.<span class="built_in">begin</span>(),s.<span class="built_in">end</span>());</span><br><span class="line">            m[s].<span class="built_in">push_back</span>(strs[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        vector&lt;vector&lt;string&gt;&gt; res;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> &amp;k:m)&#123;</span><br><span class="line">            res.<span class="built_in">push_back</span>(k.second);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
     <title>5. 最长回文子串</title>
     <url>/2021/03/01/5/</url>
     <content><![CDATA[<h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
@@ -11855,6 +11937,16 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
         <tag>图论</tag>
         <tag>连通分量</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>49. 字母异位词分组</title>
+    <url>/2020/12/14/49/</url>
+    <content><![CDATA[<p>思路: 字符串排序后作为key, 存到map中再转成vector返回, AC</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    vector&lt;vector&lt;string&gt;&gt; <span class="built_in">groupAnagrams</span>(vector&lt;string&gt;&amp; strs) &#123;</span><br><span class="line">        map&lt;string, vector&lt;string&gt;&gt; m;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;strs.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            string s=strs[i];</span><br><span class="line">            <span class="built_in">sort</span>(s.<span class="built_in">begin</span>(),s.<span class="built_in">end</span>());</span><br><span class="line">            m[s].<span class="built_in">push_back</span>(strs[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        vector&lt;vector&lt;string&gt;&gt; res;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> &amp;k:m)&#123;</span><br><span class="line">            res.<span class="built_in">push_back</span>(k.second);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
   </entry>
   <entry>
     <title>645. 错误的集合</title>
@@ -12133,144 +12225,84 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/02/2020-12-02/</url>
-    <content><![CDATA[<ul>
-<li>
-<p>React</p>
+    <url>/2020/11/30/2020-11-30/</url>
+    <content><![CDATA[<h1>Github Developer Settings</h1>
 <ul>
-<li>children属性: 子元素构成的数组</li>
+<li>
+<p>GitHub Apps</p>
+</li>
+<li>
+<p>OAuth Apps</p>
+<ul>
+<li>需要用到Github API的App</li>
 </ul>
 </li>
 <li>
-<p>React-redux</p>
+<p>Personal access tokens</p>
 <ul>
 <li>
-<p>引入: <code>import &#123;...&#125; from 'react-redux'</code></p>
+<p>Tokens you have generated that can be used to access the GitHub API.</p>
 </li>
 <li>
-<p><code>Store</code></p>
-<ul>
-<li>
-<p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
-</li>
-<li>
-<p><code>createStore(reducer, initState)</code></p>
-<ul>
-<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
-</li>
-<li>
-<p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component</p>
-</li>
-<li>
-<p><code>connect(mapStateToProps)(Component)</code></p>
-<ul>
-<li>
-<p>map current states to <code>Component</code>’s props</p>
-</li>
-<li>
-<p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
-</li>
-<li>
-<p>一般和<Provider>结合起来用</p>
+<p>权限类似于账号+密码登录</p>
 </li>
 </ul>
 </li>
 </ul>
-</li>
-<li>
-<p>React-Router</p>
+<h1>Github Actions</h1>
 <ul>
 <li>
-<p>引入: <code>import &#123;&#125; from 'react-router-dom'</code></p>
+<p>类似Travis-CI的持续集成平台</p>
 </li>
 <li>
-<p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
+<p>使用方法</p>
 <ul>
 <li>
-<p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
+<p>在项目根目录创建 .github/workflows</p>
 </li>
 <li>
-<p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
+<p>继续创建 pages.yml</p>
 </li>
 <li>
-<p>参数化匹配</p>
-<ul>
-<li>
-<p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
-</li>
-<li>
-<p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
+<p>关键字: jobs, runs-on, steps, name, uses, with等等</p>
 </li>
 </ul>
 </li>
 </ul>
-</li>
-<li>
-<p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
-<ul>
-<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
-</ul>
-</li>
-<li>
-<p>嵌套使用:</p>
-  <figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = <span class="title function_">useRouteMatch</span>(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">path</span>&#125;/<span class="attr">next</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">)</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li>
-<p>Vue-Router</p>
+<h1>Hexo博客评论系统</h1>
 <ul>
 <li>
-<p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
-</li>
-<li>
-<p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
-</li>
-<li>
-<p><code>Router</code>: 在这里定义全局路由表</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Ubuntu 安装 rpm 包</p>
+<p>Gitalk</p>
 <ul>
 <li>
-<p>sudo apt install alien</p>
+<p>利用Github Issues功能实现的评论系统, 开源</p>
 </li>
 <li>
-<p>sudo alien packagename.rpm</p>
+<p>不支持回复评论</p>
 </li>
 <li>
-<p>sudo apt install ./packagename.deb</p>
+<p>修改评论需要打开对应的Issue页修改</p>
 </li>
 <li>
-<p>一步到位: sudo alien -i packagename.rpm</p>
+<p>登录需要的Github权限太高(Github自身问题)</p>
 </li>
 </ul>
 </li>
 <li>
-<p>Oracle 的连接方式</p>
+<p>Disqus</p>
 <ul>
 <li>
-<p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
+<p>界面好看</p>
 </li>
 <li>
-<p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
+<p>需要翻墙才能正常使用</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Code-Server</h1>
 <ul>
-<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
-</ul>
-</li>
-<li>
-<p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
-  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = LITTLECOMPUTER.ACME.ORG) // 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SID = MYSID)) // 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">// PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SERVICE_NAME = MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
+<li>浏览器端的vscode</li>
 </ul>
 ]]></content>
       <categories>
@@ -12278,8 +12310,8 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
         <category>2020</category>
       </categories>
       <tags>
-        <tag>React</tag>
-        <tag>Oracle</tag>
+        <tag>Github</tag>
+        <tag>Hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -12561,9 +12593,160 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
       <tags>
         <tag>Linux</tag>
-        <tag>React</tag>
         <tag>Javascript</tag>
+        <tag>React</tag>
         <tag>npm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/02/2020-12-02/</url>
+    <content><![CDATA[<ul>
+<li>
+<p>React</p>
+<ul>
+<li>children属性: 子元素构成的数组</li>
+</ul>
+</li>
+<li>
+<p>React-redux</p>
+<ul>
+<li>
+<p>引入: <code>import &#123;...&#125; from 'react-redux'</code></p>
+</li>
+<li>
+<p><code>Store</code></p>
+<ul>
+<li>
+<p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
+</li>
+<li>
+<p><code>createStore(reducer, initState)</code></p>
+<ul>
+<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
+</li>
+<li>
+<p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component</p>
+</li>
+<li>
+<p><code>connect(mapStateToProps)(Component)</code></p>
+<ul>
+<li>
+<p>map current states to <code>Component</code>’s props</p>
+</li>
+<li>
+<p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
+</li>
+<li>
+<p>一般和<Provider>结合起来用</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>React-Router</p>
+<ul>
+<li>
+<p>引入: <code>import &#123;&#125; from 'react-router-dom'</code></p>
+</li>
+<li>
+<p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
+<ul>
+<li>
+<p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
+</li>
+<li>
+<p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
+</li>
+<li>
+<p>参数化匹配</p>
+<ul>
+<li>
+<p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
+</li>
+<li>
+<p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
+<ul>
+<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
+</ul>
+</li>
+<li>
+<p>嵌套使用:</p>
+  <figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = <span class="title function_">useRouteMatch</span>(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">path</span>&#125;/<span class="attr">next</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">)</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p>Vue-Router</p>
+<ul>
+<li>
+<p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
+</li>
+<li>
+<p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
+</li>
+<li>
+<p><code>Router</code>: 在这里定义全局路由表</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Ubuntu 安装 rpm 包</p>
+<ul>
+<li>
+<p>sudo apt install alien</p>
+</li>
+<li>
+<p>sudo alien packagename.rpm</p>
+</li>
+<li>
+<p>sudo apt install ./packagename.deb</p>
+</li>
+<li>
+<p>一步到位: sudo alien -i packagename.rpm</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Oracle 的连接方式</p>
+<ul>
+<li>
+<p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
+</li>
+<li>
+<p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
+<ul>
+<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
+</ul>
+</li>
+<li>
+<p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
+  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = LITTLECOMPUTER.ACME.ORG) // 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SID = MYSID)) // 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">// PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SERVICE_NAME = MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>React</tag>
+        <tag>Oracle</tag>
       </tags>
   </entry>
   <entry>
@@ -12872,97 +13055,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/11/30/2020-11-30/</url>
-    <content><![CDATA[<h1>Github Developer Settings</h1>
-<ul>
-<li>
-<p>GitHub Apps</p>
-</li>
-<li>
-<p>OAuth Apps</p>
-<ul>
-<li>需要用到Github API的App</li>
-</ul>
-</li>
-<li>
-<p>Personal access tokens</p>
-<ul>
-<li>
-<p>Tokens you have generated that can be used to access the GitHub API.</p>
-</li>
-<li>
-<p>权限类似于账号+密码登录</p>
-</li>
-</ul>
-</li>
-</ul>
-<h1>Github Actions</h1>
-<ul>
-<li>
-<p>类似Travis-CI的持续集成平台</p>
-</li>
-<li>
-<p>使用方法</p>
-<ul>
-<li>
-<p>在项目根目录创建 .github/workflows</p>
-</li>
-<li>
-<p>继续创建 pages.yml</p>
-</li>
-<li>
-<p>关键字: jobs, runs-on, steps, name, uses, with等等</p>
-</li>
-</ul>
-</li>
-</ul>
-<h1>Hexo博客评论系统</h1>
-<ul>
-<li>
-<p>Gitalk</p>
-<ul>
-<li>
-<p>利用Github Issues功能实现的评论系统, 开源</p>
-</li>
-<li>
-<p>不支持回复评论</p>
-</li>
-<li>
-<p>修改评论需要打开对应的Issue页修改</p>
-</li>
-<li>
-<p>登录需要的Github权限太高(Github自身问题)</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Disqus</p>
-<ul>
-<li>
-<p>界面好看</p>
-</li>
-<li>
-<p>需要翻墙才能正常使用</p>
-</li>
-</ul>
-</li>
-</ul>
-<h1>Code-Server</h1>
-<ul>
-<li>浏览器端的vscode</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Github</tag>
-        <tag>Hexo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/05/2020-12-05/</url>
     <content><![CDATA[<h1>Java Spring 框架学习</h1>
 <p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
@@ -13170,6 +13262,27 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/10/2020-12-10/</url>
+    <content><![CDATA[<h1>Java的ORM框架 vs Python的ORM框架</h1>
+<p>TODO: 待更新</p>
+<h1>为什么需要CORS? CORS是为了保护谁?</h1>
+<p>CORS标准允许服务器指定谁可以访问该服务器上的资源, 以及该如何访问这些资源</p>
+<p>所以说其实是保护服务器端, 防止恶意网站窃取数据</p>
+<h1>信息安全之盲水印</h1>
+<p><span class="exturl" data-url="aHR0cHM6Ly93d3cuemhpaHUuY29tL3F1ZXN0aW9uLzUwNzM1NzUz">妙啊<i class="fa fa-external-link-alt"></i></span></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>ORM框架</tag>
+        <tag>CORS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/11/2020-12-11/</url>
     <content><![CDATA[<h1>Linux 内核提权</h1>
 <ul>
@@ -13199,27 +13312,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>信息安全</tag>
         <tag>GCC使用</tag>
         <tag>NCRE</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/10/2020-12-10/</url>
-    <content><![CDATA[<h1>Java的ORM框架 vs Python的ORM框架</h1>
-<p>TODO: 待更新</p>
-<h1>为什么需要CORS? CORS是为了保护谁?</h1>
-<p>CORS标准允许服务器指定谁可以访问该服务器上的资源, 以及该如何访问这些资源</p>
-<p>所以说其实是保护服务器端, 防止恶意网站窃取数据</p>
-<h1>信息安全之盲水印</h1>
-<p><span class="exturl" data-url="aHR0cHM6Ly93d3cuemhpaHUuY29tL3F1ZXN0aW9uLzUwNzM1NzUz">妙啊<i class="fa fa-external-link-alt"></i></span></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>ORM框架</tag>
-        <tag>CORS</tag>
       </tags>
   </entry>
   <entry>
@@ -13889,64 +13981,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2021/01/12/2021-01-12/</url>
-    <content><![CDATA[<h2 id="c-11-新-特性之右值引用"><a class="header-anchor-1" href="#c-11-新-特性之右值引用">#</a>c++11(新?)特性之右值引用</h2>
-<h3 id="右值"><a class="header-anchor-1" href="#右值">#</a>右值</h3>
-<p>不能放到赋值表达式左侧的值</p>
-<p>例如:</p>
-<ul>
-<li>字面量 <code>1, &quot;Hello&quot;, 'c'</code></li>
-<li>返回值而非引用的函数调用 <code>foo()</code></li>
-<li>运算结果 <code>a + b</code></li>
-</ul>
-<p>右值不能被直接赋值给一个<strong>非常</strong>引用, 只能先赋给一个变量再取引用</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span>&amp; ref = <span class="number">9</span>; <span class="comment">// error, “invalid initialization of non-const reference of type int&amp; from an rvalue of type int”</span></span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; const_ref = <span class="number">9</span>; <span class="comment">// only allow this</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> nine = <span class="number">9</span>;</span><br><span class="line"><span class="type">int</span>&amp; ref = nine; <span class="comment">// ok</span></span><br></pre></td></tr></table></figure>
-<p>上述特性在泛型函数重载时会带来一些问题, 这导致我们不得不对有无const两种情况分别重载</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> A1&gt;</span><br><span class="line"><span class="function">std::unique_ptr&lt;T&gt; <span class="title">factory</span><span class="params">(A1&amp; a1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> std::<span class="built_in">unique_ptr</span>&lt;T&gt;(<span class="keyword">new</span> <span class="built_in">T</span>(a1));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">factory</span>&lt;foo&gt;(<span class="number">5</span>); <span class="comment">// error, a1-&gt;int&amp;, can not bind to literal 5 </span></span><br></pre></td></tr></table></figure>
-<h3 id="右值引用"><a class="header-anchor-1" href="#右值引用">#</a>右值引用</h3>
-<p>顾名思义, 就是对右值的引用</p>
-<h3 id="增加右值引用的好处"><a class="header-anchor-1" href="#增加右值引用的好处">#</a>增加右值引用的好处</h3>
-<p>增加了右值引用之后, 我们具备了识别和重载右值的能力</p>
-<h4 id="进一步消除不必要的复制"><a class="header-anchor-1" href="#进一步消除不必要的复制">#</a>进一步消除不必要的复制</h4>
-<p>在c++11之前, 临时变量的创建一直是难以处理的问题. 有时这些临时变量可以被编译器优化（例如返回值优化）, 但是这并不总是可行的, 通常这会导致高昂的对象复制成本.</p>
-<p>考虑下面的代码, 理论上这里最多可能发生两次复制操作:</p>
-<ol>
-<li>
-<p>返回临时变量</p>
-</li>
-<li>
-<p>vector赋值</p>
-</li>
-</ol>
-<p>其中, 第一次的复制操作可能会被编译器优化掉(RVO), 然而第二次复制是不可避免的</p>
-<p>当然我们可以通过其他方法来避免这次复制, 比如通过指针或者传递一个已经填充好的vector</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function">vector&lt;string&gt; <span class="title">make_poem</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    vector&lt;string&gt; lines;</span><br><span class="line">    lines.<span class="built_in">push_back</span>(<span class="string">&quot;Hello&quot;</span>);</span><br><span class="line">    lines.<span class="built_in">push_back</span>(<span class="string">&quot;World&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> lines; <span class="comment">// 1.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    vector&lt;string&gt; poem;</span><br><span class="line">    poem = <span class="built_in">make_poem</span>(); <span class="comment">// 2.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>有了右值引用之后, 我们可以就可以对右值进行特殊化处理, 从而避免多余的复制(移动构造函数和=运算符重载), 例如</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// copy</span></span><br><span class="line"><span class="built_in">foo</span>(foo <span class="type">const</span>&amp; other)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>-&gt;length = other.length;</span><br><span class="line">    <span class="keyword">this</span>-&gt;ptr = <span class="keyword">new</span> <span class="type">int</span>[other.length];</span><br><span class="line">    <span class="built_in">copy</span>(other.ptr, other.ptr + other.length, <span class="keyword">this</span>-&gt;ptr);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 与之对应的move</span></span><br><span class="line"><span class="built_in">foo</span>(foo&amp;&amp; other)</span><br><span class="line">&#123;</span><br><span class="line">   <span class="keyword">this</span>-&gt;length = other.length;</span><br><span class="line">   <span class="keyword">this</span>-&gt;ptr = other.ptr;</span><br><span class="line">   other.length = <span class="number">0</span>;</span><br><span class="line">   other.ptr = <span class="literal">nullptr</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="移动语义的引入"><a class="header-anchor-1" href="#移动语义的引入">#</a>移动语义的引入</h4>
-<p>可以显式指定某个资源被移交给另一个函数, 自己不再需要</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">Resource resource;</span><br><span class="line"><span class="built_in">foo</span>(<span class="built_in">move</span>(resource)); <span class="comment">// 不再需要resource, 可以全权交给foo函数, 将会调用foo(Resource&amp;&amp;)</span></span><br></pre></td></tr></table></figure>
-<p>对于有些不能被复制的资源(如<code>std::unique_ptr</code>, <code>std::thread</code>等等), 这是很有用的</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">std::string s;</span><br><span class="line"><span class="function">std::string <span class="title">another</span><span class="params">(s)</span></span>;           <span class="comment">// calls std::string(const std::string&amp;);</span></span><br><span class="line"><span class="function">std::string <span class="title">more</span><span class="params">(std::string(s))</span></span>; <span class="comment">// calls std::string(std::string&amp;&amp;);</span></span><br></pre></td></tr></table></figure>
-<h4 id="模板的完美转发"><a class="header-anchor-1" href="#模板的完美转发">#</a>模板的完美转发</h4>
-<p>(TODO)</p>
-<h3 id="实现"><a class="header-anchor-1" href="#实现">#</a>实现</h3>
-<p><code>move</code>函数: 提醒编译器重载时选择移动构造函数</p>
-<p>利用移动交换两个变量:</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">move_swap</span><span class="params">(Res &amp;a, Res &amp;b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Res t = <span class="built_in">move</span>(a);</span><br><span class="line">    a = <span class="built_in">move</span>(b);</span><br><span class="line">    b = <span class="built_in">move</span>(t);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="rvo和nrvo"><a class="header-anchor-1" href="#rvo和nrvo">#</a>RVO和NRVO</h2>
-<p>返回值优化（Return value optimization，缩写为RVO）是C++的一项编译优化技术。即删除保持函数返回值的临时对象。这可能会省略两次复制构造函数，<strong>即使复制构造函数有副作用</strong>。</p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>CPP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2021/01/10/2021-01-10/</url>
     <content><![CDATA[<h2 id="模运算的性质-程序设计版"><a class="header-anchor-1" href="#模运算的性质-程序设计版">#</a>模运算的性质(程序设计版)</h2>
 <p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
@@ -13996,37 +14030,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <category>daily</category>
         <category>2021</category>
       </categories>
-  </entry>
-  <entry>
-    <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
-    <url>/2021/03/14/2021-03-14/</url>
-    <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
-<h1>Python 数据科学常用的库</h1>
-<p><img src="https://frezcirno.github.io/static/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" alt="" /></p>
-<h1>Numpy 使用</h1>
-<h2 id="array-对象"><a class="header-anchor-1" href="#array-对象">#</a>array 对象</h2>
-<h1>Matplotlib 使用</h1>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
-<h1>Pandas 使用</h1>
-<h2 id="series-对象"><a class="header-anchor-1" href="#series-对象">#</a>Series 对象</h2>
-<h2 id="dataframe-对象"><a class="header-anchor-1" href="#dataframe-对象">#</a>Dataframe 对象</h2>
-<p>博客更新日志：</p>
-<ul>
-<li>日记分类名字从「每日小结」改为「每日小结 Day Day Up」</li>
-<li>日记文章标题从今往后将取有意义的名字</li>
-<li>日记文件名改成更加标准的 ISO-8601 命名法</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>numpy</tag>
-        <tag>matplotlib</tag>
-        <tag>pandas</tag>
-      </tags>
   </entry>
   <entry>
     <title>shell脚本编程</title>
@@ -14139,6 +14142,37 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </categories>
       <tags>
         <tag>shell</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
+    <url>/2021/03/14/2021-03-14/</url>
+    <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
+<h1>Python 数据科学常用的库</h1>
+<p><img src="https://frezcirno.github.io/static/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" alt="" /></p>
+<h1>Numpy 使用</h1>
+<h2 id="array-对象"><a class="header-anchor-1" href="#array-对象">#</a>array 对象</h2>
+<h1>Matplotlib 使用</h1>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
+<h1>Pandas 使用</h1>
+<h2 id="series-对象"><a class="header-anchor-1" href="#series-对象">#</a>Series 对象</h2>
+<h2 id="dataframe-对象"><a class="header-anchor-1" href="#dataframe-对象">#</a>Dataframe 对象</h2>
+<p>博客更新日志：</p>
+<ul>
+<li>日记分类名字从「每日小结」改为「每日小结 Day Day Up」</li>
+<li>日记文章标题从今往后将取有意义的名字</li>
+<li>日记文件名改成更加标准的 ISO-8601 命名法</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>numpy</tag>
+        <tag>matplotlib</tag>
+        <tag>pandas</tag>
       </tags>
   </entry>
   <entry>
@@ -14449,6 +14483,246 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
       <categories>
         <category>daily</category>
         <category>2021</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>2023 年终总结</title>
+    <url>/2024/01/01/final/</url>
+    <content><![CDATA[<h2 id="2023-回顾"><a class="header-anchor-1" href="#2023-回顾">#</a>2023 回顾</h2>
+<ul>
+<li>1月: 开源投毒</li>
+<li>1-3月: Rust 教材</li>
+<li>4-5月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
+<li>3,5-10月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
+<li>7-11月: 参加 GLCC 开源活动</li>
+<li>8-12月: 搞浦发银行的项目</li>
+</ul>
+<h2 id="近况"><a class="header-anchor-1" href="#近况">#</a>近况</h2>
+<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
+<p>实验室: 宁波实验室人丁兴旺, hw稀稀拉拉, 反倒宁波更好一些</p>
+<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会</h2>
+<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
+<p>甚至不知道2023年都做了些什么(笑), 只能看周报回忆</p>
+<h2 id="2024-希望"><a class="header-anchor-1" href="#2024-希望">#</a>2024 希望</h2>
+<ul>
+<li>多读书</li>
+<li>多运动</li>
+<li>找到好工作</li>
+<li>学习唱歌</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2023</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2024/05/12/2024-05-13/</url>
+    <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
+<p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
+<h2 id="conda-root-less-apt"><a class="header-anchor-1" href="#conda-root-less-apt">#</a>Conda = Root-less apt</h2>
+<p>升级<code>gcc</code>依赖库：<code>conda install libgcc libgcc-ng</code></p>
+<p>升级<code>libstdc++</code>：<code>conda install -c conda-forge libstdcxx-ng</code></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2024</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2024/11/02/2024-11-03/</url>
+    <content><![CDATA[<h2 id="python-文件锁与单文件数据库"><a class="header-anchor-1" href="#python-文件锁与单文件数据库">#</a>Python 文件锁与单文件数据库</h2>
+<p>最近遇到一个需求是需要克隆<strong>大量</strong>的 Git 仓库到本地，然后丢到 Python 里做数据分析处理。</p>
+<p>具体来说是有一个url列表，需要逐个克隆下来进行一些分析，分析过程大概就是从中抽取一些内容，分析完这个仓库基本就没用了；</p>
+<p>仓库大小不一，有的很大，有的很小，有的很多分支，有的很少分支，有的很多commit，有的很少commit；</p>
+<p>url可能有重复，可能有无效Git url，同一个仓库可能有多个不同url；</p>
+<p>我的（额外）需求：</p>
+<ul>
+<li>尽可能快速的克隆，可以同时克隆多个；</li>
+<li>我有多个 Project 都有类似需求。为了节省时间和磁盘空间（梯子贵贵），需要尽可能保证每个仓库最多只克隆一次，后面其他 Project 如果再遇到相同url，直接用已有的；</li>
+<li>由于磁盘空间有限，当磁盘空间不足时，把最少使用的仓库删除，类似LRU；</li>
+<li>url可能有无效的，需要记录下来，以便后续不再反复重试浪费时间；</li>
+<li>分析仓库的 Python 代码很可能会使用到大量并行手段，所以需要并发控制。</li>
+</ul>
+<p>以上。</p>
+<h3 id="分析"><a class="header-anchor-1" href="#分析">#</a>分析</h3>
+<ol>
+<li>
+<p>url摘要部分：作为内部使用的仓库ID，也用于简单合并重复url。</p>
+ <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_digest</span>(<span class="params">self, git_url: <span class="built_in">str</span></span>):</span><br><span class="line">    git_url = git_url.strip().lower()</span><br><span class="line">    git_url = git_url.rstrip(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> git_url.endswith(<span class="string">&quot;.git&quot;</span>):</span><br><span class="line">        git_url = git_url[:-<span class="number">4</span>]</span><br><span class="line">    <span class="keyword">if</span> git_url.startswith(<span class="string">&quot;https://&quot;</span>):</span><br><span class="line">        group, repo = git_url.split(<span class="string">&quot;/&quot;</span>)[-<span class="number">2</span>:]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        group, repo = git_url.split(<span class="string">&quot;:&quot;</span>)[-<span class="number">1</span>].split(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;group&#125;</span>+<span class="subst">&#123;repo&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>仓库克隆的位置：为了方便管理，所有仓库克隆到同一个目录（/data/repos/）下，每个仓库一个子目录。</p>
+</li>
+<li>
+<p>系统需要维护的信息有：</p>
+</li>
+</ol>
+<ul>
+<li>已克隆的仓库列表；</li>
+<li>访问频次信息，即每个仓库的访问次数，此处没有使用 LRU；</li>
+<li>无效的url；</li>
+</ul>
+<p>因为可能有多个 Project 同时运行，这些信息需要跨线程/进程、在整个OS的级别共享，即需要支持所谓的 <em>Process safe</em>；</p>
+<p>一般来说，这其实是一个数据库领域的典型需求，我们也可以通过增加一个单独的数据库服务解决，但是太麻烦，也不符合 Python 作为胶水脚本语言的定位；</p>
+<p>相对于使用完整的数据库，一个更简单的办法就是利用文件系统，文件系统一直是全局唯一，且伴随着OS默默运行的一个服务；
+文件系统提供了很多方便的接口，例如使用文件锁来实现跨进程的并发控制；</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> fcntl</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FileLock</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, file, mode=<span class="string">&quot;w&quot;</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.file = <span class="built_in">open</span>(file, <span class="string">&quot;rb&quot;</span> <span class="keyword">if</span> <span class="variable language_">self</span>.mode == <span class="string">&quot;r&quot;</span> <span class="keyword">else</span> <span class="string">&quot;wb&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.mode = mode</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__enter__</span>(<span class="params">self</span>):</span><br><span class="line">        fcntl.flock(<span class="variable language_">self</span>.file, fcntl.LOCK_SH <span class="keyword">if</span> <span class="variable language_">self</span>.mode == <span class="string">&quot;r&quot;</span> <span class="keyword">else</span> fcntl.LOCK_EX)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__exit__</span>(<span class="params">self, exc_type, exc_val, exc_tb</span>):</span><br><span class="line">        fcntl.flock(<span class="variable language_">self</span>.file, fcntl.LOCK_UN)</span><br></pre></td></tr></table></figure>
+<p>通过文件锁，我们可以快速封装一个简单的单文件数据库；以下代码使用了一个 JSON 文件来存储任意数据：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">FileDB</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, db_file</span>):</span><br><span class="line">        <span class="variable language_">self</span>.db_file = db_file</span><br><span class="line">        <span class="variable language_">self</span>.lock_file = db_file + <span class="string">&quot;.lock&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Transaction</span>:</span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, db_file, lock_file, mode</span>):</span><br><span class="line">            <span class="variable language_">self</span>.db_file = db_file</span><br><span class="line">            <span class="variable language_">self</span>.lock_file = FileLock(lock_file, mode)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__enter__</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="variable language_">self</span>.lock_file.__enter__()</span><br><span class="line">            <span class="variable language_">self</span>._load()</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__exit__</span>(<span class="params">self, exc_type, exc_val, exc_tb</span>):</span><br><span class="line">            <span class="keyword">if</span> <span class="variable language_">self</span>.lock_file.mode == <span class="string">&quot;w&quot;</span>:</span><br><span class="line">                <span class="variable language_">self</span>._dump()</span><br><span class="line">            <span class="variable language_">self</span>.lock_file.__exit__(exc_type, exc_val, exc_tb)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">_load</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="variable language_">self</span>.data = &#123;&#125;</span><br><span class="line">            <span class="keyword">if</span> os.path.exists(<span class="variable language_">self</span>.db_file):</span><br><span class="line">                <span class="keyword">with</span> <span class="built_in">open</span>(<span class="variable language_">self</span>.db_file, <span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                    <span class="variable language_">self</span>.data = json.load(f)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">_dump</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="keyword">with</span> tempfile.NamedTemporaryFile(<span class="string">&quot;w&quot;</span>, delete=<span class="literal">False</span>) <span class="keyword">as</span> f:</span><br><span class="line">                json.dump(<span class="variable language_">self</span>.data)</span><br><span class="line">                os.rename(f.name, <span class="variable language_">self</span>.db_file)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">lock_read</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.Transaction(<span class="variable language_">self</span>.db_file, <span class="variable language_">self</span>.lock_file, <span class="string">&quot;r&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">lock</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.Transaction(<span class="variable language_">self</span>.db_file, <span class="variable language_">self</span>.lock_file, <span class="string">&quot;w&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>为了方便 Python 用户使用，以上代码把读写操作封装成了一个 <code>Transaction</code>，用户只需要在 <code>with</code> 语句中使用即可；</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">db = FileDB(<span class="string">&quot;db.json&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> db.lock() <span class="keyword">as</span> tx:</span><br><span class="line">    tx.data[<span class="string">&quot;key&quot;</span>] = <span class="string">&quot;value&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> db.lock_read() <span class="keyword">as</span> tx:</span><br><span class="line">    <span class="built_in">print</span>(tx.data[<span class="string">&quot;key&quot;</span>])</span><br></pre></td></tr></table></figure>
+<p>最后，使用这个简单的 <code>FileDB</code> 来实现我们的需求：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">from</span> git <span class="keyword">import</span> Repo</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GitRepoManager</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, db_file</span>):</span><br><span class="line">        <span class="variable language_">self</span>.file_db = FileDB(db_file)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">clone</span>(<span class="params">self, git_url</span>) -&gt; <span class="type">Optional</span>[Repo]:</span><br><span class="line">        key = <span class="variable language_">self</span>._digest(git_url)</span><br><span class="line">        repo_path = os.path.join(<span class="variable language_">self</span>.repo_base, key)</span><br><span class="line">        repo_lock = os.path.join(<span class="variable language_">self</span>.repo_base, key + <span class="string">&quot;.lock&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">            <span class="comment"># The repo is already cloned and in the cache</span></span><br><span class="line">            <span class="keyword">if</span> key <span class="keyword">in</span> trx[<span class="string">&quot;lrucache&quot;</span>]:</span><br><span class="line">                trx[<span class="string">&quot;lrucache&quot;</span>][key] += <span class="number">1</span></span><br><span class="line">                <span class="keyword">return</span> Repo(repo_path)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># The url is bad</span></span><br><span class="line">            <span class="keyword">if</span> key <span class="keyword">in</span> trx[<span class="string">&quot;badcache&quot;</span>]:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(trx[<span class="string">&quot;lrucache&quot;</span>]) &gt;= <span class="variable language_">self</span>.max_size:</span><br><span class="line">                <span class="comment"># remove the least used item</span></span><br><span class="line">                least_used = <span class="built_in">min</span>(trx[<span class="string">&quot;lrucache&quot;</span>].items(), key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>])</span><br><span class="line">                least_key = least_used[<span class="number">0</span>]</span><br><span class="line">                least_path = os.path.join(<span class="variable language_">self</span>.repo_base, least_key)</span><br><span class="line">                least_lock = os.path.join(<span class="variable language_">self</span>.repo_base, least_key + <span class="string">&quot;.lock&quot;</span>)</span><br><span class="line">                <span class="keyword">if</span> os.path.exists(least_path):</span><br><span class="line">                    shutil.rmtree(least_path)</span><br><span class="line">                <span class="keyword">if</span> os.path.exists(least_lock):</span><br><span class="line">                    os.unlink(least_lock)</span><br><span class="line">                <span class="keyword">del</span> trx[<span class="string">&quot;lrucache&quot;</span>][least_key]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># acquire a file lock of the repo</span></span><br><span class="line">        <span class="comment"># if the lock is acquired, we are the only process/thread that is cloning the repo</span></span><br><span class="line">        <span class="comment"># otherwise, we wait for the other process to finish cloning</span></span><br><span class="line">        <span class="keyword">with</span> FileLock(repo_lock):</span><br><span class="line">            <span class="comment"># The repo has been cloned by another process</span></span><br><span class="line">            <span class="comment"># We can just open it</span></span><br><span class="line">            <span class="keyword">if</span> os.path.exists(repo_path):</span><br><span class="line">                inst = Repo(repo_path)</span><br><span class="line">                <span class="keyword">return</span> inst</span><br><span class="line"></span><br><span class="line">            <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">                <span class="comment"># The url is bad</span></span><br><span class="line">                <span class="keyword">if</span> key <span class="keyword">in</span> trx[<span class="string">&quot;badcache&quot;</span>]:</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># Clone the repo</span></span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                inst = Repo.clone_from(git_url, repo_path)</span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="comment"># Clone failed, bad git url</span></span><br><span class="line">                logger.error(e)</span><br><span class="line">                <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">                    trx[<span class="string">&quot;badcache&quot;</span>].add(key)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># Clone succeeded</span></span><br><span class="line">            <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">                <span class="keyword">if</span> key <span class="keyword">not</span> <span class="keyword">in</span> trx[<span class="string">&quot;lrucache&quot;</span>]:</span><br><span class="line">                    trx[<span class="string">&quot;lrucache&quot;</span>][key] = <span class="number">1</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    trx[<span class="string">&quot;lrucache&quot;</span>][key] += <span class="number">1</span></span><br><span class="line">                <span class="keyword">return</span> Repo(repo_path)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_digest</span>(<span class="params">self, git_url: <span class="built_in">str</span></span>):</span><br><span class="line">        git_url = git_url.strip().lower()</span><br><span class="line">        git_url = git_url.rstrip(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> git_url.endswith(<span class="string">&quot;.git&quot;</span>):</span><br><span class="line">            git_url = git_url[:-<span class="number">4</span>]</span><br><span class="line">        <span class="keyword">if</span> git_url.startswith(<span class="string">&quot;https://&quot;</span>):</span><br><span class="line">            group, repo = git_url.split(<span class="string">&quot;/&quot;</span>)[-<span class="number">2</span>:]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            group, repo = git_url.split(<span class="string">&quot;:&quot;</span>)[-<span class="number">1</span>].split(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;group&#125;</span>+<span class="subst">&#123;repo&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+<p>大体上就是这样，这个 FileDB 可以用来实现很多简单的数据库需求，当然，如果你的需求更复杂，还是使用一个完整的数据库服务更好。</p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2024</category>
+      </categories>
+      <tags>
+        <tag>Python</tag>
+        <tag>并发控制</tag>
+        <tag>文件锁</tag>
+        <tag>数据库</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Tair 存储分析</title>
+    <url>/2024/05/14/nosql/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>database-system</category>
+        <category>nosql</category>
+      </categories>
+      <tags>
+        <tag>Tair</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>日本语1</title>
+    <url>/2021/02/15/1/</url>
+    <content><![CDATA[<h1>What is Japanese</h1>
+<h2 id="japanese-sound-system"><a class="header-anchor-1" href="#japanese-sound-system">#</a>Japanese Sound System</h2>
+<p>23 consonant sounds + 5 vowel sounds, with pitch accent</p>
+<p>When spoken, the Japanese language is formed using either vowels or a consonant-vowel pair, except the “n” sound (single consonant sound)</p>
+<h2 id="japanese-writing-system"><a class="header-anchor-1" href="#japanese-writing-system">#</a>Japanese Writing System</h2>
+<p>Come around 1500 years age from China</p>
+<p>Currentlt has 3 types of writing: hiragana, katakana, kanji</p>
+<p>Kanji were imported from China, traditionally used for both meaning and sound.</p>
+<p>Hiragana: 46 characters with two diacritical marks that are used to denote the sounds</p>
+<p>Each hiragana symbolizes with a vowel or a consonant combined with a vowel.</p>
+<p>Hiraganas are in particular used for function words and inflectional endings, as well as in some content words.</p>
+<table>
+<thead>
+<tr>
+<th>Hiragana</th>
+<th>ん</th>
+<th>w</th>
+<th>r</th>
+<th>y</th>
+<th>m</th>
+<th>h</th>
+<th>n</th>
+<th>t</th>
+<th>s</th>
+<th>k</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a</td>
+<td>ん</td>
+<td>わ</td>
+<td>ら</td>
+<td>や</td>
+<td>ま</td>
+<td>は</td>
+<td>な</td>
+<td>た</td>
+<td>さ</td>
+<td>か</td>
+<td>あ</td>
+</tr>
+<tr>
+<td>i</td>
+<td></td>
+<td></td>
+<td>り</td>
+<td></td>
+<td>み</td>
+<td>ひ</td>
+<td>に</td>
+<td>ち</td>
+<td>し</td>
+<td>き</td>
+<td>い</td>
+</tr>
+<tr>
+<td>u</td>
+<td></td>
+<td></td>
+<td>る</td>
+<td>ゆ</td>
+<td>む</td>
+<td>ふ</td>
+<td>ぬ</td>
+<td>つ</td>
+<td>す</td>
+<td>く</td>
+<td>う</td>
+</tr>
+<tr>
+<td>e</td>
+<td></td>
+<td></td>
+<td>れ</td>
+<td></td>
+<td>め</td>
+<td>へ</td>
+<td>ね</td>
+<td>て</td>
+<td>せ</td>
+<td>け</td>
+<td>え</td>
+</tr>
+<tr>
+<td>o</td>
+<td></td>
+<td>を</td>
+<td>ろ</td>
+<td>よ</td>
+<td>も</td>
+<td>ほ</td>
+<td>の</td>
+<td>と</td>
+<td>そ</td>
+<td>こ</td>
+<td>お</td>
+</tr>
+</tbody>
+</table>
+<p>Katagana is also a syllabary, is used for loan words, onomatopoeic words and scientific words.</p>
+]]></content>
+      <categories>
+        <category>misc</category>
+        <category>japanese</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>每日上报自动打卡</title>
+    <url>/2020/12/25/auto_check/</url>
+    <content><![CDATA[<h1>每日上报自动打卡程序</h1>
+]]></content>
+      <categories>
+        <category>misc</category>
+        <category>tools</category>
       </categories>
   </entry>
   <entry>
@@ -15142,245 +15416,5 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
       <tags>
         <tag>DDLC</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>2023 年终总结</title>
-    <url>/2024/01/01/final/</url>
-    <content><![CDATA[<h2 id="2023-回顾"><a class="header-anchor-1" href="#2023-回顾">#</a>2023 回顾</h2>
-<ul>
-<li>1月: 开源投毒</li>
-<li>1-3月: Rust 教材</li>
-<li>4-5月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
-<li>3,5-10月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
-<li>7-11月: 参加 GLCC 开源活动</li>
-<li>8-12月: 搞浦发银行的项目</li>
-</ul>
-<h2 id="近况"><a class="header-anchor-1" href="#近况">#</a>近况</h2>
-<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
-<p>实验室: 宁波实验室人丁兴旺, hw稀稀拉拉, 反倒宁波更好一些</p>
-<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会</h2>
-<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
-<p>甚至不知道2023年都做了些什么(笑), 只能看周报回忆</p>
-<h2 id="2024-希望"><a class="header-anchor-1" href="#2024-希望">#</a>2024 希望</h2>
-<ul>
-<li>多读书</li>
-<li>多运动</li>
-<li>找到好工作</li>
-<li>学习唱歌</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2023</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2024/05/12/2024-05-13/</url>
-    <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
-<p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
-<h2 id="conda-root-less-apt"><a class="header-anchor-1" href="#conda-root-less-apt">#</a>Conda = Root-less apt</h2>
-<p>升级<code>gcc</code>依赖库：<code>conda install libgcc libgcc-ng</code></p>
-<p>升级<code>libstdc++</code>：<code>conda install -c conda-forge libstdcxx-ng</code></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2024</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2024/11/02/2024-11-03/</url>
-    <content><![CDATA[<h2 id="python-文件锁与单文件数据库"><a class="header-anchor-1" href="#python-文件锁与单文件数据库">#</a>Python 文件锁与单文件数据库</h2>
-<p>最近遇到一个需求是需要克隆<strong>大量</strong>的 Git 仓库到本地，然后丢到 Python 里做数据分析处理。</p>
-<p>具体来说是有一个url列表，需要逐个克隆下来进行一些分析，分析过程大概就是从中抽取一些内容，分析完这个仓库基本就没用了；</p>
-<p>仓库大小不一，有的很大，有的很小，有的很多分支，有的很少分支，有的很多commit，有的很少commit；</p>
-<p>url可能有重复，可能有无效Git url，同一个仓库可能有多个不同url；</p>
-<p>我的（额外）需求：</p>
-<ul>
-<li>尽可能快速的克隆，可以同时克隆多个；</li>
-<li>我有多个 Project 都有类似需求。为了节省时间和磁盘空间（梯子贵贵），需要尽可能保证每个仓库最多只克隆一次，后面其他 Project 如果再遇到相同url，直接用已有的；</li>
-<li>由于磁盘空间有限，当磁盘空间不足时，把最少使用的仓库删除，类似LRU；</li>
-<li>url可能有无效的，需要记录下来，以便后续不再反复重试浪费时间；</li>
-<li>分析仓库的 Python 代码很可能会使用到大量并行手段，所以需要并发控制。</li>
-</ul>
-<p>以上。</p>
-<h3 id="分析"><a class="header-anchor-1" href="#分析">#</a>分析</h3>
-<ol>
-<li>
-<p>url摘要部分：作为内部使用的仓库ID，也用于简单合并重复url。</p>
- <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_digest</span>(<span class="params">self, git_url: <span class="built_in">str</span></span>):</span><br><span class="line">    git_url = git_url.strip().lower()</span><br><span class="line">    git_url = git_url.rstrip(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> git_url.endswith(<span class="string">&quot;.git&quot;</span>):</span><br><span class="line">        git_url = git_url[:-<span class="number">4</span>]</span><br><span class="line">    <span class="keyword">if</span> git_url.startswith(<span class="string">&quot;https://&quot;</span>):</span><br><span class="line">        group, repo = git_url.split(<span class="string">&quot;/&quot;</span>)[-<span class="number">2</span>:]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        group, repo = git_url.split(<span class="string">&quot;:&quot;</span>)[-<span class="number">1</span>].split(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;group&#125;</span>+<span class="subst">&#123;repo&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li>
-<p>仓库克隆的位置：为了方便管理，所有仓库克隆到同一个目录（/data/repos/）下，每个仓库一个子目录。</p>
-</li>
-<li>
-<p>系统需要维护的信息有：</p>
-</li>
-</ol>
-<ul>
-<li>已克隆的仓库列表；</li>
-<li>访问频次信息，即每个仓库的访问次数，此处没有使用 LRU；</li>
-<li>无效的url；</li>
-</ul>
-<p>因为可能有多个 Project 同时运行，这些信息需要跨线程/进程、在整个OS的级别共享，即需要支持所谓的 <em>Process safe</em>；</p>
-<p>一般来说，这其实是一个数据库领域的典型需求，我们也可以通过增加一个单独的数据库服务解决，但是太麻烦，也不符合 Python 作为胶水脚本语言的定位；</p>
-<p>相对于使用完整的数据库，一个更简单的办法就是利用文件系统，文件系统一直是全局唯一，且伴随着OS默默运行的一个服务；
-文件系统提供了很多方便的接口，例如使用文件锁来实现跨进程的并发控制；</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> fcntl</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FileLock</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, file, mode=<span class="string">&quot;w&quot;</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.file = <span class="built_in">open</span>(file, <span class="string">&quot;rb&quot;</span> <span class="keyword">if</span> <span class="variable language_">self</span>.mode == <span class="string">&quot;r&quot;</span> <span class="keyword">else</span> <span class="string">&quot;wb&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.mode = mode</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__enter__</span>(<span class="params">self</span>):</span><br><span class="line">        fcntl.flock(<span class="variable language_">self</span>.file, fcntl.LOCK_SH <span class="keyword">if</span> <span class="variable language_">self</span>.mode == <span class="string">&quot;r&quot;</span> <span class="keyword">else</span> fcntl.LOCK_EX)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__exit__</span>(<span class="params">self, exc_type, exc_val, exc_tb</span>):</span><br><span class="line">        fcntl.flock(<span class="variable language_">self</span>.file, fcntl.LOCK_UN)</span><br></pre></td></tr></table></figure>
-<p>通过文件锁，我们可以快速封装一个简单的单文件数据库；以下代码使用了一个 JSON 文件来存储任意数据：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">FileDB</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, db_file</span>):</span><br><span class="line">        <span class="variable language_">self</span>.db_file = db_file</span><br><span class="line">        <span class="variable language_">self</span>.lock_file = db_file + <span class="string">&quot;.lock&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Transaction</span>:</span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, db_file, lock_file, mode</span>):</span><br><span class="line">            <span class="variable language_">self</span>.db_file = db_file</span><br><span class="line">            <span class="variable language_">self</span>.lock_file = FileLock(lock_file, mode)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__enter__</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="variable language_">self</span>.lock_file.__enter__()</span><br><span class="line">            <span class="variable language_">self</span>._load()</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__exit__</span>(<span class="params">self, exc_type, exc_val, exc_tb</span>):</span><br><span class="line">            <span class="keyword">if</span> <span class="variable language_">self</span>.lock_file.mode == <span class="string">&quot;w&quot;</span>:</span><br><span class="line">                <span class="variable language_">self</span>._dump()</span><br><span class="line">            <span class="variable language_">self</span>.lock_file.__exit__(exc_type, exc_val, exc_tb)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">_load</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="variable language_">self</span>.data = &#123;&#125;</span><br><span class="line">            <span class="keyword">if</span> os.path.exists(<span class="variable language_">self</span>.db_file):</span><br><span class="line">                <span class="keyword">with</span> <span class="built_in">open</span>(<span class="variable language_">self</span>.db_file, <span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                    <span class="variable language_">self</span>.data = json.load(f)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">_dump</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="keyword">with</span> tempfile.NamedTemporaryFile(<span class="string">&quot;w&quot;</span>, delete=<span class="literal">False</span>) <span class="keyword">as</span> f:</span><br><span class="line">                json.dump(<span class="variable language_">self</span>.data)</span><br><span class="line">                os.rename(f.name, <span class="variable language_">self</span>.db_file)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">lock_read</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.Transaction(<span class="variable language_">self</span>.db_file, <span class="variable language_">self</span>.lock_file, <span class="string">&quot;r&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">lock</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.Transaction(<span class="variable language_">self</span>.db_file, <span class="variable language_">self</span>.lock_file, <span class="string">&quot;w&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p>为了方便 Python 用户使用，以上代码把读写操作封装成了一个 <code>Transaction</code>，用户只需要在 <code>with</code> 语句中使用即可；</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">db = FileDB(<span class="string">&quot;db.json&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> db.lock() <span class="keyword">as</span> tx:</span><br><span class="line">    tx.data[<span class="string">&quot;key&quot;</span>] = <span class="string">&quot;value&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> db.lock_read() <span class="keyword">as</span> tx:</span><br><span class="line">    <span class="built_in">print</span>(tx.data[<span class="string">&quot;key&quot;</span>])</span><br></pre></td></tr></table></figure>
-<p>最后，使用这个简单的 <code>FileDB</code> 来实现我们的需求：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">from</span> git <span class="keyword">import</span> Repo</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GitRepoManager</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, db_file</span>):</span><br><span class="line">        <span class="variable language_">self</span>.file_db = FileDB(db_file)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">clone</span>(<span class="params">self, git_url</span>) -&gt; <span class="type">Optional</span>[Repo]:</span><br><span class="line">        key = <span class="variable language_">self</span>._digest(git_url)</span><br><span class="line">        repo_path = os.path.join(<span class="variable language_">self</span>.repo_base, key)</span><br><span class="line">        repo_lock = os.path.join(<span class="variable language_">self</span>.repo_base, key + <span class="string">&quot;.lock&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">            <span class="comment"># The repo is already cloned and in the cache</span></span><br><span class="line">            <span class="keyword">if</span> key <span class="keyword">in</span> trx[<span class="string">&quot;lrucache&quot;</span>]:</span><br><span class="line">                trx[<span class="string">&quot;lrucache&quot;</span>][key] += <span class="number">1</span></span><br><span class="line">                <span class="keyword">return</span> Repo(repo_path)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># The url is bad</span></span><br><span class="line">            <span class="keyword">if</span> key <span class="keyword">in</span> trx[<span class="string">&quot;badcache&quot;</span>]:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(trx[<span class="string">&quot;lrucache&quot;</span>]) &gt;= <span class="variable language_">self</span>.max_size:</span><br><span class="line">                <span class="comment"># remove the least used item</span></span><br><span class="line">                least_used = <span class="built_in">min</span>(trx[<span class="string">&quot;lrucache&quot;</span>].items(), key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>])</span><br><span class="line">                least_key = least_used[<span class="number">0</span>]</span><br><span class="line">                least_path = os.path.join(<span class="variable language_">self</span>.repo_base, least_key)</span><br><span class="line">                least_lock = os.path.join(<span class="variable language_">self</span>.repo_base, least_key + <span class="string">&quot;.lock&quot;</span>)</span><br><span class="line">                <span class="keyword">if</span> os.path.exists(least_path):</span><br><span class="line">                    shutil.rmtree(least_path)</span><br><span class="line">                <span class="keyword">if</span> os.path.exists(least_lock):</span><br><span class="line">                    os.unlink(least_lock)</span><br><span class="line">                <span class="keyword">del</span> trx[<span class="string">&quot;lrucache&quot;</span>][least_key]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># acquire a file lock of the repo</span></span><br><span class="line">        <span class="comment"># if the lock is acquired, we are the only process/thread that is cloning the repo</span></span><br><span class="line">        <span class="comment"># otherwise, we wait for the other process to finish cloning</span></span><br><span class="line">        <span class="keyword">with</span> FileLock(repo_lock):</span><br><span class="line">            <span class="comment"># The repo has been cloned by another process</span></span><br><span class="line">            <span class="comment"># We can just open it</span></span><br><span class="line">            <span class="keyword">if</span> os.path.exists(repo_path):</span><br><span class="line">                inst = Repo(repo_path)</span><br><span class="line">                <span class="keyword">return</span> inst</span><br><span class="line"></span><br><span class="line">            <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">                <span class="comment"># The url is bad</span></span><br><span class="line">                <span class="keyword">if</span> key <span class="keyword">in</span> trx[<span class="string">&quot;badcache&quot;</span>]:</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># Clone the repo</span></span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                inst = Repo.clone_from(git_url, repo_path)</span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="comment"># Clone failed, bad git url</span></span><br><span class="line">                logger.error(e)</span><br><span class="line">                <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">                    trx[<span class="string">&quot;badcache&quot;</span>].add(key)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># Clone succeeded</span></span><br><span class="line">            <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">                <span class="keyword">if</span> key <span class="keyword">not</span> <span class="keyword">in</span> trx[<span class="string">&quot;lrucache&quot;</span>]:</span><br><span class="line">                    trx[<span class="string">&quot;lrucache&quot;</span>][key] = <span class="number">1</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    trx[<span class="string">&quot;lrucache&quot;</span>][key] += <span class="number">1</span></span><br><span class="line">                <span class="keyword">return</span> Repo(repo_path)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_digest</span>(<span class="params">self, git_url: <span class="built_in">str</span></span>):</span><br><span class="line">        git_url = git_url.strip().lower()</span><br><span class="line">        git_url = git_url.rstrip(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> git_url.endswith(<span class="string">&quot;.git&quot;</span>):</span><br><span class="line">            git_url = git_url[:-<span class="number">4</span>]</span><br><span class="line">        <span class="keyword">if</span> git_url.startswith(<span class="string">&quot;https://&quot;</span>):</span><br><span class="line">            group, repo = git_url.split(<span class="string">&quot;/&quot;</span>)[-<span class="number">2</span>:]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            group, repo = git_url.split(<span class="string">&quot;:&quot;</span>)[-<span class="number">1</span>].split(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;group&#125;</span>+<span class="subst">&#123;repo&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
-<p>大体上就是这样，这个 FileDB 可以用来实现很多简单的数据库需求，当然，如果你的需求更复杂，还是使用一个完整的数据库服务更好。</p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2024</category>
-      </categories>
-      <tags>
-        <tag>Python</tag>
-        <tag>并发控制</tag>
-        <tag>文件锁</tag>
-        <tag>数据库</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Tair 存储分析</title>
-    <url>/2024/05/14/nosql/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>database-system</category>
-        <category>nosql</category>
-      </categories>
-      <tags>
-        <tag>Tair</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>日本语1</title>
-    <url>/2021/02/15/1/</url>
-    <content><![CDATA[<h1>What is Japanese</h1>
-<h2 id="japanese-sound-system"><a class="header-anchor-1" href="#japanese-sound-system">#</a>Japanese Sound System</h2>
-<p>23 consonant sounds + 5 vowel sounds, with pitch accent</p>
-<p>When spoken, the Japanese language is formed using either vowels or a consonant-vowel pair, except the “n” sound (single consonant sound)</p>
-<h2 id="japanese-writing-system"><a class="header-anchor-1" href="#japanese-writing-system">#</a>Japanese Writing System</h2>
-<p>Come around 1500 years age from China</p>
-<p>Currentlt has 3 types of writing: hiragana, katakana, kanji</p>
-<p>Kanji were imported from China, traditionally used for both meaning and sound.</p>
-<p>Hiragana: 46 characters with two diacritical marks that are used to denote the sounds</p>
-<p>Each hiragana symbolizes with a vowel or a consonant combined with a vowel.</p>
-<p>Hiraganas are in particular used for function words and inflectional endings, as well as in some content words.</p>
-<table>
-<thead>
-<tr>
-<th>Hiragana</th>
-<th>ん</th>
-<th>w</th>
-<th>r</th>
-<th>y</th>
-<th>m</th>
-<th>h</th>
-<th>n</th>
-<th>t</th>
-<th>s</th>
-<th>k</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>a</td>
-<td>ん</td>
-<td>わ</td>
-<td>ら</td>
-<td>や</td>
-<td>ま</td>
-<td>は</td>
-<td>な</td>
-<td>た</td>
-<td>さ</td>
-<td>か</td>
-<td>あ</td>
-</tr>
-<tr>
-<td>i</td>
-<td></td>
-<td></td>
-<td>り</td>
-<td></td>
-<td>み</td>
-<td>ひ</td>
-<td>に</td>
-<td>ち</td>
-<td>し</td>
-<td>き</td>
-<td>い</td>
-</tr>
-<tr>
-<td>u</td>
-<td></td>
-<td></td>
-<td>る</td>
-<td>ゆ</td>
-<td>む</td>
-<td>ふ</td>
-<td>ぬ</td>
-<td>つ</td>
-<td>す</td>
-<td>く</td>
-<td>う</td>
-</tr>
-<tr>
-<td>e</td>
-<td></td>
-<td></td>
-<td>れ</td>
-<td></td>
-<td>め</td>
-<td>へ</td>
-<td>ね</td>
-<td>て</td>
-<td>せ</td>
-<td>け</td>
-<td>え</td>
-</tr>
-<tr>
-<td>o</td>
-<td></td>
-<td>を</td>
-<td>ろ</td>
-<td>よ</td>
-<td>も</td>
-<td>ほ</td>
-<td>の</td>
-<td>と</td>
-<td>そ</td>
-<td>こ</td>
-<td>お</td>
-</tr>
-</tbody>
-</table>
-<p>Katagana is also a syllabary, is used for loan words, onomatopoeic words and scientific words.</p>
-]]></content>
-      <categories>
-        <category>misc</category>
-        <category>japanese</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日上报自动打卡</title>
-    <url>/2020/12/25/auto_check/</url>
-    <content><![CDATA[<h1>每日上报自动打卡程序</h1>
-]]></content>
-      <categories>
-        <category>misc</category>
-        <category>tools</category>
-      </categories>
   </entry>
 </search>
