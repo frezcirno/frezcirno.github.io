@@ -747,6 +747,23 @@
 ]]></content>
   </entry>
   <entry>
+    <title>word2vec</title>
+    <url>/2023/10/28/word2vec/</url>
+    <content><![CDATA[<h2 id="what’s-it"><a class="header-anchor-1" href="#what’s-it">#</a>What’s it</h2>
+<p>2013年，Google开源的，用于词向量计算的工具</p>
+<h2 id="架构"><a class="header-anchor-1" href="#架构">#</a>架构</h2>
+<p>X – Dense – Dense – Softmax – Y</p>
+<p>CBoW: 利用上下文预测当前词</p>
+<p>Skip-gram: 利用当前词预测上下文</p>
+]]></content>
+      <categories>
+        <category>NLP</category>
+      </categories>
+      <tags>
+        <tag>NLP</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>概率论与数理统计 - 概念总结</title>
     <url>/2023/10/27/probability-and-mathematical-statistics/</url>
     <content><![CDATA[<h2 id="随机变量"><a class="header-anchor-1" href="#随机变量">#</a>随机变量</h2>
@@ -2586,23 +2603,6 @@ I=\{
       </categories>
   </entry>
   <entry>
-    <title>word2vec</title>
-    <url>/2023/10/28/word2vec/</url>
-    <content><![CDATA[<h2 id="what’s-it"><a class="header-anchor-1" href="#what’s-it">#</a>What’s it</h2>
-<p>2013年，Google开源的，用于词向量计算的工具</p>
-<h2 id="架构"><a class="header-anchor-1" href="#架构">#</a>架构</h2>
-<p>X – Dense – Dense – Softmax – Y</p>
-<p>CBoW: 利用上下文预测当前词</p>
-<p>Skip-gram: 利用当前词预测上下文</p>
-]]></content>
-      <categories>
-        <category>NLP</category>
-      </categories>
-      <tags>
-        <tag>NLP</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>编译原理课程笔记 - Chapter 4 目标代码生成</title>
     <url>/2020/12/17/note4-codegen/</url>
     <content><![CDATA[<h2 id="目标代码生成"><a class="header-anchor-1" href="#目标代码生成">#</a>目标代码生成</h2>
@@ -3945,6 +3945,110 @@ SNMP: 161/162</p>
       </tags>
   </entry>
   <entry>
+    <title>CMU 15-445 数据库系统 实验</title>
+    <url>/2024/05/03/CMU-15-445-database-systems-fall-2023-projects/</url>
+    <content><![CDATA[<h2 id="project-0-c-primer"><a class="header-anchor-1" href="#project-0-c-primer">#</a>Project 0 - C++ Primer</h2>
+<h2 id="project-1-buffer-pool-manager"><a class="header-anchor-1" href="#project-1-buffer-pool-manager">#</a>Project 1 - Buffer Pool Manager</h2>
+<h3 id="基础知识"><a class="header-anchor-1" href="#基础知识">#</a>基础知识</h3>
+<p>关于<code>future</code>，<code>promise</code>的使用参见 <a href="cpp-concurrency">C++并发查漏补缺</a>。</p>
+<h3 id="优化：减小锁范围"><a class="header-anchor-1" href="#优化：减小锁范围">#</a>优化：减小锁范围</h3>
+<p>在拿到Page之后，我们可以释放BPM自身数据结构的锁，只要保证不会有其他操作同样的Page即可。</p>
+<p>需要注意的是，Page本身的锁是是保护Page内容用的（而不是Page的元数据），在Project 1，由于其他部分的代码没有使用它，因此可以直接复用Page本身的锁，但是到Project 2就会出问题。</p>
+<p>因此最好在BPM里面维护单独的Page锁。</p>
+<h3 id="优化：workload区分"><a class="header-anchor-1" href="#优化：workload区分">#</a>优化：workload区分</h3>
+<h3 id="优化：lock-less队列"><a class="header-anchor-1" href="#优化：lock-less队列">#</a>优化：lock-less队列</h3>
+<h3 id="优化：多线程读写"><a class="header-anchor-1" href="#优化：多线程读写">#</a>优化：多线程读写</h3>
+<p><img src="disk-scheduler.excalidraw.svg" alt="" /></p>
+<h3 id="优化：块缓存"><a class="header-anchor-1" href="#优化：块缓存">#</a>优化：块缓存</h3>
+<p>每个Worker带一小块缓存，尽可能减少对OS的调用。</p>
+<p>缓存使用LRU-K策略替换。</p>
+<h2 id="project-2-hash-index"><a class="header-anchor-1" href="#project-2-hash-index">#</a>Project 2 - Hash Index</h2>
+<p>任务二的目标是在前面实现的换页基础上，实现一个三级可拓展哈希表。</p>
+<h3 id="可拓展哈希表结构"><a class="header-anchor-1" href="#可拓展哈希表结构">#</a>可拓展哈希表结构</h3>
+<p><img src="ext_hashtable_init_insert2_step3.excalidraw.svg" alt="" /></p>
+<p>右侧的数字是每个Bucket的Local Depth，表示该桶内的元素最多有多少个bit是一致的。</p>
+<p>简单推论：</p>
+<ul>
+<li>如果<code>GD</code> = <code>LD</code>，则一定只有一个entry指向当前bucket；</li>
+<li>如果<code>GD</code>&lt; <code>LD</code>，则当前bucket被 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mrow><mo fence="true">(</mo><mtext>GD</mtext><mo>−</mo><mtext>LD</mtext><mo fence="true">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">2^{\left(\text{GD}-\text{LD}\right)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.888em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="minner mtight"><span class="mopen mtight delimcenter" style="top:0em;"><span class="mtight">(</span></span><span class="mord text mtight"><span class="mord mtight">GD</span></span><span class="mbin mtight">−</span><span class="mord text mtight"><span class="mord mtight">LD</span></span><span class="mclose mtight delimcenter" style="top:0em;"><span class="mtight">)</span></span></span></span></span></span></span></span></span></span></span></span></span></span> 个entry指向。</li>
+</ul>
+<h3 id="header"><a class="header-anchor-1" href="#header">#</a>Header</h3>
+<p><code>Header</code>是 Project 相对于课本增加的内容，<code>Header</code>按照 <em>Most Significant Bits</em> 预先对<code>Directory</code>进行一次分区，目的是增大整个系统的并发度，对主要逻辑影响不大。</p>
+<h3 id="初始状态"><a class="header-anchor-1" href="#初始状态">#</a>初始状态</h3>
+<p>初始状态下，<code>Directory</code>和<code>Bucket</code>均不存在：</p>
+<p><img src="ext_hashtable_init.excalidraw.svg" alt="" /></p>
+<h3 id="插入算法"><a class="header-anchor-1" href="#插入算法">#</a>插入算法</h3>
+<h4 id="算法逻辑"><a class="header-anchor-1" href="#算法逻辑">#</a>算法逻辑</h4>
+<ol>
+<li>
+<p>根据插入元素的hash值；</p>
+</li>
+<li>
+<p>根据<code>Header</code>定位到<code>Directory</code>，如不存在则创建；</p>
+</li>
+<li>
+<p>根据<code>Directory</code>定位到<code>Bucket</code>，如不存在则创建；</p>
+</li>
+<li>
+<p>遍历<code>Bucket</code>，如果元素已存在则直接结束；</p>
+</li>
+<li>
+<p>检查<code>Bucket</code>是否装满，如果不满则直接插入到当前<code>Bucket</code>中，结束；</p>
+<p><img src="ext_hashtable_init_insert1.excalidraw.svg" alt="" /></p>
+</li>
+<li>
+<p>（桶装满）比较<code>Bucket</code>的<code>Local Depth (LD)</code> 和 <code>Global Depth (GD)</code>；</p>
+</li>
+<li>
+<p>如果<code>LD == GD</code>，如果<code>Directory</code>已经达到最大深度，结束；
+否则拓展<code>Directory</code>，<code>GD += 1</code>，重新定位<code>Bucket Entry</code>；</p>
+<p><img src="ext_hashtable_init_insert2.excalidraw.svg" alt="" /></p>
+</li>
+<li>
+<p>如果<code>LD &lt; GD</code>，说明该桶包含了多个<code>entry</code>的元素，且元素的最后<code>LD</code>位是一样的：
+进行分裂操作，将这个<code>Bucket</code>拆分成两个，元素按照<code>1&lt;&lt;(LD)</code>位分散到两个桶中；
+然后根据<code>entry</code>的最后<code>LD</code>位，更新一半的<code>entry</code>指针到新的<code>Bucket</code>上；</p>
+<p><img src="ext_hashtable_init_insert2_step2.excalidraw.svg" alt="" /></p>
+</li>
+<li>
+<p>如果当前<code>Bucket</code>仍是满的，回到第6步；</p>
+</li>
+<li>
+<p>在当前<code>Bucket</code>中插入元素，结束；</p>
+</li>
+</ol>
+<p><img src="ext_hashtable_init_insert2_step3.excalidraw.svg" alt="" /></p>
+<h4 id="示例1：两次目录拓展"><a class="header-anchor-1" href="#示例1：两次目录拓展">#</a>示例1：两次目录拓展</h4>
+<p>原状态：</p>
+<p><img src="ext_hashtable_init_insert2_step3.excalidraw.svg" alt="" /></p>
+<p>插入…1001，目录拓展：</p>
+<p><img src="ext_hashtable_insert2.excalidraw.svg" alt="" /></p>
+<p>桶分裂，但是仍然空间不足：</p>
+<p><img src="ext_hashtable_insert2_step2.excalidraw.svg" alt="" /></p>
+<p>再次拓展目录，成功插入：</p>
+<p><img src="ext_hashtable_insert2_step3.excalidraw.svg" alt="" /></p>
+<h4 id="示例2：指针更新"><a class="header-anchor-1" href="#示例2：指针更新">#</a>示例2：指针更新</h4>
+<p>原状态：</p>
+<p><img src="ext_hashtable_insert2.excalidraw.svg" alt="" /></p>
+<p>插入…010：</p>
+<p>原来的桶(<code>...010</code>)从<code>...0</code>变成<code>...10</code>，<code>LD</code>改变<code>1-&gt;2</code>；
+新创建的桶(<code>...000</code>)保存<code>...00</code>，<code>LD=2</code>；
+Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
+<p><img src="ext_hashtable_insert2_insert1.excalidraw.svg" alt="" /></p>
+<h3 id="删除算法"><a class="header-anchor-1" href="#删除算法">#</a>删除算法</h3>
+<h3 id="坑点"><a class="header-anchor-1" href="#坑点">#</a>坑点</h3>
+<p>计算哈希值要调用<code>Hash()</code>而不是<code>hash_fn_.GetHash()</code>。</p>
+<h2 id="project-3"><a class="header-anchor-1" href="#project-3">#</a>Project 3</h2>
+<h2 id="project-4"><a class="header-anchor-1" href="#project-4">#</a>Project 4</h2>
+]]></content>
+      <categories>
+        <category>database-system</category>
+      </categories>
+      <tags>
+        <tag>Database</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>CMU 15-445 数据库系统 课程笔记</title>
     <url>/2024/04/15/CMU-15-445-database-systems-fall-2023/</url>
     <content><![CDATA[<p>教师：Andy Pavlo</p>
@@ -4381,110 +4485,6 @@ SNMP: 161/162</p>
       </tags>
   </entry>
   <entry>
-    <title>CMU 15-445 数据库系统 实验</title>
-    <url>/2024/05/03/CMU-15-445-database-systems-fall-2023-projects/</url>
-    <content><![CDATA[<h2 id="project-0-c-primer"><a class="header-anchor-1" href="#project-0-c-primer">#</a>Project 0 - C++ Primer</h2>
-<h2 id="project-1-buffer-pool-manager"><a class="header-anchor-1" href="#project-1-buffer-pool-manager">#</a>Project 1 - Buffer Pool Manager</h2>
-<h3 id="基础知识"><a class="header-anchor-1" href="#基础知识">#</a>基础知识</h3>
-<p>关于<code>future</code>，<code>promise</code>的使用参见 <a href="cpp-concurrency">C++并发查漏补缺</a>。</p>
-<h3 id="优化：减小锁范围"><a class="header-anchor-1" href="#优化：减小锁范围">#</a>优化：减小锁范围</h3>
-<p>在拿到Page之后，我们可以释放BPM自身数据结构的锁，只要保证不会有其他操作同样的Page即可。</p>
-<p>需要注意的是，Page本身的锁是是保护Page内容用的（而不是Page的元数据），在Project 1，由于其他部分的代码没有使用它，因此可以直接复用Page本身的锁，但是到Project 2就会出问题。</p>
-<p>因此最好在BPM里面维护单独的Page锁。</p>
-<h3 id="优化：workload区分"><a class="header-anchor-1" href="#优化：workload区分">#</a>优化：workload区分</h3>
-<h3 id="优化：lock-less队列"><a class="header-anchor-1" href="#优化：lock-less队列">#</a>优化：lock-less队列</h3>
-<h3 id="优化：多线程读写"><a class="header-anchor-1" href="#优化：多线程读写">#</a>优化：多线程读写</h3>
-<p><img src="disk-scheduler.excalidraw.svg" alt="" /></p>
-<h3 id="优化：块缓存"><a class="header-anchor-1" href="#优化：块缓存">#</a>优化：块缓存</h3>
-<p>每个Worker带一小块缓存，尽可能减少对OS的调用。</p>
-<p>缓存使用LRU-K策略替换。</p>
-<h2 id="project-2-hash-index"><a class="header-anchor-1" href="#project-2-hash-index">#</a>Project 2 - Hash Index</h2>
-<p>任务二的目标是在前面实现的换页基础上，实现一个三级可拓展哈希表。</p>
-<h3 id="可拓展哈希表结构"><a class="header-anchor-1" href="#可拓展哈希表结构">#</a>可拓展哈希表结构</h3>
-<p><img src="ext_hashtable_init_insert2_step3.excalidraw.svg" alt="" /></p>
-<p>右侧的数字是每个Bucket的Local Depth，表示该桶内的元素最多有多少个bit是一致的。</p>
-<p>简单推论：</p>
-<ul>
-<li>如果<code>GD</code> = <code>LD</code>，则一定只有一个entry指向当前bucket；</li>
-<li>如果<code>GD</code>&lt; <code>LD</code>，则当前bucket被 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mrow><mo fence="true">(</mo><mtext>GD</mtext><mo>−</mo><mtext>LD</mtext><mo fence="true">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">2^{\left(\text{GD}-\text{LD}\right)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.888em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="minner mtight"><span class="mopen mtight delimcenter" style="top:0em;"><span class="mtight">(</span></span><span class="mord text mtight"><span class="mord mtight">GD</span></span><span class="mbin mtight">−</span><span class="mord text mtight"><span class="mord mtight">LD</span></span><span class="mclose mtight delimcenter" style="top:0em;"><span class="mtight">)</span></span></span></span></span></span></span></span></span></span></span></span></span></span> 个entry指向。</li>
-</ul>
-<h3 id="header"><a class="header-anchor-1" href="#header">#</a>Header</h3>
-<p><code>Header</code>是 Project 相对于课本增加的内容，<code>Header</code>按照 <em>Most Significant Bits</em> 预先对<code>Directory</code>进行一次分区，目的是增大整个系统的并发度，对主要逻辑影响不大。</p>
-<h3 id="初始状态"><a class="header-anchor-1" href="#初始状态">#</a>初始状态</h3>
-<p>初始状态下，<code>Directory</code>和<code>Bucket</code>均不存在：</p>
-<p><img src="ext_hashtable_init.excalidraw.svg" alt="" /></p>
-<h3 id="插入算法"><a class="header-anchor-1" href="#插入算法">#</a>插入算法</h3>
-<h4 id="算法逻辑"><a class="header-anchor-1" href="#算法逻辑">#</a>算法逻辑</h4>
-<ol>
-<li>
-<p>根据插入元素的hash值；</p>
-</li>
-<li>
-<p>根据<code>Header</code>定位到<code>Directory</code>，如不存在则创建；</p>
-</li>
-<li>
-<p>根据<code>Directory</code>定位到<code>Bucket</code>，如不存在则创建；</p>
-</li>
-<li>
-<p>遍历<code>Bucket</code>，如果元素已存在则直接结束；</p>
-</li>
-<li>
-<p>检查<code>Bucket</code>是否装满，如果不满则直接插入到当前<code>Bucket</code>中，结束；</p>
-<p><img src="ext_hashtable_init_insert1.excalidraw.svg" alt="" /></p>
-</li>
-<li>
-<p>（桶装满）比较<code>Bucket</code>的<code>Local Depth (LD)</code> 和 <code>Global Depth (GD)</code>；</p>
-</li>
-<li>
-<p>如果<code>LD == GD</code>，如果<code>Directory</code>已经达到最大深度，结束；
-否则拓展<code>Directory</code>，<code>GD += 1</code>，重新定位<code>Bucket Entry</code>；</p>
-<p><img src="ext_hashtable_init_insert2.excalidraw.svg" alt="" /></p>
-</li>
-<li>
-<p>如果<code>LD &lt; GD</code>，说明该桶包含了多个<code>entry</code>的元素，且元素的最后<code>LD</code>位是一样的：
-进行分裂操作，将这个<code>Bucket</code>拆分成两个，元素按照<code>1&lt;&lt;(LD)</code>位分散到两个桶中；
-然后根据<code>entry</code>的最后<code>LD</code>位，更新一半的<code>entry</code>指针到新的<code>Bucket</code>上；</p>
-<p><img src="ext_hashtable_init_insert2_step2.excalidraw.svg" alt="" /></p>
-</li>
-<li>
-<p>如果当前<code>Bucket</code>仍是满的，回到第6步；</p>
-</li>
-<li>
-<p>在当前<code>Bucket</code>中插入元素，结束；</p>
-</li>
-</ol>
-<p><img src="ext_hashtable_init_insert2_step3.excalidraw.svg" alt="" /></p>
-<h4 id="示例1：两次目录拓展"><a class="header-anchor-1" href="#示例1：两次目录拓展">#</a>示例1：两次目录拓展</h4>
-<p>原状态：</p>
-<p><img src="ext_hashtable_init_insert2_step3.excalidraw.svg" alt="" /></p>
-<p>插入…1001，目录拓展：</p>
-<p><img src="ext_hashtable_insert2.excalidraw.svg" alt="" /></p>
-<p>桶分裂，但是仍然空间不足：</p>
-<p><img src="ext_hashtable_insert2_step2.excalidraw.svg" alt="" /></p>
-<p>再次拓展目录，成功插入：</p>
-<p><img src="ext_hashtable_insert2_step3.excalidraw.svg" alt="" /></p>
-<h4 id="示例2：指针更新"><a class="header-anchor-1" href="#示例2：指针更新">#</a>示例2：指针更新</h4>
-<p>原状态：</p>
-<p><img src="ext_hashtable_insert2.excalidraw.svg" alt="" /></p>
-<p>插入…010：</p>
-<p>原来的桶(<code>...010</code>)从<code>...0</code>变成<code>...10</code>，<code>LD</code>改变<code>1-&gt;2</code>；
-新创建的桶(<code>...000</code>)保存<code>...00</code>，<code>LD=2</code>；
-Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
-<p><img src="ext_hashtable_insert2_insert1.excalidraw.svg" alt="" /></p>
-<h3 id="删除算法"><a class="header-anchor-1" href="#删除算法">#</a>删除算法</h3>
-<h3 id="坑点"><a class="header-anchor-1" href="#坑点">#</a>坑点</h3>
-<p>计算哈希值要调用<code>Hash()</code>而不是<code>hash_fn_.GetHash()</code>。</p>
-<h2 id="project-3"><a class="header-anchor-1" href="#project-3">#</a>Project 3</h2>
-<h2 id="project-4"><a class="header-anchor-1" href="#project-4">#</a>Project 4</h2>
-]]></content>
-      <categories>
-        <category>database-system</category>
-      </categories>
-      <tags>
-        <tag>Database</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Bigtable: A Distributed Storage System for Structured Data 论文阅读</title>
     <url>/2025/02/27/bigtable-a-distributed-storage-system/</url>
     <content><![CDATA[<p>发表于 OSDI’06</p>
@@ -4724,16 +4724,86 @@ Major compaction 会把多个 SSTable + memtable 合并成一个 SSTable。
 <p>读操作必须要从所有的 SSTable 中查找数据，如果 SSTable 不在内存中，就会需要多次磁盘访问。
 Bigtable 允许客户端指定创建一个布隆过滤器，用于快速判断一个 key 是否在 SSTable 中。</p>
 <h3 id="提交日志实现"><a class="header-anchor-1" href="#提交日志实现">#</a>提交日志实现</h3>
+<p>如果我们把每个 Tablet 的提交日志都放在单独的 log 文件中，就需要往 GFS 里面写大量的文件。
+再加上 GFS 实现，可能导致大量磁盘访问。另外，用多个 log 文件也不容易做 group commit 优化。
+因此 Bigtable 设计成每个 Tablet Server 有一个 log 文件。</p>
+<p>使用单个 log 文件提供了正常路径下的性能优势，但是会让恢复变得麻烦。
+当 Tablet Server 挂了，它负责的 Tablet 需要被迁移走：每个 Server 通常只会分到一小部分。
+为了进行恢复，每个 Server 都需要读取一遍完整的 log 文件，会导致巨大的读放大。</p>
+<p>为了避免这种读放大，首先，Bigtable 会按照 <code>&lt;table, row name, log sequence number&gt;</code> 顺序排序 log 文件。
+排序后，对于单个 Tablet 的变更就是连续的，因此新 owner 只需要进行一次 seek 加顺序读就可以了。
+为了并行化排序过程，log 文件会被分割成 64MB 大小的段，然后在不同的 Tablet Server 上并行排序。
+这种排序过程是由 Master 协调的。当任意 Tablet Server 需要从 log 文件恢复 Tablet 的时候，就会开始这种排序过程。</p>
+<p>由于各种各样的原因，有时往 GFS 上写 log 文件的时候，会有性能抖动。例如 GFS 正在故障恢复，或者网络拥塞，或者单纯就是负载太重。
+为了防止 GFS 延迟尖峰，每个 Tablet Server 实际上会有两个线 log 的线程，每个写自己的 log 文件，同一时刻只会有一个在使用。
+如果写入的性能太差，就会切换到另一个线程。队列里面后续的变更也会由另一个线程来处理。
+log 条目中包含了自增序列号以防止线程切换的时候重复应用相同的 log。</p>
 <h3 id="加速-tablet-恢复"><a class="header-anchor-1" href="#加速-tablet-恢复">#</a>加速 Tablet 恢复</h3>
+<p>如果 Master 要把一个 Tablet 从一个 Tablet Server 迁移到另一个，源 Tablet Server 会先对这个 Tablet 进行一次 Minor compaction。这次 compaction 能够缩短恢复时间，因为需要恢复的 log 变少了。
+在 compaction 之后，源 Tablet Server 就会停止服务这个 Tablet。
+在真正卸载这个 Tablet 之前，Tablet Server 会再做一次（通常是很快的）Minor compaction，目的是消除第一次 compaction 期间收到的变更。
+第二次 compaction 之后，就没有剩余的 log 了，目标 Tablet Server 只需加载 Tablet 就可以了。</p>
 <h3 id="利用不可变性"><a class="header-anchor-1" href="#利用不可变性">#</a>利用不可变性</h3>
+<p>除了 SSTable 缓存以外，Bigtable 系统的各种其他部分也利用了 SSTable 文件的不可变性。
+比如，读 SSTable 的时候不需要任何同步机制。
+因此行之间的并发控制就可以实现得非常高效。
+唯一的例外是 memtable。
+为了减少 memtable 的读争抢，我们让每个 memtable 的行都是 CoW 的，这样就可以并行地读写。</p>
+<p>因为 SSTable 是不可变的，所以移除删除的数据就变成了垃圾回收过时的 SSTable 的问题。
+每个 Tablet 的 SSTable 都被注册到 METADATA 表中。
+Master 使用标记-清除算法来回收过时的 SSTable。</p>
+<p>最终，SSTable 的不可变性还允许我们快速地分割 Tablet。
+相对于给每个 Tablet 生成一组新的 SSTable 文件，Bigtable 让子 Tablet 共享父 Tablet 的 SSTable 文件。</p>
 <h2 id="7-性能评估"><a class="header-anchor-1" href="#7-性能评估">#</a>7 性能评估</h2>
+<p>评估实验使用了一个 N 个 Tablet Server 的 Bigtable 集群。
+用来评估性能和可拓展性随 N 的变化。
+每个 Tablet Server 使用 1GB 内存，写入一个 1,786 机器的 GFS 集群，每个 GFS 节点配置两块 400GB 的 IDE 硬盘。
+还有 N 个客户端用于生成读写负载。N 个客户端相对于 N 个 Tablet Server 是非常充足的，这样可以保证客户端的负载不会成为瓶颈。
+每个机器有两颗双核 Opteron 2GHz 的 CPU。</p>
+<p>（略）</p>
 <h2 id="8-现实世界的应用"><a class="header-anchor-1" href="#8-现实世界的应用">#</a>8 现实世界的应用</h2>
+<p>截至 2006 年 8 月，Google 内部有 388 个生产 Bigtable 集群，一共有 24,500 个 Tablet Server。
+其中大部分都是供开发使用，因此经常是闲置的。大部分集群都有很少的机器数。
+有 14 个忙的集群，一共由 8069 个 Tablet Server 组成，服务了 1.2M 的 QPS，进的 RPC 流量大约是 741MB/s，出的是 16GB/s。</p>
 <h2 id="8-1-google-analytics"><a class="header-anchor-1" href="#8-1-google-analytics">#</a>8.1 Google Analytics</h2>
+<p>Google Analytics 用于帮助网站所有者分析流量模式。
+包括聚合统计，例如每天的 UV，每个 URL 的 PV，还有支付的用户比例。
+为了启用这个功能，网站所有者需要在网站上插入一个 JavaScript 代码片段。每次页面被访问的时候，这个代码片段就会执行。
+这个代码会记录各种各样的信息，例如用户 id 和页面的信息，发送到 Google Analytics。
+Google Analytics 总结这些信息，然后提供给网站所有者。</p>
+<p>Google Analytics 使用的 Bigtable 表包括：</p>
+<ul>
+<li>raw click 表：~200TB，每个用户会话一行，行名字是网站名+Session 创建时间。
+这样保证了访问相同站点的用户会话会被存储在一起，而且是按照时间排序的。
+这个表的压缩率是 14%。</li>
+<li>summary 表：~20TB，包含每个网站的各种聚合统计信息。
+这个表是被周期调度的 MapReduce 任务从 raw click 表中生成的。每个 MR 任务从 raw click 表中提取最近的会话数据。
+这个表的压缩率是 29%。</li>
+</ul>
 <h2 id="8-2-google-earth"><a class="header-anchor-1" href="#8-2-google-earth">#</a>8.2 Google Earth</h2>
+<p>Google 运营着一系列服务，提供地球表面高解析度的卫星图像。这个服务既通过基于 web 的 Google Maps 提供，也通过 Google Earth 软件客户端提供。</p>
+<p>Google Earth 的预处理流水线使用了一个 Bigtable 表存储原始图像数据。
+在预处理过程中，图像被清理和合并，形成最终提供服务的图像。
+这个表包含了约 70TB 的数据，因此是存储在磁盘中的。
+这些图像已经被有效地压缩过了，因此 Bigtable 的压缩被关闭了。</p>
+<p>图像表的每一行对应一个地理区域，行名字保证了相邻区域的行是相邻的。
+这个表包含了一个 CF，用于追踪每个区域的数据来源。这个 CF 有很多列：基本上每个原始图像都有一个列。
+因为每个区域的图像是从很少几张原始图像中合成的，这个 CF 非常稀疏。</p>
+<p>预处理流水线重度依赖 MapReduce over Bigtable 来处理图像数据。</p>
+<p>服务系统使用一个表来索引 GFS 中的数据。
+这个表相对较小，只有 ~500GB，但是要保证每个数据中心能低延迟地提供上万的 QPS。因此这个表跨越了数百个 Tablet Server，还开启了 in-memory 选项。</p>
 <h2 id="8-3-个性化搜索"><a class="header-anchor-1" href="#8-3-个性化搜索">#</a>8.3 个性化搜索</h2>
-<h2 id="9-教训"><a class="header-anchor-1" href="#9-教训">#</a>9 教训</h2>
-<h2 id="10-相关工作"><a class="header-anchor-1" href="#10-相关工作">#</a>10 相关工作</h2>
-<h2 id="11-结论"><a class="header-anchor-1" href="#11-结论">#</a>11 结论</h2>
+<p>Personalized Search 是一个 Google 的实验性服务，记录用户的查询和点击行为，跨越 Google 的多种服务，例如搜索，图片和新闻。
+用户可以浏览搜索历史来找到他们之前搜索和点击过的内容，然后他们可以寻求个性化的搜索结果，根据他们的历史行为。</p>
+<p>个性化搜索把每个用户的数据保存在 Bigtable 中。
+每个用户有一个唯一的 userid，和一个对应的行。所有用户的行为都会被记录在这个行中。
+每种行为都有一个单独的 CF 保存（例如有一个 CF 保存搜索历史）。数据元素是行为发生的时间戳。
+个性化搜索用 MapReduce over Bigtable 来生成用户的资料。</p>
+<p>个性化搜索数据在多个 Bigtable 集群之间复制，以增加可用性和减少延迟。
+个性化搜索团队原本在 Bigtable 之上实现了一个自己的复制系统，但是后来改成了使用 Bigtable 的复制功能。</p>
+<p>个性化搜索的存储系统允许其他组在他们的列中添加每个用户的信息，然后这个系统也被很多其他的，需要为每个用户保存数据的 Google 业务使用。
+在很多组之间共享一个表导致了不寻常的 CF 数量。
+为了解决这个问题，Bigtable 增加了一个简单的 Quota 机制来限制单个客户端在共享表中的空间消耗，提供了一定的隔离性。</p>
 <h1>FAQ</h1>
 <h3 id="1-gfs-可能出现重复记录或者-padding，bigtable-如何处理这种情况？"><a class="header-anchor-1" href="#1-gfs-可能出现重复记录或者-padding，bigtable-如何处理这种情况？">#</a>1. GFS 可能出现重复记录或者 padding，Bigtable 如何处理这种情况？</h3>
 ]]></content>
