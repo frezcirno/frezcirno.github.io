@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>离散数学</title>
+    <url>/2023/10/31/discrete-mathematics/</url>
+    <content><![CDATA[<p>集合</p>
+<p>偏序集(poset):</p>
+]]></content>
+      <tags>
+        <tag>密码学</tag>
+        <tag>Math</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Oracle APEX学习</title>
     <url>/2020/12/07/oracle-apex/</url>
     <content><![CDATA[<h1>前言</h1>
@@ -16,15 +27,257 @@
 ]]></content>
   </entry>
   <entry>
-    <title>离散数学</title>
-    <url>/2023/10/31/discrete-mathematics/</url>
-    <content><![CDATA[<p>集合</p>
-<p>偏序集(poset):</p>
+    <title>Oracle数据库学习</title>
+    <url>/2020/12/03/oracledb/</url>
+    <content><![CDATA[<h1>前言</h1>
+<p>参考资料:</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9kb2NzLm9yYWNsZS5jb20vZW4vZGF0YWJhc2Uvb3JhY2xlL29yYWNsZS1kYXRhYmFzZS9pbmRleC5odG1s">Oracle官方文档<i class="fa fa-external-link-alt"></i></span></p>
+<h1>Schema</h1>
+<p>Schema是表, 索引, 存储过程等等数据库对象(DB Object)的存储容器</p>
+<p>用户与Schema之间是<strong>一对一</strong>的关系</p>
+<p>例如: 访问用户A的xxx对象就通过 <code>A.xxx</code></p>
+<p><img src="user-schema-tables.png" alt="" /></p>
+<h1>Oracle 表空间</h1>
+<p>表空间是逻辑上, 存放数据表的容器</p>
+<p>每张表一定属于某个表空间</p>
+<p>每个用户(Schema)可以拥有多个表空间, 而且都有一个默认表空间</p>
+<p>用户之间可以通过共享表空间的方式共享数据表</p>
+<p>物理上, 表空间的存储可能不是连续的</p>
+<h1>PL/SQL</h1>
+<ul>
+<li>A primary benefit of PL/SQL is the ability to store application logic in the database itself.</li>
+</ul>
+<h1>Oracle 体系结构 (重要)</h1>
+<ul>
+<li>Oracle Server = Oracle Instance + Oracle Database</li>
+</ul>
+<h2 id="1-oracle实例-oracle-instance"><a class="header-anchor-1" href="#1-oracle实例-oracle-instance">#</a>1. Oracle实例 (Oracle Instance)</h2>
+<p>Oracle Instance = SGA(system global area) + Background Process</p>
+<p>是一组 <strong>OS进程(线程)和一些内存(SGA)</strong> 的总称</p>
+<p>可以用来mount和open一个数据库</p>
+<p>一个实例在其生存期中最多只能装载和打开一个数据库。要想再打开这个（或其他）数据库，必须先丢弃这个实例，并创建一个新的实例。</p>
+<p>一个数据库实例的状态分为以下几种</p>
+<ul>
+<li>
+<p><code>started</code></p>
+</li>
+<li>
+<p><code>mounted</code></p>
+</li>
+<li>
+<p><code>open</code></p>
+</li>
+<li>
+<p><code>close</code></p>
+</li>
+<li>
+<p><code>mounted</code></p>
+</li>
+<li>
+<p><code>open</code></p>
+</li>
+</ul>
+<h3 id="started-状态"><a class="header-anchor-1" href="#started-状态">#</a><code>started</code> 状态</h3>
+<p>在执行<code>startup nomount</code>命令后, Oracle会执行以下操作, 之后实例会进入<code>started</code>状态, 此时实例还未绑定数据库</p>
+<ul>
+<li>
+<p>读取配置文件</p>
+</li>
+<li>
+<p>分配<code>SGA</code></p>
+</li>
+<li>
+<p>启动后台进程</p>
+</li>
+<li>
+<p>打开一些用于记录的文件</p>
+</li>
+</ul>
+<h3 id="mounted-状态"><a class="header-anchor-1" href="#mounted-状态">#</a><code>mounted</code> 状态</h3>
+<p>在执行<code>startup mount</code>或者<code>alter database mount</code>命令后, 实例会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
+<p>数据库打开后, 执行<code>alter database close</code>命令后, 实例也会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
+<p>此时实例与数据库建立了联系, 但是只有DBA能够访问数据库。</p>
+<h3 id="open-状态"><a class="header-anchor-1" href="#open-状态">#</a><code>open</code> 状态</h3>
+<p>在执行<code>startup</code>或者<code>alter database open</code>命令后, 实例会进入<code>open</code>状态。</p>
+<p>此时实例与数据库建立了联系, 数据库完全启动, 普通用户也可以访问数据库。</p>
+<h2 id="2-oracle数据库-oracle-database"><a class="header-anchor-1" href="#2-oracle数据库-oracle-database">#</a>2. Oracle数据库 (Oracle Database)</h2>
+<p>Oracle Database = Controlfile + datafile + logfile + spfile + …</p>
+<p>是存储在<strong>磁盘</strong>上的<strong>一组数据文件</strong>的集合</p>
+<p>一般来说, 一个数据库上只有一个实例对其进行操作</p>
+<p>但是也有例外: RAC（Real Application Clusters）就允许在集群环境中的多台计算机上操作，这样就可以有多台实例同时装载并打开一个数据库（位于一组共享物理磁盘上）</p>
+<p>例外2: 容器式数据库</p>
+<h2 id="3-oracle数据库和oracle实例的关系"><a class="header-anchor-1" href="#3-oracle数据库和oracle实例的关系">#</a>3. <em>Oracle数据库</em>和<em>Oracle实例</em>的关系</h2>
+<ol>
+<li>
+<p>一个实例一生只能够装载及打开一个数据库</p>
+</li>
+<li>
+<p>一个数据库能够被多个实例装载并打开(RAC)</p>
+</li>
+<li>
+<p>每个运行着的数据库一定与至少一个实例关联</p>
+</li>
+</ol>
+<p><img src="instance-and-database.png" alt="" /></p>
+<p>Oracle数据库与实例的启动过程</p>
+<p><img src="startup-sequence.png" alt="" /></p>
+<p>Oracle数据库与实例的关闭过程</p>
+<p><img src="shutdown-sequence.png" alt="" /></p>
+<h1>常用命令</h1>
+<ul>
+<li>
+<p>名称, 版本信息查看</p>
+<ul>
+<li>
+<p>查询数据库版本信息</p>
+<pre><code>`SQL&gt; select * from v$version;`
+</code></pre>
+</li>
+<li>
+<p>查看数据库名称</p>
+<pre><code>`SQL&gt; show parameter db_name;`
+</code></pre>
+</li>
+<li>
+<p>查看数据库服务名</p>
+<pre><code>`SQL&gt; show parameter service_names;`
+</code></pre>
+</li>
+<li>
+<p>查询全局数据库名称</p>
+<pre><code>`SQL&gt; select * from global_name;`
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>数据库实例 (Instance)</p>
+<ul>
+<li>
+<p>查询当前数据库实例名称</p>
+<pre><code>`SQL&gt; select instance_name from v$instance;`
+</code></pre>
+</li>
+<li>
+<p>查看当前数据库实例状态(open/mount等)</p>
+<pre><code>`SQL&gt; select status from v$instance;`
+</code></pre>
+</li>
+<li>
+<p>查看数据库实例启动时间</p>
+<pre><code>`SQL&gt; SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS &quot;Inst Start Time&quot; FROM V$INSTANCE;`
+</code></pre>
+</li>
+<li>
+<p>创建一个新的数据库实例、加载数据库、打开数据库 (需要DBA权限)</p>
+<pre><code>`SQL&gt; startup [nomount | mount | open];`
+</code></pre>
+</li>
+<li>
+<p>关闭实例绑定的数据库、卸载数据库、结束当前实例 (需要DBA权限)</p>
+<pre><code>`SQL&gt; shutdown [normal | transactional | immediate];`
+</code></pre>
+</li>
+<li>
+<p>关闭实例绑定的数据库、卸载数据库</p>
+<pre><code>`SQL&gt; alter database close;`
+</code></pre>
+</li>
+<li>
+<p>加载数据库/打开数据库</p>
+<pre><code>`SQL&gt; alter database [mount | open];`
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>数据库设置, 统计信息等</p>
+<ul>
+<li>
+<p>查询数据库打开模式(mounted/open/read write)</p>
+<pre><code>`SQL&gt; select open_mode from v$database;`
+</code></pre>
+</li>
+<li>
+<p>查看数据库DBF文件位置</p>
+<pre><code>`SQL&gt; select name from v$datafile;`
+</code></pre>
+</li>
+<li>
+<p>查询数据文件状态</p>
+<pre><code>`SQL&gt; select file#,name,status,enabled,checkpoint_change# from v$datafile;`
+</code></pre>
+</li>
+<li>
+<p>查询数据文件位置</p>
+<pre><code>`SQL&gt; select name from v$datafile;`
+</code></pre>
+</li>
+<li>
+<p>查询数据文件（表空间）大小</p>
+<pre><code>`SQL&gt; select sum(bytes)/1024/1024/1024 as GB from v$datafile;`
+</code></pre>
+</li>
+<li>
+<p>查询有效数据大小</p>
+<pre><code>`SQL&gt; select sum(bytes)/1024/1024/1024 as GB from dba_segments;`
+</code></pre>
+</li>
+<li>
+<p>查看当前库的所有数据表</p>
+<pre><code>`SQL&gt; select TABLE_NAME from all_tables;`
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>可插拔数据库 (PDB) 管理</p>
+<ul>
+<li>
+<p>查看数据库是CDB还是传统DB</p>
+<pre><code>`SQL&gt; select name, cdb, open_mode, con_id from v$database;`
+</code></pre>
+</li>
+<li>
+<p>查看当前容器 (CDB) 名</p>
+<pre><code>`SQL&gt; show con_name;`
+</code></pre>
+</li>
+<li>
+<p>列举当前容器中的所有PDB以及状态</p>
+<pre><code>`SQL&gt; select con_id, dbid, guid, name, open_mode from v$pdbs;`
+</code></pre>
+</li>
+<li>
+<p>切换到某个PDB</p>
+<pre><code>`SQL&gt; alter session set container=&lt;PDB&gt;;`
+</code></pre>
+</li>
+<li>
+<p>启动PDB数据库</p>
+<pre><code>`SQL&gt; alter pluggable database &lt;PDB&gt; open;`
+
+或者
+
+`SQL&gt; alter session set container=&lt;PDB&gt;;`
+`SQL&gt; startup`
+</code></pre>
+</li>
+<li>
+<p>关闭PDB数据库</p>
+<pre><code>`SQL&gt; alter pluggable database &lt;PDB&gt; close;`
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>用户管理</p>
+<ul>
+<li>创建用户</li>
+</ul>
+</li>
+</ul>
 ]]></content>
-      <tags>
-        <tag>密码学</tag>
-        <tag>Math</tag>
-      </tags>
   </entry>
   <entry>
     <title>reading-books</title>
@@ -494,257 +747,21 @@
 ]]></content>
   </entry>
   <entry>
-    <title>Oracle数据库学习</title>
-    <url>/2020/12/03/oracledb/</url>
-    <content><![CDATA[<h1>前言</h1>
-<p>参考资料:</p>
-<p><span class="exturl" data-url="aHR0cHM6Ly9kb2NzLm9yYWNsZS5jb20vZW4vZGF0YWJhc2Uvb3JhY2xlL29yYWNsZS1kYXRhYmFzZS9pbmRleC5odG1s">Oracle官方文档<i class="fa fa-external-link-alt"></i></span></p>
-<h1>Schema</h1>
-<p>Schema是表, 索引, 存储过程等等数据库对象(DB Object)的存储容器</p>
-<p>用户与Schema之间是<strong>一对一</strong>的关系</p>
-<p>例如: 访问用户A的xxx对象就通过 <code>A.xxx</code></p>
-<p><img src="user-schema-tables.png" alt="" /></p>
-<h1>Oracle 表空间</h1>
-<p>表空间是逻辑上, 存放数据表的容器</p>
-<p>每张表一定属于某个表空间</p>
-<p>每个用户(Schema)可以拥有多个表空间, 而且都有一个默认表空间</p>
-<p>用户之间可以通过共享表空间的方式共享数据表</p>
-<p>物理上, 表空间的存储可能不是连续的</p>
-<h1>PL/SQL</h1>
-<ul>
-<li>A primary benefit of PL/SQL is the ability to store application logic in the database itself.</li>
-</ul>
-<h1>Oracle 体系结构 (重要)</h1>
-<ul>
-<li>Oracle Server = Oracle Instance + Oracle Database</li>
-</ul>
-<h2 id="1-oracle实例-oracle-instance"><a class="header-anchor-1" href="#1-oracle实例-oracle-instance">#</a>1. Oracle实例 (Oracle Instance)</h2>
-<p>Oracle Instance = SGA(system global area) + Background Process</p>
-<p>是一组 <strong>OS进程(线程)和一些内存(SGA)</strong> 的总称</p>
-<p>可以用来mount和open一个数据库</p>
-<p>一个实例在其生存期中最多只能装载和打开一个数据库。要想再打开这个（或其他）数据库，必须先丢弃这个实例，并创建一个新的实例。</p>
-<p>一个数据库实例的状态分为以下几种</p>
-<ul>
-<li>
-<p><code>started</code></p>
-</li>
-<li>
-<p><code>mounted</code></p>
-</li>
-<li>
-<p><code>open</code></p>
-</li>
-<li>
-<p><code>close</code></p>
-</li>
-<li>
-<p><code>mounted</code></p>
-</li>
-<li>
-<p><code>open</code></p>
-</li>
-</ul>
-<h3 id="started-状态"><a class="header-anchor-1" href="#started-状态">#</a><code>started</code> 状态</h3>
-<p>在执行<code>startup nomount</code>命令后, Oracle会执行以下操作, 之后实例会进入<code>started</code>状态, 此时实例还未绑定数据库</p>
-<ul>
-<li>
-<p>读取配置文件</p>
-</li>
-<li>
-<p>分配<code>SGA</code></p>
-</li>
-<li>
-<p>启动后台进程</p>
-</li>
-<li>
-<p>打开一些用于记录的文件</p>
-</li>
-</ul>
-<h3 id="mounted-状态"><a class="header-anchor-1" href="#mounted-状态">#</a><code>mounted</code> 状态</h3>
-<p>在执行<code>startup mount</code>或者<code>alter database mount</code>命令后, 实例会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
-<p>数据库打开后, 执行<code>alter database close</code>命令后, 实例也会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
-<p>此时实例与数据库建立了联系, 但是只有DBA能够访问数据库。</p>
-<h3 id="open-状态"><a class="header-anchor-1" href="#open-状态">#</a><code>open</code> 状态</h3>
-<p>在执行<code>startup</code>或者<code>alter database open</code>命令后, 实例会进入<code>open</code>状态。</p>
-<p>此时实例与数据库建立了联系, 数据库完全启动, 普通用户也可以访问数据库。</p>
-<h2 id="2-oracle数据库-oracle-database"><a class="header-anchor-1" href="#2-oracle数据库-oracle-database">#</a>2. Oracle数据库 (Oracle Database)</h2>
-<p>Oracle Database = Controlfile + datafile + logfile + spfile + …</p>
-<p>是存储在<strong>磁盘</strong>上的<strong>一组数据文件</strong>的集合</p>
-<p>一般来说, 一个数据库上只有一个实例对其进行操作</p>
-<p>但是也有例外: RAC（Real Application Clusters）就允许在集群环境中的多台计算机上操作，这样就可以有多台实例同时装载并打开一个数据库（位于一组共享物理磁盘上）</p>
-<p>例外2: 容器式数据库</p>
-<h2 id="3-oracle数据库和oracle实例的关系"><a class="header-anchor-1" href="#3-oracle数据库和oracle实例的关系">#</a>3. <em>Oracle数据库</em>和<em>Oracle实例</em>的关系</h2>
-<ol>
-<li>
-<p>一个实例一生只能够装载及打开一个数据库</p>
-</li>
-<li>
-<p>一个数据库能够被多个实例装载并打开(RAC)</p>
-</li>
-<li>
-<p>每个运行着的数据库一定与至少一个实例关联</p>
-</li>
-</ol>
-<p><img src="instance-and-database.png" alt="" /></p>
-<p>Oracle数据库与实例的启动过程</p>
-<p><img src="startup-sequence.png" alt="" /></p>
-<p>Oracle数据库与实例的关闭过程</p>
-<p><img src="shutdown-sequence.png" alt="" /></p>
-<h1>常用命令</h1>
-<ul>
-<li>
-<p>名称, 版本信息查看</p>
-<ul>
-<li>
-<p>查询数据库版本信息</p>
-<pre><code>`SQL&gt; select * from v$version;`
-</code></pre>
-</li>
-<li>
-<p>查看数据库名称</p>
-<pre><code>`SQL&gt; show parameter db_name;`
-</code></pre>
-</li>
-<li>
-<p>查看数据库服务名</p>
-<pre><code>`SQL&gt; show parameter service_names;`
-</code></pre>
-</li>
-<li>
-<p>查询全局数据库名称</p>
-<pre><code>`SQL&gt; select * from global_name;`
-</code></pre>
-</li>
-</ul>
-</li>
-<li>
-<p>数据库实例 (Instance)</p>
-<ul>
-<li>
-<p>查询当前数据库实例名称</p>
-<pre><code>`SQL&gt; select instance_name from v$instance;`
-</code></pre>
-</li>
-<li>
-<p>查看当前数据库实例状态(open/mount等)</p>
-<pre><code>`SQL&gt; select status from v$instance;`
-</code></pre>
-</li>
-<li>
-<p>查看数据库实例启动时间</p>
-<pre><code>`SQL&gt; SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS &quot;Inst Start Time&quot; FROM V$INSTANCE;`
-</code></pre>
-</li>
-<li>
-<p>创建一个新的数据库实例、加载数据库、打开数据库 (需要DBA权限)</p>
-<pre><code>`SQL&gt; startup [nomount | mount | open];`
-</code></pre>
-</li>
-<li>
-<p>关闭实例绑定的数据库、卸载数据库、结束当前实例 (需要DBA权限)</p>
-<pre><code>`SQL&gt; shutdown [normal | transactional | immediate];`
-</code></pre>
-</li>
-<li>
-<p>关闭实例绑定的数据库、卸载数据库</p>
-<pre><code>`SQL&gt; alter database close;`
-</code></pre>
-</li>
-<li>
-<p>加载数据库/打开数据库</p>
-<pre><code>`SQL&gt; alter database [mount | open];`
-</code></pre>
-</li>
-</ul>
-</li>
-<li>
-<p>数据库设置, 统计信息等</p>
-<ul>
-<li>
-<p>查询数据库打开模式(mounted/open/read write)</p>
-<pre><code>`SQL&gt; select open_mode from v$database;`
-</code></pre>
-</li>
-<li>
-<p>查看数据库DBF文件位置</p>
-<pre><code>`SQL&gt; select name from v$datafile;`
-</code></pre>
-</li>
-<li>
-<p>查询数据文件状态</p>
-<pre><code>`SQL&gt; select file#,name,status,enabled,checkpoint_change# from v$datafile;`
-</code></pre>
-</li>
-<li>
-<p>查询数据文件位置</p>
-<pre><code>`SQL&gt; select name from v$datafile;`
-</code></pre>
-</li>
-<li>
-<p>查询数据文件（表空间）大小</p>
-<pre><code>`SQL&gt; select sum(bytes)/1024/1024/1024 as GB from v$datafile;`
-</code></pre>
-</li>
-<li>
-<p>查询有效数据大小</p>
-<pre><code>`SQL&gt; select sum(bytes)/1024/1024/1024 as GB from dba_segments;`
-</code></pre>
-</li>
-<li>
-<p>查看当前库的所有数据表</p>
-<pre><code>`SQL&gt; select TABLE_NAME from all_tables;`
-</code></pre>
-</li>
-</ul>
-</li>
-<li>
-<p>可插拔数据库 (PDB) 管理</p>
-<ul>
-<li>
-<p>查看数据库是CDB还是传统DB</p>
-<pre><code>`SQL&gt; select name, cdb, open_mode, con_id from v$database;`
-</code></pre>
-</li>
-<li>
-<p>查看当前容器 (CDB) 名</p>
-<pre><code>`SQL&gt; show con_name;`
-</code></pre>
-</li>
-<li>
-<p>列举当前容器中的所有PDB以及状态</p>
-<pre><code>`SQL&gt; select con_id, dbid, guid, name, open_mode from v$pdbs;`
-</code></pre>
-</li>
-<li>
-<p>切换到某个PDB</p>
-<pre><code>`SQL&gt; alter session set container=&lt;PDB&gt;;`
-</code></pre>
-</li>
-<li>
-<p>启动PDB数据库</p>
-<pre><code>`SQL&gt; alter pluggable database &lt;PDB&gt; open;`
-
-或者
-
-`SQL&gt; alter session set container=&lt;PDB&gt;;`
-`SQL&gt; startup`
-</code></pre>
-</li>
-<li>
-<p>关闭PDB数据库</p>
-<pre><code>`SQL&gt; alter pluggable database &lt;PDB&gt; close;`
-</code></pre>
-</li>
-</ul>
-</li>
-<li>
-<p>用户管理</p>
-<ul>
-<li>创建用户</li>
-</ul>
-</li>
-</ul>
+    <title>word2vec</title>
+    <url>/2023/10/28/word2vec/</url>
+    <content><![CDATA[<h2 id="what’s-it"><a class="header-anchor-1" href="#what’s-it">#</a>What’s it</h2>
+<p>2013年，Google开源的，用于词向量计算的工具</p>
+<h2 id="架构"><a class="header-anchor-1" href="#架构">#</a>架构</h2>
+<p>X – Dense – Dense – Softmax – Y</p>
+<p>CBoW: 利用上下文预测当前词</p>
+<p>Skip-gram: 利用当前词预测上下文</p>
 ]]></content>
+      <categories>
+        <category>NLP</category>
+      </categories>
+      <tags>
+        <tag>NLP</tag>
+      </tags>
   </entry>
   <entry>
     <title>概率论与数理统计 - 概念总结</title>
@@ -832,23 +849,6 @@ f_Y(y) = \int_{-\infty}^{+\infty}f(x,y)dx
       </categories>
       <tags>
         <tag>Math</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>word2vec</title>
-    <url>/2023/10/28/word2vec/</url>
-    <content><![CDATA[<h2 id="what’s-it"><a class="header-anchor-1" href="#what’s-it">#</a>What’s it</h2>
-<p>2013年，Google开源的，用于词向量计算的工具</p>
-<h2 id="架构"><a class="header-anchor-1" href="#架构">#</a>架构</h2>
-<p>X – Dense – Dense – Softmax – Y</p>
-<p>CBoW: 利用上下文预测当前词</p>
-<p>Skip-gram: 利用当前词预测上下文</p>
-]]></content>
-      <categories>
-        <category>NLP</category>
-      </categories>
-      <tags>
-        <tag>NLP</tag>
       </tags>
   </entry>
   <entry>
@@ -4508,18 +4508,17 @@ Bigtable 把数据视为字符串，需要客户端序列化和反序列化后�
 <p>Google 分析了很多潜在的应用场景，最终敲定了这个数据模型。</p>
 <h3 id="行键"><a class="header-anchor-1" href="#行键">#</a>行键</h3>
 <p>表格中的行键是任意的字符串，最大可以是 64KB，典型值是 10-100 字节。</p>
-<p>Bigtable 会按照字典序排序行键。表中的所有行会被动态划分为更小的区间，称为 Tablet，是数据分散和负载均衡的单元。
+<p>Bigtable 会按照字典序排序行键。表中的所有行会被动态划分为更小的段，称为 Tablet，是数据分散和负载均衡的单元。
 客户端能够控制行键的格式，以便于控制数据的局部性。
 例如，在 Google 的 Webtable 中，行键是反转的 hostname，这样 <code>maps.google.com/index.html</code> 就会存储在 <code>com.google.maps/index.html</code> 的位置。</p>
 <h3 id="列族（column-family-cf）"><a class="header-anchor-1" href="#列族（column-family-cf）">#</a>列族（Column Family, CF）</h3>
-<p>列键被分成若干组，称为<em>列族</em>，列族是基本的 ACL 单元。
+<p>表格中的列被分成若干组，称为<em>列族</em>，列族是基本的 ACL 单元。
 一个列族中的所有数据通常都是同一种类型（同一个列族的会放在一起压缩）。
-列族必须在表创建时指定，写入数据之后就不能修改。
-预期的列族数量是很小的，最多是几百个，而且很少会改变。
-相对来说，表中的列数量没有上限。</p>
+列族必须在表创建时指定，一旦写入数据之后就不能修改。
+列族数量按预期是很小的，最多几百个，而且很少会改变。相对的，列的数量没有上限。</p>
 <p>列键使用 <code>family:qualifier</code> 的形式命名。其中 <code>family</code> 必须是可打印的字符，<code>qualifier</code> 可以是任意的字节串。
-例如 Webtable 中的一个列族是 <code>language</code>，用于存储网页的语言。<code>language</code> 列族中只有一个列键，存储语言 ID。
-另一个列族是 <code>anchor</code>，其中每一个列名是指向的站点的名字，值是链接文本。
+例如 Webtable 中的一个 CF 是 <code>language</code>，用于存储网页的语言。<code>language</code> 下只有一个列，存储语言 ID。
+另一个 CF 是 <code>anchor</code>，其中每一个列名是指向的站点的名字，值是链接文本。
 例如 Webtable 中的一条数据可能是这样的：</p>
 <table>
 <thead>
@@ -4539,74 +4538,64 @@ Bigtable 把数据视为字符串，需要客户端序列化和反序列化后�
 </tr>
 </tbody>
 </table>
-<p>访问控制和磁盘和内存统计都是在列族级别进行的。
-因此可以管理多种不同的应用程序：有的写入新的基本数据，有的读基本数据然后创建衍生数据，有的只能读取已有的数据。</p>
+<p>访问控制和磁盘和内存统计都是在 CF 级别进行的。因此可以通过 CF 管理不同的应用程序：例如一部分只写入新的基本数据，一部分读基本数据然后创建衍生数据，一部分只读取已有的数据。</p>
 <h3 id="时间戳"><a class="header-anchor-1" href="#时间戳">#</a>时间戳</h3>
 <p>Bigtable 中的每个单元都可以包含相同数据的多个版本，这些版本通过时间戳进行索引。
 Bigtable 的时间戳是 64 位整数，这个时间戳可以由 Bigtable 自动生成（使用现实世界的毫秒），也可以由客户端提供。
 如果由客户端提供，需要保证并发写的时候，多个客户端的时间戳是不冲突的。
 Bigtable 会按照时间戳的逆序存储数据，这样最新的数据会被最先读取。</p>
 <p>为了更容易地管理多版本数据，Bigtable 提供了两个 CF 级别的设置：允许 Bigtable 自动回收旧版本的数据。客户端可以选择保留多少个版本，或者只保留最新的版本。</p>
-<p>在 Webtable 中，<code>contents</code>列存储的数据的时间戳是文档的实际爬取时间，而且设置了只保存最新 3 个版本。</p>
+<p>在 Webtable 中，<code>contents</code> 列存储的数据的时间戳是文档的实际爬取时间，而且设置了只保存最新 3 个版本。</p>
 <h2 id="3-api"><a class="header-anchor-1" href="#3-api">#</a>3. API</h2>
-<p>Bigtable API 提供了这些方法：</p>
+<p>写入 Bigtable 的代码示例：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Open the table</span></span><br><span class="line">Table *T = <span class="built_in">OpenOrDie</span>(<span class="string">&quot;/bigtable/web/webtable&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Write a new anchor and delete an old anchor</span></span><br><span class="line"><span class="function">RowMutation <span class="title">r1</span><span class="params">(T, <span class="string">&quot;com.cnn.www&quot;</span>)</span></span>;</span><br><span class="line">r<span class="number">1.</span><span class="built_in">Set</span>(<span class="string">&quot;anchor:www.c-span.org&quot;</span>, <span class="string">&quot;CNN&quot;</span>);</span><br><span class="line">r<span class="number">1.</span><span class="built_in">Delete</span>(<span class="string">&quot;anchor:www.abc.com&quot;</span>);</span><br><span class="line">Operation op;</span><br><span class="line"><span class="built_in">Apply</span>(&amp;op, &amp;r1);</span><br></pre></td></tr></table></figure>
+<p>读取 Bigtable 的代码示例：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">Scanner <span class="title">scanner</span><span class="params">(T)</span></span>;</span><br><span class="line">ScanStream *stream;</span><br><span class="line">stream = scanner.<span class="built_in">FetchColumnFamily</span>(<span class="string">&quot;anchor&quot;</span>);</span><br><span class="line">stream-&gt;<span class="built_in">SetReturnAllVersions</span>();</span><br><span class="line">scanner.<span class="built_in">Lookup</span>(<span class="string">&quot;com.cnn.www&quot;</span>);</span><br><span class="line"><span class="keyword">for</span> (; !stream-&gt;<span class="built_in">Done</span>(); stream-&gt;<span class="built_in">Next</span>()) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s %s %lld %s\n&quot;</span>,</span><br><span class="line">        scanner.<span class="built_in">RowName</span>(),</span><br><span class="line">        stream-&gt;<span class="built_in">ColumnName</span>(),</span><br><span class="line">        stream-&gt;<span class="built_in">MicroTimestamp</span>(),</span><br><span class="line">        stream-&gt;<span class="built_in">Value</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Bigtable API 提供了这些方法和特性：</p>
 <ul>
-<li>创建、删除表和 CF</li>
 <li>修改集群</li>
-<li>修改表</li>
-<li>修改 CF 的元数据，例如 ACL</li>
-<li>读写数据</li>
-<li>扫描数据</li>
+<li>创建和删除表</li>
+<li>创建、修改和删除 CF，修改 ACL</li>
+<li>读、写和扫描数据</li>
 <li>把一组操作打包成一个原子操作</li>
-</ul>
-<p>Bigtable 还支持更高级的操作，例如：</p>
-<ul>
-<li>单行事务：可以对单行数据进行原子的读-修改-写操作</li>
+<li>单行事务：可以对单行数据进行原子的 Read-Modify-Write 操作</li>
 <li>单元格作为计数器</li>
-<li>在服务器的地址空间中执行客户端提供的 Sawzall 代码（PS. 类似 lua in redis）
+<li>在服务器的地址空间中执行客户端提供的 Sawzall 脚本（PS. 类似 lua in redis）
 Sawzall 的 API 不能写数据，但是可以进行一些复杂的数据变换、过滤和聚合操作。</li>
 </ul>
-<p>Bigtable 可以和 MapReduce 结合使用，Google 写了很多包装器，用于在 MapReduce 任务中读写 Bigtable。</p>
+<p>Bigtable 还可以和 MapReduce 结合使用，Google 写了很多包装器，用于在 MapReduce 任务中读写 Bigtable。</p>
 <h2 id="4-基本构建块"><a class="header-anchor-1" href="#4-基本构建块">#</a>4. 基本构建块</h2>
-<p>Bigtable 是建立在其他几个 Google 系统之上的：</p>
-<ul>
+<p>Bigtable 是建立在其他几个已有的 Google 系统之上的：</p>
+<ol>
 <li>GFS（Google File System）：用于存储日志和数据</li>
 <li>集群管理系统：调度任务，管理资源，处理机器故障，和监控集群状态</li>
-<li>SSTable：文件格式</li>
 <li>Chubby：分布式锁服务</li>
-</ul>
-<p>Bigtable 内部使用了 Google <em>SSTable</em> 文件格式。
-一个 SSTable 提供一个持久化的、有序的、不可变的 K-V 映射，其中 K 和 V 都是任意的字节串。
-SSTable 提供的操作有：</p>
+</ol>
+<p>Bigtable 使用了 Google <em>SSTable</em> 文件格式。SSTable 提供一个持久化的、有序的、不可变的 K-V 映射，其中 K 和 V 都是任意的字节串。SSTable 文件能提供的操作有：</p>
 <ul>
 <li>按 key 查找 value</li>
 <li>迭代特定范围内的所有 key-value 对</li>
 </ul>
 <p>SSTable 内部包含一个块序列（块大小可变，默认 64KB）。SSTable 文件末尾存储着块索引，用于定位块。当 SSTable 文件被打开时，块索引会被读入内存。
-每次查询操作只需要一个磁盘 seek 操作：首先在内存索引中二分查找到块的位置，然后读取块。
-可选地，SSTable 可以被完全映射到内存中，这样就不需要访问磁盘了。</p>
+每次查询操作只需要一次磁盘 seek 操作：首先在内存索引中二分查找到块的位置，然后读取该块即可。
+可选地，SSTable 还可以被完全映射到内存中，这样就不需要访问磁盘了。</p>
 <p>Bigtable 还依赖于高可用和持久化地分布式锁服务 Chubby。
-Chubby 服务包含 5 个副本，其中一个会被选举为 Master，依赖于 Paxos 算法保证副本数据一致性。
-Chubby 提供了一个由目录和文件组成的命名空间，每个目录或文件都可以用作锁，而且读写文件的操作是原子的。
-Chubby 客户端库提供对 Chubby 文件的一致性缓存，每个客户端都维持着一个 <em>session</em>。
-如果客户端在超时时间内没有成功续约，则会过期，并失去所有的锁。
-Chubby 客户端可以注册 callback，当锁的状态发生变化时，会调用这个 callback。</p>
+Chubby 服务包含 5 个副本，其中一个会被选举为 Master，依赖于 Paxos 算法保证副本数据一致性。Chubby 提供了一个由目录和文件组成的命名空间，每个目录或文件都可以用作锁，而且读写文件的操作是原子的。
+Chubby 客户端库提供对 Chubby 文件的一致性缓存，每个客户端都维持着一个 <em>session</em>。如果客户端在超时时间内没有成功续约，则会过期，并失去所有的锁。
+Chubby 客户端还可以注册 callback，当锁的状态发生变化时，这个 callback 会被调用。</p>
 <p>Bigtable 用 Chubby 实现这些任务：</p>
 <ul>
-<li>保证任意时刻最多只有一个 Master</li>
-<li>保存 Bigtable 数据的 bootstrap 位置</li>
-<li>发现新 Tablet Server 的位置，处理 Tablet Server 的后事</li>
-<li>存储 schema 信息：每个表的 CF</li>
-<li>存储 ACL</li>
+<li>保证任意时刻最多只有一个 Master；</li>
+<li>保存 Bigtable 的 bootstrap 位置；</li>
+<li>发现新 Tablet Server 的位置；处理 Tablet Server 的后事；</li>
+<li>存储 schema 信息：每个表的 CF；</li>
+<li>存储 ACL；</li>
 </ul>
 <p>Bigtable 强依赖于 Chubby，如果 Chubby 不可用，Bigtable 也不可用。
-Google 衡量了由于 Chubby 问题导致的 Bigtable 不可用的平均时间，
-在 14 个 Bigtable 集群，使用 11 个 Chubby 实例，这个时间只占 0.0047%。
-受影响最严重的单个集群，这个时间占 0.00326%。</p>
+Google 衡量了由于 Chubby 问题导致的 Bigtable 不可用的平均时间，在 14 个 Bigtable 集群，使用 11 个 Chubby 实例，这个时间只占 0.0047%。受影响最严重的单个集群，这个时间也只占 0.00326%。</p>
 <h2 id="5-实现"><a class="header-anchor-1" href="#5-实现">#</a>5. 实现</h2>
-<p>Bigtable 的实现包含三部分：链接到应用程序中的客户端库、一个 Master 进程和若干个 Tablet Server 进程。
-Tablet Server 可以动态地增加或删除。</p>
-<p>Master 负责：</p>
+<p>Bigtable 的实现包含三部分：链接到应用程序中的客户端库、一个 Master 进程和若干个 Tablet Server 进程。Tablet Server 可以动态地增加或删除。</p>
+<p>Bigtable 的 Master 进程负责：</p>
 <ul>
 <li>分配 Tablet 到 Tablet Server</li>
 <li>检测 Tablet Server 的增删</li>
@@ -4614,74 +4603,70 @@ Tablet Server 可以动态地增加或删除。</p>
 <li>垃圾回收 GFS 中的文件</li>
 <li>处理 Schema 变更（例如表和 CF 的增删）。</li>
 </ul>
-<p>Tablet Server 负责管理 Tablet（每个 Tablet Server 通常会管理 10 个到 1000 个 Tablet）。
-Tablet Server 处理客户端的读写请求，还有分割过大的 Tablet。</p>
-<p>和许多单主节点的分布式存储系统（比如 GFS）一样，客户端数据不会流过 Master 节点，而是直接和 Tablet Server 通信。
-因为客户端不依赖于 Master 来获取 Tablet 位置信息，大多数客户端从来不会和 Master 通信。因此 Master 的任务是很轻松的。</p>
-<p>一个 Bigtable 集群存储多个表，每个表由一系列的 Tablet 组成，每个 Tablet 包含了一段行范围内的数据。
-初始时，每个表只有一个 Tablet。随着表的增长，Tablet 会被分割成更多更小的 Tablet，默认 Tablet 的大小是 100-200 MB。</p>
+<p>Tablet Server 负责管理 Tablet，每个 Tablet Server 通常会管理 10 个到 1000 个 Tablet。
+Tablet Server 还要负责处理客户端的读写请求，还有分裂过大的 Tablet。</p>
+<p>和许多单主节点的分布式存储系统（比如 GFS）一样，客户端数据是不会流过 Master 节点的，而是直接和 Tablet Server 交互。因为客户端不依赖于 Master 来获取 Tablet 位置信息，大多数客户端从来不会和 Master 通信。因此 Master 的任务是很轻松的。</p>
+<p>一个 Bigtable 集群存储多个表，每个表由一系列的 Tablet 组成，每个 Tablet 包含了一段行范围的数据。
+初始时，每个表只有一个 Tablet。随着表的增长，Tablet 会被分裂成更多更小的 Tablet，默认 Tablet 的大小是 100-200 MB。</p>
 <h3 id="5-1-tablet-位置"><a class="header-anchor-1" href="#5-1-tablet-位置">#</a>5.1 Tablet 位置</h3>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Level 0  |          Chubby file</span><br><span class="line">         |              |</span><br><span class="line">Level 1  |         META_DATA1</span><br><span class="line">         |        /   |    |  \</span><br><span class="line">         |       /    |    |   \</span><br><span class="line">Level 2  |   META2 META3 META4 ...</span><br><span class="line">         |    /|\   /|\   /|\  ...</span><br><span class="line">Level 3  | USER1..  ...   ...  ...</span><br></pre></td></tr></table></figure>
-<p>Bigtable 使用了和 B+ 树同构的三级层次结构来存储 Tablet 位置信息。
-第 0 级是一个保存于 Chubby 中的文件，保存着 <em>root Tablet</em> 的位置信息。</p>
-<p>Root Tablet 是 METADATA 表的第一个 Tablet，而且不会被分割。</p>
-<p>METADATA 表是整个系统的元数据表，其中保存着所有其他表的 Tablet 位置信息。
-其行键是表名和末尾行的编码，值是 Tablet 的位置信息。
-METADATA 中的每一行都存储着大约 1KB 的数据。
-按照保守估计，每个 Tablet 128MB 的话，三级的 METADATA 表可以存储 2^34 个 Tablet 的位置。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Level 0  |         Chubby file</span><br><span class="line">         |              |</span><br><span class="line">         |              v</span><br><span class="line">Level 1  |         Root Tablet (META1)</span><br><span class="line">         |        /   |    |   \</span><br><span class="line">         |       v    v    v    v</span><br><span class="line">Level 2  |   META2 META3 META4 ...</span><br><span class="line">         |    /|\   /|\   /|\  ...</span><br><span class="line">         |    vvv   vvv   vvv  ...</span><br><span class="line">Level 3  | USER1..  ...   ...  ...</span><br></pre></td></tr></table></figure>
+<p>Bigtable 使用了三级层次结构来存储 Tablet 位置信息。
+第 0 级是一个保存于 Chubby 中的文件，保存着 <em>Root Tablet</em> 的位置信息。</p>
+<p>Root Tablet 是 METADATA 表的第一个 Tablet，而且不会被分裂。</p>
+<p>METADATA 表是整个系统的元数据表，其中保存着所有其他表的 Tablet 位置信息。其行键是表名和末尾行的编码，值是 Tablet 的位置信息。
+METADATA 中的每一行数据大约占用 1KB。按照保守估计，每个 Tablet 大小 128MB 的话，三级的 METADATA 表可以存储 2^34 个 Tablet 的位置。</p>
 <p>客户端库会缓存 Tablet 的位置信息。
-如果客户端没有缓存，或者发现缓存的位置信息不正确，那么它就会递归地到上一级查找。
-如果没有缓存，这种定位方法需要 3 个 RT，加上 1 次 Chubby 读。
-如果缓存不对，那么最多需要 6 个 RT，加上 1 次 Chubby 读。
-虽然 Tablet 位置是保存在内存中的，即不需要访问 GFS，但是这种定位方法还是很慢。
-为了加速一般情况，Bigtable 会让客户端预取 Tablet 位置信息，每次读的时候都多读几个 Tablet 的位置信息。</p>
+如果客户端没有缓存，或者发现缓存的位置信息不正确，那么它就会递归地到上一级查找。按照这种算法，如果当前没有缓存，定位需要 3 个 RT，加上 1 次 Chubby 读。如果缓存不对，那么最多需要 6 个 RT，加上 1 次 Chubby 读。
+虽然 Tablet 位置是保存在内存中的，即不需要访问 GFS，但是这种定位方法还是很慢。为了加速一般情况，Bigtable 会让客户端预取 Tablet 位置信息，每次读的时候都多读几个 Tablet 的位置信息。</p>
 <p>为方便 debug，METADATA 表中还会存储每个 Tablet 的时间日志。</p>
 <h3 id="5-2-tablet-分配"><a class="header-anchor-1" href="#5-2-tablet-分配">#</a>5.2 Tablet 分配</h3>
-<p>每个 Tablet 只会分配给一个 Tablet Server。
+<p>每个 Tablet 最多只会分配给一个 Tablet Server。
 Master 负责记录活着的 Tablet Server，以及 Tablet 到 Tablet Server 的映射关系。
-如果一个 Tablet 还没有分配，而且有空闲空间的 Tablet Server，那么 Master 就会把这个 Tablet 分配给这个 Tablet Server，通过发送一个 Tablet load 请求。</p>
+如果一个 Tablet 还没有分配，而且某个 Tablet Server 有空闲空间，那么 Master 就会向这个 Tablet Server 发送一个 Tablet load 请求，把这个 Tablet 分配给他。</p>
 <p>Bigtable 使用 Chubby 追踪 Tablet Server 的状态。
-当一个 Tablet Server 启动时，它会在 Chubby 的特定目录下创建一个名字唯一的文件（Server file），并且获取文件的排他锁。
-Master 会监听这个目录来发现新的 Tablet Server。
+当一个 Tablet Server 启动时，它会在 Chubby 的特定目录下创建一个名字唯一的文件（Server file），并且获取文件的排他锁。Master 会监听这个目录来发现新的 Tablet Server。
 如果一个 Tablet Server 丢失了这个排它锁，那么它就不再对外提供服务。它会先检查 Server file 是否存在，如果存在就尝试重新获取锁，否则就会直接退出。
-当 Tablet Server 结束时，它会释放锁给 Master。</p>
-<p>Master 需要负责检测 Tablet Server 是否在工作，如果没有工作，就要尽快把它负责的 Tablet 重新分配给其他 Tablet Server。
-Master 会定期询问 Tablet Server 是否还持有 Server file 的锁，如果没有，或者一直超时，Master 就会尝试拿一下这个 Tablet 的锁。
-如果 Master 拿到了说明 Chubby 正常，Tablet Server 不正常，就会把这个 Server file 删掉，让 Tablet Server 自行退出；然后把它负责的 Tablet 标记为未分配。
+当 Tablet Server 结束时，它会释放锁，就会被 Master 拿到。</p>
+<p>Master 需要周期性地监测 Tablet Server 是否在正常工作，如果不是，就要尽快把它负责的 Tablet 分配给其他 Tablet Server。
+Master 会定期询问 Tablet Server 是否还持有 Server file 的锁，如果没有，或者多次尝试都超时，Master 就会尝试拿一下这个 Tablet 的锁。如果拿到了，说明 Chubby 服务正常，Tablet Server 挂了，就会把这个 Server file 删掉，让 Tablet Server 自行退出；然后把它负责的 Tablet 添加到未分配集合中。
 为了确保 Bigtable 集群不会受 Master 和 Chubby 之间网络的影响，Master 的 Chubby session 过期，就会直接退出。</p>
-<p>当集群管理系统拉起一个 Master 的时候，它需要先看看都有哪些 Tablet。</p>
+<p>当一个新 Master 被集群管理系统拉起的时候，它需要先检查有哪些 Tablet，按照如下步骤：</p>
 <ol>
-<li>Master 获取一个 master lock</li>
-<li>扫描 Server file 目录，找到所有活着的 Tablet Server</li>
-<li>与每一个 Tablet Server 通信，询问它们负责的 Tablet</li>
-<li>扫描 METADATA 表，找到所有的 Tablet：此时可以找到未分配的 Tablet</li>
+<li>Master 获取一个 Master lock；</li>
+<li>扫描 Server file 目录，找到所有活着的 Tablet Server；</li>
+<li>与每一个 Tablet Server 通信，询问它们负责的 Tablet 列表；</li>
+<li>扫描 METADATA 表，找到所有的 Tablet：此时就可以找到哪些 Tablet 还未分配。</li>
 </ol>
-<p>一个问题是如果 METADATA Tablet 还没有分配的话，Master 就没办法找到 METADATA，那步骤 4 就进行不了。
-因此在步骤 4 之前，Master 会先检查 root Tablet 有没有分配，如果没有分配，就会特地把 root 标记为未分配。</p>
-<p>已有 Tablet 的集合只有创建或删除整个表的时候才会变化，两个已有的 Tablet 会合并成一个大的，或者一个大的会被分割成两个小的。
-Master 能够记录这些变更，因为除最后一个 Tablet 之外的所有 Tablet 都是由它初始化的。而 Tablet 分裂是由 Tablet Server 完成的。
-Tablet Server 把分裂出来的新 Tablet 信息记录在 METADATA 表中，然后通知 Master。
-如果通知消息丢失了，当 Master 要求 Tablet Server 加载分裂出来的 Tablet 时，Master 就会找到这个新 Tablet。</p>
+<p>一个小问题是如果 METADATA Tablet 还没有分配的话，Master 就没办法找到 METADATA 表的位置，那步骤 4 就无法进行。
+因此在步骤 4 之前，Master 会额外检查一下 Root Tablet 有没有分配，如果没有分配，就会额外把 Root Tablet 添加到未分配集合中，最终 Root Tablet 会被分配给空闲的 Tablet Server。</p>
+<p>已有 Tablet 的集合只有当以下时候才会变化：</p>
+<ol>
+<li>创建或删除表；</li>
+<li>Tablet 合并：两个已有的 Tablet 合并成一个大的 Tablet；</li>
+<li>Tablet 分裂：一个 Tablet 被分裂成两个更小的 Tablet；</li>
+</ol>
+<p>情况 1 和 2 都是由 Master 初始化的，Master 自然能够追踪这些变更；
+情况 3 是由 Tablet Server 完成的，Tablet Server 会把分裂出来的新 Tablet 信息记录在 METADATA 表中，然后通知 Master。即使这条通知消息丢失了，当 Master 要求 Tablet Server 加载分裂出来的 Tablet 时，Master 也会找到这个新 Tablet。</p>
 <h3 id="5-3-tablet-服务"><a class="header-anchor-1" href="#5-3-tablet-服务">#</a>5.3 Tablet 服务</h3>
 <p>Tablet 的持久化状态是保存在 GFS 中的。
 更新操作会被记录成 commit log，其中保存着 redo 记录。
-在这些更新中，最近提交的更新会被保存在内存中的一个称为 memtable 的有序数据结构中。
+在这些更新中，最近提交的更新会被保存在内存中的一个称为 Memtable 的有序数据结构中。
 为了恢复一个 Tablet，Tablet Server 需要先从 METADATA 表中找到这个 Tablet 的元数据，包括组成这个 Tablet 的一系列 SSTable 文件，还有一系列 redo 点，即指向 commit log 的指针。
-Tablet Server 会把这些 SSTable 文件的索引加载到内存中，然后通过应用自 redo 点开始的所有更新来重建 memtable。</p>
+Tablet Server 会把这些 SSTable 文件的索引加载到内存中，然后通过应用自 redo 点开始的所有更新来重建 Memtable。</p>
 <p>写操作：</p>
 <ol>
 <li>Server 检查是否合法，是否有权限（通过读取 Chubby 中的 ACL）</li>
 <li>有效的变更会被写入 commit log：会分批写入提高吞吐量</li>
-<li>变更会被写入 memtable</li>
+<li>变更会被写入 Memtable</li>
 </ol>
 <p>读操作：</p>
 <ol>
 <li>Server 检查是否合法，是否有权限（通过读取 Chubby 中的 ACL）</li>
-<li>在由一系列 SSTable 和 memtable 组成的数据视图中查找数据</li>
+<li>在由一系列 SSTable 和 Memtable 组成的数据视图中查找数据</li>
 </ol>
 <p>Tablet 分裂和合并不影响读写操作。</p>
 <h3 id="5-4-数据回收"><a class="header-anchor-1" href="#5-4-数据回收">#</a>5.4 数据回收</h3>
-<p><em>Minor compaction</em>：写入数据的时候，memtable 会增大，当增加到一定程度时，就会被冻结，然后转换成 SSTable 写入 GFS。于此同时，新的 memtable 会被创建。</p>
+<p><em>Minor compaction</em>：写入数据的时候，Memtable 会增大，当增加到一定程度时，就会被冻结，然后转换成 SSTable 写入 GFS。于此同时，新的 Memtable 会被创建。</p>
 <p>Minor compaction 的目的是：</p>
 <ul>
 <li>减小内存占用</li>
@@ -4690,7 +4675,7 @@ Tablet Server 会把这些 SSTable 文件的索引加载到内存中，然后通
 <p>Minor compaction 不影响读写操作。</p>
 <p>每次 minor 都会创建一个新的 SSTable。如果一直增加下去，读的时候就需要合并很多 SSTable。
 因此 Bigtable 会定期在后台执行 <em>merging compaction</em>，也叫 <em>major compaction</em>。
-Major compaction 会把多个 SSTable + memtable 合并成一个 SSTable。
+Major compaction 会把多个 SSTable + Memtable 合并成一个 SSTable。
 合并的时候，会把被删除的数据去掉。</p>
 <p>Major compaction 的目的是：</p>
 <ul>
@@ -4732,7 +4717,7 @@ Bigtable 允许客户端指定创建一个布隆过滤器，用于快速判断�
 为了进行恢复，每个 Server 都需要读取一遍完整的 log 文件，会导致巨大的读放大。</p>
 <p>为了避免这种读放大，首先，Bigtable 会按照 <code>&lt;table, row name, log sequence number&gt;</code> 顺序排序 log 文件。
 排序后，对于单个 Tablet 的变更就是连续的，因此新 owner 只需要进行一次 seek 加顺序读就可以了。
-为了并行化排序过程，log 文件会被分割成 64MB 大小的段，然后在不同的 Tablet Server 上并行排序。
+为了并行化排序过程，log 文件会被分裂成 64MB 大小的段，然后在不同的 Tablet Server 上并行排序。
 这种排序过程是由 Master 协调的。当任意 Tablet Server 需要从 log 文件恢复 Tablet 的时候，就会开始这种排序过程。</p>
 <p>由于各种各样的原因，有时往 GFS 上写 log 文件的时候，会有性能抖动。例如 GFS 正在故障恢复，或者网络拥塞，或者单纯就是负载太重。
 为了防止 GFS 延迟尖峰，每个 Tablet Server 实际上会有两个线 log 的线程，每个写自己的 log 文件，同一时刻只会有一个在使用。
@@ -4747,12 +4732,12 @@ log 条目中包含了自增序列号以防止线程切换的时候重复应用�
 <p>除了 SSTable 缓存以外，Bigtable 系统的各种其他部分也利用了 SSTable 文件的不可变性。
 比如，读 SSTable 的时候不需要任何同步机制。
 因此行之间的并发控制就可以实现得非常高效。
-唯一的例外是 memtable。
-为了减少 memtable 的读争抢，我们让每个 memtable 的行都是 CoW 的，这样就可以并行地读写。</p>
+唯一的例外是 Memtable。
+为了减少 Memtable 的读争抢，我们让每个 Memtable 的行都是 CoW 的，这样就可以并行地读写。</p>
 <p>因为 SSTable 是不可变的，所以移除删除的数据就变成了垃圾回收过时的 SSTable 的问题。
 每个 Tablet 的 SSTable 都被注册到 METADATA 表中。
 Master 使用标记-清除算法来回收过时的 SSTable。</p>
-<p>最终，SSTable 的不可变性还允许我们快速地分割 Tablet。
+<p>最终，SSTable 的不可变性还允许我们快速地分裂 Tablet。
 相对于给每个 Tablet 生成一组新的 SSTable 文件，Bigtable 让子 Tablet 共享父 Tablet 的 SSTable 文件。</p>
 <h2 id="7-性能评估"><a class="header-anchor-1" href="#7-性能评估">#</a>7 性能评估</h2>
 <p>评估实验使用了一个 N 个 Tablet Server 的 Bigtable 集群。
@@ -4964,6 +4949,99 @@ Google Analytics 总结这些信息，然后提供给网站所有者。</p>
       </tags>
   </entry>
   <entry>
+    <title>MIT 6.824/6.5840 分布式系统 Lab 3 - Raft 论文阅读</title>
+    <url>/2025/02/20/mit-6.824-distributed-system-lab3-1/</url>
+    <content><![CDATA[<p>Raft 是一种经典的分布式共识算法（Consensus algorithm）。</p>
+<h2 id="复制状态机"><a class="header-anchor-1" href="#复制状态机">#</a>复制状态机</h2>
+<p>复制状态机是一组服务器上，计算相同的状态，而且可以容忍部分机器下线的状态机。
+复制状态机是解决分布式系统中一系列容错问题的基础，例如选主。
+通常通过 Replicated Log 实现，共识算法的职责就是维护 Replicated Log 的一致性。</p>
+<p>实际应用中，对于共识算法的要求：</p>
+<ul>
+<li><strong>正确性</strong>：在非拜占庭条件下，永远不会返回错误的结果；</li>
+<li><strong>可用性</strong>：只要多数机器正常工作，就可以正常工作；</li>
+<li>一致性不依赖于操作的时序，最坏情况下，只会导致可用性的问题；</li>
+<li><strong>快速</strong>：一般情况下，一旦大多数机器响应了一轮 RPC，命令即可完成；</li>
+</ul>
+<h2 id="paxos-的问题"><a class="header-anchor-1" href="#paxos-的问题">#</a>Paxos 的问题</h2>
+<ul>
+<li>难以理解</li>
+</ul>
+<h2 id="raft-共识算法"><a class="header-anchor-1" href="#raft-共识算法">#</a>Raft 共识算法</h2>
+<p>Raft 将共识问题分解成三个子问题：（1）选主、（2）日志复制、（3）安全性；</p>
+<h3 id="raft-基本定义"><a class="header-anchor-1" href="#raft-基本定义">#</a>Raft 基本定义</h3>
+<p>Raft 规定的节点状态：</p>
+<ul>
+<li><strong>Follower</strong>：被动响应 C 和 L 的请求；</li>
+<li><strong>Leader</strong>：处理所有客户端的请求；</li>
+<li><strong>Candidate</strong>：选主过程中使用；</li>
+</ul>
+<p>Raft 将时间划分为任意长度的任期（Term），任期用连续整数编号，起到逻辑时钟的功能。每个任期开始时先进行选举，选举出来的 Leader 会在这个任期内进行服务；否则继续下一个任期和选举。</p>
+<h3 id="选主"><a class="header-anchor-1" href="#选主">#</a>选主</h3>
+<p>Raft 利用心跳机制触发选主，Leader 会周期性地给所有 Follower 发送心跳宣布权威性。如果 Follower 一段时间没有收到心跳，则会开始尝试发起选主。</p>
+<p>选主过程中，Follower 会将 Term++，然后请求所有 Peer 投票（自己当然会给自己投票）。结果可能有几种：</p>
+<ol>
+<li><strong>收到的选票数量超过半数</strong>：自己成为 Leader；</li>
+<li><strong>收到了 Term 更大的 Candidate 或者 Leader 的任意 RPC</strong>：自己被强制降级为 Follower，发起的选举失效；</li>
+<li><strong>收到的选票数量不到半数</strong>：没有 Leader，继续下一轮选举；</li>
+</ol>
+<p>节点投票时遵循简单的规则：</p>
+<ul>
+<li>每个 Term 最多投给一个人</li>
+<li>先来后到</li>
+</ul>
+<p>Raft 采用随机选举超时，保证多个节点不会在同一时间启动选举。</p>
+<h3 id="日志复制"><a class="header-anchor-1" href="#日志复制">#</a>日志复制</h3>
+<p>当一个 Leader 被选出来之后，就开始负责这些事情：</p>
+<ul>
+<li><strong>给每个 Follower 发送日志</strong>：同步 Log；</li>
+<li><strong>决定什么时候可以提交 Log</strong>：当 Leader 确信一条日志已经被同步到多数机器上，则认为可以提交它，Raft 机制保证了剩余机器<strong>最终</strong>将会提交相同的日志，即所谓<strong>最终一致性</strong>。</li>
+</ul>
+<p>Raft 的<strong>Log Matching Property</strong>：</p>
+<ul>
+<li>两个不同 Log 中的条目，如果 term 和 index 相同，则存储的 command 相同；</li>
+<li>两个不同 Log 中的条目，如果 term 和 index 相同，则之前的所有 log 相同；</li>
+</ul>
+<p>在 Raft 执行过程中，由于机器崩溃重启，Follower 可能会缺失部分 Log，可能会有多的未提交的 Log，也可能两者兼有；
+这种情况下，Leader 会<strong>覆盖</strong>Follower 上不一致的 Log：首先两者会找到第一条不一致的 Log，然后 Leader 发送后续的 Log 给 Follower。
+<code>nextIndex</code>就是 Leader 用于记录每一个 Follower 同步位置的变量，初始值为 Leader 的 nextLogIndex。然后会根据<code>AppendEntries</code>的结果减小<code>nextIndex</code>。</p>
+<p>一个可能的优化点是：Follower 反馈更加精确的冲突日志数量。作者怀疑这种策略在现实情况中的必要性。</p>
+<p>Raft 的<strong>Leader Append-Only Property</strong>：Raft Leader 从来不需要更改或者删除自己的日志；</p>
+<h3 id="安全性"><a class="header-anchor-1" href="#安全性">#</a>安全性</h3>
+<p>上面描述的 Raft 不足以保证命令的顺序性，原因是多个日志冲突的 Follower 可能会交替成为 Leader，导致已经提交的 Log 被覆盖。为此还需要增加一个新的限制：</p>
+<ul>
+<li><strong>Leader Completeness Property</strong>：Candidate 必须拥有前一个 Term 中所有<strong>已经提交的</strong>Log，才能被选为 Leader；</li>
+</ul>
+<h4 id="选主限制"><a class="header-anchor-1" href="#选主限制">#</a>选主限制</h4>
+<p>Raft 利用选主过程保证<strong>Leader Completeness Property</strong>，<code>RequestVote</code> RPC 请求中会包含 Candidate 的 Log 信息，如果 Log 不够新，则在投篇时会被多数节点拒绝。</p>
+<p>Raft 定义的“新（Up-to-date）”：</p>
+<ul>
+<li>如果最后一条 Log 的 Term 不同，Term 大的更新</li>
+<li>否则，Log 长的更新</li>
+</ul>
+<h4 id="提交前一个-term-的-log"><a class="header-anchor-1" href="#提交前一个-term-的-log">#</a>提交前一个 Term 的 Log</h4>
+<p>只是 Log 被同步到多数节点，仍然不足以能够提交这个 Log。</p>
+<p>Raft 要求：只有当前 Term 的 Log 才通过多数原则确认提交，非当前 Term 的不会这样。</p>
+<h4 id="安全证明"><a class="header-anchor-1" href="#安全证明">#</a>安全证明</h4>
+<p>略</p>
+<h4 id="follower-和-candidate-崩溃重启"><a class="header-anchor-1" href="#follower-和-candidate-崩溃重启">#</a>Follower 和 Candidate 崩溃重启</h4>
+<p>略</p>
+<h4 id="时序和可用性"><a class="header-anchor-1" href="#时序和可用性">#</a>时序和可用性</h4>
+<p>略</p>
+<h3 id="集群成员变更-联合共识"><a class="header-anchor-1" href="#集群成员变更-联合共识">#</a>集群成员变更 &amp; 联合共识</h3>
+<p>集群变更配置的场景是很常见的。</p>
+<p>TODO</p>
+<h3 id="日志压缩"><a class="header-anchor-1" href="#日志压缩">#</a>日志压缩</h3>
+]]></content>
+      <categories>
+        <category>distributed-system</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+        <tag>Raft</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>MIT 6.824/6.5840 分布式系统 Lab 3: Raft 实现</title>
     <url>/2025/02/20/mit-6.824-distributed-system-lab3-2/</url>
     <content><![CDATA[<h2 id="基本框架"><a class="header-anchor-1" href="#基本框架">#</a>基本框架</h2>
@@ -5071,99 +5149,6 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
 <h3 id="installsnapshot-响应处理"><a class="header-anchor-1" href="#installsnapshot-响应处理">#</a>InstallSnapshot 响应处理</h3>
 <p>和 AppendEntries 的处理类似：</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rf *Raft)</span></span> replicateByIS(i <span class="type">int</span>, args *InstallSnapshotArgs) &#123;</span><br><span class="line">	reply := &amp;InstallSnapshotReply&#123;&#125;</span><br><span class="line">	<span class="keyword">if</span> !rf.sendInstallSnapshot(i, args, reply) &#123;</span><br><span class="line">		<span class="comment">// net failure</span></span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	rf.mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> rf.mu.Unlock()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// we are still the leader</span></span><br><span class="line">	<span class="keyword">if</span> rf.currentTerm != args.Term || !rf.leader &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// we are outdated</span></span><br><span class="line">	<span class="keyword">if</span> reply.Term &gt; rf.currentTerm &#123;</span><br><span class="line">		rf.beFollower(reply.Term)</span><br><span class="line">		rf.persist()</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> args.LastIncludedIndex &gt; rf.matchIndex[i] &#123;</span><br><span class="line">		rf.matchIndex[i] = args.LastIncludedIndex</span><br><span class="line">		rf.updateCommitIndex()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// increase nextIndex by 1 or more</span></span><br><span class="line">	nextIndex := Max(rf.nextIndex[i], args.LastIncludedIndex) + <span class="number">1</span></span><br><span class="line">	<span class="keyword">if</span> nextIndex &lt;= rf.nextLogIndex() &#123;</span><br><span class="line">		rf.nextIndex[i] = nextIndex</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>distributed-system</category>
-      </categories>
-      <tags>
-        <tag>分布式系统</tag>
-        <tag>Raft</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MIT 6.824/6.5840 分布式系统 Lab 3 - Raft 论文阅读</title>
-    <url>/2025/02/20/mit-6.824-distributed-system-lab3-1/</url>
-    <content><![CDATA[<p>Raft 是一种经典的分布式共识算法（Consensus algorithm）。</p>
-<h2 id="复制状态机"><a class="header-anchor-1" href="#复制状态机">#</a>复制状态机</h2>
-<p>复制状态机是一组服务器上，计算相同的状态，而且可以容忍部分机器下线的状态机。
-复制状态机是解决分布式系统中一系列容错问题的基础，例如选主。
-通常通过 Replicated Log 实现，共识算法的职责就是维护 Replicated Log 的一致性。</p>
-<p>实际应用中，对于共识算法的要求：</p>
-<ul>
-<li><strong>正确性</strong>：在非拜占庭条件下，永远不会返回错误的结果；</li>
-<li><strong>可用性</strong>：只要多数机器正常工作，就可以正常工作；</li>
-<li>一致性不依赖于操作的时序，最坏情况下，只会导致可用性的问题；</li>
-<li><strong>快速</strong>：一般情况下，一旦大多数机器响应了一轮 RPC，命令即可完成；</li>
-</ul>
-<h2 id="paxos-的问题"><a class="header-anchor-1" href="#paxos-的问题">#</a>Paxos 的问题</h2>
-<ul>
-<li>难以理解</li>
-</ul>
-<h2 id="raft-共识算法"><a class="header-anchor-1" href="#raft-共识算法">#</a>Raft 共识算法</h2>
-<p>Raft 将共识问题分解成三个子问题：（1）选主、（2）日志复制、（3）安全性；</p>
-<h3 id="raft-基本定义"><a class="header-anchor-1" href="#raft-基本定义">#</a>Raft 基本定义</h3>
-<p>Raft 规定的节点状态：</p>
-<ul>
-<li><strong>Follower</strong>：被动响应 C 和 L 的请求；</li>
-<li><strong>Leader</strong>：处理所有客户端的请求；</li>
-<li><strong>Candidate</strong>：选主过程中使用；</li>
-</ul>
-<p>Raft 将时间划分为任意长度的任期（Term），任期用连续整数编号，起到逻辑时钟的功能。每个任期开始时先进行选举，选举出来的 Leader 会在这个任期内进行服务；否则继续下一个任期和选举。</p>
-<h3 id="选主"><a class="header-anchor-1" href="#选主">#</a>选主</h3>
-<p>Raft 利用心跳机制触发选主，Leader 会周期性地给所有 Follower 发送心跳宣布权威性。如果 Follower 一段时间没有收到心跳，则会开始尝试发起选主。</p>
-<p>选主过程中，Follower 会将 Term++，然后请求所有 Peer 投票（自己当然会给自己投票）。结果可能有几种：</p>
-<ol>
-<li><strong>收到的选票数量超过半数</strong>：自己成为 Leader；</li>
-<li><strong>收到了 Term 更大的 Candidate 或者 Leader 的任意 RPC</strong>：自己被强制降级为 Follower，发起的选举失效；</li>
-<li><strong>收到的选票数量不到半数</strong>：没有 Leader，继续下一轮选举；</li>
-</ol>
-<p>节点投票时遵循简单的规则：</p>
-<ul>
-<li>每个 Term 最多投给一个人</li>
-<li>先来后到</li>
-</ul>
-<p>Raft 采用随机选举超时，保证多个节点不会在同一时间启动选举。</p>
-<h3 id="日志复制"><a class="header-anchor-1" href="#日志复制">#</a>日志复制</h3>
-<p>当一个 Leader 被选出来之后，就开始负责这些事情：</p>
-<ul>
-<li><strong>给每个 Follower 发送日志</strong>：同步 Log；</li>
-<li><strong>决定什么时候可以提交 Log</strong>：当 Leader 确信一条日志已经被同步到多数机器上，则认为可以提交它，Raft 机制保证了剩余机器<strong>最终</strong>将会提交相同的日志，即所谓<strong>最终一致性</strong>。</li>
-</ul>
-<p>Raft 的<strong>Log Matching Property</strong>：</p>
-<ul>
-<li>两个不同 Log 中的条目，如果 term 和 index 相同，则存储的 command 相同；</li>
-<li>两个不同 Log 中的条目，如果 term 和 index 相同，则之前的所有 log 相同；</li>
-</ul>
-<p>在 Raft 执行过程中，由于机器崩溃重启，Follower 可能会缺失部分 Log，可能会有多的未提交的 Log，也可能两者兼有；
-这种情况下，Leader 会<strong>覆盖</strong>Follower 上不一致的 Log：首先两者会找到第一条不一致的 Log，然后 Leader 发送后续的 Log 给 Follower。
-<code>nextIndex</code>就是 Leader 用于记录每一个 Follower 同步位置的变量，初始值为 Leader 的 nextLogIndex。然后会根据<code>AppendEntries</code>的结果减小<code>nextIndex</code>。</p>
-<p>一个可能的优化点是：Follower 反馈更加精确的冲突日志数量。作者怀疑这种策略在现实情况中的必要性。</p>
-<p>Raft 的<strong>Leader Append-Only Property</strong>：Raft Leader 从来不需要更改或者删除自己的日志；</p>
-<h3 id="安全性"><a class="header-anchor-1" href="#安全性">#</a>安全性</h3>
-<p>上面描述的 Raft 不足以保证命令的顺序性，原因是多个日志冲突的 Follower 可能会交替成为 Leader，导致已经提交的 Log 被覆盖。为此还需要增加一个新的限制：</p>
-<ul>
-<li><strong>Leader Completeness Property</strong>：Candidate 必须拥有前一个 Term 中所有<strong>已经提交的</strong>Log，才能被选为 Leader；</li>
-</ul>
-<h4 id="选主限制"><a class="header-anchor-1" href="#选主限制">#</a>选主限制</h4>
-<p>Raft 利用选主过程保证<strong>Leader Completeness Property</strong>，<code>RequestVote</code> RPC 请求中会包含 Candidate 的 Log 信息，如果 Log 不够新，则在投篇时会被多数节点拒绝。</p>
-<p>Raft 定义的“新（Up-to-date）”：</p>
-<ul>
-<li>如果最后一条 Log 的 Term 不同，Term 大的更新</li>
-<li>否则，Log 长的更新</li>
-</ul>
-<h4 id="提交前一个-term-的-log"><a class="header-anchor-1" href="#提交前一个-term-的-log">#</a>提交前一个 Term 的 Log</h4>
-<p>只是 Log 被同步到多数节点，仍然不足以能够提交这个 Log。</p>
-<p>Raft 要求：只有当前 Term 的 Log 才通过多数原则确认提交，非当前 Term 的不会这样。</p>
-<h4 id="安全证明"><a class="header-anchor-1" href="#安全证明">#</a>安全证明</h4>
-<p>略</p>
-<h4 id="follower-和-candidate-崩溃重启"><a class="header-anchor-1" href="#follower-和-candidate-崩溃重启">#</a>Follower 和 Candidate 崩溃重启</h4>
-<p>略</p>
-<h4 id="时序和可用性"><a class="header-anchor-1" href="#时序和可用性">#</a>时序和可用性</h4>
-<p>略</p>
-<h3 id="集群成员变更-联合共识"><a class="header-anchor-1" href="#集群成员变更-联合共识">#</a>集群成员变更 &amp; 联合共识</h3>
-<p>集群变更配置的场景是很常见的。</p>
-<p>TODO</p>
-<h3 id="日志压缩"><a class="header-anchor-1" href="#日志压缩">#</a>日志压缩</h3>
 ]]></content>
       <categories>
         <category>distributed-system</category>
@@ -11637,6 +11622,30 @@ S&amp;=\sum_{i=1}^{n}{C_{i}a_{i}}\\
       </categories>
   </entry>
   <entry>
+    <title>1123. Is It a Complete AVL Tree</title>
+    <url>/2020/12/18/1123/</url>
+    <content><![CDATA[<h2 id="题目"><a class="header-anchor-1" href="#题目">#</a>题目</h2>
+<p>按输入序列构造AVL树, 输出层次序遍历的结果, 和AVL树是否为完全二叉树</p>
+<h2 id="一些小技巧"><a class="header-anchor-1" href="#一些小技巧">#</a>一些小技巧:</h2>
+<h3 id="1-树的初始化问题"><a class="header-anchor-1" href="#1-树的初始化问题">#</a>1. 树的初始化问题</h3>
+<p>我们可以让insert函数返回插入后新的树根(从而可以递归调用), 调用时采用 <code>node = insert(node, val)</code> 的方式, 从而统一了第一个节点和其他节点的处理, 极大地简化了判断逻辑</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">node* <span class="title">insert</span><span class="params">(node* p, <span class="type">int</span> x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!p)&#123;</span><br><span class="line">        p=<span class="keyword">new</span> <span class="built_in">node</span>();</span><br><span class="line">        p-&gt;val=x;</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(x&lt;p-&gt;val)&#123;</span><br><span class="line">        p-&gt;left=<span class="built_in">insert</span>(p-&gt;left,x);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        p-&gt;right=<span class="built_in">insert</span>(p-&gt;right,x);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    node*root=<span class="literal">nullptr</span>;</span><br><span class="line">    root=<span class="built_in">insert</span>(root,<span class="number">1</span>);</span><br><span class="line">    root=<span class="built_in">insert</span>(root,<span class="number">2</span>);</span><br><span class="line">    root=<span class="built_in">insert</span>(root,<span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会:</h2>
+<ol>
+<li>KISS, 简单的才是最好的</li>
+<li>用好递归能节约大量代码</li>
+<li>数据结构题不必在性能上过多纠结</li>
+</ol>
+<h2 id="代码"><a class="header-anchor-1" href="#代码">#</a>代码</h2>
+<p>(部分参考自网络)</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">node</span> &#123;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    node *left = <span class="literal">nullptr</span>, *right = <span class="literal">nullptr</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">depth</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> p ? <span class="number">1</span> + <span class="built_in">max</span>(<span class="built_in">depth</span>(p-&gt;left), <span class="built_in">depth</span>(p-&gt;right)) : <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">rr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *lc = p-&gt;left;</span><br><span class="line">    p-&gt;left = lc-&gt;right;</span><br><span class="line">    lc-&gt;right = p;</span><br><span class="line">    <span class="keyword">return</span> lc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">lr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *rc = p-&gt;right;</span><br><span class="line">    p-&gt;right = rc-&gt;left;</span><br><span class="line">    rc-&gt;left = p;</span><br><span class="line">    <span class="keyword">return</span> rc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">lrr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    p-&gt;left = <span class="built_in">lr</span>(p-&gt;left);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">rr</span>(p);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">rlr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    p-&gt;right = <span class="built_in">rr</span>(p-&gt;right);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">lr</span>(p);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">insert</span><span class="params">(node *p, <span class="type">int</span> x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!p) &#123;</span><br><span class="line">        p = <span class="keyword">new</span> <span class="built_in">node</span>();</span><br><span class="line">        p-&gt;val = x;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (x &lt; p-&gt;val) &#123;</span><br><span class="line">        p-&gt;left = <span class="built_in">insert</span>(p-&gt;left, x);</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">depth</span>(p-&gt;left) - <span class="built_in">depth</span>(p-&gt;right) &gt; <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x &lt; p-&gt;left-&gt;val)</span><br><span class="line">                p = <span class="built_in">rr</span>(p);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                p = <span class="built_in">lrr</span>(p);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        p-&gt;right = <span class="built_in">insert</span>(p-&gt;right, x);</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">depth</span>(p-&gt;left) - <span class="built_in">depth</span>(p-&gt;right) &lt; <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x &gt; p-&gt;right-&gt;val)</span><br><span class="line">                p = <span class="built_in">lr</span>(p);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                p = <span class="built_in">rlr</span>(p);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">trav</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> first = <span class="number">1</span>;</span><br><span class="line">    <span class="type">int</span> empty = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> comp = <span class="number">1</span>;</span><br><span class="line">    queue&lt;node *&gt; Q;</span><br><span class="line">    <span class="keyword">if</span> (p) &#123;</span><br><span class="line">        Q.<span class="built_in">push</span>(p);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (Q.<span class="built_in">size</span>()) &#123;</span><br><span class="line">        node *top = Q.<span class="built_in">front</span>();</span><br><span class="line">        Q.<span class="built_in">pop</span>();</span><br><span class="line">        <span class="keyword">if</span> (!first) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        first = <span class="number">0</span>;</span><br><span class="line">        cout &lt;&lt; top-&gt;val;</span><br><span class="line">        <span class="keyword">if</span> (top-&gt;left) &#123;</span><br><span class="line">            <span class="keyword">if</span> (empty) &#123;</span><br><span class="line">                comp = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            Q.<span class="built_in">push</span>(top-&gt;left);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            empty = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (top-&gt;right) &#123;</span><br><span class="line">            <span class="keyword">if</span> (empty) &#123;</span><br><span class="line">                comp = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            Q.<span class="built_in">push</span>(top-&gt;right);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            empty = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; endl &lt;&lt; (comp ? <span class="string">&quot;YES&quot;</span> : <span class="string">&quot;NO&quot;</span>) &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *root = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> x;</span><br><span class="line">        cin &gt;&gt; x;</span><br><span class="line">        root = <span class="built_in">insert</span>(root, x);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">trav</span>(root);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
     <title>1140. Look-and-say Sequence</title>
     <url>/2021/01/10/1140/</url>
     <content><![CDATA[<h2 id="题意"><a class="header-anchor-1" href="#题意">#</a>题意</h2>
@@ -11666,30 +11675,6 @@ S&amp;=\sum_{i=1}^{n}{C_{i}a_{i}}\\
     <content><![CDATA[<p>leetcode medium 纯算法题偏少, 准备每日加一道PTA.</p>
 <p><strong>目标</strong>: 每天一道PTA甲级 [PAT (Advanced Level) Practice]</p>
 <p>题号就roll一个<span class="exturl" data-url="aHR0cDovL2thdHR5LnRvcDo4ODg4L2FwaS9yYW5kP2Zyb209MSZ0bz0xNTY=">随机数<i class="fa fa-external-link-alt"></i></span></p>
-]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>PTA</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>1123. Is It a Complete AVL Tree</title>
-    <url>/2020/12/18/1123/</url>
-    <content><![CDATA[<h2 id="题目"><a class="header-anchor-1" href="#题目">#</a>题目</h2>
-<p>按输入序列构造AVL树, 输出层次序遍历的结果, 和AVL树是否为完全二叉树</p>
-<h2 id="一些小技巧"><a class="header-anchor-1" href="#一些小技巧">#</a>一些小技巧:</h2>
-<h3 id="1-树的初始化问题"><a class="header-anchor-1" href="#1-树的初始化问题">#</a>1. 树的初始化问题</h3>
-<p>我们可以让insert函数返回插入后新的树根(从而可以递归调用), 调用时采用 <code>node = insert(node, val)</code> 的方式, 从而统一了第一个节点和其他节点的处理, 极大地简化了判断逻辑</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">node* <span class="title">insert</span><span class="params">(node* p, <span class="type">int</span> x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!p)&#123;</span><br><span class="line">        p=<span class="keyword">new</span> <span class="built_in">node</span>();</span><br><span class="line">        p-&gt;val=x;</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(x&lt;p-&gt;val)&#123;</span><br><span class="line">        p-&gt;left=<span class="built_in">insert</span>(p-&gt;left,x);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        p-&gt;right=<span class="built_in">insert</span>(p-&gt;right,x);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    node*root=<span class="literal">nullptr</span>;</span><br><span class="line">    root=<span class="built_in">insert</span>(root,<span class="number">1</span>);</span><br><span class="line">    root=<span class="built_in">insert</span>(root,<span class="number">2</span>);</span><br><span class="line">    root=<span class="built_in">insert</span>(root,<span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会:</h2>
-<ol>
-<li>KISS, 简单的才是最好的</li>
-<li>用好递归能节约大量代码</li>
-<li>数据结构题不必在性能上过多纠结</li>
-</ol>
-<h2 id="代码"><a class="header-anchor-1" href="#代码">#</a>代码</h2>
-<p>(部分参考自网络)</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">node</span> &#123;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    node *left = <span class="literal">nullptr</span>, *right = <span class="literal">nullptr</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">depth</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> p ? <span class="number">1</span> + <span class="built_in">max</span>(<span class="built_in">depth</span>(p-&gt;left), <span class="built_in">depth</span>(p-&gt;right)) : <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">rr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *lc = p-&gt;left;</span><br><span class="line">    p-&gt;left = lc-&gt;right;</span><br><span class="line">    lc-&gt;right = p;</span><br><span class="line">    <span class="keyword">return</span> lc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">lr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *rc = p-&gt;right;</span><br><span class="line">    p-&gt;right = rc-&gt;left;</span><br><span class="line">    rc-&gt;left = p;</span><br><span class="line">    <span class="keyword">return</span> rc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">lrr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    p-&gt;left = <span class="built_in">lr</span>(p-&gt;left);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">rr</span>(p);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">rlr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    p-&gt;right = <span class="built_in">rr</span>(p-&gt;right);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">lr</span>(p);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">insert</span><span class="params">(node *p, <span class="type">int</span> x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!p) &#123;</span><br><span class="line">        p = <span class="keyword">new</span> <span class="built_in">node</span>();</span><br><span class="line">        p-&gt;val = x;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (x &lt; p-&gt;val) &#123;</span><br><span class="line">        p-&gt;left = <span class="built_in">insert</span>(p-&gt;left, x);</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">depth</span>(p-&gt;left) - <span class="built_in">depth</span>(p-&gt;right) &gt; <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x &lt; p-&gt;left-&gt;val)</span><br><span class="line">                p = <span class="built_in">rr</span>(p);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                p = <span class="built_in">lrr</span>(p);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        p-&gt;right = <span class="built_in">insert</span>(p-&gt;right, x);</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">depth</span>(p-&gt;left) - <span class="built_in">depth</span>(p-&gt;right) &lt; <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x &gt; p-&gt;right-&gt;val)</span><br><span class="line">                p = <span class="built_in">lr</span>(p);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                p = <span class="built_in">rlr</span>(p);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">trav</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> first = <span class="number">1</span>;</span><br><span class="line">    <span class="type">int</span> empty = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> comp = <span class="number">1</span>;</span><br><span class="line">    queue&lt;node *&gt; Q;</span><br><span class="line">    <span class="keyword">if</span> (p) &#123;</span><br><span class="line">        Q.<span class="built_in">push</span>(p);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (Q.<span class="built_in">size</span>()) &#123;</span><br><span class="line">        node *top = Q.<span class="built_in">front</span>();</span><br><span class="line">        Q.<span class="built_in">pop</span>();</span><br><span class="line">        <span class="keyword">if</span> (!first) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        first = <span class="number">0</span>;</span><br><span class="line">        cout &lt;&lt; top-&gt;val;</span><br><span class="line">        <span class="keyword">if</span> (top-&gt;left) &#123;</span><br><span class="line">            <span class="keyword">if</span> (empty) &#123;</span><br><span class="line">                comp = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            Q.<span class="built_in">push</span>(top-&gt;left);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            empty = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (top-&gt;right) &#123;</span><br><span class="line">            <span class="keyword">if</span> (empty) &#123;</span><br><span class="line">                comp = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            Q.<span class="built_in">push</span>(top-&gt;right);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            empty = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; endl &lt;&lt; (comp ? <span class="string">&quot;YES&quot;</span> : <span class="string">&quot;NO&quot;</span>) &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *root = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> x;</span><br><span class="line">        cin &gt;&gt; x;</span><br><span class="line">        root = <span class="built_in">insert</span>(root, x);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">trav</span>(root);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -11796,9 +11781,9 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>1584. 连接所有点的最小费用</title>
-    <url>/2021/01/19/1584/</url>
-    <content><![CDATA[<p>实际上是最小生成树</p>
+    <title>1395. 统计作战单位数</title>
+    <url>/2021/07/02/1395/</url>
+    <content><![CDATA[<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number[]</span>&#125; <span class="variable">rating</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="type">number</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> numTeams = <span class="keyword">function</span> (<span class="params">rating</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; rating.<span class="property">length</span> - <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">let</span> ri = rating[i];</span><br><span class="line">        <span class="keyword">let</span> countx1 = <span class="number">0</span>, countx2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">let</span> county1 = <span class="number">0</span>, county2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = <span class="number">0</span>; x &lt; i; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) countx1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) countx2++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = i + <span class="number">1</span>; x &lt; rating.<span class="property">length</span>; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) county1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) county2++;</span><br><span class="line">        &#125;</span><br><span class="line">        count += countx1 * county2 + countx2 * county1;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -11806,9 +11791,9 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>1395. 统计作战单位数</title>
-    <url>/2021/07/02/1395/</url>
-    <content><![CDATA[<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number[]</span>&#125; <span class="variable">rating</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="type">number</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> numTeams = <span class="keyword">function</span> (<span class="params">rating</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; rating.<span class="property">length</span> - <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">let</span> ri = rating[i];</span><br><span class="line">        <span class="keyword">let</span> countx1 = <span class="number">0</span>, countx2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">let</span> county1 = <span class="number">0</span>, county2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = <span class="number">0</span>; x &lt; i; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) countx1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) countx2++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = i + <span class="number">1</span>; x &lt; rating.<span class="property">length</span>; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) county1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) county2++;</span><br><span class="line">        &#125;</span><br><span class="line">        count += countx1 * county2 + countx2 * county1;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    <title>1584. 连接所有点的最小费用</title>
+    <url>/2021/01/19/1584/</url>
+    <content><![CDATA[<p>实际上是最小生成树</p>
 ]]></content>
       <categories>
         <category>algorithm-practice</category>
@@ -11954,6 +11939,22 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
+    <title>376. 摆动序列</title>
+    <url>/2020/12/12/376/</url>
+    <content><![CDATA[<p>思路: 先差分, 然后把所有0和相邻同号的数字(之一)去掉, 剩下的元素数量+2既是最终答案</p>
+<p>注意: 元素个数为0, 元素个数为1, 差分后有0出现</p>
+<p>代码:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">wiggleMaxLength</span><span class="params">(vector&lt;<span class="type">int</span>&gt; &amp;nums)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="type">int</span> size = nums.<span class="built_in">size</span>() - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (size &lt; <span class="number">1</span>) &#123; <span class="keyword">return</span> size + <span class="number">1</span>; &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> start = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">            nums[i] -= nums[i + <span class="number">1</span>];</span><br><span class="line">            <span class="comment">// find first not zero</span></span><br><span class="line">            <span class="keyword">if</span> (start == <span class="number">-1</span> &amp;&amp; nums[i] != <span class="number">0</span>) &#123; start = i; &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (start == <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// none</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> count = <span class="number">1</span>, want = nums[start];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = start + <span class="number">1</span>; i &lt; size; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((nums[i] &gt; <span class="number">0</span> &amp;&amp; want &lt; <span class="number">0</span>) ||</span><br><span class="line">                (nums[i] &lt; <span class="number">0</span> &amp;&amp; want &gt; <span class="number">0</span>)) &#123;  <span class="comment">// different sign and no zero</span></span><br><span class="line">                want = nums[i];</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> count + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>看过题解: 复杂了, 只要统计波峰和波谷的数量就行了</p>
+<p>别人的代码</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">wiggleMaxLength</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> nums.length;</span><br><span class="line">        <span class="keyword">if</span> (n &lt; <span class="number">2</span>) <span class="keyword">return</span> n;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>, prev_diff = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">diff</span> <span class="operator">=</span> nums[i] - nums[i - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span> (diff &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &gt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = -<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (diff &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &lt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：lincs</span><br><span class="line">链接：https:<span class="comment">//leetcode-cn.com/problems/wiggle-subsequence/solution/java-on-solution-by-lincs-6l5r/</span></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
     <title>389. 找不同</title>
     <url>/2020/12/18/389/</url>
     <content><![CDATA[<p>送分题</p>
@@ -11968,22 +11969,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
     <url>/2020/12/13/4/</url>
     <content><![CDATA[<p>思路: 先归并排序, 再寻找中间位置</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums1, vector&lt;<span class="type">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> i=<span class="number">0</span>,j=<span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> len1=nums<span class="number">1.</span><span class="built_in">size</span>(),len2=nums<span class="number">2.</span><span class="built_in">size</span>(),len=len1+len2;</span><br><span class="line">        <span class="type">int</span> t, lastt;</span><br><span class="line">        <span class="keyword">while</span>(i+j&lt;=len/<span class="number">2</span>)&#123;</span><br><span class="line">            lastt=t;</span><br><span class="line">            <span class="keyword">if</span>(i&lt;len1 &amp;&amp; j&lt; len2)&#123;</span><br><span class="line">                <span class="type">int</span> n1=nums1[i];</span><br><span class="line">                <span class="type">int</span> n2=nums2[j];</span><br><span class="line">                <span class="keyword">if</span>(n1&lt;n2)&#123;</span><br><span class="line">                    t=n1;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    t=n2;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(i&lt;len1)&#123;</span><br><span class="line">                t=nums1[i++];</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                t=nums2[j++];</span><br><span class="line">            &#125;</span><br><span class="line">            cout&lt;&lt;i+j&lt;&lt;<span class="string">&quot;:&quot;</span>&lt;&lt;t&lt;&lt;endl;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (len%<span class="number">2</span>?t:(t+lastt)/<span class="number">2.0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>376. 摆动序列</title>
-    <url>/2020/12/12/376/</url>
-    <content><![CDATA[<p>思路: 先差分, 然后把所有0和相邻同号的数字(之一)去掉, 剩下的元素数量+2既是最终答案</p>
-<p>注意: 元素个数为0, 元素个数为1, 差分后有0出现</p>
-<p>代码:</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">wiggleMaxLength</span><span class="params">(vector&lt;<span class="type">int</span>&gt; &amp;nums)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="type">int</span> size = nums.<span class="built_in">size</span>() - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (size &lt; <span class="number">1</span>) &#123; <span class="keyword">return</span> size + <span class="number">1</span>; &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> start = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">            nums[i] -= nums[i + <span class="number">1</span>];</span><br><span class="line">            <span class="comment">// find first not zero</span></span><br><span class="line">            <span class="keyword">if</span> (start == <span class="number">-1</span> &amp;&amp; nums[i] != <span class="number">0</span>) &#123; start = i; &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (start == <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// none</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> count = <span class="number">1</span>, want = nums[start];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = start + <span class="number">1</span>; i &lt; size; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((nums[i] &gt; <span class="number">0</span> &amp;&amp; want &lt; <span class="number">0</span>) ||</span><br><span class="line">                (nums[i] &lt; <span class="number">0</span> &amp;&amp; want &gt; <span class="number">0</span>)) &#123;  <span class="comment">// different sign and no zero</span></span><br><span class="line">                want = nums[i];</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> count + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>看过题解: 复杂了, 只要统计波峰和波谷的数量就行了</p>
-<p>别人的代码</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">wiggleMaxLength</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> nums.length;</span><br><span class="line">        <span class="keyword">if</span> (n &lt; <span class="number">2</span>) <span class="keyword">return</span> n;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>, prev_diff = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">diff</span> <span class="operator">=</span> nums[i] - nums[i - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span> (diff &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &gt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = -<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (diff &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &lt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：lincs</span><br><span class="line">链接：https:<span class="comment">//leetcode-cn.com/problems/wiggle-subsequence/solution/java-on-solution-by-lincs-6l5r/</span></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
-]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -12315,6 +12300,97 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/11/30/2020-11-30/</url>
+    <content><![CDATA[<h1>Github Developer Settings</h1>
+<ul>
+<li>
+<p>GitHub Apps</p>
+</li>
+<li>
+<p>OAuth Apps</p>
+<ul>
+<li>需要用到Github API的App</li>
+</ul>
+</li>
+<li>
+<p>Personal access tokens</p>
+<ul>
+<li>
+<p>Tokens you have generated that can be used to access the GitHub API.</p>
+</li>
+<li>
+<p>权限类似于账号+密码登录</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Github Actions</h1>
+<ul>
+<li>
+<p>类似Travis-CI的持续集成平台</p>
+</li>
+<li>
+<p>使用方法</p>
+<ul>
+<li>
+<p>在项目根目录创建 .github/workflows</p>
+</li>
+<li>
+<p>继续创建 pages.yml</p>
+</li>
+<li>
+<p>关键字: jobs, runs-on, steps, name, uses, with等等</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Hexo博客评论系统</h1>
+<ul>
+<li>
+<p>Gitalk</p>
+<ul>
+<li>
+<p>利用Github Issues功能实现的评论系统, 开源</p>
+</li>
+<li>
+<p>不支持回复评论</p>
+</li>
+<li>
+<p>修改评论需要打开对应的Issue页修改</p>
+</li>
+<li>
+<p>登录需要的Github权限太高(Github自身问题)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Disqus</p>
+<ul>
+<li>
+<p>界面好看</p>
+</li>
+<li>
+<p>需要翻墙才能正常使用</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Code-Server</h1>
+<ul>
+<li>浏览器端的vscode</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Github</tag>
+        <tag>Hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/01/2020-12-01/</url>
     <content><![CDATA[<h1>转换dos格式行尾为unix行尾</h1>
 <ul>
@@ -12595,97 +12671,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
         <tag>Javascript</tag>
         <tag>React</tag>
         <tag>npm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/11/30/2020-11-30/</url>
-    <content><![CDATA[<h1>Github Developer Settings</h1>
-<ul>
-<li>
-<p>GitHub Apps</p>
-</li>
-<li>
-<p>OAuth Apps</p>
-<ul>
-<li>需要用到Github API的App</li>
-</ul>
-</li>
-<li>
-<p>Personal access tokens</p>
-<ul>
-<li>
-<p>Tokens you have generated that can be used to access the GitHub API.</p>
-</li>
-<li>
-<p>权限类似于账号+密码登录</p>
-</li>
-</ul>
-</li>
-</ul>
-<h1>Github Actions</h1>
-<ul>
-<li>
-<p>类似Travis-CI的持续集成平台</p>
-</li>
-<li>
-<p>使用方法</p>
-<ul>
-<li>
-<p>在项目根目录创建 .github/workflows</p>
-</li>
-<li>
-<p>继续创建 pages.yml</p>
-</li>
-<li>
-<p>关键字: jobs, runs-on, steps, name, uses, with等等</p>
-</li>
-</ul>
-</li>
-</ul>
-<h1>Hexo博客评论系统</h1>
-<ul>
-<li>
-<p>Gitalk</p>
-<ul>
-<li>
-<p>利用Github Issues功能实现的评论系统, 开源</p>
-</li>
-<li>
-<p>不支持回复评论</p>
-</li>
-<li>
-<p>修改评论需要打开对应的Issue页修改</p>
-</li>
-<li>
-<p>登录需要的Github权限太高(Github自身问题)</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Disqus</p>
-<ul>
-<li>
-<p>界面好看</p>
-</li>
-<li>
-<p>需要翻墙才能正常使用</p>
-</li>
-</ul>
-</li>
-</ul>
-<h1>Code-Server</h1>
-<ul>
-<li>浏览器端的vscode</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Github</tag>
-        <tag>Hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -13987,6 +13972,49 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2021/01/07/2021-01-07/</url>
+    <content><![CDATA[<h2 id="关于url末尾的斜杠"><a class="header-anchor-1" href="#关于url末尾的斜杠">#</a>关于URL末尾的斜杠</h2>
+<p>URL末尾有无斜杠会对按相对路径加载的资源造成影响</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>当前渲染的文件</th>
+<th>当前目录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="exturl" data-url="aHR0cDovL2Zvb2Jhci5jb20vZXhhbXBsZQ==">foobar.com/example<i class="fa fa-external-link-alt"></i></span><b>/</b></td>
+<td><strong>/example/index.html</strong></td>
+<td><strong>/example</strong></td>
+</tr>
+<tr>
+<td><span class="exturl" data-url="aHR0cDovL2Zvb2Jhci5jb20vZXhhbXBsZQ==">foobar.com/example<i class="fa fa-external-link-alt"></i></span></td>
+<td><strong>/example.html</strong></td>
+<td><strong>/</strong></td>
+</tr>
+</tbody>
+</table>
+<p>按绝对路径加载的资源不会受到影响</p>
+<h2 id="uwsgi作为daemon启动"><a class="header-anchor-1" href="#uwsgi作为daemon启动">#</a>uwsgi作为daemon启动</h2>
+<h3 id="方法1"><a class="header-anchor-1" href="#方法1">#</a>方法1</h3>
+<p>添加<code>-d</code>参数</p>
+<p><code>$ uwsgi -d --ini app.ini</code></p>
+<h3 id="方法2"><a class="header-anchor-1" href="#方法2">#</a>方法2</h3>
+<p>在ini文件中添加<code>daemonize = /var/log/uwsgi.log</code></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>uwsgi</tag>
+        <tag>URL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2021/01/08/2021-01-08/</url>
     <content><![CDATA[<h2 id="没什么成果的一天"><a class="header-anchor-1" href="#没什么成果的一天">#</a>没什么成果的一天</h2>
 <p>复习线代</p>
@@ -14050,49 +14078,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2021/01/07/2021-01-07/</url>
-    <content><![CDATA[<h2 id="关于url末尾的斜杠"><a class="header-anchor-1" href="#关于url末尾的斜杠">#</a>关于URL末尾的斜杠</h2>
-<p>URL末尾有无斜杠会对按相对路径加载的资源造成影响</p>
-<table>
-<thead>
-<tr>
-<th>路径</th>
-<th>当前渲染的文件</th>
-<th>当前目录</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><span class="exturl" data-url="aHR0cDovL2Zvb2Jhci5jb20vZXhhbXBsZQ==">foobar.com/example<i class="fa fa-external-link-alt"></i></span><b>/</b></td>
-<td><strong>/example/index.html</strong></td>
-<td><strong>/example</strong></td>
-</tr>
-<tr>
-<td><span class="exturl" data-url="aHR0cDovL2Zvb2Jhci5jb20vZXhhbXBsZQ==">foobar.com/example<i class="fa fa-external-link-alt"></i></span></td>
-<td><strong>/example.html</strong></td>
-<td><strong>/</strong></td>
-</tr>
-</tbody>
-</table>
-<p>按绝对路径加载的资源不会受到影响</p>
-<h2 id="uwsgi作为daemon启动"><a class="header-anchor-1" href="#uwsgi作为daemon启动">#</a>uwsgi作为daemon启动</h2>
-<h3 id="方法1"><a class="header-anchor-1" href="#方法1">#</a>方法1</h3>
-<p>添加<code>-d</code>参数</p>
-<p><code>$ uwsgi -d --ini app.ini</code></p>
-<h3 id="方法2"><a class="header-anchor-1" href="#方法2">#</a>方法2</h3>
-<p>在ini文件中添加<code>daemonize = /var/log/uwsgi.log</code></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>uwsgi</tag>
-        <tag>URL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2021/01/19/2021-01-19/</url>
     <content><![CDATA[<h2 id="近期任务"><a class="header-anchor-1" href="#近期任务">#</a>近期任务</h2>
 <ul>
@@ -14120,37 +14105,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <category>daily</category>
         <category>2021</category>
       </categories>
-  </entry>
-  <entry>
-    <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
-    <url>/2021/03/14/2021-03-14/</url>
-    <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
-<h1>Python 数据科学常用的库</h1>
-<p><img src="https://frezcirno.github.io/static/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" alt="" /></p>
-<h1>Numpy 使用</h1>
-<h2 id="array-对象"><a class="header-anchor-1" href="#array-对象">#</a>array 对象</h2>
-<h1>Matplotlib 使用</h1>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
-<h1>Pandas 使用</h1>
-<h2 id="series-对象"><a class="header-anchor-1" href="#series-对象">#</a>Series 对象</h2>
-<h2 id="dataframe-对象"><a class="header-anchor-1" href="#dataframe-对象">#</a>Dataframe 对象</h2>
-<p>博客更新日志：</p>
-<ul>
-<li>日记分类名字从「每日小结」改为「每日小结 Day Day Up」</li>
-<li>日记文章标题从今往后将取有意义的名字</li>
-<li>日记文件名改成更加标准的 ISO-8601 命名法</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>numpy</tag>
-        <tag>matplotlib</tag>
-        <tag>pandas</tag>
-      </tags>
   </entry>
   <entry>
     <title>shell脚本编程</title>
@@ -14263,6 +14217,37 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </categories>
       <tags>
         <tag>shell</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
+    <url>/2021/03/14/2021-03-14/</url>
+    <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
+<h1>Python 数据科学常用的库</h1>
+<p><img src="https://frezcirno.github.io/static/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" alt="" /></p>
+<h1>Numpy 使用</h1>
+<h2 id="array-对象"><a class="header-anchor-1" href="#array-对象">#</a>array 对象</h2>
+<h1>Matplotlib 使用</h1>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
+<h1>Pandas 使用</h1>
+<h2 id="series-对象"><a class="header-anchor-1" href="#series-对象">#</a>Series 对象</h2>
+<h2 id="dataframe-对象"><a class="header-anchor-1" href="#dataframe-对象">#</a>Dataframe 对象</h2>
+<p>博客更新日志：</p>
+<ul>
+<li>日记分类名字从「每日小结」改为「每日小结 Day Day Up」</li>
+<li>日记文章标题从今往后将取有意义的名字</li>
+<li>日记文件名改成更加标准的 ISO-8601 命名法</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>numpy</tag>
+        <tag>matplotlib</tag>
+        <tag>pandas</tag>
       </tags>
   </entry>
   <entry>
@@ -15300,6 +15285,23 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2024/05/12/2024-05-13/</url>
+    <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
+<p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
+<h2 id="conda-root-less-apt"><a class="header-anchor-1" href="#conda-root-less-apt">#</a>Conda = Root-less apt</h2>
+<p>升级<code>gcc</code>依赖库：<code>conda install libgcc libgcc-ng</code></p>
+<p>升级<code>libstdc++</code>：<code>conda install -c conda-forge libstdcxx-ng</code></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2024</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2024/11/02/2024-11-03/</url>
     <content><![CDATA[<h2 id="python-文件锁与单文件数据库"><a class="header-anchor-1" href="#python-文件锁与单文件数据库">#</a>Python 文件锁与单文件数据库</h2>
 <p>最近遇到一个需求是需要克隆<strong>大量</strong>的 Git 仓库到本地，然后丢到 Python 里做数据分析处理。</p>
@@ -15355,23 +15357,6 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
         <tag>并发控制</tag>
         <tag>文件锁</tag>
         <tag>数据库</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2024/05/12/2024-05-13/</url>
-    <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
-<p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
-<h2 id="conda-root-less-apt"><a class="header-anchor-1" href="#conda-root-less-apt">#</a>Conda = Root-less apt</h2>
-<p>升级<code>gcc</code>依赖库：<code>conda install libgcc libgcc-ng</code></p>
-<p>升级<code>libstdc++</code>：<code>conda install -c conda-forge libstdcxx-ng</code></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2024</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
