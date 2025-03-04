@@ -3036,6 +3036,98 @@ I=\{
       </tags>
   </entry>
   <entry>
+    <title>C++ 并发三件套 - future, promise, async</title>
+    <url>/2024/04/20/cpp-concurrency/</url>
+    <content><![CDATA[<p>C++标准库提供了很多用于并发编程的工具，不太熟悉，总结一下。</p>
+<h2 id="异步计算结果-std-future-t"><a class="header-anchor-1" href="#异步计算结果-std-future-t">#</a>异步计算结果 <code>std::future&lt;T&gt;</code></h2>
+<p><code>std::future&lt;T&gt;</code> 表示一个异步计算过程的结果。</p>
+<p><code>std::future::wait()</code> 方法阻塞当前线程直至计算完成。如果计算已经完成，则直接返回。</p>
+<p><code>std::future::get()</code> 方法等待计算完成，并获取 <code>future&lt;T&gt;</code> 表示的值或异常。<code>get()</code> 方法会消耗掉当前 future 保存的值，因此只能调用一次。</p>
+<p><code>std::future::valid()</code> 方法表示当前 future 中是否还有值可以被获取，如果值已经被 get 过，则会返回 false。</p>
+<p><code>std::future::share()</code> 方法返回一个 <code>std::shared_future&lt;T&gt;</code>。</p>
+<p><code>std::future&lt;T&gt;</code> 是 move-only 的结构，且独占 <code>T</code> 的所有权。当多个对等的线程需要访问同一个期望值时，可以使用 copyable 的 <code>std::shared_future&lt;T&gt;</code>。注意，<code>std::shared_future&lt;T&gt;</code> 本身并不是线程安全的，需要每个线程拷贝并持有一个自己的 <code>std::shared_future&lt;T&gt;</code>。</p>
+<h2 id="异步生产者-std-promise-t"><a class="header-anchor-1" href="#异步生产者-std-promise-t">#</a>异步生产者 <code>std::promise&lt;T&gt;</code></h2>
+<p><code>std::promise&lt;T&gt;</code> 用于生产者提供一个 <code>std::future&lt;T&gt;</code> 及其中的值给消费者。<code>std::promise&lt;T&gt;::get_future()</code> 方法返回一个 <code>std::future&lt;T&gt;</code> 给消费者。</p>
+<p>对于生产者，使用 <code>std::promise&lt;T&gt;::set_value()</code> 方法填充 <code>future</code> 中的值；或者使用 <code>std::promise&lt;T&gt;::set_exception()</code> 方法填充 <code>future</code> 中的异常；</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> std::promise&lt;<span class="type">double</span>&gt; some_promise;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_value</span>(<span class="built_in">calculate_value</span>());</span><br><span class="line">&#125; <span class="built_in">catch</span>(...) &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_exception</span>(std::<span class="built_in">current_exception</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="异步执行-std-async"><a class="header-anchor-1" href="#异步执行-std-async">#</a>异步执行 <code>std::async()</code></h2>
+<p><code>std::async</code> 是一个函数，它启动一个异步任务去执行指定的函数，返回一个表示计算结果的 <code>std::future</code></p>
+<p><code>std::async</code> 允许额外指定一个<code>std::launch</code>类型的参数来指定任务启动的方式，有以下几种启动策略：</p>
+<ul>
+<li><code>std::launch::async</code>: 任务必须在独立线程中执行，因此需要库去负责线程创建和销毁；</li>
+<li><code>std::launch::deferred</code>: 任务可以延迟到<code>wait()</code>或者<code>get()</code>的时候，在调用者线程上同步执行 (有点类似Rust Tokio的设计)；</li>
+<li><code>std::launch::async | std::launch::deferred</code>: 默认的方式，表示以上两种执行时机都可以，由具体实现去选择。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>CPP</tag>
+        <tag>并发编程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++ `constexpr` 的限制</title>
+    <url>/2024/04/21/cpp-constexpr-usage/</url>
+    <content><![CDATA[<ol>
+<li>
+<p><code>constexpr</code>函数不能包含条件语句（if、switch）、循环（for、while）、异常处理（try、catch）等。</p>
+</li>
+<li>
+<p><code>constexpr</code>函数不能进行动态内存分配。</p>
+</li>
+<li>
+<p><code>constexpr</code>变量必须是编译时常量，即其值在程序运行期间不能被修改。</p>
+</li>
+<li>
+<p><code>constexpr</code>变量不能是类的成员变量，因为类的成员变量可能不是编译时常量。</p>
+</li>
+<li>
+<p><code>constexpr</code>变量不能是左值，因为左值在编译时无法确定其值。</p>
+</li>
+<li>
+<p><code>constexpr</code>函数不能有副作用，即不能修改全局变量的值或调用非<code>constexpr</code>函数。</p>
+</li>
+<li>
+<p><code>constexpr</code>函数和变量的返回类型只能是内置类型或枚举类型，不能是自定义类型或类类型。</p>
+</li>
+<li>
+<p><code>constexpr</code>函数和变量的参数必须是编译时常量表达式或字面量。</p>
+</li>
+<li>
+<p><code>constexpr</code>函数和变量的返回值必须是编译时常量表达式或字面量。</p>
+</li>
+<li>
+<p><code>constexpr</code>函数和变量的定义必须在声明之前，且必须具有相同的类型和值。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>CPP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>支持元素更新的D元最小堆模版</title>
+    <url>/2024/04/21/cpp-d-ary-heap-structure/</url>
+    <content><![CDATA[<p>做15-445的时候需要实现一个支持元素更新的堆。</p>
+<p>STL中的堆是不支持元素更新的，但是我们可以利用元素上浮和元素下沉的操作实现元素更新。具体做法也很简单，根据元素是增大还是减小，调用对应操作保证符合堆的性质即可。</p>
+<p>不幸的是STL又没有暴露元素上浮和元素下沉的接口，于是只能自己写一个了。</p>
+<p>为了能够更新元素的值，给每个元素都附带了一个<code>key</code>标签，凭<code>key</code>去更新元素值，所以最终整个数据结构演变成了类似哈希表的结构。</p>
+<p>实现时顺便实现了<span class="exturl" data-url="aHR0cHM6Ly93d3cud2lraXdhbmQuY29tL2VuL0QtYXJ5X2hlYXA=">D元堆<i class="fa fa-external-link-alt"></i></span>，元数作为模版参数。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * KeyedMinHeap is a min-heap that supports the following operations:</span></span><br><span class="line"><span class="comment"> * - Insert: Insert a key with a score into the heap</span></span><br><span class="line"><span class="comment"> * - Update: Update the score of a key in the heap</span></span><br><span class="line"><span class="comment"> * - TopKey: Get the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - TopScore: Get the minimum score</span></span><br><span class="line"><span class="comment"> * - Pop: Remove the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - Erase: Remove a key from the heap</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, std::<span class="type">size_t</span> ARITY = <span class="number">4</span>&gt;</span><br><span class="line"><span class="keyword">class</span> KeyedMinHeap &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">using</span> <span class="type">heap_index_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line">  <span class="keyword">using</span> <span class="type">score_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">KeyedMinHeap</span>() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Insert</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> score)</span> </span>&#123;</span><br><span class="line">    keys_map_[key] = heap_.<span class="built_in">size</span>();</span><br><span class="line">    heap_.<span class="built_in">emplace_back</span>(key, score);</span><br><span class="line">    <span class="built_in">BubbleUp</span>(heap_.<span class="built_in">size</span>() - <span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Increment</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second++;</span><br><span class="line">    <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Update</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> new_score)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    <span class="type">score_t</span> old_score = heap_[h_index].second;</span><br><span class="line">    <span class="keyword">if</span> (old_score == new_score) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second = new_score;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (new_score &lt; old_score) &#123;</span><br><span class="line">      <span class="built_in">BubbleUp</span>(h_index);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopKey</span><span class="params">()</span> <span class="type">const</span> -&gt; Key </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().first;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopScore</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">score_t</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().second;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Pop</span><span class="params">()</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> top_key = heap_.<span class="built_in">front</span>().first;</span><br><span class="line">    <span class="keyword">auto</span> last_key = heap_.<span class="built_in">back</span>().first;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(top_key);</span><br><span class="line">    keys_map_[last_key] = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_.<span class="built_in">front</span>(), heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleDown</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Erase</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> entry = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(entry != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">heap_index_t</span> index = entry-&gt;second;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(entry);</span><br><span class="line">    keys_map_[heap_.<span class="built_in">back</span>().first] = index;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_[index], heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleUp</span>(index);</span><br><span class="line">    <span class="built_in">BubbleDown</span>(index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Size</span><span class="params">()</span> <span class="type">const</span> -&gt; std::<span class="type">size_t</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">size</span>(); &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Empty</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">bool</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">empty</span>(); &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ParentIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123; <span class="keyword">return</span> (h_index - <span class="number">1</span>) / ARITY; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Returns the index of the child_number-th child of the node at index</span></span><br><span class="line">  <span class="comment">// The children are numbered from 1 to ARITY</span></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ChildIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index, std::<span class="type">size_t</span> child_number)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ARITY * h_index + child_number;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleUp</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (h_index != <span class="number">0</span>) &#123;</span><br><span class="line">      std::<span class="type">size_t</span> parent = <span class="built_in">ParentIndex</span>(h_index);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">auto</span> &amp;parent_entry = heap_[parent];</span><br><span class="line">      <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (entry.second &lt; parent_entry.second) &#123;</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[parent_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(entry, parent_entry);</span><br><span class="line">        h_index = parent;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleDown</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">      <span class="type">heap_index_t</span> smallest = h_index;</span><br><span class="line">      <span class="keyword">for</span> (std::<span class="type">size_t</span> i = <span class="number">1</span>; i &lt;= ARITY; ++i) &#123;</span><br><span class="line">        <span class="type">heap_index_t</span> child = <span class="built_in">ChildIndex</span>(h_index, i);</span><br><span class="line">        <span class="keyword">if</span> (child &lt; heap_.<span class="built_in">size</span>() &amp;&amp; heap_[child].second &lt; heap_[smallest].second) &#123;</span><br><span class="line">          smallest = child;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (smallest != h_index) &#123;</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;smallest_entry = heap_[smallest];</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[smallest_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(heap_[h_index], heap_[smallest]);</span><br><span class="line">        h_index = smallest;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  std::unordered_map&lt;Key, <span class="type">heap_index_t</span>&gt; keys_map_;</span><br><span class="line">  std::vector&lt;std::pair&lt;Key, <span class="type">score_t</span>&gt;&gt; heap_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>CPP</tag>
+        <tag>数据结构</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>计算机网络复习笔记</title>
     <url>/2021/01/05/computer-networking-notes/</url>
     <content><![CDATA[<h1>按章节</h1>
@@ -3734,98 +3826,6 @@ SNMP: 161/162</p>
       </categories>
       <tags>
         <tag>计算机网络</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>C++ 并发三件套 - future, promise, async</title>
-    <url>/2024/04/20/cpp-concurrency/</url>
-    <content><![CDATA[<p>C++标准库提供了很多用于并发编程的工具，不太熟悉，总结一下。</p>
-<h2 id="异步计算结果-std-future-t"><a class="header-anchor-1" href="#异步计算结果-std-future-t">#</a>异步计算结果 <code>std::future&lt;T&gt;</code></h2>
-<p><code>std::future&lt;T&gt;</code> 表示一个异步计算过程的结果。</p>
-<p><code>std::future::wait()</code> 方法阻塞当前线程直至计算完成。如果计算已经完成，则直接返回。</p>
-<p><code>std::future::get()</code> 方法等待计算完成，并获取 <code>future&lt;T&gt;</code> 表示的值或异常。<code>get()</code> 方法会消耗掉当前 future 保存的值，因此只能调用一次。</p>
-<p><code>std::future::valid()</code> 方法表示当前 future 中是否还有值可以被获取，如果值已经被 get 过，则会返回 false。</p>
-<p><code>std::future::share()</code> 方法返回一个 <code>std::shared_future&lt;T&gt;</code>。</p>
-<p><code>std::future&lt;T&gt;</code> 是 move-only 的结构，且独占 <code>T</code> 的所有权。当多个对等的线程需要访问同一个期望值时，可以使用 copyable 的 <code>std::shared_future&lt;T&gt;</code>。注意，<code>std::shared_future&lt;T&gt;</code> 本身并不是线程安全的，需要每个线程拷贝并持有一个自己的 <code>std::shared_future&lt;T&gt;</code>。</p>
-<h2 id="异步生产者-std-promise-t"><a class="header-anchor-1" href="#异步生产者-std-promise-t">#</a>异步生产者 <code>std::promise&lt;T&gt;</code></h2>
-<p><code>std::promise&lt;T&gt;</code> 用于生产者提供一个 <code>std::future&lt;T&gt;</code> 及其中的值给消费者。<code>std::promise&lt;T&gt;::get_future()</code> 方法返回一个 <code>std::future&lt;T&gt;</code> 给消费者。</p>
-<p>对于生产者，使用 <code>std::promise&lt;T&gt;::set_value()</code> 方法填充 <code>future</code> 中的值；或者使用 <code>std::promise&lt;T&gt;::set_exception()</code> 方法填充 <code>future</code> 中的异常；</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> std::promise&lt;<span class="type">double</span>&gt; some_promise;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_value</span>(<span class="built_in">calculate_value</span>());</span><br><span class="line">&#125; <span class="built_in">catch</span>(...) &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_exception</span>(std::<span class="built_in">current_exception</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="异步执行-std-async"><a class="header-anchor-1" href="#异步执行-std-async">#</a>异步执行 <code>std::async()</code></h2>
-<p><code>std::async</code> 是一个函数，它启动一个异步任务去执行指定的函数，返回一个表示计算结果的 <code>std::future</code></p>
-<p><code>std::async</code> 允许额外指定一个<code>std::launch</code>类型的参数来指定任务启动的方式，有以下几种启动策略：</p>
-<ul>
-<li><code>std::launch::async</code>: 任务必须在独立线程中执行，因此需要库去负责线程创建和销毁；</li>
-<li><code>std::launch::deferred</code>: 任务可以延迟到<code>wait()</code>或者<code>get()</code>的时候，在调用者线程上同步执行 (有点类似Rust Tokio的设计)；</li>
-<li><code>std::launch::async | std::launch::deferred</code>: 默认的方式，表示以上两种执行时机都可以，由具体实现去选择。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>cpp</category>
-      </categories>
-      <tags>
-        <tag>CPP</tag>
-        <tag>并发编程</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>C++ `constexpr` 的限制</title>
-    <url>/2024/04/21/cpp-constexpr-usage/</url>
-    <content><![CDATA[<ol>
-<li>
-<p><code>constexpr</code>函数不能包含条件语句（if、switch）、循环（for、while）、异常处理（try、catch）等。</p>
-</li>
-<li>
-<p><code>constexpr</code>函数不能进行动态内存分配。</p>
-</li>
-<li>
-<p><code>constexpr</code>变量必须是编译时常量，即其值在程序运行期间不能被修改。</p>
-</li>
-<li>
-<p><code>constexpr</code>变量不能是类的成员变量，因为类的成员变量可能不是编译时常量。</p>
-</li>
-<li>
-<p><code>constexpr</code>变量不能是左值，因为左值在编译时无法确定其值。</p>
-</li>
-<li>
-<p><code>constexpr</code>函数不能有副作用，即不能修改全局变量的值或调用非<code>constexpr</code>函数。</p>
-</li>
-<li>
-<p><code>constexpr</code>函数和变量的返回类型只能是内置类型或枚举类型，不能是自定义类型或类类型。</p>
-</li>
-<li>
-<p><code>constexpr</code>函数和变量的参数必须是编译时常量表达式或字面量。</p>
-</li>
-<li>
-<p><code>constexpr</code>函数和变量的返回值必须是编译时常量表达式或字面量。</p>
-</li>
-<li>
-<p><code>constexpr</code>函数和变量的定义必须在声明之前，且必须具有相同的类型和值。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>cpp</category>
-      </categories>
-      <tags>
-        <tag>CPP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>支持元素更新的D元最小堆模版</title>
-    <url>/2024/04/21/cpp-d-ary-heap-structure/</url>
-    <content><![CDATA[<p>做15-445的时候需要实现一个支持元素更新的堆。</p>
-<p>STL中的堆是不支持元素更新的，但是我们可以利用元素上浮和元素下沉的操作实现元素更新。具体做法也很简单，根据元素是增大还是减小，调用对应操作保证符合堆的性质即可。</p>
-<p>不幸的是STL又没有暴露元素上浮和元素下沉的接口，于是只能自己写一个了。</p>
-<p>为了能够更新元素的值，给每个元素都附带了一个<code>key</code>标签，凭<code>key</code>去更新元素值，所以最终整个数据结构演变成了类似哈希表的结构。</p>
-<p>实现时顺便实现了<span class="exturl" data-url="aHR0cHM6Ly93d3cud2lraXdhbmQuY29tL2VuL0QtYXJ5X2hlYXA=">D元堆<i class="fa fa-external-link-alt"></i></span>，元数作为模版参数。</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * KeyedMinHeap is a min-heap that supports the following operations:</span></span><br><span class="line"><span class="comment"> * - Insert: Insert a key with a score into the heap</span></span><br><span class="line"><span class="comment"> * - Update: Update the score of a key in the heap</span></span><br><span class="line"><span class="comment"> * - TopKey: Get the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - TopScore: Get the minimum score</span></span><br><span class="line"><span class="comment"> * - Pop: Remove the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - Erase: Remove a key from the heap</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, std::<span class="type">size_t</span> ARITY = <span class="number">4</span>&gt;</span><br><span class="line"><span class="keyword">class</span> KeyedMinHeap &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">using</span> <span class="type">heap_index_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line">  <span class="keyword">using</span> <span class="type">score_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">KeyedMinHeap</span>() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Insert</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> score)</span> </span>&#123;</span><br><span class="line">    keys_map_[key] = heap_.<span class="built_in">size</span>();</span><br><span class="line">    heap_.<span class="built_in">emplace_back</span>(key, score);</span><br><span class="line">    <span class="built_in">BubbleUp</span>(heap_.<span class="built_in">size</span>() - <span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Increment</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second++;</span><br><span class="line">    <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Update</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> new_score)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    <span class="type">score_t</span> old_score = heap_[h_index].second;</span><br><span class="line">    <span class="keyword">if</span> (old_score == new_score) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second = new_score;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (new_score &lt; old_score) &#123;</span><br><span class="line">      <span class="built_in">BubbleUp</span>(h_index);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopKey</span><span class="params">()</span> <span class="type">const</span> -&gt; Key </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().first;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopScore</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">score_t</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().second;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Pop</span><span class="params">()</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> top_key = heap_.<span class="built_in">front</span>().first;</span><br><span class="line">    <span class="keyword">auto</span> last_key = heap_.<span class="built_in">back</span>().first;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(top_key);</span><br><span class="line">    keys_map_[last_key] = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_.<span class="built_in">front</span>(), heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleDown</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Erase</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> entry = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(entry != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">heap_index_t</span> index = entry-&gt;second;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(entry);</span><br><span class="line">    keys_map_[heap_.<span class="built_in">back</span>().first] = index;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_[index], heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleUp</span>(index);</span><br><span class="line">    <span class="built_in">BubbleDown</span>(index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Size</span><span class="params">()</span> <span class="type">const</span> -&gt; std::<span class="type">size_t</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">size</span>(); &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Empty</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">bool</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">empty</span>(); &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ParentIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123; <span class="keyword">return</span> (h_index - <span class="number">1</span>) / ARITY; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Returns the index of the child_number-th child of the node at index</span></span><br><span class="line">  <span class="comment">// The children are numbered from 1 to ARITY</span></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ChildIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index, std::<span class="type">size_t</span> child_number)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ARITY * h_index + child_number;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleUp</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (h_index != <span class="number">0</span>) &#123;</span><br><span class="line">      std::<span class="type">size_t</span> parent = <span class="built_in">ParentIndex</span>(h_index);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">auto</span> &amp;parent_entry = heap_[parent];</span><br><span class="line">      <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (entry.second &lt; parent_entry.second) &#123;</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[parent_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(entry, parent_entry);</span><br><span class="line">        h_index = parent;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleDown</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">      <span class="type">heap_index_t</span> smallest = h_index;</span><br><span class="line">      <span class="keyword">for</span> (std::<span class="type">size_t</span> i = <span class="number">1</span>; i &lt;= ARITY; ++i) &#123;</span><br><span class="line">        <span class="type">heap_index_t</span> child = <span class="built_in">ChildIndex</span>(h_index, i);</span><br><span class="line">        <span class="keyword">if</span> (child &lt; heap_.<span class="built_in">size</span>() &amp;&amp; heap_[child].second &lt; heap_[smallest].second) &#123;</span><br><span class="line">          smallest = child;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (smallest != h_index) &#123;</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;smallest_entry = heap_[smallest];</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[smallest_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(heap_[h_index], heap_[smallest]);</span><br><span class="line">        h_index = smallest;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  std::unordered_map&lt;Key, <span class="type">heap_index_t</span>&gt; keys_map_;</span><br><span class="line">  std::vector&lt;std::pair&lt;Key, <span class="type">score_t</span>&gt;&gt; heap_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>cpp</category>
-      </categories>
-      <tags>
-        <tag>CPP</tag>
-        <tag>数据结构</tag>
       </tags>
   </entry>
   <entry>
@@ -4628,7 +4628,7 @@ Master 负责记录活着的 Tablet Server，以及 Tablet 到 Tablet Server 的
 如果一个 Tablet Server 丢失了这个排它锁，那么它就不再对外提供服务。它会先检查 Server file 是否存在，如果存在就尝试重新获取锁，否则就会直接退出。
 当 Tablet Server 结束时，它会释放锁，就会被 Master 拿到。</p>
 <p>Master 需要周期性地监测 Tablet Server 是否在正常工作，如果不是，就要尽快把它负责的 Tablet 分配给其他 Tablet Server。
-Master 会定期询问 Tablet Server 是否还持有 Server file 的锁，如果没有，或者多次尝试都超时，Master 就会尝试拿一下这个 Tablet 的锁。如果拿到了，说明 Chubby 服务正常，Tablet Server 挂了，就会把这个 Server file 删掉，让 Tablet Server 自行退出；然后把它负责的 Tablet 添加到未分配集合中。
+为此，Master 会定期询问 Tablet Server 是否还持有 Server file 的锁，如果没有，或者多次尝试都超时，Master 就会尝试拿一下这个 Tablet 的锁。如果拿到了，说明 Chubby 服务正常，Tablet Server 挂了，就会把这个 Server file 删掉，让 Tablet Server 自行退出；然后把它负责的 Tablet 添加到未分配集合中。
 为了确保 Bigtable 集群不会受 Master 和 Chubby 之间网络的影响，Master 的 Chubby session 过期，就会直接退出。</p>
 <p>当一个新 Master 被集群管理系统拉起的时候，它需要先检查有哪些 Tablet，按照如下步骤：</p>
 <ol>
@@ -4666,36 +4666,36 @@ Tablet Server 会把这些 SSTable 文件的索引加载到内存中，然后通
 </ol>
 <p>Tablet 分裂和合并不影响读写操作。</p>
 <h3 id="5-4-数据回收"><a class="header-anchor-1" href="#5-4-数据回收">#</a>5.4 数据回收</h3>
-<p><em>Minor compaction</em>：写入数据的时候，Memtable 会增大，当增加到一定程度时，就会被冻结，然后转换成 SSTable 写入 GFS。于此同时，新的 Memtable 会被创建。</p>
+<p><em>Minor compaction</em>：写入数据的时候，Memtable 会增大，当增加到一定程度时，就会被冻结，然后转换成 SSTable 写入 GFS。与此同时，一个新的 Memtable 会被创建。</p>
 <p>Minor compaction 的目的是：</p>
 <ul>
 <li>减小内存占用</li>
 <li>减少重启时的恢复时间</li>
 </ul>
 <p>Minor compaction 不影响读写操作。</p>
-<p>每次 minor 都会创建一个新的 SSTable。如果一直增加下去，读的时候就需要合并很多 SSTable。
+<p>每次 Minor compaction 都会创建一个新的 SSTable。如果一直增加下去，读的时候就需要合并很多 SSTable。
 因此 Bigtable 会定期在后台执行 <em>merging compaction</em>，也叫 <em>major compaction</em>。
 Major compaction 会把多个 SSTable + Memtable 合并成一个 SSTable。
 合并的时候，会把被删除的数据去掉。</p>
 <p>Major compaction 的目的是：</p>
 <ul>
 <li>回收删除数据占用的空间</li>
-<li>保证被删除的数据能够及时消失（对敏感数据）</li>
+<li>保证被删除的数据能够及时消失（对于敏感数据）</li>
 </ul>
 <h2 id="6-细化"><a class="header-anchor-1" href="#6-细化">#</a>6 细化</h2>
 <p>为了实现高性能，高可用，高可靠性，Bigtable 实现上还做了很多细节优化。</p>
 <h3 id="局部性群组"><a class="header-anchor-1" href="#局部性群组">#</a>局部性群组</h3>
-<p>客户端可以把多个 CF 合并成一个局部性群组。
+<p>客户端可以把多个 CF 设置成一个局部性群组。
 在每个 Tablet 中，每个局部性群组都会有一个单独的 SSTable。
 将不经常一起访问的 CF 划分成多个局部性群组，能够提高读性能。
 例如，Webtable 中的页面元数据（例如 langauge 和 chunksums）可以放进一个局部性群组，而网页内容可以放进另一个局部性群组：因为一个读元数据的应用程序往往不会读取内容。</p>
-<p>此外，局部性群组有一些有用的调优参数，例如，局部性群组能够声明为 <em>in-memory</em>。这样的话，这个局部性群组的 SSTable 在需要时就会被加载到内存中。一旦加载，读这个局部性群组的 CF 就不用访问磁盘了。
-这个特性对于频繁访问的小块数据很有用：在 METADATA 表中的 location CF 就是一个 in-memory 的局部性群组。</p>
+<p>此外，局部性群组有一些有用的调优参数，例如，局部性群组可以被声明为 <em>in-memory</em>。这样的话，这个局部性群组的 SSTable 在用到时就会被加载到内存中，在读取这个局部性群组内的 CF 时就不用访问磁盘了。
+这个特性对于频繁访问的小块数据很有用：METADATA 表中的 <code>location</code> CF 就是一个 in-memory 的局部性群组。</p>
 <h3 id="压缩"><a class="header-anchor-1" href="#压缩">#</a>压缩</h3>
 <p>客户端可以控制一个局部性群组的 SSTable 是否压缩，以及使用什么算法。
-压缩的粒度是每个块，而不是整个 SSTable，这样读的时候就不用解压整个 SSTable。
+压缩的粒度是 SSTable 中的块，而不是整个 SSTable，这样读的时候就不用解压整个 SSTable。
 很多客户端会使用一个两趟压缩算法，第一趟用 Bentley-McIlroy 模式，用一个长窗口压缩长的重复串，第二趟用一个快速的算法，在 16KB 的小窗口内压缩剩下的数据。
-两趟压缩算法都是很快的，在现代机器上，压缩速度可以达到 100-200MB/s，解压速度可以达到 400-1000MB/s。</p>
+这种两趟压缩算法是很快的，在现代机器上，压缩速度可以达到 100-200MB/s，解压速度可以达到 400-1000MB/s。</p>
 <p>虽然我们在选择压缩算法的时候更倾向于压缩速度而不是压缩率。这种两趟压缩算法的压缩率也不错。
 在 Webtable 中进行测试，压缩 html 文档，每个文档只保存一个版本，两趟压缩算法的压缩率能达到 10:1，比 gzip 的 3:1 或者 4:1 好的多。
 如果保存多个版本，压缩率会更高。</p>
@@ -4709,36 +4709,29 @@ Major compaction 会把多个 SSTable + Memtable 合并成一个 SSTable。
 <p>读操作必须要从所有的 SSTable 中查找数据，如果 SSTable 不在内存中，就会需要多次磁盘访问。
 Bigtable 允许客户端指定创建一个布隆过滤器，用于快速判断一个 key 是否在 SSTable 中。</p>
 <h3 id="提交日志实现"><a class="header-anchor-1" href="#提交日志实现">#</a>提交日志实现</h3>
-<p>如果我们把每个 Tablet 的提交日志都放在单独的 log 文件中，就需要往 GFS 里面写大量的文件。
-再加上 GFS 实现，可能导致大量磁盘访问。另外，用多个 log 文件也不容易做 group commit 优化。
-因此 Bigtable 设计成每个 Tablet Server 有一个 log 文件。</p>
+<p>如果我们把每个 Tablet 的提交日志都放在单独的 log 文件中，就需要往 GFS 里面写大量的文件。再加上 GFS 实现，可能导致大量磁盘访问。另外，用多个 log 文件也不容易做 group commit 优化。
+因此 Bigtable 设计成每个 Tablet Server 使用一个 log 文件。</p>
 <p>使用单个 log 文件提供了正常路径下的性能优势，但是会让恢复变得麻烦。
-当 Tablet Server 挂了，它负责的 Tablet 需要被迁移走：每个 Server 通常只会分到一小部分。
-为了进行恢复，每个 Server 都需要读取一遍完整的 log 文件，会导致巨大的读放大。</p>
-<p>为了避免这种读放大，首先，Bigtable 会按照 <code>&lt;table, row name, log sequence number&gt;</code> 顺序排序 log 文件。
-排序后，对于单个 Tablet 的变更就是连续的，因此新 owner 只需要进行一次 seek 加顺序读就可以了。
-为了并行化排序过程，log 文件会被分裂成 64MB 大小的段，然后在不同的 Tablet Server 上并行排序。
-这种排序过程是由 Master 协调的。当任意 Tablet Server 需要从 log 文件恢复 Tablet 的时候，就会开始这种排序过程。</p>
+当 Tablet Server 挂了，它负责的 Tablet 需要被迁移走，而每个接管的 Server 通常只会分到其中一部分。
+为了进行恢复，每个 Server 都需要读取一遍完整的 log 文件，会导致巨量的读放大。</p>
+<p>为了避免这种读放大，首先，Bigtable 会按照 <code>&lt;table, row name, log sequence number&gt;</code> 顺序排序 log 文件。排序后，对于单个 Tablet 的变更就是连续存储的，因此新 owner 只需要进行一次 seek 加顺序读就可以了。
+为了并行化这种排序过程，log 文件会按照 64MB 大小分段，然后分散在不同的 Tablet Server 上并行排序。这种排序过程是由 Master 协调的。当任意 Tablet Server 需要从 log 文件恢复 Tablet 的时候，就会开始这种排序过程。</p>
 <p>由于各种各样的原因，有时往 GFS 上写 log 文件的时候，会有性能抖动。例如 GFS 正在故障恢复，或者网络拥塞，或者单纯就是负载太重。
-为了防止 GFS 延迟尖峰，每个 Tablet Server 实际上会有两个线 log 的线程，每个写自己的 log 文件，同一时刻只会有一个在使用。
+为了避免 GFS 延迟尖峰，每个 Tablet Server 实际上会有两个写 log 的线程，每个线程写自己的 log 文件，同一时刻只会有一个线程被使用。
 如果写入的性能太差，就会切换到另一个线程。队列里面后续的变更也会由另一个线程来处理。
 log 条目中包含了自增序列号以防止线程切换的时候重复应用相同的 log。</p>
 <h3 id="加速-tablet-恢复"><a class="header-anchor-1" href="#加速-tablet-恢复">#</a>加速 Tablet 恢复</h3>
-<p>如果 Master 要把一个 Tablet 从一个 Tablet Server 迁移到另一个，源 Tablet Server 会先对这个 Tablet 进行一次 Minor compaction。这次 compaction 能够缩短恢复时间，因为需要恢复的 log 变少了。
+<p>如果 Master 要把一个 Tablet 从一个 Server 迁移到另一个，源 Server 会先对这个 Tablet 进行一次 Minor compaction。这次 compaction 能够缩短恢复时间，因为需要恢复的 log 变少了。
 在 compaction 之后，源 Tablet Server 就会停止服务这个 Tablet。
-在真正卸载这个 Tablet 之前，Tablet Server 会再做一次（通常是很快的）Minor compaction，目的是消除第一次 compaction 期间收到的变更。
-第二次 compaction 之后，就没有剩余的 log 了，目标 Tablet Server 只需加载 Tablet 就可以了。</p>
+在真正卸载这个 Tablet 之前，Server 会再做一次（通常是很快的）Minor compaction，目的是消除第一次 compaction 期间收到的变更。
+第二次 compaction 之后，就没有剩余的 log 了，目标 Server 只需加载 Tablet 就可以了。</p>
 <h3 id="利用不可变性"><a class="header-anchor-1" href="#利用不可变性">#</a>利用不可变性</h3>
 <p>除了 SSTable 缓存以外，Bigtable 系统的各种其他部分也利用了 SSTable 文件的不可变性。
-比如，读 SSTable 的时候不需要任何同步机制。
-因此行之间的并发控制就可以实现得非常高效。
-唯一的例外是 Memtable。
-为了减少 Memtable 的读争抢，我们让每个 Memtable 的行都是 CoW 的，这样就可以并行地读写。</p>
-<p>因为 SSTable 是不可变的，所以移除删除的数据就变成了垃圾回收过时的 SSTable 的问题。
-每个 Tablet 的 SSTable 都被注册到 METADATA 表中。
-Master 使用标记-清除算法来回收过时的 SSTable。</p>
-<p>最终，SSTable 的不可变性还允许我们快速地分裂 Tablet。
-相对于给每个 Tablet 生成一组新的 SSTable 文件，Bigtable 让子 Tablet 共享父 Tablet 的 SSTable 文件。</p>
+比如，并发读 SSTable 的时候不需要任何同步机制。因此行之间的并发控制就可以实现得非常高效。
+唯一的例外是 Memtable。为了减少 Memtable 的读争抢，我们让每个 Memtable 的行都是 CoW 的，这样读和写就可以并行进行。</p>
+<p>因为 SSTable 是不可变的，所以移除已经删除的数据就转换成了垃圾回收过时 SSTable 的问题。
+每个 Tablet 的 SSTable 都被注册到 METADATA 表中。Master 在 SSTable 文件集合上使用标记-清除算法来回收过时的 SSTable。</p>
+<p>SSTable 的不可变性还允许我们快速地分裂 Tablet。相对于给每个 Tablet 生成一组新的 SSTable 文件，Bigtable 让子 Tablet 共享父 Tablet 的 SSTable 文件。</p>
 <h2 id="7-性能评估"><a class="header-anchor-1" href="#7-性能评估">#</a>7 性能评估</h2>
 <p>评估实验使用了一个 N 个 Tablet Server 的 Bigtable 集群。
 用来评估性能和可拓展性随 N 的变化。
@@ -13250,48 +13243,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/07/2020-12-07/</url>
-    <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
-<p>在工具栏选中&quot;连接点&quot;</p>
-<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
-<p>有时候可能需要多点几次</p>
-<h1>为什么校园网这么卡</h1>
-<h1>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkhomedir_helper &lt;username&gt;</span></span><br></pre></td></tr></table></figure>
-<h1>xargs 命令</h1>
-<p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
-<p>xargs后面的命令默认是echo</p>
-<p>即: stdin -&gt; **argv</p>
-<h1>tee 命令</h1>
-<p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
-<p>可以用来复制文件</p>
-<ul>
-<li>输出管道中某一段的内容:</li>
-</ul>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">... | <span class="built_in">tee</span> &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>不退出vim使用sudo保存文件</li>
-</ul>
-<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
-<h1>echo 命令</h1>
-<p>echo命令用于将命令行参数输出到标准输出</p>
-<p>即: stdin -&gt; stdout</p>
-<h1>awk 命令</h1>
-<p>强大的字符串处理工具</p>
-<p>最基本的用法:
-<code>awk '&#123;print$1,$2&#125;'</code></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Visio</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/09/2020-12-09/</url>
     <content><![CDATA[<h1>Spring学习</h1>
 <h2 id="ioc容器"><a class="header-anchor-1" href="#ioc容器">#</a>IoC容器</h2>
@@ -13337,6 +13288,48 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/07/2020-12-07/</url>
+    <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
+<p>在工具栏选中&quot;连接点&quot;</p>
+<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
+<p>有时候可能需要多点几次</p>
+<h1>为什么校园网这么卡</h1>
+<h1>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkhomedir_helper &lt;username&gt;</span></span><br></pre></td></tr></table></figure>
+<h1>xargs 命令</h1>
+<p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
+<p>xargs后面的命令默认是echo</p>
+<p>即: stdin -&gt; **argv</p>
+<h1>tee 命令</h1>
+<p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
+<p>可以用来复制文件</p>
+<ul>
+<li>输出管道中某一段的内容:</li>
+</ul>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">... | <span class="built_in">tee</span> &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>不退出vim使用sudo保存文件</li>
+</ul>
+<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
+<h1>echo 命令</h1>
+<p>echo命令用于将命令行参数输出到标准输出</p>
+<p>即: stdin -&gt; stdout</p>
+<h1>awk 命令</h1>
+<p>强大的字符串处理工具</p>
+<p>最基本的用法:
+<code>awk '&#123;print$1,$2&#125;'</code></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Visio</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/10/2020-12-10/</url>
     <content><![CDATA[<h1>Java的ORM框架 vs Python的ORM框架</h1>
 <p>TODO: 待更新</p>
@@ -13355,6 +13348,16 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>ORM框架</tag>
         <tag>CORS</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/12/2020-12-12/</url>
+    <content><![CDATA[<h1>线性代数</h1>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
@@ -13388,16 +13391,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>GCC使用</tag>
         <tag>NCRE</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/12/2020-12-12/</url>
-    <content><![CDATA[<h1>线性代数</h1>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
@@ -14561,6 +14554,37 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
       </categories>
   </entry>
   <entry>
+    <title>2023 年终总结</title>
+    <url>/2024/01/01/final/</url>
+    <content><![CDATA[<h2 id="2023-回顾"><a class="header-anchor-1" href="#2023-回顾">#</a>2023 回顾</h2>
+<ul>
+<li>1月: 开源投毒</li>
+<li>1-3月: Rust 教材</li>
+<li>4-5月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
+<li>3,5-10月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
+<li>7-11月: 参加 GLCC 开源活动</li>
+<li>8-12月: 搞浦发银行的项目</li>
+</ul>
+<h2 id="近况"><a class="header-anchor-1" href="#近况">#</a>近况</h2>
+<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
+<p>实验室: 宁波实验室人丁兴旺, hw稀稀拉拉, 反倒宁波更好一些</p>
+<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会</h2>
+<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
+<p>甚至不知道2023年都做了些什么(笑), 只能看周报回忆</p>
+<h2 id="2024-希望"><a class="header-anchor-1" href="#2024-希望">#</a>2024 希望</h2>
+<ul>
+<li>多读书</li>
+<li>多运动</li>
+<li>找到好工作</li>
+<li>学习唱歌</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2023</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Poems in DDLC</title>
     <url>/2022/01/07/poems-in-ddlc/</url>
     <content><![CDATA[<style>
@@ -15251,37 +15275,6 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
       <tags>
         <tag>DDLC</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>2023 年终总结</title>
-    <url>/2024/01/01/final/</url>
-    <content><![CDATA[<h2 id="2023-回顾"><a class="header-anchor-1" href="#2023-回顾">#</a>2023 回顾</h2>
-<ul>
-<li>1月: 开源投毒</li>
-<li>1-3月: Rust 教材</li>
-<li>4-5月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
-<li>3,5-10月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
-<li>7-11月: 参加 GLCC 开源活动</li>
-<li>8-12月: 搞浦发银行的项目</li>
-</ul>
-<h2 id="近况"><a class="header-anchor-1" href="#近况">#</a>近况</h2>
-<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
-<p>实验室: 宁波实验室人丁兴旺, hw稀稀拉拉, 反倒宁波更好一些</p>
-<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会</h2>
-<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
-<p>甚至不知道2023年都做了些什么(笑), 只能看周报回忆</p>
-<h2 id="2024-希望"><a class="header-anchor-1" href="#2024-希望">#</a>2024 希望</h2>
-<ul>
-<li>多读书</li>
-<li>多运动</li>
-<li>找到好工作</li>
-<li>学习唱歌</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2023</category>
-      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
