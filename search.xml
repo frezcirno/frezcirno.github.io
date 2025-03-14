@@ -1161,307 +1161,6 @@ LR,SLR,二义文法</p>
       </categories>
   </entry>
   <entry>
-    <title>编译原理课程笔记 - Chapter 3 语义分析和中间代码生成</title>
-    <url>/2020/12/17/note3-ir/</url>
-    <content><![CDATA[<h2 id="提纲"><a class="header-anchor-1" href="#提纲">#</a>提纲</h2>
-<p><img src="index1.png" alt="" /></p>
-<p><img src="index2.png" alt="" /></p>
-<h2 id="属性文法和语法制导翻译"><a class="header-anchor-1" href="#属性文法和语法制导翻译">#</a>属性文法和语法制导翻译</h2>
-<h3 id="属性文法"><a class="header-anchor-1" href="#属性文法">#</a>属性文法</h3>
-<p>属性文法: 在上下文无关文法的基础上给每个文法符号增加若干属性</p>
-<p>语义规则: 对于文法的每个产生式配备了<strong>一组</strong>属性的计算规则</p>
-<ul>
-<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>:</mo><mo>=</mo><mi>f</mi><mo stretchy="false">(</mo><msub><mi>c</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>c</mi><mn>2</mn></msub><mo separator="true">,</mo><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mo separator="true">,</mo><msub><mi>c</mi><mi>k</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">b:=f(c_1,c_2,...,c_k)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">...</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></li>
-<li>产生式左边的综合属性和右边的继承属性必须提供语义规则</li>
-<li>语义规则所描述的工作可以包括属性计算、符号表操作、静态语义检查、代码生成等等。</li>
-</ul>
-<p>属性加工的过程即是语义处理的过程</p>
-<p>属性</p>
-<ul>
-<li>综合属性: 在语法树中, 通过子节点的属性计算出来的属性(自下而上)</li>
-<li>继承属性: 在语法树中, 通过父节点和兄弟节点的属性计算出来的属性(自上而下)</li>
-<li>终结符只有综合属性, 有lexer提供</li>
-</ul>
-<h4 id="s-属性文法"><a class="header-anchor-1" href="#s-属性文法">#</a>S-属性文法</h4>
-<p>只包含综合属性的文法</p>
-<h4 id="l-属性文法"><a class="header-anchor-1" href="#l-属性文法">#</a>L-属性文法</h4>
-<p>如果每个产生式A→X1…Xj-1Xj…Xn的每条语义规则计算的属性或者是A的综合属性；或者是Xj的继承属性，但它仅依赖：</p>
-<ul>
-<li>该产生式中Xj左边符号X1, X2, …, Xj-1的属性；</li>
-<li>A的继承属性</li>
-</ul>
-<h3 id="语法制导翻译"><a class="header-anchor-1" href="#语法制导翻译">#</a>语法制导翻译</h3>
-<p>语法制导翻译法:</p>
-<ul>
-<li>基于属性文法的处理过程: <code>输入串-&gt;语法树-&gt;依赖图-&gt;语义规则计算次序</code></li>
-<li>由源程序的语法结构所驱动</li>
-</ul>
-<p>作用</p>
-<ul>
-<li><strong>产生中间代码</strong></li>
-<li>产生目标指令</li>
-<li>对输入串进行解释执行</li>
-</ul>
-<h4 id="依赖图"><a class="header-anchor-1" href="#依赖图">#</a>依赖图</h4>
-<p>用DAG表示属性依赖关系</p>
-<ul>
-<li>每个属性一个结点</li>
-<li>语义规则中左边属性依赖右边每一个属性</li>
-</ul>
-<p><img src="dep_tree.png" alt="" /></p>
-<ol>
-<li>
-<p>树遍历法</p>
-<ul>
-<li>无环图</li>
-<li>DFS</li>
-<li>从左到右</li>
-</ul>
-</li>
-<li>
-<p>一遍扫描法</p>
-<ul>
-<li>在语法分析的同时计算属性值</li>
-<li>S-属性文法适合于一遍扫描的自下而上分析</li>
-<li>L-属性文法适合于一遍扫描的自上而下分析</li>
-</ul>
-</li>
-</ol>
-<h2 id="语义分析和中间代码生成"><a class="header-anchor-1" href="#语义分析和中间代码生成">#</a>语义分析和中间代码生成</h2>
-<h3 id="语义分析"><a class="header-anchor-1" href="#语义分析">#</a>语义分析</h3>
-<h3 id="中间语言"><a class="header-anchor-1" href="#中间语言">#</a>中间语言</h3>
-<p>中间语言是复杂性界于源语言和目标语言之间的语言</p>
-<p>好处:</p>
-<ul>
-<li>便于进行与机器无关的代码优化工作</li>
-<li>易于移植</li>
-<li>使编译程序的结构在逻辑上更为简单明确</li>
-</ul>
-<p>常用的中间语言表示法</p>
-<ul>
-<li>后缀式(逆波兰式)</li>
-<li>图表示
-<ul>
-<li>DAG</li>
-<li>AST</li>
-</ul>
-</li>
-<li>三地址代码
-<ul>
-<li>三元式</li>
-<li>四元式</li>
-<li>间接三元式</li>
-</ul>
-</li>
-</ul>
-<p>后缀式:</p>
-<ul>
-<li>二元操作符后置</li>
-<li>(一元操作符后置)</li>
-<li>去括号</li>
-</ul>
-<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">a+b*(c+d/e)</span><br><span class="line">a b*(c+d/e) +</span><br><span class="line">a b (c+d/e) * +</span><br><span class="line">a b c d/e + * +</span><br><span class="line">a b c d e / + * +</span><br></pre></td></tr></table></figure>
-<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">b:=-c*a+-c*a</span><br><span class="line">b -c*a+-c*a :=</span><br><span class="line">b -c*a -c*a + :=</span><br><span class="line">b -c a * -c a * + :=</span><br><span class="line">b c Neg a * c Neg a * + :=</span><br></pre></td></tr></table></figure>
-<p>抽象语法树: 去掉对翻译不必要的信息, 更有效表示源程序的语法树</p>
-<p><img src="ast.png" alt="" /></p>
-<p>DAG</p>
-<ul>
-<li>一个内部结点代表一个操作符，它的孩子代表操作数</li>
-<li>一个DAG中代表<strong>公共子表达式</strong>的结点具有多个父结点</li>
-</ul>
-<p><img src="dag.png" alt="" /></p>
-<p>三地址代码: <code>x:=y op z</code></p>
-<ul>
-<li>三地址代码可以看成是抽象语法树或DAG的一种线性表示</li>
-<li>种类
-<ul>
-<li><code>x:=y op z</code></li>
-<li><code>x:=op y</code></li>
-<li><code>x:=y</code></li>
-<li><code>goto L</code></li>
-<li><code>if x rop y goto L</code></li>
-<li><code>if a goto L</code></li>
-</ul>
-</li>
-<li>计算机表示
-<ul>
-<li>四元式</li>
-</ul>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Op</th>
-<th>arg1</th>
-<th>arg2</th>
-<th>result</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>(0)</td>
-<td>uminus</td>
-<td>c</td>
-<td></td>
-<td>T1</td>
-</tr>
-<tr>
-<td>(1)</td>
-<td>*</td>
-<td>b</td>
-<td>T1</td>
-<td>T2</td>
-</tr>
-<tr>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>三元式</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Op</th>
-<th>arg1</th>
-<th>arg2</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>(0)</td>
-<td>uminus</td>
-<td>c</td>
-<td></td>
-</tr>
-<tr>
-<td>(1)</td>
-<td>*</td>
-<td>b</td>
-<td>(0)</td>
-</tr>
-<tr>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-</tr>
-<tr>
-<td>(4)</td>
-<td>+</td>
-<td>(1)</td>
-<td>(3)</td>
-</tr>
-<tr>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>间接三元式
-<ul>
-<li>使用间接代码表来压缩存储相同的三元式</li>
-<li>好处:
-<ul>
-<li>调整语句顺序不需要改动三元式表</li>
-<li>节省存储空间</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="说明语句的翻译"><a class="header-anchor-1" href="#说明语句的翻译">#</a>说明语句的翻译</h3>
-<h3 id="赋值语句的翻译"><a class="header-anchor-1" href="#赋值语句的翻译">#</a>赋值语句的翻译</h3>
-<p><img src="assign_example.png" alt="" /></p>
-<p>答案:</p>
-<p><img src="assign_example_solution.png" alt="" /></p>
-<p>三地址代码</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">T1:=uminus C</span><br><span class="line">T2:=T1+D</span><br><span class="line">T3:=B*T2</span><br><span class="line">A:=T3</span><br></pre></td></tr></table></figure>
-<h3 id="布尔表达式的翻译"><a class="header-anchor-1" href="#布尔表达式的翻译">#</a>布尔表达式的翻译</h3>
-<p>基本作用:</p>
-<ul>
-<li>逻辑运算</li>
-<li>控制语句条件</li>
-</ul>
-<p>翻译方法</p>
-<ul>
-<li>算数方式</li>
-<li>短路计算</li>
-</ul>
-<h4 id="逻辑运算中的布尔表达式翻译"><a class="header-anchor-1" href="#逻辑运算中的布尔表达式翻译">#</a>逻辑运算中的布尔表达式翻译</h4>
-<p><img src="bool_example.png" alt="" /></p>
-<p>答案:</p>
-<p>三地址代码</p>
-<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">0: if a&gt;b goto 3</span><br><span class="line">1: T1:=0</span><br><span class="line">2: goto 4</span><br><span class="line">3: T1:=1</span><br><span class="line">4: if a&gt;b goto 7</span><br><span class="line">5: T1:=0</span><br><span class="line">6: goto 8</span><br><span class="line">7: T1:=1</span><br><span class="line">8: T3=T1 and T2</span><br></pre></td></tr></table></figure>
-<h4 id="条件控制语句中的布尔表达式翻译"><a class="header-anchor-1" href="#条件控制语句中的布尔表达式翻译">#</a>条件控制语句中的布尔表达式翻译</h4>
-<p>两种出口: 一真一假</p>
-<p>改写产生式</p>
-<ul>
-<li><code>E -&gt; E and M E</code></li>
-<li><code>E -&gt; E or M E</code></li>
-<li><code>M -&gt; epsilon</code></li>
-</ul>
-<p>增加属性</p>
-<ul>
-<li><code>truelist</code>/<code>falselist</code>: 布尔表达式中需要回填地址的四元式构成的(反向)列表, 从最后的需要回填地址四元式指向更靠前的四元式</li>
-<li><code>nextquad</code>: 下一条即将产生的四元式的地址, 如果是emit过程中包含那么就是该条语句的地址</li>
-</ul>
-<p>增加过程</p>
-<ul>
-<li><code>makelist(i)</code>: 创建一个新链表<code>-&gt;i</code></li>
-<li><code>merge(p1,p2)</code>: 合并两个链表</li>
-<li><code>backpatch(p,t)</code>: 回填地址</li>
-</ul>
-<p><img src="bool1.png" alt="" /></p>
-<p><img src="bool2.png" alt="" /></p>
-<p>例: 写出布尔式A or (B and not (C or D))的四元式序列</p>
-<p>答案:</p>
-<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">0: jnz,A,-,0</span><br><span class="line">1: j,-,-,2</span><br><span class="line">2: jnz,B,-,4</span><br><span class="line">3: j,-,-,0</span><br><span class="line">4: jnz,C,-,0</span><br><span class="line">5: j,-,-,6</span><br><span class="line">6: jnz,D,-,0</span><br><span class="line">7: j,-,-,0</span><br></pre></td></tr></table></figure>
-<h3 id="控制语句的翻译"><a class="header-anchor-1" href="#控制语句的翻译">#</a>控制语句的翻译</h3>
-<h4 id="条件语句"><a class="header-anchor-1" href="#条件语句">#</a>条件语句</h4>
-<p>改写产生式</p>
-<ul>
-<li><code>S -&gt; if E then M S</code></li>
-<li><code>S -&gt; if E then M S N else M S</code></li>
-<li><code>M -&gt; epsilon</code></li>
-<li><code>N -&gt; epsilon</code></li>
-</ul>
-<p>增加属性:</p>
-<ul>
-<li><code>nextlist</code>: 下一条执行语句的地址, 引入此变量是为了优化连续多次跳转</li>
-</ul>
-<p><img src="control.png" alt="" /></p>
-<h4 id="循环语句-while"><a class="header-anchor-1" href="#循环语句-while">#</a>循环语句(while)</h4>
-<p><img src="while.png" alt="" /></p>
-<h4 id="语句列表和语句块"><a class="header-anchor-1" href="#语句列表和语句块">#</a>语句列表和语句块</h4>
-<p>改写产生式</p>
-<ul>
-<li><code>L -&gt; L; M S</code></li>
-<li><code>M -&gt; epsilon</code></li>
-</ul>
-<p><img src="list.png" alt="" /></p>
-<p><img src="block.png" alt="" /></p>
-<h4 id="标号与goto语句的翻译"><a class="header-anchor-1" href="#标号与goto语句的翻译">#</a>标号与goto语句的翻译</h4>
-<h4 id="case语句的翻译"><a class="header-anchor-1" href="#case语句的翻译">#</a>case语句的翻译</h4>
-<h3 id="过程调用的翻译"><a class="header-anchor-1" href="#过程调用的翻译">#</a>过程调用的翻译</h3>
-<p>不考, 略</p>
-]]></content>
-      <categories>
-        <category>compiler-principle</category>
-      </categories>
-  </entry>
-  <entry>
     <title>编译原理课程笔记 - Chapter 2 语法分析</title>
     <url>/2020/12/17/note2-parser/</url>
     <content><![CDATA[<h2 id="提纲"><a class="header-anchor-1" href="#提纲">#</a>提纲</h2>
@@ -1765,6 +1464,307 @@ I=\{
 <ol>
 <li>使用文法以外信息来解决分析动作冲突</li>
 </ol>
+]]></content>
+      <categories>
+        <category>compiler-principle</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>编译原理课程笔记 - Chapter 3 语义分析和中间代码生成</title>
+    <url>/2020/12/17/note3-ir/</url>
+    <content><![CDATA[<h2 id="提纲"><a class="header-anchor-1" href="#提纲">#</a>提纲</h2>
+<p><img src="index1.png" alt="" /></p>
+<p><img src="index2.png" alt="" /></p>
+<h2 id="属性文法和语法制导翻译"><a class="header-anchor-1" href="#属性文法和语法制导翻译">#</a>属性文法和语法制导翻译</h2>
+<h3 id="属性文法"><a class="header-anchor-1" href="#属性文法">#</a>属性文法</h3>
+<p>属性文法: 在上下文无关文法的基础上给每个文法符号增加若干属性</p>
+<p>语义规则: 对于文法的每个产生式配备了<strong>一组</strong>属性的计算规则</p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>:</mo><mo>=</mo><mi>f</mi><mo stretchy="false">(</mo><msub><mi>c</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>c</mi><mn>2</mn></msub><mo separator="true">,</mo><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mo separator="true">,</mo><msub><mi>c</mi><mi>k</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">b:=f(c_1,c_2,...,c_k)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">...</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></li>
+<li>产生式左边的综合属性和右边的继承属性必须提供语义规则</li>
+<li>语义规则所描述的工作可以包括属性计算、符号表操作、静态语义检查、代码生成等等。</li>
+</ul>
+<p>属性加工的过程即是语义处理的过程</p>
+<p>属性</p>
+<ul>
+<li>综合属性: 在语法树中, 通过子节点的属性计算出来的属性(自下而上)</li>
+<li>继承属性: 在语法树中, 通过父节点和兄弟节点的属性计算出来的属性(自上而下)</li>
+<li>终结符只有综合属性, 有lexer提供</li>
+</ul>
+<h4 id="s-属性文法"><a class="header-anchor-1" href="#s-属性文法">#</a>S-属性文法</h4>
+<p>只包含综合属性的文法</p>
+<h4 id="l-属性文法"><a class="header-anchor-1" href="#l-属性文法">#</a>L-属性文法</h4>
+<p>如果每个产生式A→X1…Xj-1Xj…Xn的每条语义规则计算的属性或者是A的综合属性；或者是Xj的继承属性，但它仅依赖：</p>
+<ul>
+<li>该产生式中Xj左边符号X1, X2, …, Xj-1的属性；</li>
+<li>A的继承属性</li>
+</ul>
+<h3 id="语法制导翻译"><a class="header-anchor-1" href="#语法制导翻译">#</a>语法制导翻译</h3>
+<p>语法制导翻译法:</p>
+<ul>
+<li>基于属性文法的处理过程: <code>输入串-&gt;语法树-&gt;依赖图-&gt;语义规则计算次序</code></li>
+<li>由源程序的语法结构所驱动</li>
+</ul>
+<p>作用</p>
+<ul>
+<li><strong>产生中间代码</strong></li>
+<li>产生目标指令</li>
+<li>对输入串进行解释执行</li>
+</ul>
+<h4 id="依赖图"><a class="header-anchor-1" href="#依赖图">#</a>依赖图</h4>
+<p>用DAG表示属性依赖关系</p>
+<ul>
+<li>每个属性一个结点</li>
+<li>语义规则中左边属性依赖右边每一个属性</li>
+</ul>
+<p><img src="dep_tree.png" alt="" /></p>
+<ol>
+<li>
+<p>树遍历法</p>
+<ul>
+<li>无环图</li>
+<li>DFS</li>
+<li>从左到右</li>
+</ul>
+</li>
+<li>
+<p>一遍扫描法</p>
+<ul>
+<li>在语法分析的同时计算属性值</li>
+<li>S-属性文法适合于一遍扫描的自下而上分析</li>
+<li>L-属性文法适合于一遍扫描的自上而下分析</li>
+</ul>
+</li>
+</ol>
+<h2 id="语义分析和中间代码生成"><a class="header-anchor-1" href="#语义分析和中间代码生成">#</a>语义分析和中间代码生成</h2>
+<h3 id="语义分析"><a class="header-anchor-1" href="#语义分析">#</a>语义分析</h3>
+<h3 id="中间语言"><a class="header-anchor-1" href="#中间语言">#</a>中间语言</h3>
+<p>中间语言是复杂性界于源语言和目标语言之间的语言</p>
+<p>好处:</p>
+<ul>
+<li>便于进行与机器无关的代码优化工作</li>
+<li>易于移植</li>
+<li>使编译程序的结构在逻辑上更为简单明确</li>
+</ul>
+<p>常用的中间语言表示法</p>
+<ul>
+<li>后缀式(逆波兰式)</li>
+<li>图表示
+<ul>
+<li>DAG</li>
+<li>AST</li>
+</ul>
+</li>
+<li>三地址代码
+<ul>
+<li>三元式</li>
+<li>四元式</li>
+<li>间接三元式</li>
+</ul>
+</li>
+</ul>
+<p>后缀式:</p>
+<ul>
+<li>二元操作符后置</li>
+<li>(一元操作符后置)</li>
+<li>去括号</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">a+b*(c+d/e)</span><br><span class="line">a b*(c+d/e) +</span><br><span class="line">a b (c+d/e) * +</span><br><span class="line">a b c d/e + * +</span><br><span class="line">a b c d e / + * +</span><br></pre></td></tr></table></figure>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">b:=-c*a+-c*a</span><br><span class="line">b -c*a+-c*a :=</span><br><span class="line">b -c*a -c*a + :=</span><br><span class="line">b -c a * -c a * + :=</span><br><span class="line">b c Neg a * c Neg a * + :=</span><br></pre></td></tr></table></figure>
+<p>抽象语法树: 去掉对翻译不必要的信息, 更有效表示源程序的语法树</p>
+<p><img src="ast.png" alt="" /></p>
+<p>DAG</p>
+<ul>
+<li>一个内部结点代表一个操作符，它的孩子代表操作数</li>
+<li>一个DAG中代表<strong>公共子表达式</strong>的结点具有多个父结点</li>
+</ul>
+<p><img src="dag.png" alt="" /></p>
+<p>三地址代码: <code>x:=y op z</code></p>
+<ul>
+<li>三地址代码可以看成是抽象语法树或DAG的一种线性表示</li>
+<li>种类
+<ul>
+<li><code>x:=y op z</code></li>
+<li><code>x:=op y</code></li>
+<li><code>x:=y</code></li>
+<li><code>goto L</code></li>
+<li><code>if x rop y goto L</code></li>
+<li><code>if a goto L</code></li>
+</ul>
+</li>
+<li>计算机表示
+<ul>
+<li>四元式</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Op</th>
+<th>arg1</th>
+<th>arg2</th>
+<th>result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(0)</td>
+<td>uminus</td>
+<td>c</td>
+<td></td>
+<td>T1</td>
+</tr>
+<tr>
+<td>(1)</td>
+<td>*</td>
+<td>b</td>
+<td>T1</td>
+<td>T2</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>三元式</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Op</th>
+<th>arg1</th>
+<th>arg2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(0)</td>
+<td>uminus</td>
+<td>c</td>
+<td></td>
+</tr>
+<tr>
+<td>(1)</td>
+<td>*</td>
+<td>b</td>
+<td>(0)</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr>
+<td>(4)</td>
+<td>+</td>
+<td>(1)</td>
+<td>(3)</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>间接三元式
+<ul>
+<li>使用间接代码表来压缩存储相同的三元式</li>
+<li>好处:
+<ul>
+<li>调整语句顺序不需要改动三元式表</li>
+<li>节省存储空间</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="说明语句的翻译"><a class="header-anchor-1" href="#说明语句的翻译">#</a>说明语句的翻译</h3>
+<h3 id="赋值语句的翻译"><a class="header-anchor-1" href="#赋值语句的翻译">#</a>赋值语句的翻译</h3>
+<p><img src="assign_example.png" alt="" /></p>
+<p>答案:</p>
+<p><img src="assign_example_solution.png" alt="" /></p>
+<p>三地址代码</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">T1:=uminus C</span><br><span class="line">T2:=T1+D</span><br><span class="line">T3:=B*T2</span><br><span class="line">A:=T3</span><br></pre></td></tr></table></figure>
+<h3 id="布尔表达式的翻译"><a class="header-anchor-1" href="#布尔表达式的翻译">#</a>布尔表达式的翻译</h3>
+<p>基本作用:</p>
+<ul>
+<li>逻辑运算</li>
+<li>控制语句条件</li>
+</ul>
+<p>翻译方法</p>
+<ul>
+<li>算数方式</li>
+<li>短路计算</li>
+</ul>
+<h4 id="逻辑运算中的布尔表达式翻译"><a class="header-anchor-1" href="#逻辑运算中的布尔表达式翻译">#</a>逻辑运算中的布尔表达式翻译</h4>
+<p><img src="bool_example.png" alt="" /></p>
+<p>答案:</p>
+<p>三地址代码</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">0: if a&gt;b goto 3</span><br><span class="line">1: T1:=0</span><br><span class="line">2: goto 4</span><br><span class="line">3: T1:=1</span><br><span class="line">4: if a&gt;b goto 7</span><br><span class="line">5: T1:=0</span><br><span class="line">6: goto 8</span><br><span class="line">7: T1:=1</span><br><span class="line">8: T3=T1 and T2</span><br></pre></td></tr></table></figure>
+<h4 id="条件控制语句中的布尔表达式翻译"><a class="header-anchor-1" href="#条件控制语句中的布尔表达式翻译">#</a>条件控制语句中的布尔表达式翻译</h4>
+<p>两种出口: 一真一假</p>
+<p>改写产生式</p>
+<ul>
+<li><code>E -&gt; E and M E</code></li>
+<li><code>E -&gt; E or M E</code></li>
+<li><code>M -&gt; epsilon</code></li>
+</ul>
+<p>增加属性</p>
+<ul>
+<li><code>truelist</code>/<code>falselist</code>: 布尔表达式中需要回填地址的四元式构成的(反向)列表, 从最后的需要回填地址四元式指向更靠前的四元式</li>
+<li><code>nextquad</code>: 下一条即将产生的四元式的地址, 如果是emit过程中包含那么就是该条语句的地址</li>
+</ul>
+<p>增加过程</p>
+<ul>
+<li><code>makelist(i)</code>: 创建一个新链表<code>-&gt;i</code></li>
+<li><code>merge(p1,p2)</code>: 合并两个链表</li>
+<li><code>backpatch(p,t)</code>: 回填地址</li>
+</ul>
+<p><img src="bool1.png" alt="" /></p>
+<p><img src="bool2.png" alt="" /></p>
+<p>例: 写出布尔式A or (B and not (C or D))的四元式序列</p>
+<p>答案:</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">0: jnz,A,-,0</span><br><span class="line">1: j,-,-,2</span><br><span class="line">2: jnz,B,-,4</span><br><span class="line">3: j,-,-,0</span><br><span class="line">4: jnz,C,-,0</span><br><span class="line">5: j,-,-,6</span><br><span class="line">6: jnz,D,-,0</span><br><span class="line">7: j,-,-,0</span><br></pre></td></tr></table></figure>
+<h3 id="控制语句的翻译"><a class="header-anchor-1" href="#控制语句的翻译">#</a>控制语句的翻译</h3>
+<h4 id="条件语句"><a class="header-anchor-1" href="#条件语句">#</a>条件语句</h4>
+<p>改写产生式</p>
+<ul>
+<li><code>S -&gt; if E then M S</code></li>
+<li><code>S -&gt; if E then M S N else M S</code></li>
+<li><code>M -&gt; epsilon</code></li>
+<li><code>N -&gt; epsilon</code></li>
+</ul>
+<p>增加属性:</p>
+<ul>
+<li><code>nextlist</code>: 下一条执行语句的地址, 引入此变量是为了优化连续多次跳转</li>
+</ul>
+<p><img src="control.png" alt="" /></p>
+<h4 id="循环语句-while"><a class="header-anchor-1" href="#循环语句-while">#</a>循环语句(while)</h4>
+<p><img src="while.png" alt="" /></p>
+<h4 id="语句列表和语句块"><a class="header-anchor-1" href="#语句列表和语句块">#</a>语句列表和语句块</h4>
+<p>改写产生式</p>
+<ul>
+<li><code>L -&gt; L; M S</code></li>
+<li><code>M -&gt; epsilon</code></li>
+</ul>
+<p><img src="list.png" alt="" /></p>
+<p><img src="block.png" alt="" /></p>
+<h4 id="标号与goto语句的翻译"><a class="header-anchor-1" href="#标号与goto语句的翻译">#</a>标号与goto语句的翻译</h4>
+<h4 id="case语句的翻译"><a class="header-anchor-1" href="#case语句的翻译">#</a>case语句的翻译</h4>
+<h3 id="过程调用的翻译"><a class="header-anchor-1" href="#过程调用的翻译">#</a>过程调用的翻译</h3>
+<p>不考, 略</p>
 ]]></content>
       <categories>
         <category>compiler-principle</category>
@@ -2979,30 +2979,6 @@ SNMP: 161/162</p>
       </tags>
   </entry>
   <entry>
-    <title>C++ 古怪类型与容器的交互</title>
-    <url>/2024/04/21/cpp-opaque-type-vs-container/</url>
-    <content><![CDATA[<p>C++允许定义禁止复制和移动的类型，例如：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">OpaqueData</span> &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">OpaqueData</span>() = <span class="keyword">default</span>;</span><br><span class="line">  ~<span class="built_in">OpaqueData</span>() = <span class="keyword">default</span>;</span><br><span class="line">  <span class="comment">// Disable copy</span></span><br><span class="line">  <span class="built_in">OpaqueData</span>(<span class="type">const</span> OpaqueData &amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="keyword">auto</span> <span class="keyword">operator</span>=(<span class="type">const</span> OpaqueData &amp;) -&gt; OpaqueData &amp; = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="comment">// Disable move</span></span><br><span class="line">  <span class="built_in">OpaqueData</span>(OpaqueData &amp;&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="keyword">auto</span> <span class="keyword">operator</span>=(OpaqueData &amp;&amp;) -&gt; OpaqueData &amp; = <span class="keyword">delete</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>对于这种类型，容器的很多需要元素移动的操作都是不合法的。因此需要使用emplace来在容器内就地构造元素。</p>
-<p>这对于<code>std::list</code>是没问题的，但是对于<code>map</code>/<code>unordered_map</code>是不足够的：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;list&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">main</span><span class="params">()</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">  std::list&lt;OpaqueData&gt; list;  </span><br><span class="line">  list.<span class="built_in">emplace_back</span>();  <span class="comment">// ok</span></span><br><span class="line"></span><br><span class="line">  std::map&lt;<span class="type">int</span>, OpaqueData&gt; map;</span><br><span class="line">  map.<span class="built_in">emplace</span>(<span class="number">0</span>, &#123;&#125;);  <span class="comment">// Error</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>因为<code>map</code>/<code>unordered_map</code>需要在一次调用构造两个元素<code>key</code>和<code>value</code>，因此没办法区分哪些参数用于构造<code>key</code>，哪些用于构造<code>value</code>。</p>
-<p>为了解决这个问题，需要使用 <code>std::piecewise_construct</code>  和 <code>std::forward_as_tuple</code> 明确哪些参数构造<code>key</code>/<code>value</code>，将上述代码修改成下面的样子，即可通过编译：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">main</span><span class="params">()</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">	map.<span class="built_in">emplace</span>(std::piecewise_construct, std::forward_as_tuple(<span class="number">0</span>), std::forward_as_tuple());  <span class="comment">// Ok</span></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>那么这两个东西是什么呢？查看标准库中<code>emplace</code>的代码会发现，这些参数会不断地被<code>forward</code>，最终会原封不动地被用来构造底层元素，而底层元素实际上是<code>std::pair</code>。</p>
-<p>也就是说，这些奇奇怪怪的参数其实是<code>std::pair</code>的一种构造方式，查看<code>std::pair</code>的构造函数证明了这一点：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="comment">/// Tag type for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">piecewise_construct_t</span> &#123; <span class="function"><span class="keyword">explicit</span> <span class="title">piecewise_construct_t</span><span class="params">()</span> </span>= <span class="keyword">default</span>; &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// Tag for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">piecewise_construct_t</span> piecewise_construct = <span class="built_in">piecewise_construct_t</span>();</span><br></pre></td></tr></table></figure>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In tuple */</span></span><br><span class="line"><span class="comment">/// Create a tuple of lvalue or rvalue references to the arguments</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Elements&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> tuple&lt;_Elements&amp;&amp;...&gt; <span class="title">forward_as_tuple</span><span class="params">(_Elements&amp;&amp;... __args)</span> <span class="keyword">noexcept</span> </span>&#123; </span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">tuple</span>&lt;_Elements&amp;&amp;...&gt;(std::forward&lt;_Elements&gt;(__args)...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">_T1</span>, <span class="keyword">class</span> <span class="title class_">_T2</span>&gt;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Args1, <span class="keyword">typename</span>... _Args2&gt;</span><br><span class="line">_GLIBCXX20_CONSTEXPR</span><br><span class="line"><span class="keyword">inline</span></span><br><span class="line">pair&lt;_T1, _T2&gt;::<span class="built_in">pair</span>(<span class="type">piecewise_construct_t</span>, tuple&lt;_Args<span class="number">1.</span>..&gt; __first, tuple&lt;_Args<span class="number">2.</span>..&gt; __second) : <span class="built_in">pair</span>(__first, __second,</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args1)&gt;::__type(),</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args2)&gt;::__type())</span><br><span class="line">&#123; &#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>cpp</category>
-      </categories>
-      <tags>
-        <tag>CPP</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>支持元素更新的D元最小堆模版</title>
     <url>/2024/04/21/cpp-d-ary-heap-structure/</url>
     <content><![CDATA[<p>做15-445的时候需要实现一个支持元素更新的堆。</p>
@@ -3075,6 +3051,30 @@ SNMP: 161/162</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">move_swap</span><span class="params">(Res &amp;a，Res &amp;b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Res t = <span class="built_in">move</span>(a);</span><br><span class="line">    a = <span class="built_in">move</span>(b);</span><br><span class="line">    b = <span class="built_in">move</span>(t);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h1>RVO 和 NRVO</h1>
 <p>返回值优化（Return value optimization，缩写为 RVO）是 C++的一项编译优化技术。即删除保持函数返回值的临时对象。这可能会省略两次复制构造函数，<strong>即使复制构造函数有副作用</strong>。</p>
+]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>CPP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++ 古怪类型与容器的交互</title>
+    <url>/2024/04/21/cpp-opaque-type-vs-container/</url>
+    <content><![CDATA[<p>C++允许定义禁止复制和移动的类型，例如：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">OpaqueData</span> &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">OpaqueData</span>() = <span class="keyword">default</span>;</span><br><span class="line">  ~<span class="built_in">OpaqueData</span>() = <span class="keyword">default</span>;</span><br><span class="line">  <span class="comment">// Disable copy</span></span><br><span class="line">  <span class="built_in">OpaqueData</span>(<span class="type">const</span> OpaqueData &amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="keyword">auto</span> <span class="keyword">operator</span>=(<span class="type">const</span> OpaqueData &amp;) -&gt; OpaqueData &amp; = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="comment">// Disable move</span></span><br><span class="line">  <span class="built_in">OpaqueData</span>(OpaqueData &amp;&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="keyword">auto</span> <span class="keyword">operator</span>=(OpaqueData &amp;&amp;) -&gt; OpaqueData &amp; = <span class="keyword">delete</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>对于这种类型，容器的很多需要元素移动的操作都是不合法的。因此需要使用emplace来在容器内就地构造元素。</p>
+<p>这对于<code>std::list</code>是没问题的，但是对于<code>map</code>/<code>unordered_map</code>是不足够的：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;list&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">main</span><span class="params">()</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">  std::list&lt;OpaqueData&gt; list;  </span><br><span class="line">  list.<span class="built_in">emplace_back</span>();  <span class="comment">// ok</span></span><br><span class="line"></span><br><span class="line">  std::map&lt;<span class="type">int</span>, OpaqueData&gt; map;</span><br><span class="line">  map.<span class="built_in">emplace</span>(<span class="number">0</span>, &#123;&#125;);  <span class="comment">// Error</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为<code>map</code>/<code>unordered_map</code>需要在一次调用构造两个元素<code>key</code>和<code>value</code>，因此没办法区分哪些参数用于构造<code>key</code>，哪些用于构造<code>value</code>。</p>
+<p>为了解决这个问题，需要使用 <code>std::piecewise_construct</code>  和 <code>std::forward_as_tuple</code> 明确哪些参数构造<code>key</code>/<code>value</code>，将上述代码修改成下面的样子，即可通过编译：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">main</span><span class="params">()</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">	map.<span class="built_in">emplace</span>(std::piecewise_construct, std::forward_as_tuple(<span class="number">0</span>), std::forward_as_tuple());  <span class="comment">// Ok</span></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么这两个东西是什么呢？查看标准库中<code>emplace</code>的代码会发现，这些参数会不断地被<code>forward</code>，最终会原封不动地被用来构造底层元素，而底层元素实际上是<code>std::pair</code>。</p>
+<p>也就是说，这些奇奇怪怪的参数其实是<code>std::pair</code>的一种构造方式，查看<code>std::pair</code>的构造函数证明了这一点：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="comment">/// Tag type for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">piecewise_construct_t</span> &#123; <span class="function"><span class="keyword">explicit</span> <span class="title">piecewise_construct_t</span><span class="params">()</span> </span>= <span class="keyword">default</span>; &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// Tag for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">piecewise_construct_t</span> piecewise_construct = <span class="built_in">piecewise_construct_t</span>();</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In tuple */</span></span><br><span class="line"><span class="comment">/// Create a tuple of lvalue or rvalue references to the arguments</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Elements&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> tuple&lt;_Elements&amp;&amp;...&gt; <span class="title">forward_as_tuple</span><span class="params">(_Elements&amp;&amp;... __args)</span> <span class="keyword">noexcept</span> </span>&#123; </span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">tuple</span>&lt;_Elements&amp;&amp;...&gt;(std::forward&lt;_Elements&gt;(__args)...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">_T1</span>, <span class="keyword">class</span> <span class="title class_">_T2</span>&gt;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Args1, <span class="keyword">typename</span>... _Args2&gt;</span><br><span class="line">_GLIBCXX20_CONSTEXPR</span><br><span class="line"><span class="keyword">inline</span></span><br><span class="line">pair&lt;_T1, _T2&gt;::<span class="built_in">pair</span>(<span class="type">piecewise_construct_t</span>, tuple&lt;_Args<span class="number">1.</span>..&gt; __first, tuple&lt;_Args<span class="number">2.</span>..&gt; __second) : <span class="built_in">pair</span>(__first, __second,</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args1)&gt;::__type(),</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args2)&gt;::__type())</span><br><span class="line">&#123; &#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>cpp</category>
@@ -10145,88 +10145,6 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       </tags>
   </entry>
   <entry>
-    <title>短文本相似度：Jaro-Winkler 相似度</title>
-    <url>/2024/05/07/jaro-winkler-similarity/</url>
-    <content><![CDATA[<p>Jaro-Winkler similarity是由Matthew A. Jaro在1989年提出，William E. Winkler在1990年又进行了改进的算法，用于评估两个序列之间的编辑距离。</p>
-<p>对于字符串 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">s1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal">s</span><span class="mord">1</span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">s2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal">s</span><span class="mord">2</span></span></span></span>，Jaro相似度的计算公式为：</p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>s</mi><mi>i</mi><msub><mi>m</mi><mi>j</mi></msub><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><mi>m</mi><mo>=</mo><mn>0</mn></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mfrac><mn>1</mn><mn>3</mn></mfrac><mrow><mo fence="true">(</mo><mfrac><mi>m</mi><mrow><mi mathvariant="normal">∣</mi><msub><mi>s</mi><mn>1</mn></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo>+</mo><mfrac><mi>m</mi><mrow><mi mathvariant="normal">∣</mi><msub><mi>s</mi><mn>2</mn></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo>+</mo><mfrac><mrow><mi>m</mi><mo>−</mo><mi>t</mi></mrow><mi>m</mi></mfrac><mo fence="true">)</mo></mrow></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>otherwise</mtext></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">sim_j = \begin{cases}
-0 &amp;\text{if } m=0 \\
-\frac{1}{3}\left(
- \frac{m}{|s_1|} +
- \frac{m}{|s_2|} +
- \frac{m-t}{m}
-\right) &amp;\text{otherwise}\\
-\end{cases}
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9456em;vertical-align:-0.2861em;"></span><span class="mord mathnormal">s</span><span class="mord mathnormal">i</span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:3.24em;vertical-align:-1.37em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.87em;"><span style="top:-4.012em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.43em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size2">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8246em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size2">)</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.37em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.87em;"><span style="top:-4.012em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord text"><span class="mord">if </span></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">0</span></span></span><span style="top:-2.43em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord text"><span class="mord">otherwise</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.37em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
-<p>其中，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mi>s</mi><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">|s|</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord mathnormal">s</span><span class="mord">∣</span></span></span></span>表示字符串<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span>的长度；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span>表示两个字符串的匹配字符数</p>
-]]></content>
-      <categories>
-        <category>misc</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>机器学习</tag>
-        <tag>算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Python 文件锁与单文件数据库</title>
-    <url>/2024/11/02/python-file-lock/</url>
-    <content><![CDATA[<h2 id="需求"><a class="header-anchor-1" href="#需求">#</a>需求</h2>
-<p>最近遇到一个需求是需要克隆<strong>大量</strong>的 Git 仓库到本地，然后丢到 Python 里做数据分析处理。</p>
-<p>具体来说是有一个 url 列表，需要逐个克隆下来进行一些分析，分析过程大概就是从中抽取一些内容，分析完这个仓库基本就没用了；</p>
-<p>仓库大小不一，有的很大，有的很小，有的很多分支，有的很少分支，有的很多 commit，有的很少 commit；</p>
-<p>url 可能有重复，可能有无效 Git url，同一个仓库可能有多个不同 url；</p>
-<p>我的（额外）需求：</p>
-<ul>
-<li>尽可能快速的克隆，可以同时克隆多个；</li>
-<li>我有多个 Project 都有类似需求。为了节省时间和磁盘空间（梯子贵贵），需要尽可能保证每个仓库最多只克隆一次，后面其他 Project 如果再遇到相同 url，直接用已有的；</li>
-<li>由于磁盘空间有限，当磁盘空间不足时，把最少使用的仓库删除，类似 LRU；</li>
-<li>url 可能有无效的，需要记录下来，以便后续不再反复重试浪费时间；</li>
-<li>分析仓库的 Python 代码很可能会使用到大量并行手段，所以需要并发控制。</li>
-</ul>
-<p>以上。</p>
-<h2 id="分析"><a class="header-anchor-1" href="#分析">#</a>分析</h2>
-<ol>
-<li>
-<p>url 摘要部分：作为内部使用的仓库 ID，也用于简单合并重复 url。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_digest</span>(<span class="params">self, git_url: <span class="built_in">str</span></span>):</span><br><span class="line">    git_url = git_url.strip().lower()</span><br><span class="line">    git_url = git_url.rstrip(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> git_url.endswith(<span class="string">&quot;.git&quot;</span>):</span><br><span class="line">        git_url = git_url[:-<span class="number">4</span>]</span><br><span class="line">    <span class="keyword">if</span> git_url.startswith(<span class="string">&quot;https://&quot;</span>):</span><br><span class="line">        group, repo = git_url.split(<span class="string">&quot;/&quot;</span>)[-<span class="number">2</span>:]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        group, repo = git_url.split(<span class="string">&quot;:&quot;</span>)[-<span class="number">1</span>].split(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;group&#125;</span>+<span class="subst">&#123;repo&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li>
-<p>仓库克隆的位置：为了方便管理，所有仓库克隆到同一个目录（/data/repos/）下，每个仓库一个子目录。</p>
-</li>
-<li>
-<p>系统需要维护的信息有：</p>
-</li>
-</ol>
-<ul>
-<li>已克隆的仓库列表；</li>
-<li>访问频次信息，即每个仓库的访问次数，此处没有使用 LRU；</li>
-<li>无效的 url；</li>
-</ul>
-<p>因为可能有多个 Project 同时运行，这些信息需要跨线程/进程、在整个 OS 的级别共享，即需要支持所谓的 <em>Process safe</em>；</p>
-<p>一般来说，这其实是一个数据库领域的典型需求，我们也可以通过增加一个单独的数据库服务解决，但是太麻烦，也不符合 Python 作为胶水脚本语言的定位；</p>
-<p>相对于使用完整的数据库，一个更简单的办法就是利用文件系统，文件系统一直是全局唯一，且伴随着 OS 默默运行的一个服务；文件系统提供了很多方便的接口，例如使用文件锁来实现跨进程的并发控制；</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> fcntl</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FileLock</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, file, mode=<span class="string">&quot;w&quot;</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.file = <span class="built_in">open</span>(file, <span class="string">&quot;rb&quot;</span> <span class="keyword">if</span> <span class="variable language_">self</span>.mode == <span class="string">&quot;r&quot;</span> <span class="keyword">else</span> <span class="string">&quot;wb&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.mode = mode</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__enter__</span>(<span class="params">self</span>):</span><br><span class="line">        fcntl.flock(<span class="variable language_">self</span>.file, fcntl.LOCK_SH <span class="keyword">if</span> <span class="variable language_">self</span>.mode == <span class="string">&quot;r&quot;</span> <span class="keyword">else</span> fcntl.LOCK_EX)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__exit__</span>(<span class="params">self, exc_type, exc_val, exc_tb</span>):</span><br><span class="line">        fcntl.flock(<span class="variable language_">self</span>.file, fcntl.LOCK_UN)</span><br></pre></td></tr></table></figure>
-<p>通过文件锁，我们可以快速封装一个简单的单文件数据库；以下代码使用了一个 JSON 文件来存储任意数据：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">FileDB</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, db_file</span>):</span><br><span class="line">        <span class="variable language_">self</span>.db_file = db_file</span><br><span class="line">        <span class="variable language_">self</span>.lock_file = db_file + <span class="string">&quot;.lock&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Transaction</span>:</span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, db_file, lock_file, mode</span>):</span><br><span class="line">            <span class="variable language_">self</span>.db_file = db_file</span><br><span class="line">            <span class="variable language_">self</span>.lock_file = FileLock(lock_file, mode)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__enter__</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="variable language_">self</span>.lock_file.__enter__()</span><br><span class="line">            <span class="variable language_">self</span>._load()</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__exit__</span>(<span class="params">self, exc_type, exc_val, exc_tb</span>):</span><br><span class="line">            <span class="keyword">if</span> <span class="variable language_">self</span>.lock_file.mode == <span class="string">&quot;w&quot;</span>:</span><br><span class="line">                <span class="variable language_">self</span>._dump()</span><br><span class="line">            <span class="variable language_">self</span>.lock_file.__exit__(exc_type, exc_val, exc_tb)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">_load</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="variable language_">self</span>.data = &#123;&#125;</span><br><span class="line">            <span class="keyword">if</span> os.path.exists(<span class="variable language_">self</span>.db_file):</span><br><span class="line">                <span class="keyword">with</span> <span class="built_in">open</span>(<span class="variable language_">self</span>.db_file, <span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                    <span class="variable language_">self</span>.data = json.load(f)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">_dump</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="keyword">with</span> tempfile.NamedTemporaryFile(<span class="string">&quot;w&quot;</span>, delete=<span class="literal">False</span>) <span class="keyword">as</span> f:</span><br><span class="line">                json.dump(<span class="variable language_">self</span>.data)</span><br><span class="line">                os.rename(f.name, <span class="variable language_">self</span>.db_file)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">lock_read</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.Transaction(<span class="variable language_">self</span>.db_file, <span class="variable language_">self</span>.lock_file, <span class="string">&quot;r&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">lock</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.Transaction(<span class="variable language_">self</span>.db_file, <span class="variable language_">self</span>.lock_file, <span class="string">&quot;w&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p>为了方便 Python 用户使用，以上代码把读写操作封装成了一个 <code>Transaction</code>，用户只需要在 <code>with</code> 语句中使用即可；</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">db = FileDB(<span class="string">&quot;db.json&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> db.lock() <span class="keyword">as</span> tx:</span><br><span class="line">    tx.data[<span class="string">&quot;key&quot;</span>] = <span class="string">&quot;value&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> db.lock_read() <span class="keyword">as</span> tx:</span><br><span class="line">    <span class="built_in">print</span>(tx.data[<span class="string">&quot;key&quot;</span>])</span><br></pre></td></tr></table></figure>
-<p>最后，使用这个简单的 <code>FileDB</code> 来实现我们的需求：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">from</span> git <span class="keyword">import</span> Repo</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GitRepoManager</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, db_file</span>):</span><br><span class="line">        <span class="variable language_">self</span>.file_db = FileDB(db_file)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">clone</span>(<span class="params">self, git_url</span>) -&gt; <span class="type">Optional</span>[Repo]:</span><br><span class="line">        key = <span class="variable language_">self</span>._digest(git_url)</span><br><span class="line">        repo_path = os.path.join(<span class="variable language_">self</span>.repo_base, key)</span><br><span class="line">        repo_lock = os.path.join(<span class="variable language_">self</span>.repo_base, key + <span class="string">&quot;.lock&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">            <span class="comment"># The repo is already cloned and in the cache</span></span><br><span class="line">            <span class="keyword">if</span> key <span class="keyword">in</span> trx[<span class="string">&quot;lrucache&quot;</span>]:</span><br><span class="line">                trx[<span class="string">&quot;lrucache&quot;</span>][key] += <span class="number">1</span></span><br><span class="line">                <span class="keyword">return</span> Repo(repo_path)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># The url is bad</span></span><br><span class="line">            <span class="keyword">if</span> key <span class="keyword">in</span> trx[<span class="string">&quot;badcache&quot;</span>]:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(trx[<span class="string">&quot;lrucache&quot;</span>]) &gt;= <span class="variable language_">self</span>.max_size:</span><br><span class="line">                <span class="comment"># remove the least used item</span></span><br><span class="line">                least_used = <span class="built_in">min</span>(trx[<span class="string">&quot;lrucache&quot;</span>].items(), key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>])</span><br><span class="line">                least_key = least_used[<span class="number">0</span>]</span><br><span class="line">                least_path = os.path.join(<span class="variable language_">self</span>.repo_base, least_key)</span><br><span class="line">                least_lock = os.path.join(<span class="variable language_">self</span>.repo_base, least_key + <span class="string">&quot;.lock&quot;</span>)</span><br><span class="line">                <span class="keyword">if</span> os.path.exists(least_path):</span><br><span class="line">                    shutil.rmtree(least_path)</span><br><span class="line">                <span class="keyword">if</span> os.path.exists(least_lock):</span><br><span class="line">                    os.unlink(least_lock)</span><br><span class="line">                <span class="keyword">del</span> trx[<span class="string">&quot;lrucache&quot;</span>][least_key]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># acquire a file lock of the repo</span></span><br><span class="line">        <span class="comment"># if the lock is acquired, we are the only process/thread that is cloning the repo</span></span><br><span class="line">        <span class="comment"># otherwise, we wait for the other process to finish cloning</span></span><br><span class="line">        <span class="keyword">with</span> FileLock(repo_lock):</span><br><span class="line">            <span class="comment"># The repo has been cloned by another process</span></span><br><span class="line">            <span class="comment"># We can just open it</span></span><br><span class="line">            <span class="keyword">if</span> os.path.exists(repo_path):</span><br><span class="line">                inst = Repo(repo_path)</span><br><span class="line">                <span class="keyword">return</span> inst</span><br><span class="line"></span><br><span class="line">            <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">                <span class="comment"># The url is bad</span></span><br><span class="line">                <span class="keyword">if</span> key <span class="keyword">in</span> trx[<span class="string">&quot;badcache&quot;</span>]:</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># Clone the repo</span></span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                inst = Repo.clone_from(git_url, repo_path)</span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="comment"># Clone failed, bad git url</span></span><br><span class="line">                logger.error(e)</span><br><span class="line">                <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">                    trx[<span class="string">&quot;badcache&quot;</span>].add(key)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># Clone succeeded</span></span><br><span class="line">            <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">                <span class="keyword">if</span> key <span class="keyword">not</span> <span class="keyword">in</span> trx[<span class="string">&quot;lrucache&quot;</span>]:</span><br><span class="line">                    trx[<span class="string">&quot;lrucache&quot;</span>][key] = <span class="number">1</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    trx[<span class="string">&quot;lrucache&quot;</span>][key] += <span class="number">1</span></span><br><span class="line">                <span class="keyword">return</span> Repo(repo_path)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_digest</span>(<span class="params">self, git_url: <span class="built_in">str</span></span>):</span><br><span class="line">        git_url = git_url.strip().lower()</span><br><span class="line">        git_url = git_url.rstrip(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> git_url.endswith(<span class="string">&quot;.git&quot;</span>):</span><br><span class="line">            git_url = git_url[:-<span class="number">4</span>]</span><br><span class="line">        <span class="keyword">if</span> git_url.startswith(<span class="string">&quot;https://&quot;</span>):</span><br><span class="line">            group, repo = git_url.split(<span class="string">&quot;/&quot;</span>)[-<span class="number">2</span>:]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            group, repo = git_url.split(<span class="string">&quot;:&quot;</span>)[-<span class="number">1</span>].split(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;group&#125;</span>+<span class="subst">&#123;repo&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
-<p>大体上就是这样，这个 FileDB 可以用来实现很多简单的数据库需求，当然，如果你的需求更复杂，还是使用一个完整的数据库服务更好。</p>
-]]></content>
-      <categories>
-        <category>misc</category>
-      </categories>
-      <tags>
-        <tag>Python</tag>
-        <tag>并发控制</tag>
-        <tag>文件锁</tag>
-        <tag>数据库</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>墨水屏</title>
     <url>/2024/09/17/e-ink/</url>
     <content><![CDATA[<h2 id="市场调研"><a class="header-anchor-1" href="#市场调研">#</a>市场调研</h2>
@@ -10624,6 +10542,88 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       <categories>
         <category>misc</category>
       </categories>
+  </entry>
+  <entry>
+    <title>短文本相似度：Jaro-Winkler 相似度</title>
+    <url>/2024/05/07/jaro-winkler-similarity/</url>
+    <content><![CDATA[<p>Jaro-Winkler similarity是由Matthew A. Jaro在1989年提出，William E. Winkler在1990年又进行了改进的算法，用于评估两个序列之间的编辑距离。</p>
+<p>对于字符串 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">s1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal">s</span><span class="mord">1</span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">s2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal">s</span><span class="mord">2</span></span></span></span>，Jaro相似度的计算公式为：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>s</mi><mi>i</mi><msub><mi>m</mi><mi>j</mi></msub><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><mi>m</mi><mo>=</mo><mn>0</mn></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mfrac><mn>1</mn><mn>3</mn></mfrac><mrow><mo fence="true">(</mo><mfrac><mi>m</mi><mrow><mi mathvariant="normal">∣</mi><msub><mi>s</mi><mn>1</mn></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo>+</mo><mfrac><mi>m</mi><mrow><mi mathvariant="normal">∣</mi><msub><mi>s</mi><mn>2</mn></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo>+</mo><mfrac><mrow><mi>m</mi><mo>−</mo><mi>t</mi></mrow><mi>m</mi></mfrac><mo fence="true">)</mo></mrow></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>otherwise</mtext></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">sim_j = \begin{cases}
+0 &amp;\text{if } m=0 \\
+\frac{1}{3}\left(
+ \frac{m}{|s_1|} +
+ \frac{m}{|s_2|} +
+ \frac{m-t}{m}
+\right) &amp;\text{otherwise}\\
+\end{cases}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9456em;vertical-align:-0.2861em;"></span><span class="mord mathnormal">s</span><span class="mord mathnormal">i</span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:3.24em;vertical-align:-1.37em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.87em;"><span style="top:-4.012em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.43em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size2">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8246em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size2">)</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.37em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.87em;"><span style="top:-4.012em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord text"><span class="mord">if </span></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">0</span></span></span><span style="top:-2.43em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord text"><span class="mord">otherwise</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.37em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>其中，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mi>s</mi><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">|s|</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord mathnormal">s</span><span class="mord">∣</span></span></span></span>表示字符串<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span>的长度；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span>表示两个字符串的匹配字符数</p>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>机器学习</tag>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Python 文件锁与单文件数据库</title>
+    <url>/2024/11/02/python-file-lock/</url>
+    <content><![CDATA[<h2 id="需求"><a class="header-anchor-1" href="#需求">#</a>需求</h2>
+<p>最近遇到一个需求是需要克隆<strong>大量</strong>的 Git 仓库到本地，然后丢到 Python 里做数据分析处理。</p>
+<p>具体来说是有一个 url 列表，需要逐个克隆下来进行一些分析，分析过程大概就是从中抽取一些内容，分析完这个仓库基本就没用了；</p>
+<p>仓库大小不一，有的很大，有的很小，有的很多分支，有的很少分支，有的很多 commit，有的很少 commit；</p>
+<p>url 可能有重复，可能有无效 Git url，同一个仓库可能有多个不同 url；</p>
+<p>我的（额外）需求：</p>
+<ul>
+<li>尽可能快速的克隆，可以同时克隆多个；</li>
+<li>我有多个 Project 都有类似需求。为了节省时间和磁盘空间（梯子贵贵），需要尽可能保证每个仓库最多只克隆一次，后面其他 Project 如果再遇到相同 url，直接用已有的；</li>
+<li>由于磁盘空间有限，当磁盘空间不足时，把最少使用的仓库删除，类似 LRU；</li>
+<li>url 可能有无效的，需要记录下来，以便后续不再反复重试浪费时间；</li>
+<li>分析仓库的 Python 代码很可能会使用到大量并行手段，所以需要并发控制。</li>
+</ul>
+<p>以上。</p>
+<h2 id="分析"><a class="header-anchor-1" href="#分析">#</a>分析</h2>
+<ol>
+<li>
+<p>url 摘要部分：作为内部使用的仓库 ID，也用于简单合并重复 url。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_digest</span>(<span class="params">self, git_url: <span class="built_in">str</span></span>):</span><br><span class="line">    git_url = git_url.strip().lower()</span><br><span class="line">    git_url = git_url.rstrip(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> git_url.endswith(<span class="string">&quot;.git&quot;</span>):</span><br><span class="line">        git_url = git_url[:-<span class="number">4</span>]</span><br><span class="line">    <span class="keyword">if</span> git_url.startswith(<span class="string">&quot;https://&quot;</span>):</span><br><span class="line">        group, repo = git_url.split(<span class="string">&quot;/&quot;</span>)[-<span class="number">2</span>:]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        group, repo = git_url.split(<span class="string">&quot;:&quot;</span>)[-<span class="number">1</span>].split(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;group&#125;</span>+<span class="subst">&#123;repo&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>仓库克隆的位置：为了方便管理，所有仓库克隆到同一个目录（/data/repos/）下，每个仓库一个子目录。</p>
+</li>
+<li>
+<p>系统需要维护的信息有：</p>
+</li>
+</ol>
+<ul>
+<li>已克隆的仓库列表；</li>
+<li>访问频次信息，即每个仓库的访问次数，此处没有使用 LRU；</li>
+<li>无效的 url；</li>
+</ul>
+<p>因为可能有多个 Project 同时运行，这些信息需要跨线程/进程、在整个 OS 的级别共享，即需要支持所谓的 <em>Process safe</em>；</p>
+<p>一般来说，这其实是一个数据库领域的典型需求，我们也可以通过增加一个单独的数据库服务解决，但是太麻烦，也不符合 Python 作为胶水脚本语言的定位；</p>
+<p>相对于使用完整的数据库，一个更简单的办法就是利用文件系统，文件系统一直是全局唯一，且伴随着 OS 默默运行的一个服务；文件系统提供了很多方便的接口，例如使用文件锁来实现跨进程的并发控制；</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> fcntl</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FileLock</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, file, mode=<span class="string">&quot;w&quot;</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.file = <span class="built_in">open</span>(file, <span class="string">&quot;rb&quot;</span> <span class="keyword">if</span> <span class="variable language_">self</span>.mode == <span class="string">&quot;r&quot;</span> <span class="keyword">else</span> <span class="string">&quot;wb&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.mode = mode</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__enter__</span>(<span class="params">self</span>):</span><br><span class="line">        fcntl.flock(<span class="variable language_">self</span>.file, fcntl.LOCK_SH <span class="keyword">if</span> <span class="variable language_">self</span>.mode == <span class="string">&quot;r&quot;</span> <span class="keyword">else</span> fcntl.LOCK_EX)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__exit__</span>(<span class="params">self, exc_type, exc_val, exc_tb</span>):</span><br><span class="line">        fcntl.flock(<span class="variable language_">self</span>.file, fcntl.LOCK_UN)</span><br></pre></td></tr></table></figure>
+<p>通过文件锁，我们可以快速封装一个简单的单文件数据库；以下代码使用了一个 JSON 文件来存储任意数据：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">FileDB</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, db_file</span>):</span><br><span class="line">        <span class="variable language_">self</span>.db_file = db_file</span><br><span class="line">        <span class="variable language_">self</span>.lock_file = db_file + <span class="string">&quot;.lock&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Transaction</span>:</span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, db_file, lock_file, mode</span>):</span><br><span class="line">            <span class="variable language_">self</span>.db_file = db_file</span><br><span class="line">            <span class="variable language_">self</span>.lock_file = FileLock(lock_file, mode)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__enter__</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="variable language_">self</span>.lock_file.__enter__()</span><br><span class="line">            <span class="variable language_">self</span>._load()</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__exit__</span>(<span class="params">self, exc_type, exc_val, exc_tb</span>):</span><br><span class="line">            <span class="keyword">if</span> <span class="variable language_">self</span>.lock_file.mode == <span class="string">&quot;w&quot;</span>:</span><br><span class="line">                <span class="variable language_">self</span>._dump()</span><br><span class="line">            <span class="variable language_">self</span>.lock_file.__exit__(exc_type, exc_val, exc_tb)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">_load</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="variable language_">self</span>.data = &#123;&#125;</span><br><span class="line">            <span class="keyword">if</span> os.path.exists(<span class="variable language_">self</span>.db_file):</span><br><span class="line">                <span class="keyword">with</span> <span class="built_in">open</span>(<span class="variable language_">self</span>.db_file, <span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                    <span class="variable language_">self</span>.data = json.load(f)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">_dump</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="keyword">with</span> tempfile.NamedTemporaryFile(<span class="string">&quot;w&quot;</span>, delete=<span class="literal">False</span>) <span class="keyword">as</span> f:</span><br><span class="line">                json.dump(<span class="variable language_">self</span>.data)</span><br><span class="line">                os.rename(f.name, <span class="variable language_">self</span>.db_file)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">lock_read</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.Transaction(<span class="variable language_">self</span>.db_file, <span class="variable language_">self</span>.lock_file, <span class="string">&quot;r&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">lock</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.Transaction(<span class="variable language_">self</span>.db_file, <span class="variable language_">self</span>.lock_file, <span class="string">&quot;w&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>为了方便 Python 用户使用，以上代码把读写操作封装成了一个 <code>Transaction</code>，用户只需要在 <code>with</code> 语句中使用即可；</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">db = FileDB(<span class="string">&quot;db.json&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> db.lock() <span class="keyword">as</span> tx:</span><br><span class="line">    tx.data[<span class="string">&quot;key&quot;</span>] = <span class="string">&quot;value&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> db.lock_read() <span class="keyword">as</span> tx:</span><br><span class="line">    <span class="built_in">print</span>(tx.data[<span class="string">&quot;key&quot;</span>])</span><br></pre></td></tr></table></figure>
+<p>最后，使用这个简单的 <code>FileDB</code> 来实现我们的需求：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">from</span> git <span class="keyword">import</span> Repo</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GitRepoManager</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, db_file</span>):</span><br><span class="line">        <span class="variable language_">self</span>.file_db = FileDB(db_file)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">clone</span>(<span class="params">self, git_url</span>) -&gt; <span class="type">Optional</span>[Repo]:</span><br><span class="line">        key = <span class="variable language_">self</span>._digest(git_url)</span><br><span class="line">        repo_path = os.path.join(<span class="variable language_">self</span>.repo_base, key)</span><br><span class="line">        repo_lock = os.path.join(<span class="variable language_">self</span>.repo_base, key + <span class="string">&quot;.lock&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">            <span class="comment"># The repo is already cloned and in the cache</span></span><br><span class="line">            <span class="keyword">if</span> key <span class="keyword">in</span> trx[<span class="string">&quot;lrucache&quot;</span>]:</span><br><span class="line">                trx[<span class="string">&quot;lrucache&quot;</span>][key] += <span class="number">1</span></span><br><span class="line">                <span class="keyword">return</span> Repo(repo_path)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># The url is bad</span></span><br><span class="line">            <span class="keyword">if</span> key <span class="keyword">in</span> trx[<span class="string">&quot;badcache&quot;</span>]:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(trx[<span class="string">&quot;lrucache&quot;</span>]) &gt;= <span class="variable language_">self</span>.max_size:</span><br><span class="line">                <span class="comment"># remove the least used item</span></span><br><span class="line">                least_used = <span class="built_in">min</span>(trx[<span class="string">&quot;lrucache&quot;</span>].items(), key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>])</span><br><span class="line">                least_key = least_used[<span class="number">0</span>]</span><br><span class="line">                least_path = os.path.join(<span class="variable language_">self</span>.repo_base, least_key)</span><br><span class="line">                least_lock = os.path.join(<span class="variable language_">self</span>.repo_base, least_key + <span class="string">&quot;.lock&quot;</span>)</span><br><span class="line">                <span class="keyword">if</span> os.path.exists(least_path):</span><br><span class="line">                    shutil.rmtree(least_path)</span><br><span class="line">                <span class="keyword">if</span> os.path.exists(least_lock):</span><br><span class="line">                    os.unlink(least_lock)</span><br><span class="line">                <span class="keyword">del</span> trx[<span class="string">&quot;lrucache&quot;</span>][least_key]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># acquire a file lock of the repo</span></span><br><span class="line">        <span class="comment"># if the lock is acquired, we are the only process/thread that is cloning the repo</span></span><br><span class="line">        <span class="comment"># otherwise, we wait for the other process to finish cloning</span></span><br><span class="line">        <span class="keyword">with</span> FileLock(repo_lock):</span><br><span class="line">            <span class="comment"># The repo has been cloned by another process</span></span><br><span class="line">            <span class="comment"># We can just open it</span></span><br><span class="line">            <span class="keyword">if</span> os.path.exists(repo_path):</span><br><span class="line">                inst = Repo(repo_path)</span><br><span class="line">                <span class="keyword">return</span> inst</span><br><span class="line"></span><br><span class="line">            <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">                <span class="comment"># The url is bad</span></span><br><span class="line">                <span class="keyword">if</span> key <span class="keyword">in</span> trx[<span class="string">&quot;badcache&quot;</span>]:</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># Clone the repo</span></span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                inst = Repo.clone_from(git_url, repo_path)</span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="comment"># Clone failed, bad git url</span></span><br><span class="line">                logger.error(e)</span><br><span class="line">                <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">                    trx[<span class="string">&quot;badcache&quot;</span>].add(key)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># Clone succeeded</span></span><br><span class="line">            <span class="keyword">with</span> <span class="variable language_">self</span>.file_db.lock() <span class="keyword">as</span> trx:</span><br><span class="line">                <span class="keyword">if</span> key <span class="keyword">not</span> <span class="keyword">in</span> trx[<span class="string">&quot;lrucache&quot;</span>]:</span><br><span class="line">                    trx[<span class="string">&quot;lrucache&quot;</span>][key] = <span class="number">1</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    trx[<span class="string">&quot;lrucache&quot;</span>][key] += <span class="number">1</span></span><br><span class="line">                <span class="keyword">return</span> Repo(repo_path)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_digest</span>(<span class="params">self, git_url: <span class="built_in">str</span></span>):</span><br><span class="line">        git_url = git_url.strip().lower()</span><br><span class="line">        git_url = git_url.rstrip(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> git_url.endswith(<span class="string">&quot;.git&quot;</span>):</span><br><span class="line">            git_url = git_url[:-<span class="number">4</span>]</span><br><span class="line">        <span class="keyword">if</span> git_url.startswith(<span class="string">&quot;https://&quot;</span>):</span><br><span class="line">            group, repo = git_url.split(<span class="string">&quot;/&quot;</span>)[-<span class="number">2</span>:]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            group, repo = git_url.split(<span class="string">&quot;:&quot;</span>)[-<span class="number">1</span>].split(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;group&#125;</span>+<span class="subst">&#123;repo&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+<p>大体上就是这样，这个 FileDB 可以用来实现很多简单的数据库需求，当然，如果你的需求更复杂，还是使用一个完整的数据库服务更好。</p>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
+      <tags>
+        <tag>Python</tag>
+        <tag>并发控制</tag>
+        <tag>文件锁</tag>
+        <tag>数据库</tag>
+      </tags>
   </entry>
   <entry>
     <title>Python splitlines() 函数的坑</title>
@@ -11807,6 +11807,16 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       </categories>
   </entry>
   <entry>
+    <title>1036. Boys vs Girls</title>
+    <url>/2021/01/11/1036/</url>
+    <content><![CDATA[<p>送分题</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">student</span> &#123;</span><br><span class="line">    string name;</span><br><span class="line">    string major;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    student s, male_min, female_max;</span><br><span class="line">    <span class="type">int</span> score, male_score_min = <span class="number">101</span>, female_score_max = <span class="number">-1</span>;</span><br><span class="line">    string gender;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        cin &gt;&gt; s.name &gt;&gt; gender &gt;&gt; s.major &gt;&gt; score;</span><br><span class="line">        <span class="keyword">if</span> (gender == <span class="string">&quot;M&quot;</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (score &lt; male_score_min) &#123;</span><br><span class="line">                male_min = s;</span><br><span class="line">                male_score_min = score;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (score &gt; female_score_max) &#123;</span><br><span class="line">                female_max = s;</span><br><span class="line">                female_score_max = score;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (female_score_max != <span class="number">-1</span>) &#123;</span><br><span class="line">        cout &lt;&lt; female_max.name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; female_max.major &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Absent&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (male_score_min != <span class="number">101</span>) &#123;</span><br><span class="line">        cout &lt;&lt; male_min.name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; male_min.major &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Absent&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (female_score_max != <span class="number">-1</span> &amp;&amp; male_score_min != <span class="number">101</span>) &#123;</span><br><span class="line">        cout &lt;&lt; female_score_max - male_score_min &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;NA&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
     <title>1046. Shortest Distance</title>
     <url>/2021/01/08/1046/</url>
     <content><![CDATA[<h2 id="题意"><a class="header-anchor-1" href="#题意">#</a>题意</h2>
@@ -11816,16 +11826,6 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <h2 id="感想"><a class="header-anchor-1" href="#感想">#</a>感想</h2>
 <p>意外的很简单</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> D[<span class="number">100001</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> dist;</span><br><span class="line">        cin &gt;&gt; dist;</span><br><span class="line">        D[i + <span class="number">1</span>] = D[i] + dist;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> len = D[n];</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> q;</span><br><span class="line">    cin &gt;&gt; q;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; q; i++) &#123;</span><br><span class="line">        <span class="type">int</span> x, y;</span><br><span class="line">        cin &gt;&gt; x &gt;&gt; y;</span><br><span class="line">        <span class="keyword">if</span> (x &gt; y) &#123;</span><br><span class="line">            <span class="built_in">swap</span>(x, y);</span><br><span class="line">        &#125;</span><br><span class="line">        cout &lt;&lt; <span class="built_in">min</span>(D[y - <span class="number">1</span>] - D[x - <span class="number">1</span>], len - D[y - <span class="number">1</span>] + D[x - <span class="number">1</span>]) &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>PTA</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>1036. Boys vs Girls</title>
-    <url>/2021/01/11/1036/</url>
-    <content><![CDATA[<p>送分题</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">student</span> &#123;</span><br><span class="line">    string name;</span><br><span class="line">    string major;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    student s, male_min, female_max;</span><br><span class="line">    <span class="type">int</span> score, male_score_min = <span class="number">101</span>, female_score_max = <span class="number">-1</span>;</span><br><span class="line">    string gender;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        cin &gt;&gt; s.name &gt;&gt; gender &gt;&gt; s.major &gt;&gt; score;</span><br><span class="line">        <span class="keyword">if</span> (gender == <span class="string">&quot;M&quot;</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (score &lt; male_score_min) &#123;</span><br><span class="line">                male_min = s;</span><br><span class="line">                male_score_min = score;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (score &gt; female_score_max) &#123;</span><br><span class="line">                female_max = s;</span><br><span class="line">                female_score_max = score;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (female_score_max != <span class="number">-1</span>) &#123;</span><br><span class="line">        cout &lt;&lt; female_max.name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; female_max.major &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Absent&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (male_score_min != <span class="number">101</span>) &#123;</span><br><span class="line">        cout &lt;&lt; male_min.name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; male_min.major &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Absent&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (female_score_max != <span class="number">-1</span> &amp;&amp; male_score_min != <span class="number">101</span>) &#123;</span><br><span class="line">        cout &lt;&lt; female_score_max - male_score_min &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;NA&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>PTA</category>
@@ -13320,126 +13320,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/05/2020-12-05/</url>
-    <content><![CDATA[<h1>Java Spring 框架学习</h1>
-<p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
-<p>要管理bean，也即是这堆发挥业务功能的类，就不能直接把它们new出来，这样缺乏统一的调度。所以，Spring使用.xml配置文件作为媒介，以IoC（Inversion of Control 控制反转）作为工具，将这些bean拿给Spring container作统一管理。</p>
-<h1>Git submodule 使用</h1>
-<ul>
-<li>
-<p>添加子模块</p>
-<ul>
-<li><code>git submodule add &lt;url&gt; &lt;path&gt;</code></li>
-</ul>
-</li>
-<li>
-<p>设置子模块的分支</p>
-<ul>
-<li><code>git submodule set-branch --branch &lt;branch&gt; &lt;path&gt;</code></li>
-</ul>
-</li>
-<li>
-<p>克隆下来的项目包含子模块</p>
-  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule init</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update</span></span><br></pre></td></tr></table></figure>
-<p>或者</p>
-  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update --init --recursive</span></span><br></pre></td></tr></table></figure>
-</li>
-<li>
-<p>子模块的更新</p>
-<ol>
-<li>
-<p>在子模块内部, 作为一般的git项目更新(<code>pull</code>)</p>
-</li>
-<li>
-<p>在项目目录下<code>git add</code></p>
-</li>
-</ol>
-</li>
-<li>
-<p>子模块的删除</p>
-<ul>
-<li>
-<p><code>rm -rf 子模块目录</code> 删除子模块目录及源码</p>
-</li>
-<li>
-<p>删除项目目录下.gitmodules文件中子模块相关条目</p>
-</li>
-<li>
-<p>vi .git/config 删除配置项中子模块相关条目</p>
-</li>
-<li>
-<p><code>rm .git/module/*</code> 删除模块下的子模块目录，每个子模块对应一个目录，注意只删除对应的子模块目录即可</p>
-</li>
-</ul>
-</li>
-</ul>
-<h1>Github 开源项目包含不想公开的密码/Token等怎么处理</h1>
-<p>可以将隐私数据包含在项目的Secret设置中, 在Github Action中使用脚本将隐私数据注入到文件中</p>
-<h1>YAML 语言</h1>
-<p>基本类型:</p>
-<blockquote>
-<ul>
-<li>
-<p>String</p>
-</li>
-<li>
-<p>Bool: <code>true</code>, <code>false</code></p>
-</li>
-<li>
-<p>Int</p>
-</li>
-<li>
-<p>Number</p>
-</li>
-<li>
-<p>null: <code>~</code></p>
-</li>
-<li>
-<p>Time: ISO8601 格式, 例<code>2001-12-14t21:59:43.10-05:00</code></p>
-</li>
-<li>
-<p>Date: <code>1976-07-31</code></p>
-</li>
-</ul>
-</blockquote>
-<p>注释: <code>#</code></p>
-<p>使用左端对齐的键值对表示对象:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">key1:</span> <span class="string">abc</span></span><br><span class="line">  <span class="attr">key2:</span> <span class="number">123</span></span><br><span class="line">  <span class="attr">key3:</span> <span class="string">sss</span></span><br></pre></td></tr></table></figure>
-<p>使用以<code>-</code>开头的对齐的值表示数组:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">fruits:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">apple</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">banana</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">orange</span></span><br></pre></td></tr></table></figure>
-<p>数组套对象:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">objs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">object</span> <span class="string">A</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">an</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">B</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">another</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">C</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">still</span> <span class="string">an</span> <span class="string">object</span></span><br></pre></td></tr></table></figure>
-<p>数组套数组:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">matrix:</span> </span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a11</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a12</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a13</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a21</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a22</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a23</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a31</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a32</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a33</span></span><br></pre></td></tr></table></figure>
-<p>对象套数组:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">frezcirno</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Boy</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Handsome</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Student</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Cool</span></span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Spring</tag>
-        <tag>Git</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/06/2020-12-06/</url>
-    <content><![CDATA[<h1>学习Oracle使用</h1>
-<p><a href="../oracledb/index">OracleDB</a></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Oracle</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/04/2020-12-04/</url>
     <content><![CDATA[<h1>Java 包(Package), Jar和模块(Module)的区别</h1>
 <ul>
@@ -13640,6 +13520,126 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/05/2020-12-05/</url>
+    <content><![CDATA[<h1>Java Spring 框架学习</h1>
+<p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
+<p>要管理bean，也即是这堆发挥业务功能的类，就不能直接把它们new出来，这样缺乏统一的调度。所以，Spring使用.xml配置文件作为媒介，以IoC（Inversion of Control 控制反转）作为工具，将这些bean拿给Spring container作统一管理。</p>
+<h1>Git submodule 使用</h1>
+<ul>
+<li>
+<p>添加子模块</p>
+<ul>
+<li><code>git submodule add &lt;url&gt; &lt;path&gt;</code></li>
+</ul>
+</li>
+<li>
+<p>设置子模块的分支</p>
+<ul>
+<li><code>git submodule set-branch --branch &lt;branch&gt; &lt;path&gt;</code></li>
+</ul>
+</li>
+<li>
+<p>克隆下来的项目包含子模块</p>
+  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule init</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update</span></span><br></pre></td></tr></table></figure>
+<p>或者</p>
+  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update --init --recursive</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>子模块的更新</p>
+<ol>
+<li>
+<p>在子模块内部, 作为一般的git项目更新(<code>pull</code>)</p>
+</li>
+<li>
+<p>在项目目录下<code>git add</code></p>
+</li>
+</ol>
+</li>
+<li>
+<p>子模块的删除</p>
+<ul>
+<li>
+<p><code>rm -rf 子模块目录</code> 删除子模块目录及源码</p>
+</li>
+<li>
+<p>删除项目目录下.gitmodules文件中子模块相关条目</p>
+</li>
+<li>
+<p>vi .git/config 删除配置项中子模块相关条目</p>
+</li>
+<li>
+<p><code>rm .git/module/*</code> 删除模块下的子模块目录，每个子模块对应一个目录，注意只删除对应的子模块目录即可</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Github 开源项目包含不想公开的密码/Token等怎么处理</h1>
+<p>可以将隐私数据包含在项目的Secret设置中, 在Github Action中使用脚本将隐私数据注入到文件中</p>
+<h1>YAML 语言</h1>
+<p>基本类型:</p>
+<blockquote>
+<ul>
+<li>
+<p>String</p>
+</li>
+<li>
+<p>Bool: <code>true</code>, <code>false</code></p>
+</li>
+<li>
+<p>Int</p>
+</li>
+<li>
+<p>Number</p>
+</li>
+<li>
+<p>null: <code>~</code></p>
+</li>
+<li>
+<p>Time: ISO8601 格式, 例<code>2001-12-14t21:59:43.10-05:00</code></p>
+</li>
+<li>
+<p>Date: <code>1976-07-31</code></p>
+</li>
+</ul>
+</blockquote>
+<p>注释: <code>#</code></p>
+<p>使用左端对齐的键值对表示对象:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">key1:</span> <span class="string">abc</span></span><br><span class="line">  <span class="attr">key2:</span> <span class="number">123</span></span><br><span class="line">  <span class="attr">key3:</span> <span class="string">sss</span></span><br></pre></td></tr></table></figure>
+<p>使用以<code>-</code>开头的对齐的值表示数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">fruits:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">apple</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">banana</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">orange</span></span><br></pre></td></tr></table></figure>
+<p>数组套对象:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">objs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">object</span> <span class="string">A</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">an</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">B</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">another</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">C</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">still</span> <span class="string">an</span> <span class="string">object</span></span><br></pre></td></tr></table></figure>
+<p>数组套数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">matrix:</span> </span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a11</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a12</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a13</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a21</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a22</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a23</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a31</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a32</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a33</span></span><br></pre></td></tr></table></figure>
+<p>对象套数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">frezcirno</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Boy</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Handsome</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Student</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Cool</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Spring</tag>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/06/2020-12-06/</url>
+    <content><![CDATA[<h1>学习Oracle使用</h1>
+<p><a href="../oracledb/index">OracleDB</a></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Oracle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/07/2020-12-07/</url>
     <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
 <p>在工具栏选中&quot;连接点&quot;</p>
@@ -13823,20 +13823,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/16/2020-12-16/</url>
-    <content><![CDATA[<h1>Spring Security</h1>
-<h1>JWT</h1>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Spring</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/15/2020-12-15/</url>
     <content><![CDATA[<h1>为什么要使用mongodb</h1>
 <ul>
@@ -13862,6 +13848,20 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>SEO</tag>
         <tag>Sitemap</tag>
         <tag>MongoDB</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/16/2020-12-16/</url>
+    <content><![CDATA[<h1>Spring Security</h1>
+<h1>JWT</h1>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Spring</tag>
       </tags>
   </entry>
   <entry>
@@ -13991,6 +13991,16 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/23/2020-12-23/</url>
+    <content><![CDATA[<h1>做Java项目</h1>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/25/2020-12-25/</url>
     <content><![CDATA[<h1>Java 答辩结束了, Yeah</h1>
 <p>今天开始刷题</p>
@@ -14094,16 +14104,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>数据结构</tag>
         <tag>答辩</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/23/2020-12-23/</url>
-    <content><![CDATA[<h1>做Java项目</h1>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
@@ -14420,28 +14420,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2021/01/10/2021-01-10/</url>
-    <content><![CDATA[<h2 id="模运算的性质-程序设计版"><a class="header-anchor-1" href="#模运算的性质-程序设计版">#</a>模运算的性质(程序设计版)</h2>
-<p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>+</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a + b)\bmod p = (a\bmod p + b\bmod p)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>−</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>−</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a - b)\bmod p = (a\bmod p - b\bmod p)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>×</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>×</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a \times b)\bmod p = (a\bmod p \times b\bmod p)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><msup><mi>a</mi><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><msup><mo stretchy="false">)</mo><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a^b)\bmod p = ((a\bmod p)^b)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">((</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2021/01/09/2021-01-09/</url>
     <content><![CDATA[<h2 id="动态规划"><a class="header-anchor-1" href="#动态规划">#</a>动态规划</h2>
 <h3 id="特点"><a class="header-anchor-1" href="#特点">#</a>特点</h3>
@@ -14457,6 +14435,28 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
 <li>列举dp数组</li>
 <li>找出状态转移方程</li>
 </ol>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2021/01/10/2021-01-10/</url>
+    <content><![CDATA[<h2 id="模运算的性质-程序设计版"><a class="header-anchor-1" href="#模运算的性质-程序设计版">#</a>模运算的性质(程序设计版)</h2>
+<p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>+</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a + b)\bmod p = (a\bmod p + b\bmod p)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>−</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>−</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a - b)\bmod p = (a\bmod p - b\bmod p)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>×</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>×</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a \times b)\bmod p = (a\bmod p \times b\bmod p)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><msup><mi>a</mi><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><msup><mo stretchy="false">)</mo><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a^b)\bmod p = ((a\bmod p)^b)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">((</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
 ]]></content>
       <categories>
         <category>daily</category>
