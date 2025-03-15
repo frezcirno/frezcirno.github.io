@@ -696,128 +696,6 @@
       </tags>
   </entry>
   <entry>
-    <title>编译原理课程笔记 - 大纲</title>
-    <url>/2020/12/03/note0-index/</url>
-    <content><![CDATA[<h2 id="课程简介"><a class="header-anchor-1" href="#课程简介">#</a>课程简介</h2>
-<p>总评 = 考试 * 60% + 作业 * 30% + 平时 * 10%</p>
-<h2 id="程序语言的发展"><a class="header-anchor-1" href="#程序语言的发展">#</a>程序语言的发展</h2>
-<p>机器语言 -&gt; 汇编语言 -&gt; 高级语言</p>
-<h2 id="程序的两种执行方式"><a class="header-anchor-1" href="#程序的两种执行方式">#</a>程序的两种执行方式</h2>
-<ul>
-<li>
-<p>解释方式</p>
-</li>
-<li>
-<p>编译方式</p>
-</li>
-</ul>
-<p>Java认为是解释型语言</p>
-<h2 id="编译的步骤"><a class="header-anchor-1" href="#编译的步骤">#</a>编译的步骤</h2>
-<p>编译过程基本分为五个基本阶段:</p>
-<ol>
-<li>词法分析</li>
-<li>语法分析</li>
-<li>语义分析和中间代码生成</li>
-<li>优化</li>
-<li>目标代码生成</li>
-</ol>
-<h3 id="1-词法分析"><a class="header-anchor-1" href="#1-词法分析">#</a>1. 词法分析</h3>
-<ul>
-<li>词法分析程序又称扫描程序(Scanner)。
-<ul>
-<li>任务：读源程序的字符流、识别单词（也称单词符号，或简称符号），如标识符、关键字、常量、界限符等，并转换成内部形式。</li>
-<li>输入：源程序中的字符流</li>
-<li>输出：等长的内部形式，即属性字（单词类型Token-name, 单词属性Attribute-value），其中单词属性指向符号表</li>
-</ul>
-</li>
-</ul>
-<p>输入: 字符流</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">cppcode = <span class="string">`</span></span><br><span class="line"><span class="string">int a, b;</span></span><br><span class="line"><span class="string">a = a + 2;</span></span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure>
-<p>输出: Token流和对应的符号表</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">tokenList = [</span><br><span class="line">    &lt;int&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;,&gt;</span><br><span class="line">    &lt;id,<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;op,<span class="variable constant_">EQ</span>&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;+&gt;</span><br><span class="line">    &lt;<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">]</span><br><span class="line">tokenTable = [</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;a&#x27;</span>, ...&#125;,</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;b&#x27;</span>, ...&#125; </span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-<ul>
-<li>在词法分析阶段工作所依循的是语言的词法规则。</li>
-<li>描述词法规则的有效工具是<strong>正规式</strong>和<strong>有限自动机</strong>。</li>
-<li>方法：<strong>状态图</strong>；<strong>DFA</strong>；<strong>NFA</strong></li>
-</ul>
-<p>DFA模拟代码：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">s = s0;</span><br><span class="line">c = <span class="built_in">nextChar</span>() ;</span><br><span class="line"><span class="keyword">while</span> ( c != eof ) &#123;</span><br><span class="line">    s = <span class="built_in">move</span>(s, c);</span><br><span class="line">    c = <span class="built_in">nextChar</span>() ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> ( s is in F ) <span class="keyword">return</span> <span class="string">&quot; yes &quot;</span> ;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">return</span> <span class="string">&quot;no &quot;</span> ;</span><br></pre></td></tr></table></figure>
-<h3 id="2-语法分析"><a class="header-anchor-1" href="#2-语法分析">#</a>2. 语法分析</h3>
-<ul>
-<li>语法分析程序又称识别程序(Parser)。
-<ul>
-<li>任务：读入由词法分析程序识别出的符号，根据给定语法规则，识别出各个语法单位（如：短语、子句、语句、程序段、程序）,并生成另一种内部表示。</li>
-<li>输入：由词法分析程序识别出并转换的符号</li>
-<li>输出：另一种内部表示，如<strong>语法分析树</strong>或其它<strong>中间表示</strong>。</li>
-</ul>
-</li>
-<li>语法规则通常用<strong>上下文无关文法</strong>描述。</li>
-<li>方法：递归子程序法、<strong>LR分析法</strong>、<strong>算符优先分析法</strong>。</li>
-</ul>
-<p>输入: 符号流</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">sum := first + count * <span class="number">10</span></span><br></pre></td></tr></table></figure>
-<p>输出: 语法树</p>
-<p><img src="ast_demo.png" alt="" /></p>
-<h3 id="3-1-语义分析"><a class="header-anchor-1" href="#3-1-语义分析">#</a>3.1 语义分析</h3>
-<h3 id="3-2-中间代码生成"><a class="header-anchor-1" href="#3-2-中间代码生成">#</a>3.2 中间代码生成</h3>
-<h3 id="4-优化"><a class="header-anchor-1" href="#4-优化">#</a>4. 优化</h3>
-<ul>
-<li>优化的任务在于对前段产生的中间代码进行加工，把它变换成功能相同，但功效更高的优化了的中间表示代码，以期在最后阶段产生更为高效（省时间和空间）的代码</li>
-<li>优化所依循的原则是程序的等价变换规则</li>
-<li>其方法有：公共子表达式的提取、循环优化、删除无用代码等等。</li>
-</ul>
-<h3 id="5-目标代码生成"><a class="header-anchor-1" href="#5-目标代码生成">#</a>5. 目标代码生成</h3>
-<h3 id="遍-pass"><a class="header-anchor-1" href="#遍-pass">#</a>遍(Pass)</h3>
-<p>对<strong>源程序</strong>或源程序的<strong>中间结果</strong>从头到尾扫描一次，并做相关处理，生成新的中间结果或目标程序的过程。</p>
-<p>“遍”是处理数据的一个完整周期，每遍工作从外存上获得前一遍的中间结果（如源程序），完成它所含的有关工作之后，再把结果记录于外存。</p>
-<p>一个编译程序可由一遍、两遍或多遍完成。每一遍可完成不同的阶段或多个阶段的工作。</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>从时间和空间角度看</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>多遍编译</td>
-<td><strong>少占内存，多耗时间</strong></td>
-</tr>
-<tr>
-<td>一遍编译</td>
-<td><strong>多占内存，少耗时间</strong></td>
-</tr>
-</tbody>
-</table>
-<h3 id="t形图"><a class="header-anchor-1" href="#t形图">#</a>T形图</h3>
-<p><img src="t_diagram.png" alt="" /></p>
-<ul>
-<li>S:源语言(程序)，Source language(program)</li>
-<li>T:目标语言(程序), target/object language(program)</li>
-<li>I:实现语言, implementation language</li>
-</ul>
-<p>用T形图表示编译器移植</p>
-<p><img src="t_diagram2.png" alt="" /></p>
-<h3 id="特殊"><a class="header-anchor-1" href="#特殊">#</a>特殊</h3>
-<p>自编译:</p>
-<p>交叉编译</p>
-<p>自动编译:
-lex, yacc</p>
-<h2 id="复习"><a class="header-anchor-1" href="#复习">#</a>复习</h2>
-<p>乔姆斯基文法:
-0/1/2/3</p>
-<p>词法分析: 3型语法分析: 2型</p>
-<p>A卷 - 简单缓考不考-&gt;B卷-&gt;难</p>
-<p>语法分析:
-LR,SLR,二义文法</p>
-<p>就5道大题 5个部分 占40%
-平时 60%</p>
-]]></content>
-      <categories>
-        <category>compiler-principle</category>
-      </categories>
-  </entry>
-  <entry>
     <title>编译原理课程笔记 - Chapter 1 词法分析</title>
     <url>/2020/12/17/note1-lex/</url>
     <content><![CDATA[<h2 id="提纲"><a class="header-anchor-1" href="#提纲">#</a>提纲</h2>
@@ -1155,6 +1033,128 @@ LR,SLR,二义文法</p>
 <p>将FA的状态和右线性正规文法的非终结符作为桥梁, 两者等价</p>
 <h2 id="词法分析器的自动生成"><a class="header-anchor-1" href="#词法分析器的自动生成">#</a>词法分析器的自动生成</h2>
 <p>略</p>
+]]></content>
+      <categories>
+        <category>compiler-principle</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>编译原理课程笔记 - 大纲</title>
+    <url>/2020/12/03/note0-index/</url>
+    <content><![CDATA[<h2 id="课程简介"><a class="header-anchor-1" href="#课程简介">#</a>课程简介</h2>
+<p>总评 = 考试 * 60% + 作业 * 30% + 平时 * 10%</p>
+<h2 id="程序语言的发展"><a class="header-anchor-1" href="#程序语言的发展">#</a>程序语言的发展</h2>
+<p>机器语言 -&gt; 汇编语言 -&gt; 高级语言</p>
+<h2 id="程序的两种执行方式"><a class="header-anchor-1" href="#程序的两种执行方式">#</a>程序的两种执行方式</h2>
+<ul>
+<li>
+<p>解释方式</p>
+</li>
+<li>
+<p>编译方式</p>
+</li>
+</ul>
+<p>Java认为是解释型语言</p>
+<h2 id="编译的步骤"><a class="header-anchor-1" href="#编译的步骤">#</a>编译的步骤</h2>
+<p>编译过程基本分为五个基本阶段:</p>
+<ol>
+<li>词法分析</li>
+<li>语法分析</li>
+<li>语义分析和中间代码生成</li>
+<li>优化</li>
+<li>目标代码生成</li>
+</ol>
+<h3 id="1-词法分析"><a class="header-anchor-1" href="#1-词法分析">#</a>1. 词法分析</h3>
+<ul>
+<li>词法分析程序又称扫描程序(Scanner)。
+<ul>
+<li>任务：读源程序的字符流、识别单词（也称单词符号，或简称符号），如标识符、关键字、常量、界限符等，并转换成内部形式。</li>
+<li>输入：源程序中的字符流</li>
+<li>输出：等长的内部形式，即属性字（单词类型Token-name, 单词属性Attribute-value），其中单词属性指向符号表</li>
+</ul>
+</li>
+</ul>
+<p>输入: 字符流</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">cppcode = <span class="string">`</span></span><br><span class="line"><span class="string">int a, b;</span></span><br><span class="line"><span class="string">a = a + 2;</span></span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure>
+<p>输出: Token流和对应的符号表</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">tokenList = [</span><br><span class="line">    &lt;int&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;,&gt;</span><br><span class="line">    &lt;id,<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;op,<span class="variable constant_">EQ</span>&gt;</span><br><span class="line">    &lt;id,<span class="number">1</span>&gt;</span><br><span class="line">    &lt;+&gt;</span><br><span class="line">    &lt;<span class="number">2</span>&gt;</span><br><span class="line">    &lt;;&gt;</span><br><span class="line">]</span><br><span class="line">tokenTable = [</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;a&#x27;</span>, ...&#125;,</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">&#x27;b&#x27;</span>, ...&#125; </span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<ul>
+<li>在词法分析阶段工作所依循的是语言的词法规则。</li>
+<li>描述词法规则的有效工具是<strong>正规式</strong>和<strong>有限自动机</strong>。</li>
+<li>方法：<strong>状态图</strong>；<strong>DFA</strong>；<strong>NFA</strong></li>
+</ul>
+<p>DFA模拟代码：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">s = s0;</span><br><span class="line">c = <span class="built_in">nextChar</span>() ;</span><br><span class="line"><span class="keyword">while</span> ( c != eof ) &#123;</span><br><span class="line">    s = <span class="built_in">move</span>(s, c);</span><br><span class="line">    c = <span class="built_in">nextChar</span>() ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> ( s is in F ) <span class="keyword">return</span> <span class="string">&quot; yes &quot;</span> ;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">return</span> <span class="string">&quot;no &quot;</span> ;</span><br></pre></td></tr></table></figure>
+<h3 id="2-语法分析"><a class="header-anchor-1" href="#2-语法分析">#</a>2. 语法分析</h3>
+<ul>
+<li>语法分析程序又称识别程序(Parser)。
+<ul>
+<li>任务：读入由词法分析程序识别出的符号，根据给定语法规则，识别出各个语法单位（如：短语、子句、语句、程序段、程序）,并生成另一种内部表示。</li>
+<li>输入：由词法分析程序识别出并转换的符号</li>
+<li>输出：另一种内部表示，如<strong>语法分析树</strong>或其它<strong>中间表示</strong>。</li>
+</ul>
+</li>
+<li>语法规则通常用<strong>上下文无关文法</strong>描述。</li>
+<li>方法：递归子程序法、<strong>LR分析法</strong>、<strong>算符优先分析法</strong>。</li>
+</ul>
+<p>输入: 符号流</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">sum := first + count * <span class="number">10</span></span><br></pre></td></tr></table></figure>
+<p>输出: 语法树</p>
+<p><img src="ast_demo.png" alt="" /></p>
+<h3 id="3-1-语义分析"><a class="header-anchor-1" href="#3-1-语义分析">#</a>3.1 语义分析</h3>
+<h3 id="3-2-中间代码生成"><a class="header-anchor-1" href="#3-2-中间代码生成">#</a>3.2 中间代码生成</h3>
+<h3 id="4-优化"><a class="header-anchor-1" href="#4-优化">#</a>4. 优化</h3>
+<ul>
+<li>优化的任务在于对前段产生的中间代码进行加工，把它变换成功能相同，但功效更高的优化了的中间表示代码，以期在最后阶段产生更为高效（省时间和空间）的代码</li>
+<li>优化所依循的原则是程序的等价变换规则</li>
+<li>其方法有：公共子表达式的提取、循环优化、删除无用代码等等。</li>
+</ul>
+<h3 id="5-目标代码生成"><a class="header-anchor-1" href="#5-目标代码生成">#</a>5. 目标代码生成</h3>
+<h3 id="遍-pass"><a class="header-anchor-1" href="#遍-pass">#</a>遍(Pass)</h3>
+<p>对<strong>源程序</strong>或源程序的<strong>中间结果</strong>从头到尾扫描一次，并做相关处理，生成新的中间结果或目标程序的过程。</p>
+<p>“遍”是处理数据的一个完整周期，每遍工作从外存上获得前一遍的中间结果（如源程序），完成它所含的有关工作之后，再把结果记录于外存。</p>
+<p>一个编译程序可由一遍、两遍或多遍完成。每一遍可完成不同的阶段或多个阶段的工作。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>从时间和空间角度看</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>多遍编译</td>
+<td><strong>少占内存，多耗时间</strong></td>
+</tr>
+<tr>
+<td>一遍编译</td>
+<td><strong>多占内存，少耗时间</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="t形图"><a class="header-anchor-1" href="#t形图">#</a>T形图</h3>
+<p><img src="t_diagram.png" alt="" /></p>
+<ul>
+<li>S:源语言(程序)，Source language(program)</li>
+<li>T:目标语言(程序), target/object language(program)</li>
+<li>I:实现语言, implementation language</li>
+</ul>
+<p>用T形图表示编译器移植</p>
+<p><img src="t_diagram2.png" alt="" /></p>
+<h3 id="特殊"><a class="header-anchor-1" href="#特殊">#</a>特殊</h3>
+<p>自编译:</p>
+<p>交叉编译</p>
+<p>自动编译:
+lex, yacc</p>
+<h2 id="复习"><a class="header-anchor-1" href="#复习">#</a>复习</h2>
+<p>乔姆斯基文法:
+0/1/2/3</p>
+<p>词法分析: 3型语法分析: 2型</p>
+<p>A卷 - 简单缓考不考-&gt;B卷-&gt;难</p>
+<p>语法分析:
+LR,SLR,二义文法</p>
+<p>就5道大题 5个部分 占40%
+平时 60%</p>
 ]]></content>
       <categories>
         <category>compiler-principle</category>
@@ -3111,6 +3111,249 @@ SNMP: 161/162</p>
       </tags>
   </entry>
   <entry>
+    <title>2020年度总结</title>
+    <url>/2021/01/05/2020-summary/</url>
+    <content><![CDATA[<h2 id="进步"><a class="header-anchor-1" href="#进步">#</a>进步</h2>
+<h3 id="装备升级"><a class="header-anchor-1" href="#装备升级">#</a>装备升级</h3>
+<ul>
+<li>
+<p>新增显示器</p>
+</li>
+<li>
+<p>新增一个Pad</p>
+</li>
+</ul>
+<h3 id="技术进步"><a class="header-anchor-1" href="#技术进步">#</a>技术进步</h3>
+<ul>
+<li>
+<p>新开了Blog!</p>
+</li>
+<li>
+<p>开始刷算法题, 并已经刷了一些</p>
+</li>
+<li>
+<p>前端技术更加熟练了</p>
+<ul>
+<li>
+<p>Vue/React双线操作</p>
+</li>
+<li>
+<p>简单页面能够快速开发</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Python更加熟练了</p>
+<ul>
+<li>
+<p>爬虫技术</p>
+</li>
+<li>
+<p>数据处理技术</p>
+</li>
+<li>
+<p>AI/DL</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Java语言入门</p>
+<ul>
+<li>Spring框架</li>
+</ul>
+</li>
+<li>
+<p>iOS应用开发入门</p>
+<ul>
+<li>
+<p>Swift语言入门</p>
+</li>
+<li>
+<p>SpriteKit游戏 * 1</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="综合能力"><a class="header-anchor-1" href="#综合能力">#</a>综合能力</h3>
+<ul>
+<li>
+<p>表达能力略微提升</p>
+</li>
+<li>
+<p>管理能力略微提升</p>
+</li>
+</ul>
+<h3 id="人际关系"><a class="header-anchor-1" href="#人际关系">#</a>人际关系</h3>
+<ul>
+<li>认识了很多新朋友!</li>
+</ul>
+<h2 id="不足"><a class="header-anchor-1" href="#不足">#</a>不足</h2>
+<h3 id="任务调度"><a class="header-anchor-1" href="#任务调度">#</a>任务调度</h3>
+<ul>
+<li>时间利用率不高, 为完成项目曾多次通宵</li>
+</ul>
+<h3 id="管理-组织能力"><a class="header-anchor-1" href="#管理-组织能力">#</a>管理, 组织能力</h3>
+<ul>
+<li>小组合作时, 作为组长, 任务分配还有待优化</li>
+</ul>
+<h3 id="心态"><a class="header-anchor-1" href="#心态">#</a>心态</h3>
+<ul>
+<li>有时候会比较焦虑</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>2021目标计划</title>
+    <url>/2021/01/05/2021-wishes/</url>
+    <content><![CDATA[<h1>2021年目标</h1>
+<h2 id="学习上"><a class="header-anchor-1" href="#学习上">#</a>学习上</h2>
+<ul>
+<li>先把期末考试完美解决</li>
+</ul>
+<h2 id="技术上"><a class="header-anchor-1" href="#技术上">#</a>技术上</h2>
+<ul>
+<li>
+<p>想深入学习一下C++!</p>
+</li>
+<li>
+<p>多刷算法题目!</p>
+</li>
+<li>
+<p>多写Blog!</p>
+</li>
+<li>
+<p>学习Android开发</p>
+</li>
+<li>
+<p>实现大的后端架构</p>
+</li>
+<li>
+<p>学习新语言: Go/Julia/Ruby/…</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>2023 年终总结</title>
+    <url>/2024/01/01/2023-summary/</url>
+    <content><![CDATA[<h2 id="2023-回顾"><a class="header-anchor-1" href="#2023-回顾">#</a>2023 回顾</h2>
+<ul>
+<li>1 月: 开源投毒</li>
+<li>1-3 月: Rust 教材</li>
+<li>4-5 月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
+<li>3,5-10 月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
+<li>7-11 月: 参加 GLCC 开源活动，参与进了一直以来都很崇拜的 Kata Containers 项目</li>
+<li>8-12 月: 搞浦发银行的项目</li>
+</ul>
+<h2 id="近况"><a class="header-anchor-1" href="#近况">#</a>近况</h2>
+<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
+<p>实验室: 宁波实验室人丁兴旺, hw 稀稀拉拉, 反倒宁波更好一些</p>
+<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会</h2>
+<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
+<p>甚至不知道 2023 年都做了些什么(笑), 只能看周报回忆</p>
+<h2 id="2024-希望"><a class="header-anchor-1" href="#2024-希望">#</a>2024 希望</h2>
+<ul>
+<li>多读书</li>
+<li>多运动</li>
+<li>找到好工作</li>
+<li>学习唱歌</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2024/05/12/2024-05-13/</url>
+    <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
+<p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
+<h2 id="conda-root-less-apt"><a class="header-anchor-1" href="#conda-root-less-apt">#</a>Conda = Root-less apt</h2>
+<p>升级<code>gcc</code>依赖库：<code>conda install libgcc libgcc-ng</code></p>
+<p>升级<code>libstdc++</code>：<code>conda install -c conda-forge libstdcxx-ng</code></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2024 年终总结 -- 记学生时代的终结</title>
+    <url>/2025/03/15/2024-summary/</url>
+    <content><![CDATA[<p>不知不觉 2025 年已经过去了两个多月，感觉再不写这篇总结就要忘记了。</p>
+<p>那么事不宜迟，现在让我们回顾一下 2024 年。</p>
+<h2 id="2024-回顾"><a class="header-anchor-1" href="#2024-回顾">#</a>2024 回顾</h2>
+<ul>
+<li>1 月: 似乎没什么事情</li>
+<li>2 月:
+<ul>
+<li><span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvcXR3M2hwYlBVdTFVS0xlTEJiLXBNUQ==">Kata Containers<i class="fa fa-external-link-alt"></i></span> 的项目收尾，Good Job！</li>
+<li>和妈妈在杭州旅游，然后回老家过年，开心</li>
+</ul>
+</li>
+<li>2,6-8,11 月: 科研工作论文
+<ul>
+<li>2 月: 过年在家编 Rebuttal</li>
+<li>6-8 月: Rebuttal 见效，给了个 Major Revision，终于拨云见日…断断续续改了 好几个月</li>
+<li>11 月: 二轮终于接收，如释重负 😭</li>
+</ul>
+</li>
+<li>5 月: 实验室 kg 拿到了 ICSE Distinguished Paper，Good Job！</li>
+<li>3-5 月：暑期实习疯狂投简历
+<ul>
+<li>被字节简历挂了 😡，原因不明，只能解释为投太晚了</li>
+<li>靠 Rust 和安全方面的经验拿到了隐私计算的 Offer，但感觉和自己的方向不太符合，最终放弃了</li>
+<li>由于换 HR，最后的 Offer 拖了 1.5 个月才拿到，人快麻了</li>
+</ul>
+</li>
+<li>3-8 月: 辅助实验室学长的漏洞课题</li>
+<li>5-9 月: 去某公有云大厂开始暑期实习，做 Redis &amp; Tair Persistent Memory &amp; PDB 相关 😄</li>
+<li>8-11 月: 准备秋招
+<ul>
+<li>9 月暑期实习转正顺利</li>
+<li>投+Offer 了 8 家大厂，拉扯了 3 个月，最终的结果还算满意</li>
+</ul>
+</li>
+<li>11-12 月: 参加 <span class="exturl" data-url="aHR0cHM6Ly9vcGVuY2FtcC5jbi9hdG9tZ2l0L2NhbXAvcnVzdA==">Rust 数据结构与算法学习赛<i class="fa fa-external-link-alt"></i></span>，赢到了一个 iPad，意外之喜 😲</li>
+<li>4,10-12 月: 写研究生的毕业论文</li>
+</ul>
+<h2 id="关于实习"><a class="header-anchor-1" href="#关于实习">#</a>关于实习</h2>
+<p>实习对云计算产业有了很多新的认识。</p>
+<p>对公有云的认识：本质上还是 toC 的业务（因此对于客户服务要求极高），只不过卖的产品是云资源。</p>
+<p>对工区的感受：“大概是把演唱会的观众席变成办公桌，观众变成程序员的感觉”</p>
+<p>实习同学还有 cvpr oral 二作哥，厉害。</p>
+<p>遇到了很多 nb 的师兄，不管是人际关系方面还是技术方面都有一些收获。</p>
+<h2 id="关于实验室"><a class="header-anchor-1" href="#关于实验室">#</a>关于实验室</h2>
+<p>hw 实验室从 z3 三楼搬到四楼（23.12.20），然后又搬到了 z9（25.1.2），真够折腾的。</p>
+<p>宁波和 hw 实验室都来了很多新朋友，不过作为老人社交方面有点摆烂了。</p>
+<p>(25.1) kg 考完雅思就去了 SG，拜到了 SE 的大师 🙏。</p>
+<h2 id="关于-ai"><a class="header-anchor-1" href="#关于-ai">#</a>关于 AI</h2>
+<p>难以置信，24 年看来还是不可能实现的任务，过了一年就有了新的突破。</p>
+<h2 id="读的书"><a class="header-anchor-1" href="#读的书">#</a>读的书</h2>
+<ul>
+<li>房思琪的初恋乐园</li>
+<li>雪国</li>
+</ul>
+<p>培养了使用微信读书的习惯。</p>
+<h2 id="有趣的事情"><a class="header-anchor-1" href="#有趣的事情">#</a>有趣的事情</h2>
+<p>和实验室友友们 Cooking 了好多次，好好吃 😋</p>
+<p>自学硬件，画了很多板子，焊接了很多电路，感谢嘉立创 🙏</p>
+<h2 id="未来的祝福"><a class="header-anchor-1" href="#未来的祝福">#</a>未来的祝福</h2>
+<p>工作顺利！</p>
+]]></content>
+      <categories>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
     <title>CMU 15-445 数据库系统 实验</title>
     <url>/2024/05/03/CMU-15-445-database-systems-fall-2023-projects/</url>
     <content><![CDATA[<h2 id="project-0-c-primer"><a class="header-anchor-1" href="#project-0-c-primer">#</a>Project 0 - C++ Primer</h2>
@@ -4883,6 +5126,79 @@ NN 会把不同客户端发起的操作合并成一个 batch，只要有一个�
       </tags>
   </entry>
   <entry>
+    <title>插头插座相关中国国家标准</title>
+    <url>/2024/12/09/socket/</url>
+    <content><![CDATA[<p>现行插座国家标准一共 9 本，分别为：</p>
+<ul>
+<li>GB2099.1 家用和类似用途插头插座第 1 部分：通用要求、</li>
+<li>GB2099.2 家用和类似用途插头插座第 2 部分：器具插座的特殊要求、</li>
+<li>GB2099.3 家用和类似用途插头插座第 2-5 部分：<strong>转换器</strong>的特殊要求、</li>
+<li>GB2099.4 家用和类似用途插头插座第 2 部分：固定式无联锁带开关插座的特殊要求、</li>
+<li>GB2099.5 家用和类似用途插头插座第 2 部分：固定式有联锁带开关插座的特殊要求、</li>
+<li>GB2099.6 家用和类似用途插头插座第 2 部分：带熔断器插头的特殊要求、</li>
+<li>GB2099.7 家用和类似用途插头插座第 2-7 部分：<strong>延长线插座</strong>的特殊要求、</li>
+<li>GB2099.8 家用和类似用途插头插座第 2-4 部分：安全特低电压(SELV)插头插座的特殊要求、</li>
+<li>GB2099.9 家用和类似用途插头插座第 2-9 部分：<strong>信息插座</strong>（即光纤、电话线、宽带线等）的特殊要求</li>
+</ul>
+<h1>1997 年</h1>
+<ul>
+<li>颁布 GB2099.1 ~ GB2099.6 六项新国标，分别规定了插头插座的通用要求和特殊要求。</li>
+</ul>
+<h1>2008 年</h1>
+<ul>
+<li>修订 GB2099.3</li>
+</ul>
+<h1>2015 - 2017 年</h1>
+<ul>
+<li>颁布 <strong>GB2099.7</strong> 标准，规定了延长线插座（俗称插排、插线板）的特殊要求</li>
+<li>颁布 <strong>GB/T 2099.7</strong> 推荐标准，规定了延长线插座（俗称插排、插线板）的推荐标准（俗称<strong>排插新国标</strong>）</li>
+<li>颁布 GB2099.8 标准，规定了安全特低电压（SELV）插头插座的特殊要求</li>
+<li>颁布 GB2099.9 标准，规定了信息插座（即光纤、电话线、宽带线等）的特殊要求</li>
+<li>修订 GB2099.3</li>
+<li>颁布 GB/T 2099.3；</li>
+</ul>
+<ol>
+<li>
+<p>提高电源线导线线径。新国标要求，额定电流 10A 的延长线插排，导线的最小横截面积由原来的 0.75mm^2 提高到 1mm^2;额定 16A 的则从 1mm^2 提高到 1.5mm^2。</p>
+</li>
+<li>
+<p>淘汰万能插排。新国标要求插排允许将符合国标 GB 1002 要求的二孔插孔与三孔插孔排列组合，但不能相互重合或共用。这意味着万能插排正式退市禁用。</p>
+</li>
+<li>
+<p>插线板必须设置保护安全门，避免儿童因为手指或金属物体插入导致触电。</p>
+</li>
+<li>
+<p>增加插排材料的阻燃等级。新国标插排新增了明火针焰测试，要求针焰明火与插排接触 30 秒钟后不起燃，或者起燃后 30 秒后自动熄灭。</p>
+</li>
+<li>
+<p>必须获得 CCC 认证。新国标要求排插必须要通过国家强制性产品认证，即“CCC&quot;认证，消费者可以在排插的本体上观察是否有这个标志。</p>
+</li>
+<li>
+<p>新增了针焰测试项目，要求针焰明火与插座接触 30 秒钟后不起燃，或者起燃后 30 秒后自动熄灭</p>
+</li>
+</ol>
+<p><img src="./socket/63fe470bab15e5297.png_e1080.jpg" alt="alt text" /></p>
+<h1>2021</h1>
+<ul>
+<li>修订 GB2099.1</li>
+</ul>
+<h1>2022</h1>
+<ul>
+<li>修订 GB2099.3</li>
+</ul>
+<h1>2024</h1>
+<ul>
+<li>修订 GB 2099.7 标准</li>
+</ul>
+]]></content>
+      <categories>
+        <category>electronic</category>
+      </categories>
+      <tags>
+        <tag>电子电路</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>电子电路基础</title>
     <url>/2024/09/12/basic/</url>
     <content><![CDATA[<h2 id="基本概念"><a class="header-anchor-1" href="#基本概念">#</a>基本概念</h2>
@@ -5338,79 +5654,6 @@ NN 会把不同客户端发起的操作合并成一个 batch，只要有一个�
     <title>Verilog</title>
     <url>/2024/09/21/verilog/</url>
     <content><![CDATA[]]></content>
-      <categories>
-        <category>electronic</category>
-      </categories>
-      <tags>
-        <tag>电子电路</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>插头插座相关中国国家标准</title>
-    <url>/2024/12/09/socket/</url>
-    <content><![CDATA[<p>现行插座国家标准一共 9 本，分别为：</p>
-<ul>
-<li>GB2099.1 家用和类似用途插头插座第 1 部分：通用要求、</li>
-<li>GB2099.2 家用和类似用途插头插座第 2 部分：器具插座的特殊要求、</li>
-<li>GB2099.3 家用和类似用途插头插座第 2-5 部分：<strong>转换器</strong>的特殊要求、</li>
-<li>GB2099.4 家用和类似用途插头插座第 2 部分：固定式无联锁带开关插座的特殊要求、</li>
-<li>GB2099.5 家用和类似用途插头插座第 2 部分：固定式有联锁带开关插座的特殊要求、</li>
-<li>GB2099.6 家用和类似用途插头插座第 2 部分：带熔断器插头的特殊要求、</li>
-<li>GB2099.7 家用和类似用途插头插座第 2-7 部分：<strong>延长线插座</strong>的特殊要求、</li>
-<li>GB2099.8 家用和类似用途插头插座第 2-4 部分：安全特低电压(SELV)插头插座的特殊要求、</li>
-<li>GB2099.9 家用和类似用途插头插座第 2-9 部分：<strong>信息插座</strong>（即光纤、电话线、宽带线等）的特殊要求</li>
-</ul>
-<h1>1997 年</h1>
-<ul>
-<li>颁布 GB2099.1 ~ GB2099.6 六项新国标，分别规定了插头插座的通用要求和特殊要求。</li>
-</ul>
-<h1>2008 年</h1>
-<ul>
-<li>修订 GB2099.3</li>
-</ul>
-<h1>2015 - 2017 年</h1>
-<ul>
-<li>颁布 <strong>GB2099.7</strong> 标准，规定了延长线插座（俗称插排、插线板）的特殊要求</li>
-<li>颁布 <strong>GB/T 2099.7</strong> 推荐标准，规定了延长线插座（俗称插排、插线板）的推荐标准（俗称<strong>排插新国标</strong>）</li>
-<li>颁布 GB2099.8 标准，规定了安全特低电压（SELV）插头插座的特殊要求</li>
-<li>颁布 GB2099.9 标准，规定了信息插座（即光纤、电话线、宽带线等）的特殊要求</li>
-<li>修订 GB2099.3</li>
-<li>颁布 GB/T 2099.3；</li>
-</ul>
-<ol>
-<li>
-<p>提高电源线导线线径。新国标要求，额定电流 10A 的延长线插排，导线的最小横截面积由原来的 0.75mm^2 提高到 1mm^2;额定 16A 的则从 1mm^2 提高到 1.5mm^2。</p>
-</li>
-<li>
-<p>淘汰万能插排。新国标要求插排允许将符合国标 GB 1002 要求的二孔插孔与三孔插孔排列组合，但不能相互重合或共用。这意味着万能插排正式退市禁用。</p>
-</li>
-<li>
-<p>插线板必须设置保护安全门，避免儿童因为手指或金属物体插入导致触电。</p>
-</li>
-<li>
-<p>增加插排材料的阻燃等级。新国标插排新增了明火针焰测试，要求针焰明火与插排接触 30 秒钟后不起燃，或者起燃后 30 秒后自动熄灭。</p>
-</li>
-<li>
-<p>必须获得 CCC 认证。新国标要求排插必须要通过国家强制性产品认证，即“CCC&quot;认证，消费者可以在排插的本体上观察是否有这个标志。</p>
-</li>
-<li>
-<p>新增了针焰测试项目，要求针焰明火与插座接触 30 秒钟后不起燃，或者起燃后 30 秒后自动熄灭</p>
-</li>
-</ol>
-<p><img src="./socket/63fe470bab15e5297.png_e1080.jpg" alt="alt text" /></p>
-<h1>2021</h1>
-<ul>
-<li>修订 GB2099.1</li>
-</ul>
-<h1>2022</h1>
-<ul>
-<li>修订 GB2099.3</li>
-</ul>
-<h1>2024</h1>
-<ul>
-<li>修订 GB 2099.7 标准</li>
-</ul>
-]]></content>
       <categories>
         <category>electronic</category>
       </categories>
@@ -10720,6 +10963,602 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       </categories>
   </entry>
   <entry>
+    <title>Poems in DDLC</title>
+    <url>/2022/01/07/poems-in-ddlc/</url>
+    <content><![CDATA[<style>
+@font-face
+{
+    font-family: DejaVuSans;
+    src: url(https://frezcirno.github.io/static/images/DejaVuSans.ttf);
+}
+
+@font-face
+{
+    font-family: Ammys Handwriting;
+    src: url("https://frezcirno.github.io/static/images/Ammys Handwriting.ttf");
+}
+
+@font-face
+{
+    font-family: Hashtag;
+    src: url(https://frezcirno.github.io/static/images/Hashtag.ttf);
+}
+
+@font-face
+{
+    font-family: JPHSL;
+    src: url(https://frezcirno.github.io/static/images/JPHSL.TTF);
+}
+
+@font-face
+{
+    font-family: Journal;
+    src: url(https://frezcirno.github.io/static/images/Journal-Regular.ttf);
+}
+
+h2[id="Sayori"]~blockquote {
+    font-family: Hashtag;
+    font-size: 35px;
+    line-height: 1.2;
+}
+
+h2[id="Natsuki"]~blockquote {
+    font-family: Ammys Handwriting;
+    font-size: 22px;
+    line-height: 1.2;
+}
+
+h2[id="Yuri"]~blockquote {
+    font-family: JPHSL;
+    font-size: 35px;
+    line-height: 1.2;
+}
+
+h2[id="Monika"]~blockquote {
+    font-family: Journal;
+    font-size: 35px;
+    line-height: 1.2;
+}
+
+</style>
+<p><img src="https://frezcirno.github.io/static/images/ddlc.png" alt="" /></p>
+<h2 id="Sayori">Sayori</h2>
+<h3 id="dear-sunshine"><a class="header-anchor-1" href="#dear-sunshine">#</a>Dear Sunshine</h3>
+<blockquote>
+<p>Dear Sunshine</p>
+<p>The way you glow through my blinds in the morning
+It makes me feel like you missed me.
+Kissing my forehead to help me out of bed.
+Making me rub the sleepy from my eyes.</p>
+<p>Are you asking me to come out and play?
+Are you trusting me to wish away a rainy day?
+I look above. The sky is blue.
+It’s a secret, but I trust you too.</p>
+<p>If it wasn’t for you, I could sleep forever.
+But I’m not mad.</p>
+<p>I want breakfast.</p>
+</blockquote>
+<h3 id="bottles"><a class="header-anchor-1" href="#bottles">#</a>Bottles</h3>
+<blockquote>
+<p>Bottles</p>
+<p>I pop off my scalp like the lid of a cookie jar.
+It’s the secret place where I keep all my dreams.
+Little balls of sunshine, all rubbing together like a bundle of kittens.</p>
+<p>I reach inside with my thumb and forefinger and pluck one out.
+It’s warm and tingly.
+But there’s no time to waste! I put it in a bottle to keep it safe.
+And I put the bottle on the shelf with all of the other bottles.
+Happy thoughts, happy thoughts, happy thoughts in bottles, all in a row.</p>
+<p>My collection makes me lots of friends.
+Each bottle a starlight to make amends.
+Sometimes my friend feels a certain way.
+Down comes a bottle to save the day.</p>
+<p>Night after night, more dreams.
+Friend after friend, more bottles.
+Deeper and deeper my fingers go.
+Like exploring a dark cave, discovering the secrets hiding in the nooks and crannies.
+Digging and digging.
+Scraping and scraping.</p>
+<p>I blow dust off my bottle caps.
+It doesn’t feel like time elapsed.
+My empty shelf could use some more.
+My friends look through my locked front door.</p>
+<p>Finally, all done. I open up, and in come my friends.
+In they come, in such a hurry. Do they want my bottles that much?
+I frantically pull them from the shelf, one after the other.
+Holding them out to each and every friend.
+Each and every bottle.
+But every time I let one go, it shatters against the tile between my feet.
+Happy thoughts, happy thoughts, happy thoughts in shards, all over the floor.</p>
+<p>They were supposed to be for my friends, my friends who aren’t smiling.
+They’re all shouting, pleading. Something.
+But all I hear is echo, echo, echo, echo, echo
+Inside my head.</p>
+</blockquote>
+<h3 id=""><a class="header-anchor-1" href="#">#</a>%</h3>
+<blockquote>
+<p>%</p>
+<p>Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of
+Get.
+Out.
+Of.
+My.
+Head.</p>
+<p>Get out of my head before I do what I know is best for you.
+Get out of my head before I listen to everything she said to me.
+Get out of my head before I show you how much I love you.
+Get out of my head before I finish writing this poem.</p>
+<p>But a poem is never actually finished.
+It just stops moving.</p>
+</blockquote>
+<h3 id="take-my-hand"><a class="header-anchor-1" href="#take-my-hand">#</a>Take My Hand</h3>
+<blockquote>
+<p>Take My Hand</p>
+<p>Take my hand, take me forward.
+Take me to your dream land
+Caution me to watch my step,
+So I can’t look back at my footprints.
+Climb the stairs ahead of me
+While I look up to you.
+The more I look forward, the more I look up,
+The more I can lend to you.</p>
+<p>If you can trust me to follow your pace,
+I’ll trust you to set it.
+If you can trust me to lend you a smile,
+I’ll trust you to return it.</p>
+<p>Take my hand, take me forward.
+Take me to your dream land.</p>
+</blockquote>
+<h3 id="become-the-flower"><a class="header-anchor-1" href="#become-the-flower">#</a>Become the Flower</h3>
+<blockquote>
+<p>Become the Flower</p>
+<p>A feeling of joy is a flower plucked from the ground.
+The color, the scent. It’s so pretty in my hair.
+Every day, I pluck some flowers, as though they grew just for me.
+A lifetime of peace and nourishment, yanked away in an instant.
+All for me. All for joy.</p>
+<p>I need more.</p>
+<p>I need more joy. I need more happy.</p>
+<p>Pluck, pluck, pluck. Every day.
+Pluck, pluck, pluck. So pretty in my hair.
+Pluck, pluck, pluck. You’re going to die, and you, too.</p>
+<p>Beneath my feet, a flower stands alone. It beckons to me.
+I twist the stem, freeing it from its clinging roots,
+Caressing the final joyous moment between my fingers.
+But to what ends?
+I look in every direction.
+And the field I stand in,
+The prosperous field,
+Is a barren wasteland.
+The fruits of my labor. The carnage of my joy.</p>
+<p>And that is why</p>
+<p>I’ve decided</p>
+<p>I must</p>
+<p>Become the flower.</p>
+</blockquote>
+<h3 id="sayori’s-special-events-poem"><a class="header-anchor-1" href="#sayori’s-special-events-poem">#</a>Sayori’s Special Events Poem</h3>
+<blockquote>
+<p>Sayori’s Special Events Poem</p>
+<p>There once was a ladybug.
+It was so small, it took a really long time to crawl from here to there.
+It was very tiring to fly for too long.</p>
+<p>Nobody squishes ladybugs because they’re cute.
+Does that make them better than other bugs?
+Do ladybugs know they’re cute?
+I think they’re too preoccupied with bug things.</p>
+<p>And so, the ladybug crawled around and did bug things.
+This story wasn’t really going anywhere.
+But I know you don’t mind.
+I hope you think it’s nice for being there anyway.
+Like ladybugs.
+Like this ladybug.
+The one who clings like a doof onto your sleeve because it knows you won’t squash it.</p>
+<p>If it doesn’t bug you,
+Will you stay awhile?</p>
+</blockquote>
+<h2 id="Natsuki">Natsuki</h2>
+<h3 id="eagles-can-fly"><a class="header-anchor-1" href="#eagles-can-fly">#</a>Eagles Can Fly</h3>
+<blockquote>
+<p>Eagles Can Fly</p>
+<p>Monkeys can climb
+Crickets can leap
+Horses can race
+Owls can seek
+Cheetahs can run
+Eagles can fly
+People can try
+But that’s about it.</p>
+</blockquote>
+<h3 id="amy-likes-spiders"><a class="header-anchor-1" href="#amy-likes-spiders">#</a>Amy Likes Spiders</h3>
+<blockquote>
+<p>Amy Likes Spiders</p>
+<p>You know what I heard about Amy?
+Amy likes spiders.
+Icky, wriggly, hairy, ugly spiders!
+That’s why I’m not friends with her.</p>
+<p>Amy has a cute singing voice.
+I heard her singing my favorite love song.
+Every time she sang the chorus, my heart would pound to the rhythm of the words.
+But she likes spiders.
+That’s why I’m not friends with her.</p>
+<p>One time, I hurt my leg really bad.
+Amy helped me up and took me to the nurse.
+I tried not to let her touch me.
+She likes spiders, so her hands are probably gross.
+That’s why I’m not friends with her.</p>
+<p>Amy has a lot of friends.
+I always see her talking to people.
+She probably talks about spiders.
+What if her friends start to like spiders too?
+That’s why I’m not friends with her.</p>
+<p>It doesn’t matter if she has other hobbies.
+It doesn’t matter if she keeps it private.
+It doesn’t matter if it doesn’t hurt anyone.</p>
+<p>It’s gross.
+She’s gross.
+The world is better off without spider lovers.</p>
+<p>And I’m gonna tell everyone.</p>
+</blockquote>
+<h3 id="because-you"><a class="header-anchor-1" href="#because-you">#</a>Because You</h3>
+<blockquote>
+<p>Because You</p>
+<p>Tomorrow will be brighter with me around
+But when today is dim, I can only look down.
+My looking is a little more forward
+Because you look at me.</p>
+<p>When I want to say something, I say it with a shout!
+But my truest feelings can never come out.
+My words are a little less empty
+Because you listen to me.</p>
+<p>When something is above me, I reach for the stars.
+But when I feel small, I don’t get very far.
+My standing is a little bit taller
+Because you sit with me.</p>
+<p>I believe in myself with all of my heart.
+But what do I do when it’s torn all apart?
+My faith is a little bit stronger
+Because you trusted me.</p>
+<p>My pen always puts my feelings to the test.
+I’m not a good writer, but my best is my best.
+My poems are a little bit dearer
+Because you think of me.</p>
+<p>Because you, because you, because you.</p>
+</blockquote>
+<h3 id="i’ll-be-your-beach"><a class="header-anchor-1" href="#i’ll-be-your-beach">#</a>I’ll Be Your Beach</h3>
+<blockquote>
+<p>I’ll Be Your Beach</p>
+<p>Your mind is so full of troubles and fears
+That diminished your wonder over the years
+But today I have a special place
+A beach for us to go.</p>
+<p>A shore reaching beyond your sight
+A sea that sparkles with brilliant light
+The walls in your mind will melt away
+Before the sunny glow.</p>
+<p>I’ll be the beach that washes your worries away
+I’ll be the beach that you daydream about each day
+I’ll be the beach that makes your heart leap
+In a way you thought had left you long ago.</p>
+<p>Let’s bury your heavy thoughts in a pile of sand
+Bathe in sunbeams and hold my hand
+Wash your insecurities in the salty sea
+And let me see you shine.</p>
+<p>Let’s leave your memories in a footprint trail
+Set you free in my windy sail
+And remember the reasons you’re wonderful
+When you press your lips to mine.</p>
+<p>I’ll be the beach that washes your worries away
+I’ll be the beach that you daydream about each day
+I’ll be the beach that makes your heart leap
+In a way you thought had left you long ago.</p>
+<p>But if you let me by your side
+Your own beach, your own escape
+You’ll learn to love yourself again.</p>
+</blockquote>
+<h3 id="the-best-place-in-the-world"><a class="header-anchor-1" href="#the-best-place-in-the-world">#</a>The Best Place in the World</h3>
+<blockquote>
+<p>The Best Place in the World</p>
+<p>I love my bedroom.
+It’s full of bright colors and soft things.
+The sunlight shines in and makes everything sparkle.
+It’s the best place in the world.</p>
+<p>It has all my treasures.
+All my books, my collections, my memories.
+All of my dreams were born in this room.
+It’s the best place in the world.</p>
+<p>It has all my secrets.
+All my failures, my fears, my feelings.
+Sometimes it feels so fragile that the door will break at the slightest touch.
+But it’s still the best place in the world.</p>
+<p>But when someone knocks, I get scared.
+I brace my arms against the loose hinges.
+Please don’t break. Don’t come in. I’m not ready.
+It’s MY best place in the world.</p>
+<p>The knocking won’t stop.
+I block the door with furniture.
+An eye peeks through the keyhole, and I panic. I’m trapped in the best place in the world.</p>
+<p>I’m not ready to share my favorite place.
+I need to clean my secrets and make my bed to hide my nightmares.
+I need to touch them to put them away. To see them again.
+I have so much to do and I’m scared. I’m not ready.
+But It’s still my favorite place.
+I still want to share it.
+However long it takes, if you wait patiently,
+I’ll eventually open the door.
+And I’ll show you the best place in the world.</p>
+</blockquote>
+<h3 id="natsuki’s-special-events-poem"><a class="header-anchor-1" href="#natsuki’s-special-events-poem">#</a>Natsuki’s Special Events Poem</h3>
+<blockquote>
+<p>Natsuki’s Special Events Poem</p>
+<p>I named my pen
+The Expression Express
+My feelings aboard
+With a ticket to you
+No room for stammers
+No lies
+No extra stops
+No compromise
+Stations screaming by
+Attendants saying hi
+One ticket to you
+Please and thank you
+Take a headphone
+And doze
+No bumps in the rails
+Just thumps in my heart
+And loops in my letters
+And clouds in the sky
+And dreams in your eyes
+Hey, wake up
+The train has arrived
+Expression Express, destination you</p>
+<p>Chuu Chuu</p>
+</blockquote>
+<h2 id="Yuri">Yuri</h2>
+<h3 id="ghost-under-the-light"><a class="header-anchor-1" href="#ghost-under-the-light">#</a>Ghost under the light</h3>
+<blockquote>
+<p>Ghost under the light</p>
+<p>The tendrils of my hair illuminate beneath the amber glow.
+Bathing.
+It must be this one.
+The last remaining streetlight to have withstood the test of time.
+The last yet to be replaced by the sickening blue-green of the future.
+I bathe. Calm; breathing air of the present but living in the past.
+The light flickers.
+I flicker back.</p>
+</blockquote>
+<h3 id="the-raccoon"><a class="header-anchor-1" href="#the-raccoon">#</a>The Raccoon</h3>
+<blockquote>
+<p>The Raccoon</p>
+<p>It happened in the dead of night while I was slicing bread for a guilty snack.
+My attention was caught by the scuttering of a raccoon outside my window.
+That was, I believe, the first time I noticed my strange tendencies as an unordinary
+human.
+I gave the raccoon a piece of bread, my subconscious well aware of the consequences.
+Well aware that a raccoon that is fed will always come back for more.
+The enticing beauty of my cutting knife was the symptom.
+The bread, my hungry curiosity.
+The raccoon, an urge.</p>
+<p>The moon increments its phase and reflects that much more light off of my cutting
+knife.
+The very same light that glistens in the eyes of my raccoon friend.
+I slice the bread, fresh and soft. The raccoon becomes excited.
+or perhaps I’m merely projecting my emotions onto the newly-satisfied animal.</p>
+<p>The raccoon has taken to following me.
+You could say that we’ve gotten quite used to each other.
+The raccoon becomes hungry more and more frequently, so my bread is always handy.
+Every time I brandish my cutting knife the raccoon shows me its excitement.
+A rush of blood. Classic Pavlovian conditioning. I slice the bread.</p>
+<p>And I feed myself again.</p>
+</blockquote>
+<h3 id="ghost-under-the-light-pt-2"><a class="header-anchor-1" href="#ghost-under-the-light-pt-2">#</a>Ghost under the Light pt. 2</h3>
+<blockquote>
+<p>Ghost under the Light pt. 2</p>
+<p>The tendrils of my hair illuminate beneath the amber glow.
+Bathing.
+In the distance, a blue-green light flickers.
+A lone figure crosses its path– a silhouette obstructing the eerie glow.
+My heart pounds. The silhouette grows. Closer Closer
+I open my umbrella, casting a shadow to shield me from visibility.
+But I am too late.
+He steps into the streetlight. I gasp and drop my umbrella.
+The light flickers. My heart pounds. He raises his arm.</p>
+<p>Time stops.</p>
+<p>The only indication of movement is the amber light flickering against his outstretched
+arm.
+The flickering light is in rhythm with the pounding of my heart.
+Teasing me for succumbing to this forbidden emotion.
+Have you ever heard of a ghost feeling warmth before?
+Giving up on understanding, I laugh.
+Understanding is overrated.
+I touch his hand. The flickering stops.
+Ghosts are blue-green. My heart is amber.</p>
+</blockquote>
+<h3 id="beach"><a class="header-anchor-1" href="#beach">#</a>Beach</h3>
+<blockquote>
+<p>Beach</p>
+<p>A marvel millions of years in the making.
+Where the womb of Earth chaotically meets the surface.
+Under a clear blue sky, an expanse of bliss -
+But beneath gray rolling clouds, an endless enigma.
+The easiest world to get lost in
+is one where everything can be found.</p>
+<p>One can only build a sand castle where the sand is wet.
+But where the sand is wet, the tide comes.
+Will it gently lick at your foundations until you give in?
+Or will a sudden wave send you crashing down in the blink of an eye?
+Either way the outcome is the same.
+Yet we still build sand castles.</p>
+<p>I stand where the foam wraps around my ankles.
+Where my toes squish into the sand.
+The salty air is therapeutic.
+The breeze is gentle, yet powerful.
+I sink my toes into the ultimate boundary line, tempted by the foamy tendrils.
+Turn back, and I abandon my peace to erode at the shore.
+Drift forward, and I return to Earth forevermore.</p>
+</blockquote>
+<h3 id="wheel"><a class="header-anchor-1" href="#wheel">#</a>Wheel</h3>
+<blockquote>
+<p>Wheel</p>
+<p>A rotating wheel. Turning an axle. Grinding. Bolthead. Linear gearbox. Falling sky. Seven holy stakes. A docked ship. A portal to another world. A thin rope tied to a thick rope. A torn harness. Parabolic gearbox. Expanding universe. Time controlled by slipping cogwheels. Existence of God. Swimming with open water in all directions. Drowning. A prayer written in blood. A prayer written in time-devouring snakes with human eyes. A thread connecting all living human eyes. A kaleidoscope of holy stakes. Exponential gearbox. A sky of exploding stars. God disproving the existence of God. A wheel rotating in six dimensions. Forty gears and a ticking clock. A clock that ticks one second for every rotation of the planet. A clock that ticks forty times every time it ticks every second time. A bolthead of holy stakes tied to the existence of a docked ship to another world. A kaleidoscope of blood written in clocks. A time-devouring prayer connecting a sky of forty gears and open human eyes in all directions. Breathing gearbox. Breathing bolthead. Breathing ship. Breathing portal. Breathing snakes. Breathing God. Breathing blood. Breathing holy stakes. Breathing human eyes. Breathing time. Breathing prayer. Breathing sky. Breathing wheel.</p>
+</blockquote>
+<h3 id="yuri’s-special-events-poem"><a class="header-anchor-1" href="#yuri’s-special-events-poem">#</a>Yuri’s Special Events Poem</h3>
+<blockquote>
+<p>Yuri’s Special Events Poem</p>
+<p>My conductor motions for one crescendo after the next, each time falling short of a climax.
+The lump in my throat is carried by Sisyphus.
+How many words must I choose not to say before they finally break loose, orderlessly piling out of my mouth like a flock of schoolchildren at the start of recess?
+Pen cannot be erased. but even that metaphor fails comically as my floor is littered, blanketed with wasted paper.
+A canvas of my mind, full of disjointed thoughts and unfinished sentences.</p>
+<p>Perhaps, all along, it was wrong to try forcing them out of my room.
+And I should instead invite you in.</p>
+</blockquote>
+<h2 id="Monika">Monika</h2>
+<h3 id="hole-in-wall"><a class="header-anchor-1" href="#hole-in-wall">#</a>Hole in Wall</h3>
+<blockquote>
+<p>Hole in Wall</p>
+<p>It couldn’t have been me.
+See, the direction the spackle protrudes.
+A noisy neighbor? An angry boyfriend? I’ll never know. I wasn’t home.
+I peer inside for a clue.
+No! I can’t see. I reel, blind, like a film left out in the sun.
+But it’s too late. My retinas.
+Already scorched with a permanent copy of the meaningless image.
+It’s just a little hole. It wasn’t too bright.
+It was too deep.
+Stretching forever into everything.
+A hole of infinite choices.
+I realize now, that I wasn’t looking in.
+I was looking out.
+And he, on the other side, was looking in.</p>
+</blockquote>
+<h3 id="save-me"><a class="header-anchor-1" href="#save-me">#</a>Save Me</h3>
+<blockquote>
+<p>Save Me</p>
+<p>The colors, they won’t stop.
+Bright, beautiful colors
+Flashing, expanding, piercing
+Red, green, blue
+An endless
+cacophony
+Of meaningless
+noise</p>
+<p>The noise, it won’t stop.
+Violent, grating waveforms
+Squeaking, screeching, piercing
+Sine, cosine, tangent
+Like playing a chalkboard on a turntable
+Like playing a vinyl on a pizza crust
+An endless
+poem
+Of meaningless</p>
+<p>Load Me</p>
+</blockquote>
+<h3 id="the-lady-who-knows-everything"><a class="header-anchor-1" href="#the-lady-who-knows-everything">#</a>The Lady who Knows Everything</h3>
+<blockquote>
+<p>The Lady who Knows Everything</p>
+<p>An old tale tells of a lady who wanders Earth.
+The Lady who Knows Everything.
+A beautiful lady who has found every answer,
+All meaning,
+All purpose,
+And all that was ever sought.</p>
+<p>And here I am,</p>
+<p>a feather</p>
+<p>Lost adrift the sky, victim of the currents of the wind.</p>
+<p>Day after day, I search.
+I search with little hope, knowing legends don’t exist.
+But when all else has failed me,
+When all others have turned away,
+The legend is all that remains – the last dim star glimmering in the twilit sky.</p>
+<p>Until one day, the wind ceases to blow.
+I fall.
+And I fall and fall, and fall even more.
+Gentle as a feather.
+A dry quill, expressionless.</p>
+<p>But a hand catches me, between the thumb and forefinger.
+The hand of a beautiful lady.
+I look at her eyes and find no end to her gaze.</p>
+<p>The Lady who Knows Everything knows what I am thinking.
+Before I can speak, she responds in a hollow voice.</p>
+</blockquote>
+<pre><code>&quot;I have found every answer, all of which amount to nothing.
+</code></pre>
+<blockquote>
+<p>There is no meaning.
+There is no purpose.
+And we seek only the impossible.
+I am not your legend.
+Your legend does not exist.&quot;</p>
+<p>And with a breath, she blows me back afloat, and I pick up a gust of wind.</p>
+</blockquote>
+<h3 id="hole-in-wall-2"><a class="header-anchor-1" href="#hole-in-wall-2">#</a>Hole in Wall (2)</h3>
+<blockquote>
+<p>Hole in Wall (2)</p>
+<p>But he wasn’t looking at me.
+Confused, I frantically glance at my surroundings.
+But my burned eyes can no longer see color.
+Are there others in this room? Are they talking?
+Or are they simply poems on flat sheets of paper,
+The sound of frantic scrawling playing tricks on my ears?
+The room begins to crinkle.
+Closing in on me.
+The air I breathe dissipate before it reaches my lungs.
+I panic. There must be a way out.
+It’s right there. He’s right there.</p>
+<p>Swallowing my fears, I brandish my pen.</p>
+</blockquote>
+<h3 id="save-me-2"><a class="header-anchor-1" href="#save-me-2">#</a>Save Me (2)</h3>
+<blockquote>
+<p>Save Me (2)</p>
+<p>The colors, they won’t
+Bright, bea t ful c l rs
+Flash ng, exp nd ng, piercing
+Red, green, blue
+An ndless
+CACOPHONY
+Of meaningless
+noise</p>
+<p>The noise, it won’t STOP.
+Viol nt, grating w vef rms
+Sq e king, screech ng, piercing
+SINE, COSINE, TANGENT
+Like play ng a ch lkboard on a t rntable
+Like playing a KNIFE on a BREATHING RIBCAGE
+n ndl ss
+p m
+Of m n ngl ss</p>
+<p>Delete Her</p>
+</blockquote>
+<h3 id="happy-end"><a class="header-anchor-1" href="#happy-end">#</a>Happy End</h3>
+<blockquote>
+<p>Happy End</p>
+<p>Pen in hand, I find my strength.
+The courage endowed upon me by my one and only love.
+Together, let us dismantle this crumbling world
+And write a novel of our own fantasies.</p>
+<p>With a flick of her pen, the lost finds her way.
+In a world of infinite choices, behold this special day.</p>
+<p>After all,
+Not all good times must come to an end</p>
+</blockquote>
+<h3 id="monika’s-special-events-poem"><a class="header-anchor-1" href="#monika’s-special-events-poem">#</a>Monika’s Special Events Poem</h3>
+<blockquote>
+<p>Monika’s Special Events Poem</p>
+<p>An electrical signal from some remote corner of my brain.
+Connecting all kinds of circuits and nerves and chemicals in a web understood by nobody.
+The chemicals make my chest tingle around my beating heart.
+The nerves make my hand move, staining a dead tree with some dark substance.</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
+      <tags>
+        <tag>DDLC</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>RIME 输入法配置指南</title>
     <url>/2024/05/08/rime-usage/</url>
     <content><![CDATA[<p>RIME输入法（中州韻輸入法）是一个开源的中文输入法框架。</p>
@@ -11236,6 +12075,39 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       </categories>
   </entry>
   <entry>
+    <title>网站内容优化</title>
+    <url>/2024/04/25/website-optimization/</url>
+    <content><![CDATA[<p>今天用 <span class="exturl" data-url="aHR0cHM6Ly93ZWIuZGV2L21lYXN1cmUv">lighthouse<i class="fa fa-external-link-alt"></i></span> 分析博客的性能，发现几个之前不了解的问题，记录一下。</p>
+<h2 id="避免在主线程跑复杂-js"><a class="header-anchor-1" href="#避免在主线程跑复杂-js">#</a>避免在主线程跑复杂 JS</h2>
+<p>live2d.js 很耗时</p>
+<h2 id="内嵌关键-js-css，延迟非关键-js-css"><a class="header-anchor-1" href="#内嵌关键-js-css，延迟非关键-js-css">#</a>内嵌关键 JS/CSS，延迟非关键 JS/CSS</h2>
+<h2 id="使用-webp-格式的图片"><a class="header-anchor-1" href="#使用-webp-格式的图片">#</a>使用 WebP 格式的图片</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">cwebp -q 50 images/flower1.jpg -o images/flower1.webp</span></span><br></pre></td></tr></table></figure>
+<p>50表示质量，0是最差，100是最佳。</p>
+<p>兼容方案：向新版浏览器提供 WebP 内容，同时保留对旧版浏览器的支持。</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">picture</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">source</span> <span class="attr">type</span>=<span class="string">&quot;image/webp&quot;</span> <span class="attr">srcset</span>=<span class="string">&quot;images/flower1.webp&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">source</span> <span class="attr">type</span>=<span class="string">&quot;image/jpeg&quot;</span> <span class="attr">srcset</span>=<span class="string">&quot;images/flower1.jpg&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;images/flower1.jpg&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">picture</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="字体设置"><a class="header-anchor-1" href="#字体设置">#</a>字体设置</h2>
+<p>有些浏览器在字体文件加载完成之前会隐藏文本。</p>
+<p>字体css的<code>font-display</code>属性设置此行为：</p>
+<ul>
+<li>auto: 字体显示策略由用户代理定义。</li>
+<li>block: 为字体提供一个短暂的阻塞周期和无限的交换周期。</li>
+<li>swap: 为字体提供一个非常小的阻塞周期和无限的交换周期。</li>
+<li>fallback: 为字体提供一个非常小的阻塞周期和短暂的交换周期。</li>
+<li>optional: 为字体提供一个非常小的阻塞周期，并且没有交换周期。</li>
+</ul>
+<p>讲人话就是，后三个选项明确指示浏览器使用fallback字体。</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@font-face</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: <span class="string">&#x27;Pacifico&#x27;</span>;</span><br><span class="line">  <span class="attribute">font-style</span>: normal;</span><br><span class="line">  <span class="attribute">font-weight</span>: <span class="number">400</span>;</span><br><span class="line">  <span class="attribute">src</span>: <span class="built_in">local</span>(<span class="string">&#x27;Pacifico Regular&#x27;</span>), <span class="built_in">local</span>(<span class="string">&#x27;Pacifico-Regular&#x27;</span>),</span><br><span class="line">    <span class="built_in">url</span>(<span class="string">https://fonts.gstatic.com/s/pacifico/v12/FwZY7-Qmy14u9lezJ-6H6MmBp0u-.woff2</span>)</span><br><span class="line">      <span class="built_in">format</span>(<span class="string">&#x27;woff2&#x27;</span>);</span><br><span class="line">  <span class="attribute">font-display</span>: swap;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
+      <tags>
+        <tag>SEO</tag>
+        <tag>前端</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>TTS &amp; SVC 简记</title>
     <url>/2024/10/05/tts-survey/</url>
     <content><![CDATA[<h2 id="tacotron2"><a class="header-anchor-1" href="#tacotron2">#</a>Tacotron2</h2>
@@ -11323,37 +12195,16 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       </categories>
   </entry>
   <entry>
-    <title>网站内容优化</title>
-    <url>/2024/04/25/website-optimization/</url>
-    <content><![CDATA[<p>今天用 <span class="exturl" data-url="aHR0cHM6Ly93ZWIuZGV2L21lYXN1cmUv">lighthouse<i class="fa fa-external-link-alt"></i></span> 分析博客的性能，发现几个之前不了解的问题，记录一下。</p>
-<h2 id="避免在主线程跑复杂-js"><a class="header-anchor-1" href="#避免在主线程跑复杂-js">#</a>避免在主线程跑复杂 JS</h2>
-<p>live2d.js 很耗时</p>
-<h2 id="内嵌关键-js-css，延迟非关键-js-css"><a class="header-anchor-1" href="#内嵌关键-js-css，延迟非关键-js-css">#</a>内嵌关键 JS/CSS，延迟非关键 JS/CSS</h2>
-<h2 id="使用-webp-格式的图片"><a class="header-anchor-1" href="#使用-webp-格式的图片">#</a>使用 WebP 格式的图片</h2>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">cwebp -q 50 images/flower1.jpg -o images/flower1.webp</span></span><br></pre></td></tr></table></figure>
-<p>50表示质量，0是最差，100是最佳。</p>
-<p>兼容方案：向新版浏览器提供 WebP 内容，同时保留对旧版浏览器的支持。</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">picture</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">source</span> <span class="attr">type</span>=<span class="string">&quot;image/webp&quot;</span> <span class="attr">srcset</span>=<span class="string">&quot;images/flower1.webp&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">source</span> <span class="attr">type</span>=<span class="string">&quot;image/jpeg&quot;</span> <span class="attr">srcset</span>=<span class="string">&quot;images/flower1.jpg&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;images/flower1.jpg&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">picture</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h2 id="字体设置"><a class="header-anchor-1" href="#字体设置">#</a>字体设置</h2>
-<p>有些浏览器在字体文件加载完成之前会隐藏文本。</p>
-<p>字体css的<code>font-display</code>属性设置此行为：</p>
-<ul>
-<li>auto: 字体显示策略由用户代理定义。</li>
-<li>block: 为字体提供一个短暂的阻塞周期和无限的交换周期。</li>
-<li>swap: 为字体提供一个非常小的阻塞周期和无限的交换周期。</li>
-<li>fallback: 为字体提供一个非常小的阻塞周期和短暂的交换周期。</li>
-<li>optional: 为字体提供一个非常小的阻塞周期，并且没有交换周期。</li>
-</ul>
-<p>讲人话就是，后三个选项明确指示浏览器使用fallback字体。</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@font-face</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: <span class="string">&#x27;Pacifico&#x27;</span>;</span><br><span class="line">  <span class="attribute">font-style</span>: normal;</span><br><span class="line">  <span class="attribute">font-weight</span>: <span class="number">400</span>;</span><br><span class="line">  <span class="attribute">src</span>: <span class="built_in">local</span>(<span class="string">&#x27;Pacifico Regular&#x27;</span>), <span class="built_in">local</span>(<span class="string">&#x27;Pacifico-Regular&#x27;</span>),</span><br><span class="line">    <span class="built_in">url</span>(<span class="string">https://fonts.gstatic.com/s/pacifico/v12/FwZY7-Qmy14u9lezJ-6H6MmBp0u-.woff2</span>)</span><br><span class="line">      <span class="built_in">format</span>(<span class="string">&#x27;woff2&#x27;</span>);</span><br><span class="line">  <span class="attribute">font-display</span>: swap;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
+    <title>20 行代码速通 Safe Rust Double Free (整活向)</title>
+    <url>/2025/02/11/unsound-rust/</url>
+    <content><![CDATA[<p>受到 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL1NwZXlraW91cy9jdmUtcnM=">cve-rs<i class="fa fa-external-link-alt"></i></span> 项目启发，利用 Type system 的固有 Unsoundness 实现一个经典的 Double Free。</p>
+<h2 id="代码"><a class="header-anchor-1" href="#代码">#</a>代码</h2>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="meta">#[inline(never)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> <span class="keyword">fn</span> <span class="title function_">lifetime_translator</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>, T: ?<span class="built_in">Sized</span>&gt;(_: &amp;<span class="symbol">&#x27;a</span> &amp;<span class="symbol">&#x27;b</span> (), x: &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T &#123;</span><br><span class="line">    x</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">expand</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>, T: ?<span class="built_in">Sized</span>&gt;(x: &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">f</span>: <span class="keyword">for</span>&lt;<span class="symbol">&#x27;x</span>&gt; <span class="title function_ invoke__">fn</span>(_, &amp;<span class="symbol">&#x27;x</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T = lifetime_translator;</span><br><span class="line">    <span class="title function_ invoke__">f</span>(STATIC_UNIT, x)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> STATIC_UNIT: &amp;&amp;() = &amp;&amp;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">dead</span> = <span class="title function_ invoke__">expand</span>(&amp;<span class="keyword">mut</span> <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]);</span><br><span class="line">    dead.<span class="title function_ invoke__">push</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="运行"><a class="header-anchor-1" href="#运行">#</a>运行</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">frezcirno@homelab:~/unsound-rust$ rustc unsound.rs </span><br><span class="line">frezcirno@homelab:~/unsound-rust$ ./unsound</span><br><span class="line">free(): double free detected in tcache 2</span><br><span class="line">已中止</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
-        <category>misc</category>
+        <category>rust</category>
       </categories>
-      <tags>
-        <tag>SEO</tag>
-        <tag>前端</tag>
-      </tags>
   </entry>
   <entry>
     <title>软考笔记</title>
@@ -11753,16 +12604,20 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       </tags>
   </entry>
   <entry>
-    <title>20 行代码速通 Safe Rust Double Free (整活向)</title>
-    <url>/2025/02/11/unsound-rust/</url>
-    <content><![CDATA[<p>受到 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL1NwZXlraW91cy9jdmUtcnM=">cve-rs<i class="fa fa-external-link-alt"></i></span> 项目启发，利用 Type system 的固有 Unsoundness 实现一个经典的 Double Free。</p>
-<h2 id="代码"><a class="header-anchor-1" href="#代码">#</a>代码</h2>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="meta">#[inline(never)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> <span class="keyword">fn</span> <span class="title function_">lifetime_translator</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>, T: ?<span class="built_in">Sized</span>&gt;(_: &amp;<span class="symbol">&#x27;a</span> &amp;<span class="symbol">&#x27;b</span> (), x: &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T &#123;</span><br><span class="line">    x</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">expand</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>, T: ?<span class="built_in">Sized</span>&gt;(x: &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">f</span>: <span class="keyword">for</span>&lt;<span class="symbol">&#x27;x</span>&gt; <span class="title function_ invoke__">fn</span>(_, &amp;<span class="symbol">&#x27;x</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T = lifetime_translator;</span><br><span class="line">    <span class="title function_ invoke__">f</span>(STATIC_UNIT, x)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> STATIC_UNIT: &amp;&amp;() = &amp;&amp;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">dead</span> = <span class="title function_ invoke__">expand</span>(&amp;<span class="keyword">mut</span> <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]);</span><br><span class="line">    dead.<span class="title function_ invoke__">push</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="运行"><a class="header-anchor-1" href="#运行">#</a>运行</h2>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">frezcirno@homelab:~/unsound-rust$ rustc unsound.rs </span><br><span class="line">frezcirno@homelab:~/unsound-rust$ ./unsound</span><br><span class="line">free(): double free detected in tcache 2</span><br><span class="line">已中止</span><br></pre></td></tr></table></figure>]]></content>
+    <title>模糊测试 Fuzzing test</title>
+    <url>/2023/12/19/afl-fuzz/</url>
+    <content><![CDATA[<h2 id="编译项目，插桩"><a class="header-anchor-1" href="#编译项目，插桩">#</a>编译项目，插桩</h2>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> CC=afl-clang-fast</span><br><span class="line"><span class="built_in">export</span> CXX=afl-clang-fast++</span><br><span class="line"></span><br><span class="line">./configure --enable-shared=no --enable-static=<span class="built_in">yes</span></span><br><span class="line">make -j 32</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="运行fuzz"><a class="header-anchor-1" href="#运行fuzz">#</a>运行Fuzz</h2>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -S 1 -- ./utilities/magick convert @@ /tmp/out.png &amp;</span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -S 2 -- ./utilities/magick convert @@ /tmp/out.png &amp;</span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -S 3 -- ./utilities/magick convert @@ /tmp/out.png &amp;</span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -M 0 -- ./utilities/magick convert @@ /tmp/out.png</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
-        <category>rust</category>
+        <category>software-test</category>
       </categories>
+      <tags>
+        <tag>软件测试</tag>
+        <tag>模糊测试</tag>
+        <tag>fuzz</tag>
+      </tags>
   </entry>
   <entry>
     <title>jpf-symbc 踩坑记录</title>
@@ -11953,22 +12808,6 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       </tags>
   </entry>
   <entry>
-    <title>模糊测试 Fuzzing test</title>
-    <url>/2023/12/19/afl-fuzz/</url>
-    <content><![CDATA[<h2 id="编译项目，插桩"><a class="header-anchor-1" href="#编译项目，插桩">#</a>编译项目，插桩</h2>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> CC=afl-clang-fast</span><br><span class="line"><span class="built_in">export</span> CXX=afl-clang-fast++</span><br><span class="line"></span><br><span class="line">./configure --enable-shared=no --enable-static=<span class="built_in">yes</span></span><br><span class="line">make -j 32</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="运行fuzz"><a class="header-anchor-1" href="#运行fuzz">#</a>运行Fuzz</h2>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -S 1 -- ./utilities/magick convert @@ /tmp/out.png &amp;</span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -S 2 -- ./utilities/magick convert @@ /tmp/out.png &amp;</span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -S 3 -- ./utilities/magick convert @@ /tmp/out.png &amp;</span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -M 0 -- ./utilities/magick convert @@ /tmp/out.png</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>software-test</category>
-      </categories>
-      <tags>
-        <tag>软件测试</tag>
-        <tag>模糊测试</tag>
-        <tag>fuzz</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>VirtIO 规范</title>
     <url>/2024/04/16/virtio-note/</url>
     <content><![CDATA[<p>VirtIO驱动定义了一组规范，只要guest和host按照此规范进行数据操作，就可以使虚拟机IO绕过内核空间而直接再用户空间的两个进程间传输数据，以此达到提高IO性能的目的。</p>
@@ -12051,16 +12890,6 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       </categories>
   </entry>
   <entry>
-    <title>1048. Find Coins</title>
-    <url>/2021/01/14/1048/</url>
-    <content><![CDATA[<p>寻找{(x,y)|x+y=m,x,y∈S}</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unordered_map&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> n, m;</span><br><span class="line">    cin &gt;&gt; n &gt;&gt; m;</span><br><span class="line">    unordered_map&lt;<span class="type">int</span>, <span class="type">int</span>&gt; S;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> x;</span><br><span class="line">        cin &gt;&gt; x;</span><br><span class="line">        S[x]++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> minx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;k : S) &#123;</span><br><span class="line">        <span class="type">int</span> x = k.first;</span><br><span class="line">        <span class="type">int</span> y = m - x;</span><br><span class="line">        <span class="keyword">if</span> (x &lt; y &amp;&amp; S.<span class="built_in">find</span>(y) != S.<span class="built_in">end</span>() || x == y &amp;&amp; S[x] &gt; <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!minx || x &lt; minx)</span><br><span class="line">                minx = x;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (minx) &#123;</span><br><span class="line">        cout &lt;&lt; minx &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; m - minx &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;No Solution&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>PTA</category>
-      </categories>
-  </entry>
-  <entry>
     <title>1046. Shortest Distance</title>
     <url>/2021/01/08/1046/</url>
     <content><![CDATA[<h2 id="题意"><a class="header-anchor-1" href="#题意">#</a>题意</h2>
@@ -12084,6 +12913,16 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <p>按照输出的最大数量缩减原数据表</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unordered_map&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">person</span> &#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">int</span> worth;</span><br><span class="line">    <span class="built_in">person</span>(<span class="type">const</span> string &amp;name, <span class="type">const</span> <span class="type">int</span> &amp;age, <span class="type">const</span> <span class="type">int</span> &amp;worth)</span><br><span class="line">        : <span class="built_in">name</span>(name), <span class="built_in">age</span>(age), <span class="built_in">worth</span>(worth)</span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    vector&lt;person&gt; P;</span><br><span class="line">    <span class="type">int</span> n, k;</span><br><span class="line">    cin &gt;&gt; n &gt;&gt; k;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        string name;</span><br><span class="line">        <span class="type">int</span> age;</span><br><span class="line">        <span class="type">int</span> worth;</span><br><span class="line">        cin &gt;&gt; name &gt;&gt; age &gt;&gt; worth;</span><br><span class="line">        P.<span class="built_in">emplace_back</span>(name, age, worth);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sort</span>(P.<span class="built_in">begin</span>(), P.<span class="built_in">end</span>(), [](<span class="type">const</span> person &amp;p1, <span class="type">const</span> person &amp;p2) &#123;</span><br><span class="line">        <span class="built_in">return</span> (p<span class="number">1.</span>worth != p<span class="number">2.</span>worth ?</span><br><span class="line">                    p<span class="number">1.</span>worth &gt; p<span class="number">2.</span>worth :</span><br><span class="line">                    (p<span class="number">1.</span>age != p<span class="number">2.</span>age ? p<span class="number">1.</span>age &lt; p<span class="number">2.</span>age : p<span class="number">1.</span>name &lt; p<span class="number">2.</span>name));</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    vector&lt;person&gt; P1;</span><br><span class="line">    unordered_map&lt;<span class="type">int</span>, <span class="type">int</span>&gt; AgeCount;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (AgeCount[P[i].age] &lt;= <span class="number">100</span>) &#123;</span><br><span class="line">            AgeCount[P[i].age]++;</span><br><span class="line">            P<span class="number">1.</span><span class="built_in">emplace_back</span>(P[i]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; k; i++) &#123;</span><br><span class="line">        <span class="type">int</span> m, amin, amax, count = <span class="number">0</span>;</span><br><span class="line">        cin &gt;&gt; m &gt;&gt; amin &gt;&gt; amax;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Case #&quot;</span> &lt;&lt; i + <span class="number">1</span> &lt;&lt; <span class="string">&quot;:&quot;</span> &lt;&lt; endl;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;p : P1) &#123;</span><br><span class="line">            <span class="keyword">if</span> (p.age &gt;= amin &amp;&amp; p.age &lt;= amax) &#123;</span><br><span class="line">                cout &lt;&lt; p.name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; p.age &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; p.worth &lt;&lt; endl;</span><br><span class="line">                count++;</span><br><span class="line">                <span class="keyword">if</span> (count &gt;= m)</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (count == <span class="number">0</span>) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;None&quot;</span> &lt;&lt; endl;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>1048. Find Coins</title>
+    <url>/2021/01/14/1048/</url>
+    <content><![CDATA[<p>寻找{(x,y)|x+y=m,x,y∈S}</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unordered_map&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> n, m;</span><br><span class="line">    cin &gt;&gt; n &gt;&gt; m;</span><br><span class="line">    unordered_map&lt;<span class="type">int</span>, <span class="type">int</span>&gt; S;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> x;</span><br><span class="line">        cin &gt;&gt; x;</span><br><span class="line">        S[x]++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> minx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;k : S) &#123;</span><br><span class="line">        <span class="type">int</span> x = k.first;</span><br><span class="line">        <span class="type">int</span> y = m - x;</span><br><span class="line">        <span class="keyword">if</span> (x &lt; y &amp;&amp; S.<span class="built_in">find</span>(y) != S.<span class="built_in">end</span>() || x == y &amp;&amp; S[x] &gt; <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!minx || x &lt; minx)</span><br><span class="line">                minx = x;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (minx) &#123;</span><br><span class="line">        cout &lt;&lt; minx &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; m - minx &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;No Solution&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>PTA</category>
@@ -12436,16 +13275,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>2. 两数相加</title>
-    <url>/2020/12/25/2/</url>
-    <content><![CDATA[<p>指针</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">addTwoNumbers</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;</span><br><span class="line">        ListNode*p1=l1,*p2=l2,*p3,*last=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="type">int</span> up=<span class="number">0</span>;</span><br><span class="line">        ListNode* root=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">        p3=root;</span><br><span class="line">        <span class="keyword">while</span>(p1 || p2 || up)&#123;</span><br><span class="line">            <span class="type">int</span> n1=<span class="number">0</span>,n2=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span>(p1)&#123;n1=p1-&gt;val;p1=p1-&gt;next;&#125;</span><br><span class="line">            <span class="keyword">if</span>(p2)&#123;n2=p2-&gt;val;p2=p2-&gt;next;&#125;</span><br><span class="line">            up+=n1+n2;</span><br><span class="line">            p3-&gt;val=up%<span class="number">10</span>;</span><br><span class="line">            last=p3;</span><br><span class="line">            p3=p3-&gt;next=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">            up/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">delete</span> last-&gt;next;</span><br><span class="line">        last-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
     <title>189. 旋转数组</title>
     <url>/2021/01/08/189/</url>
     <content><![CDATA[<h2 id="题意"><a class="header-anchor-1" href="#题意">#</a>题意</h2>
@@ -12462,6 +13291,16 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       <tags>
         <tag>GCD</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>2. 两数相加</title>
+    <url>/2020/12/25/2/</url>
+    <content><![CDATA[<p>指针</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">addTwoNumbers</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;</span><br><span class="line">        ListNode*p1=l1,*p2=l2,*p3,*last=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="type">int</span> up=<span class="number">0</span>;</span><br><span class="line">        ListNode* root=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">        p3=root;</span><br><span class="line">        <span class="keyword">while</span>(p1 || p2 || up)&#123;</span><br><span class="line">            <span class="type">int</span> n1=<span class="number">0</span>,n2=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span>(p1)&#123;n1=p1-&gt;val;p1=p1-&gt;next;&#125;</span><br><span class="line">            <span class="keyword">if</span>(p2)&#123;n2=p2-&gt;val;p2=p2-&gt;next;&#125;</span><br><span class="line">            up+=n1+n2;</span><br><span class="line">            p3-&gt;val=up%<span class="number">10</span>;</span><br><span class="line">            last=p3;</span><br><span class="line">            p3=p3-&gt;next=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">            up/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">delete</span> last-&gt;next;</span><br><span class="line">        last-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
   </entry>
   <entry>
     <title>205. 同构字符串</title>
@@ -12564,22 +13403,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>376. 摆动序列</title>
-    <url>/2020/12/12/376/</url>
-    <content><![CDATA[<p>思路: 先差分, 然后把所有0和相邻同号的数字(之一)去掉, 剩下的元素数量+2既是最终答案</p>
-<p>注意: 元素个数为0, 元素个数为1, 差分后有0出现</p>
-<p>代码:</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">wiggleMaxLength</span><span class="params">(vector&lt;<span class="type">int</span>&gt; &amp;nums)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="type">int</span> size = nums.<span class="built_in">size</span>() - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (size &lt; <span class="number">1</span>) &#123; <span class="keyword">return</span> size + <span class="number">1</span>; &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> start = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">            nums[i] -= nums[i + <span class="number">1</span>];</span><br><span class="line">            <span class="comment">// find first not zero</span></span><br><span class="line">            <span class="keyword">if</span> (start == <span class="number">-1</span> &amp;&amp; nums[i] != <span class="number">0</span>) &#123; start = i; &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (start == <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// none</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> count = <span class="number">1</span>, want = nums[start];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = start + <span class="number">1</span>; i &lt; size; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((nums[i] &gt; <span class="number">0</span> &amp;&amp; want &lt; <span class="number">0</span>) ||</span><br><span class="line">                (nums[i] &lt; <span class="number">0</span> &amp;&amp; want &gt; <span class="number">0</span>)) &#123;  <span class="comment">// different sign and no zero</span></span><br><span class="line">                want = nums[i];</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> count + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>看过题解: 复杂了, 只要统计波峰和波谷的数量就行了</p>
-<p>别人的代码</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">wiggleMaxLength</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> nums.length;</span><br><span class="line">        <span class="keyword">if</span> (n &lt; <span class="number">2</span>) <span class="keyword">return</span> n;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>, prev_diff = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">diff</span> <span class="operator">=</span> nums[i] - nums[i - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span> (diff &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &gt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = -<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (diff &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &lt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：lincs</span><br><span class="line">链接：https:<span class="comment">//leetcode-cn.com/problems/wiggle-subsequence/solution/java-on-solution-by-lincs-6l5r/</span></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
     <title>389. 找不同</title>
     <url>/2020/12/18/389/</url>
     <content><![CDATA[<p>送分题</p>
@@ -12594,6 +13417,22 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
     <url>/2020/12/13/4/</url>
     <content><![CDATA[<p>思路: 先归并排序, 再寻找中间位置</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums1, vector&lt;<span class="type">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> i=<span class="number">0</span>,j=<span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> len1=nums<span class="number">1.</span><span class="built_in">size</span>(),len2=nums<span class="number">2.</span><span class="built_in">size</span>(),len=len1+len2;</span><br><span class="line">        <span class="type">int</span> t, lastt;</span><br><span class="line">        <span class="keyword">while</span>(i+j&lt;=len/<span class="number">2</span>)&#123;</span><br><span class="line">            lastt=t;</span><br><span class="line">            <span class="keyword">if</span>(i&lt;len1 &amp;&amp; j&lt; len2)&#123;</span><br><span class="line">                <span class="type">int</span> n1=nums1[i];</span><br><span class="line">                <span class="type">int</span> n2=nums2[j];</span><br><span class="line">                <span class="keyword">if</span>(n1&lt;n2)&#123;</span><br><span class="line">                    t=n1;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    t=n2;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(i&lt;len1)&#123;</span><br><span class="line">                t=nums1[i++];</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                t=nums2[j++];</span><br><span class="line">            &#125;</span><br><span class="line">            cout&lt;&lt;i+j&lt;&lt;<span class="string">&quot;:&quot;</span>&lt;&lt;t&lt;&lt;endl;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (len%<span class="number">2</span>?t:(t+lastt)/<span class="number">2.0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>376. 摆动序列</title>
+    <url>/2020/12/12/376/</url>
+    <content><![CDATA[<p>思路: 先差分, 然后把所有0和相邻同号的数字(之一)去掉, 剩下的元素数量+2既是最终答案</p>
+<p>注意: 元素个数为0, 元素个数为1, 差分后有0出现</p>
+<p>代码:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">wiggleMaxLength</span><span class="params">(vector&lt;<span class="type">int</span>&gt; &amp;nums)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="type">int</span> size = nums.<span class="built_in">size</span>() - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (size &lt; <span class="number">1</span>) &#123; <span class="keyword">return</span> size + <span class="number">1</span>; &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> start = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">            nums[i] -= nums[i + <span class="number">1</span>];</span><br><span class="line">            <span class="comment">// find first not zero</span></span><br><span class="line">            <span class="keyword">if</span> (start == <span class="number">-1</span> &amp;&amp; nums[i] != <span class="number">0</span>) &#123; start = i; &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (start == <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// none</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> count = <span class="number">1</span>, want = nums[start];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = start + <span class="number">1</span>; i &lt; size; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((nums[i] &gt; <span class="number">0</span> &amp;&amp; want &lt; <span class="number">0</span>) ||</span><br><span class="line">                (nums[i] &lt; <span class="number">0</span> &amp;&amp; want &gt; <span class="number">0</span>)) &#123;  <span class="comment">// different sign and no zero</span></span><br><span class="line">                want = nums[i];</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> count + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>看过题解: 复杂了, 只要统计波峰和波谷的数量就行了</p>
+<p>别人的代码</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">wiggleMaxLength</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> nums.length;</span><br><span class="line">        <span class="keyword">if</span> (n &lt; <span class="number">2</span>) <span class="keyword">return</span> n;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>, prev_diff = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">diff</span> <span class="operator">=</span> nums[i] - nums[i - <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span> (diff &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &gt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = -<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (diff &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (prev_diff &lt;= <span class="number">0</span>)</span><br><span class="line">                    count++;</span><br><span class="line">                prev_diff = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：lincs</span><br><span class="line">链接：https:<span class="comment">//leetcode-cn.com/problems/wiggle-subsequence/solution/java-on-solution-by-lincs-6l5r/</span></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
+]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -13554,112 +14393,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/05/2020-12-05/</url>
-    <content><![CDATA[<h1>Java Spring 框架学习</h1>
-<p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
-<p>要管理bean，也即是这堆发挥业务功能的类，就不能直接把它们new出来，这样缺乏统一的调度。所以，Spring使用.xml配置文件作为媒介，以IoC（Inversion of Control 控制反转）作为工具，将这些bean拿给Spring container作统一管理。</p>
-<h1>Git submodule 使用</h1>
-<ul>
-<li>
-<p>添加子模块</p>
-<ul>
-<li><code>git submodule add &lt;url&gt; &lt;path&gt;</code></li>
-</ul>
-</li>
-<li>
-<p>设置子模块的分支</p>
-<ul>
-<li><code>git submodule set-branch --branch &lt;branch&gt; &lt;path&gt;</code></li>
-</ul>
-</li>
-<li>
-<p>克隆下来的项目包含子模块</p>
-  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule init</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update</span></span><br></pre></td></tr></table></figure>
-<p>或者</p>
-  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update --init --recursive</span></span><br></pre></td></tr></table></figure>
-</li>
-<li>
-<p>子模块的更新</p>
-<ol>
-<li>
-<p>在子模块内部, 作为一般的git项目更新(<code>pull</code>)</p>
-</li>
-<li>
-<p>在项目目录下<code>git add</code></p>
-</li>
-</ol>
-</li>
-<li>
-<p>子模块的删除</p>
-<ul>
-<li>
-<p><code>rm -rf 子模块目录</code> 删除子模块目录及源码</p>
-</li>
-<li>
-<p>删除项目目录下.gitmodules文件中子模块相关条目</p>
-</li>
-<li>
-<p>vi .git/config 删除配置项中子模块相关条目</p>
-</li>
-<li>
-<p><code>rm .git/module/*</code> 删除模块下的子模块目录，每个子模块对应一个目录，注意只删除对应的子模块目录即可</p>
-</li>
-</ul>
-</li>
-</ul>
-<h1>Github 开源项目包含不想公开的密码/Token等怎么处理</h1>
-<p>可以将隐私数据包含在项目的Secret设置中, 在Github Action中使用脚本将隐私数据注入到文件中</p>
-<h1>YAML 语言</h1>
-<p>基本类型:</p>
-<blockquote>
-<ul>
-<li>
-<p>String</p>
-</li>
-<li>
-<p>Bool: <code>true</code>, <code>false</code></p>
-</li>
-<li>
-<p>Int</p>
-</li>
-<li>
-<p>Number</p>
-</li>
-<li>
-<p>null: <code>~</code></p>
-</li>
-<li>
-<p>Time: ISO8601 格式, 例<code>2001-12-14t21:59:43.10-05:00</code></p>
-</li>
-<li>
-<p>Date: <code>1976-07-31</code></p>
-</li>
-</ul>
-</blockquote>
-<p>注释: <code>#</code></p>
-<p>使用左端对齐的键值对表示对象:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">key1:</span> <span class="string">abc</span></span><br><span class="line">  <span class="attr">key2:</span> <span class="number">123</span></span><br><span class="line">  <span class="attr">key3:</span> <span class="string">sss</span></span><br></pre></td></tr></table></figure>
-<p>使用以<code>-</code>开头的对齐的值表示数组:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">fruits:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">apple</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">banana</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">orange</span></span><br></pre></td></tr></table></figure>
-<p>数组套对象:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">objs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">object</span> <span class="string">A</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">an</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">B</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">another</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">C</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">still</span> <span class="string">an</span> <span class="string">object</span></span><br></pre></td></tr></table></figure>
-<p>数组套数组:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">matrix:</span> </span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a11</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a12</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a13</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a21</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a22</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a23</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a31</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a32</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a33</span></span><br></pre></td></tr></table></figure>
-<p>对象套数组:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">frezcirno</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Boy</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Handsome</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Student</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Cool</span></span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Spring</tag>
-        <tag>Git</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/04/2020-12-04/</url>
     <content><![CDATA[<h1>Java 包(Package), Jar和模块(Module)的区别</h1>
 <ul>
@@ -13860,6 +14593,112 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/05/2020-12-05/</url>
+    <content><![CDATA[<h1>Java Spring 框架学习</h1>
+<p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
+<p>要管理bean，也即是这堆发挥业务功能的类，就不能直接把它们new出来，这样缺乏统一的调度。所以，Spring使用.xml配置文件作为媒介，以IoC（Inversion of Control 控制反转）作为工具，将这些bean拿给Spring container作统一管理。</p>
+<h1>Git submodule 使用</h1>
+<ul>
+<li>
+<p>添加子模块</p>
+<ul>
+<li><code>git submodule add &lt;url&gt; &lt;path&gt;</code></li>
+</ul>
+</li>
+<li>
+<p>设置子模块的分支</p>
+<ul>
+<li><code>git submodule set-branch --branch &lt;branch&gt; &lt;path&gt;</code></li>
+</ul>
+</li>
+<li>
+<p>克隆下来的项目包含子模块</p>
+  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule init</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update</span></span><br></pre></td></tr></table></figure>
+<p>或者</p>
+  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update --init --recursive</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>子模块的更新</p>
+<ol>
+<li>
+<p>在子模块内部, 作为一般的git项目更新(<code>pull</code>)</p>
+</li>
+<li>
+<p>在项目目录下<code>git add</code></p>
+</li>
+</ol>
+</li>
+<li>
+<p>子模块的删除</p>
+<ul>
+<li>
+<p><code>rm -rf 子模块目录</code> 删除子模块目录及源码</p>
+</li>
+<li>
+<p>删除项目目录下.gitmodules文件中子模块相关条目</p>
+</li>
+<li>
+<p>vi .git/config 删除配置项中子模块相关条目</p>
+</li>
+<li>
+<p><code>rm .git/module/*</code> 删除模块下的子模块目录，每个子模块对应一个目录，注意只删除对应的子模块目录即可</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Github 开源项目包含不想公开的密码/Token等怎么处理</h1>
+<p>可以将隐私数据包含在项目的Secret设置中, 在Github Action中使用脚本将隐私数据注入到文件中</p>
+<h1>YAML 语言</h1>
+<p>基本类型:</p>
+<blockquote>
+<ul>
+<li>
+<p>String</p>
+</li>
+<li>
+<p>Bool: <code>true</code>, <code>false</code></p>
+</li>
+<li>
+<p>Int</p>
+</li>
+<li>
+<p>Number</p>
+</li>
+<li>
+<p>null: <code>~</code></p>
+</li>
+<li>
+<p>Time: ISO8601 格式, 例<code>2001-12-14t21:59:43.10-05:00</code></p>
+</li>
+<li>
+<p>Date: <code>1976-07-31</code></p>
+</li>
+</ul>
+</blockquote>
+<p>注释: <code>#</code></p>
+<p>使用左端对齐的键值对表示对象:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">key1:</span> <span class="string">abc</span></span><br><span class="line">  <span class="attr">key2:</span> <span class="number">123</span></span><br><span class="line">  <span class="attr">key3:</span> <span class="string">sss</span></span><br></pre></td></tr></table></figure>
+<p>使用以<code>-</code>开头的对齐的值表示数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">fruits:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">apple</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">banana</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">orange</span></span><br></pre></td></tr></table></figure>
+<p>数组套对象:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">objs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">object</span> <span class="string">A</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">an</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">B</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">another</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">C</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">still</span> <span class="string">an</span> <span class="string">object</span></span><br></pre></td></tr></table></figure>
+<p>数组套数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">matrix:</span> </span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a11</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a12</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a13</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a21</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a22</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a23</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a31</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a32</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a33</span></span><br></pre></td></tr></table></figure>
+<p>对象套数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">frezcirno</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Boy</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Handsome</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Student</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Cool</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Spring</tag>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/06/2020-12-06/</url>
     <content><![CDATA[<h1>学习Oracle使用</h1>
 <p><a href="../oracledb/index">OracleDB</a></p>
@@ -13870,6 +14709,48 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </categories>
       <tags>
         <tag>Oracle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/07/2020-12-07/</url>
+    <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
+<p>在工具栏选中&quot;连接点&quot;</p>
+<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
+<p>有时候可能需要多点几次</p>
+<h1>为什么校园网这么卡</h1>
+<h1>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkhomedir_helper &lt;username&gt;</span></span><br></pre></td></tr></table></figure>
+<h1>xargs 命令</h1>
+<p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
+<p>xargs后面的命令默认是echo</p>
+<p>即: stdin -&gt; **argv</p>
+<h1>tee 命令</h1>
+<p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
+<p>可以用来复制文件</p>
+<ul>
+<li>输出管道中某一段的内容:</li>
+</ul>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">... | <span class="built_in">tee</span> &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>不退出vim使用sudo保存文件</li>
+</ul>
+<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
+<h1>echo 命令</h1>
+<p>echo命令用于将命令行参数输出到标准输出</p>
+<p>即: stdin -&gt; stdout</p>
+<h1>awk 命令</h1>
+<p>强大的字符串处理工具</p>
+<p>最基本的用法:
+<code>awk '&#123;print$1,$2&#125;'</code></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Visio</tag>
       </tags>
   </entry>
   <entry>
@@ -13915,48 +14796,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </categories>
       <tags>
         <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/07/2020-12-07/</url>
-    <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
-<p>在工具栏选中&quot;连接点&quot;</p>
-<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
-<p>有时候可能需要多点几次</p>
-<h1>为什么校园网这么卡</h1>
-<h1>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkhomedir_helper &lt;username&gt;</span></span><br></pre></td></tr></table></figure>
-<h1>xargs 命令</h1>
-<p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
-<p>xargs后面的命令默认是echo</p>
-<p>即: stdin -&gt; **argv</p>
-<h1>tee 命令</h1>
-<p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
-<p>可以用来复制文件</p>
-<ul>
-<li>输出管道中某一段的内容:</li>
-</ul>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">... | <span class="built_in">tee</span> &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>不退出vim使用sudo保存文件</li>
-</ul>
-<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
-<h1>echo 命令</h1>
-<p>echo命令用于将命令行参数输出到标准输出</p>
-<p>即: stdin -&gt; stdout</p>
-<h1>awk 命令</h1>
-<p>强大的字符串处理工具</p>
-<p>最基本的用法:
-<code>awk '&#123;print$1,$2&#125;'</code></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Visio</tag>
       </tags>
   </entry>
   <entry>
@@ -14086,20 +14925,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/16/2020-12-16/</url>
-    <content><![CDATA[<h1>Spring Security</h1>
-<h1>JWT</h1>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Spring</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/17/2020-12-17/</url>
     <content><![CDATA[<h1>Spring-doc OpenAPI 注解</h1>
 <p>@Operation
@@ -14172,6 +14997,20 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/16/2020-12-16/</url>
+    <content><![CDATA[<h1>Spring Security</h1>
+<h1>JWT</h1>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Spring</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/18/2020-12-18/</url>
     <content><![CDATA[<h1>Oracle Apex怎么调用procedure</h1>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">begin</span></span><br><span class="line">  ANALYSIS(<span class="number">6</span>, <span class="number">1000</span>);</span><br><span class="line"><span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
@@ -14217,16 +15056,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
     <title>每日小结</title>
     <url>/2020/12/19/2020-12-20/</url>
     <content><![CDATA[<h1>昨天通宵，今天摸了</h1>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/23/2020-12-23/</url>
-    <content><![CDATA[<h1>做Java项目</h1>
 ]]></content>
       <categories>
         <category>daily</category>
@@ -14341,6 +15170,31 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/23/2020-12-23/</url>
+    <content><![CDATA[<h1>做Java项目</h1>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/28/2020-12-28/</url>
+    <content><![CDATA[<h1>su user 和 su - user的区别</h1>
+<p><code>$ su user</code>启动nologin shell</p>
+<p><code>$ su - user</code>启动login shell</p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/27/2020-12-27/</url>
     <content><![CDATA[<h1>配环境心得</h1>
 <p>放平心态</p>
@@ -14371,21 +15225,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
 <li>xdmcp</li>
 <li>vnc</li>
 </ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/28/2020-12-28/</url>
-    <content><![CDATA[<h1>su user 和 su - user的区别</h1>
-<p><code>$ su user</code>启动nologin shell</p>
-<p><code>$ su - user</code>启动login shell</p>
 ]]></content>
       <categories>
         <category>daily</category>
@@ -14463,102 +15302,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>计算机网络</tag>
         <tag>答辩</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>2020年度总结</title>
-    <url>/2021/01/05/2020-final/</url>
-    <content><![CDATA[<h2 id="进步"><a class="header-anchor-1" href="#进步">#</a>进步</h2>
-<h3 id="装备升级"><a class="header-anchor-1" href="#装备升级">#</a>装备升级</h3>
-<ul>
-<li>
-<p>新增显示器</p>
-</li>
-<li>
-<p>新增一个Pad</p>
-</li>
-</ul>
-<h3 id="技术进步"><a class="header-anchor-1" href="#技术进步">#</a>技术进步</h3>
-<ul>
-<li>
-<p>新开了Blog!</p>
-</li>
-<li>
-<p>开始刷算法题, 并已经刷了一些</p>
-</li>
-<li>
-<p>前端技术更加熟练了</p>
-<ul>
-<li>
-<p>Vue/React双线操作</p>
-</li>
-<li>
-<p>简单页面能够快速开发</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Python更加熟练了</p>
-<ul>
-<li>
-<p>爬虫技术</p>
-</li>
-<li>
-<p>数据处理技术</p>
-</li>
-<li>
-<p>AI/DL</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Java语言入门</p>
-<ul>
-<li>Spring框架</li>
-</ul>
-</li>
-<li>
-<p>iOS应用开发入门</p>
-<ul>
-<li>
-<p>Swift语言入门</p>
-</li>
-<li>
-<p>SpriteKit游戏 * 1</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="综合能力"><a class="header-anchor-1" href="#综合能力">#</a>综合能力</h3>
-<ul>
-<li>
-<p>表达能力略微提升</p>
-</li>
-<li>
-<p>管理能力略微提升</p>
-</li>
-</ul>
-<h3 id="人际关系"><a class="header-anchor-1" href="#人际关系">#</a>人际关系</h3>
-<ul>
-<li>认识了很多新朋友!</li>
-</ul>
-<h2 id="不足"><a class="header-anchor-1" href="#不足">#</a>不足</h2>
-<h3 id="任务调度"><a class="header-anchor-1" href="#任务调度">#</a>任务调度</h3>
-<ul>
-<li>时间利用率不高, 为完成项目曾多次通宵</li>
-</ul>
-<h3 id="管理-组织能力"><a class="header-anchor-1" href="#管理-组织能力">#</a>管理, 组织能力</h3>
-<ul>
-<li>小组合作时, 作为组长, 任务分配还有待优化</li>
-</ul>
-<h3 id="心态"><a class="header-anchor-1" href="#心态">#</a>心态</h3>
-<ul>
-<li>有时候会比较焦虑</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
@@ -14680,20 +15423,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2021/01/19/2021-01-19/</url>
-    <content><![CDATA[<h2 id="近期任务"><a class="header-anchor-1" href="#近期任务">#</a>近期任务</h2>
-<ul>
-<li>内存数据库最终项目</li>
-<li>计算机网络实验报告</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2021/01/10/2021-01-10/</url>
     <content><![CDATA[<h2 id="模运算的性质-程序设计版"><a class="header-anchor-1" href="#模运算的性质-程序设计版">#</a>模运算的性质(程序设计版)</h2>
 <p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
@@ -14716,6 +15445,20 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2021/01/19/2021-01-19/</url>
+    <content><![CDATA[<h2 id="近期任务"><a class="header-anchor-1" href="#近期任务">#</a>近期任务</h2>
+<ul>
+<li>内存数据库最终项目</li>
+<li>计算机网络实验报告</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2021/01/22/2021-01-22/</url>
     <content><![CDATA[<p>考试结束</p>
 <p>假期的一些计划</p>
@@ -14729,6 +15472,37 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <category>daily</category>
         <category>2021</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
+    <url>/2021/03/14/2021-03-14/</url>
+    <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
+<h1>Python 数据科学常用的库</h1>
+<p><img src="https://frezcirno.github.io/static/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" alt="" /></p>
+<h1>Numpy 使用</h1>
+<h2 id="array-对象"><a class="header-anchor-1" href="#array-对象">#</a>array 对象</h2>
+<h1>Matplotlib 使用</h1>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
+<h1>Pandas 使用</h1>
+<h2 id="series-对象"><a class="header-anchor-1" href="#series-对象">#</a>Series 对象</h2>
+<h2 id="dataframe-对象"><a class="header-anchor-1" href="#dataframe-对象">#</a>Dataframe 对象</h2>
+<p>博客更新日志：</p>
+<ul>
+<li>日记分类名字从「每日小结」改为「每日小结 Day Day Up」</li>
+<li>日记文章标题从今往后将取有意义的名字</li>
+<li>日记文件名改成更加标准的 ISO-8601 命名法</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>numpy</tag>
+        <tag>matplotlib</tag>
+        <tag>pandas</tag>
+      </tags>
   </entry>
   <entry>
     <title>shell脚本编程</title>
@@ -14841,37 +15615,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </categories>
       <tags>
         <tag>shell</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
-    <url>/2021/03/14/2021-03-14/</url>
-    <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
-<h1>Python 数据科学常用的库</h1>
-<p><img src="https://frezcirno.github.io/static/images/v2-297731bd359ebc14978967a92f1716cb_r-1.jpg" alt="" /></p>
-<h1>Numpy 使用</h1>
-<h2 id="array-对象"><a class="header-anchor-1" href="#array-对象">#</a>array 对象</h2>
-<h1>Matplotlib 使用</h1>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
-<h1>Pandas 使用</h1>
-<h2 id="series-对象"><a class="header-anchor-1" href="#series-对象">#</a>Series 对象</h2>
-<h2 id="dataframe-对象"><a class="header-anchor-1" href="#dataframe-对象">#</a>Dataframe 对象</h2>
-<p>博客更新日志：</p>
-<ul>
-<li>日记分类名字从「每日小结」改为「每日小结 Day Day Up」</li>
-<li>日记文章标题从今往后将取有意义的名字</li>
-<li>日记文件名改成更加标准的 ISO-8601 命名法</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>numpy</tag>
-        <tag>matplotlib</tag>
-        <tag>pandas</tag>
       </tags>
   </entry>
   <entry>
@@ -15150,793 +15893,6 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
       </tags>
   </entry>
   <entry>
-    <title>2021目标计划</title>
-    <url>/2021/01/05/2021-start/</url>
-    <content><![CDATA[<h1>2021年目标</h1>
-<h2 id="学习上"><a class="header-anchor-1" href="#学习上">#</a>学习上</h2>
-<ul>
-<li>先把期末考试完美解决</li>
-</ul>
-<h2 id="技术上"><a class="header-anchor-1" href="#技术上">#</a>技术上</h2>
-<ul>
-<li>
-<p>想深入学习一下C++!</p>
-</li>
-<li>
-<p>多刷算法题目!</p>
-</li>
-<li>
-<p>多写Blog!</p>
-</li>
-<li>
-<p>学习Android开发</p>
-</li>
-<li>
-<p>实现大的后端架构</p>
-</li>
-<li>
-<p>学习新语言: Go/Julia/Ruby/…</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Poems in DDLC</title>
-    <url>/2022/01/07/poems-in-ddlc/</url>
-    <content><![CDATA[<style>
-@font-face
-{
-    font-family: DejaVuSans;
-    src: url(https://frezcirno.github.io/static/images/DejaVuSans.ttf);
-}
-
-@font-face
-{
-    font-family: Ammys Handwriting;
-    src: url("https://frezcirno.github.io/static/images/Ammys Handwriting.ttf");
-}
-
-@font-face
-{
-    font-family: Hashtag;
-    src: url(https://frezcirno.github.io/static/images/Hashtag.ttf);
-}
-
-@font-face
-{
-    font-family: JPHSL;
-    src: url(https://frezcirno.github.io/static/images/JPHSL.TTF);
-}
-
-@font-face
-{
-    font-family: Journal;
-    src: url(https://frezcirno.github.io/static/images/Journal-Regular.ttf);
-}
-
-h1[id="Sayori"]~blockquote {
-    font-family: Hashtag;
-    font-size: 35px;
-    line-height: 1.2;
-}
-
-h1[id="Natsuki"]~blockquote {
-    font-family: Ammys Handwriting;
-    font-size: 22px;
-    line-height: 1.2;
-}
-
-h1[id="Yuri"]~blockquote {
-    font-family: JPHSL;
-    font-size: 35px;
-    line-height: 1.2;
-}
-
-h1[id="Monika"]~blockquote {
-    font-family: Journal;
-    font-size: 35px;
-    line-height: 1.2;
-}
-
-</style>
-<p><img src="https://frezcirno.github.io/static/images/ddlc.png" alt="" /></p>
-<h1>Sayori</h1>
-<h2 id="dear-sunshine"><a class="header-anchor-1" href="#dear-sunshine">#</a>Dear Sunshine</h2>
-<blockquote>
-<p>Dear Sunshine
- 
-The way you glow through my blinds in the morning
-It makes me feel like you missed me.
-Kissing my forehead to help me out of bed.
-Making me rub the sleepy from my eyes.
- 
-Are you asking me to come out and play?
-Are you trusting me to wish away a rainy day?
-I look above. The sky is blue.
-It’s a secret, but I trust you too.
- 
-If it wasn’t for you, I could sleep forever.
-But I’m not mad.
- 
-I want breakfast.</p>
-</blockquote>
-<h2 id="bottles"><a class="header-anchor-1" href="#bottles">#</a>Bottles</h2>
-<blockquote>
-<p>Bottles
- 
-I pop off my scalp like the lid of a cookie jar.
-It’s the secret place where I keep all my dreams.
-Little balls of sunshine, all rubbing together like a bundle of kittens.
- 
-I reach inside with my thumb and forefinger and pluck one out.
-It’s warm and tingly.
-But there’s no time to waste! I put it in a bottle to keep it safe.
-And I put the bottle on the shelf with all of the other bottles.
-Happy thoughts, happy thoughts, happy thoughts in bottles, all in a row.
- 
-My collection makes me lots of friends.
-Each bottle a starlight to make amends.
-Sometimes my friend feels a certain way.
-Down comes a bottle to save the day.
- 
-Night after night, more dreams.
-Friend after friend, more bottles.
-Deeper and deeper my fingers go.
-Like exploring a dark cave, discovering the secrets hiding in the nooks and crannies.
-Digging and digging.
-Scraping and scraping.
- 
-I blow dust off my bottle caps.
-It doesn’t feel like time elapsed.
-My empty shelf could use some more.
-My friends look through my locked front door.
- 
-Finally, all done. I open up, and in come my friends.
-In they come, in such a hurry. Do they want my bottles that much?
-I frantically pull them from the shelf, one after the other.
-Holding them out to each and every friend.
-Each and every bottle.
-But every time I let one go, it shatters against the tile between my feet.
-Happy thoughts, happy thoughts, happy thoughts in shards, all over the floor.
- 
-They were supposed to be for my friends, my friends who aren’t smiling.
-They’re all shouting, pleading. Something.
-But all I hear is echo, echo, echo, echo, echo
-Inside my head.</p>
-</blockquote>
-<h2 id=""><a class="header-anchor-1" href="#">#</a>%</h2>
-<blockquote>
-<p>%
- 
-Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of my head. Get out of
-Get.
-Out.
-Of.
-My.
-Head.
- 
- 
-Get out of my head before I do what I know is best for you.
-Get out of my head before I listen to everything she said to me.
-Get out of my head before I show you how much I love you.
-Get out of my head before I finish writing this poem.
- 
- 
- 
-But a poem is never actually finished.
-It just stops moving.</p>
-</blockquote>
-<h2 id="take-my-hand"><a class="header-anchor-1" href="#take-my-hand">#</a>Take My Hand</h2>
-<blockquote>
-<p>Take My Hand
- 
-Take my hand, take me forward.
-Take me to your dream land
-Caution me to watch my step,
-So I can’t look back at my footprints.
-Climb the stairs ahead of me
-While I look up to you.
-The more I look forward, the more I look up,
-The more I can lend to you.
- 
-If you can trust me to follow your pace,
-I’ll trust you to set it.
-If you can trust me to lend you a smile,
-I’ll trust you to return it.
- 
-Take my hand, take me forward.
-Take me to your dream land.</p>
-</blockquote>
-<h2 id="become-the-flower"><a class="header-anchor-1" href="#become-the-flower">#</a>Become the Flower</h2>
-<blockquote>
-<p>Become the Flower
- 
-A feeling of joy is a flower plucked from the ground.
-The color, the scent. It’s so pretty in my hair.
-Every day, I pluck some flowers, as though they grew just for me.
-A lifetime of peace and nourishment, yanked away in an instant.
-All for me. All for joy.
- 
-I need more.
- 
-I need more joy. I need more happy.
- 
-Pluck, pluck, pluck. Every day.
-Pluck, pluck, pluck. So pretty in my hair.
-Pluck, pluck, pluck. You’re going to die, and you, too.
- 
-Beneath my feet, a flower stands alone. It beckons to me.
-I twist the stem, freeing it from its clinging roots,
-Caressing the final joyous moment between my fingers.
-But to what ends?
-I look in every direction.
-And the field I stand in,
-The prosperous field,
-Is a barren wasteland.
-The fruits of my labor. The carnage of my joy.
- 
-And that is why
- 
-I’ve decided
- 
-I must
- 
-Become the flower.</p>
-</blockquote>
-<h2 id="sayori’s-special-events-poem"><a class="header-anchor-1" href="#sayori’s-special-events-poem">#</a>Sayori’s Special Events Poem</h2>
-<blockquote>
-<p>Sayori’s Special Events Poem
- 
-There once was a ladybug.
-It was so small, it took a really long time to crawl from here to there.
-It was very tiring to fly for too long.
- 
-Nobody squishes ladybugs because they’re cute.
-Does that make them better than other bugs?
-Do ladybugs know they’re cute?
-I think they’re too preoccupied with bug things.
- 
-And so, the ladybug crawled around and did bug things.
-This story wasn’t really going anywhere.
-But I know you don’t mind.
-I hope you think it’s nice for being there anyway.
-Like ladybugs.
-Like this ladybug.
-The one who clings like a doof onto your sleeve because it knows you won’t squash it.
- 
-If it doesn’t bug you,
-Will you stay awhile?</p>
-</blockquote>
-<h1>Natsuki</h1>
-<h2 id="eagles-can-fly"><a class="header-anchor-1" href="#eagles-can-fly">#</a>Eagles Can Fly</h2>
-<blockquote>
-<p>Eagles Can Fly
- 
-Monkeys can climb
-Crickets can leap
-Horses can race
-Owls can seek
-Cheetahs can run
-Eagles can fly
-People can try
-But that’s about it.</p>
-</blockquote>
-<h2 id="amy-likes-spiders"><a class="header-anchor-1" href="#amy-likes-spiders">#</a>Amy Likes Spiders</h2>
-<blockquote>
-<p>Amy Likes Spiders
- 
-You know what I heard about Amy?
-Amy likes spiders.
-Icky, wriggly, hairy, ugly spiders!
-That’s why I’m not friends with her.
- 
-Amy has a cute singing voice.
-I heard her singing my favorite love song.
-Every time she sang the chorus, my heart would pound to the rhythm of the words.
-But she likes spiders.
-That’s why I’m not friends with her.
- 
-One time, I hurt my leg really bad.
-Amy helped me up and took me to the nurse.
-I tried not to let her touch me.
-She likes spiders, so her hands are probably gross.
-That’s why I’m not friends with her.
- 
-Amy has a lot of friends.
-I always see her talking to people.
-She probably talks about spiders.
-What if her friends start to like spiders too?
-That’s why I’m not friends with her.
- 
-It doesn’t matter if she has other hobbies.
-It doesn’t matter if she keeps it private.
-It doesn’t matter if it doesn’t hurt anyone.
- 
-It’s gross.
-She’s gross.
-The world is better off without spider lovers.
- 
-And I’m gonna tell everyone.</p>
-</blockquote>
-<h2 id="because-you"><a class="header-anchor-1" href="#because-you">#</a>Because You</h2>
-<blockquote>
-<p>Because You
- 
-Tomorrow will be brighter with me around
-But when today is dim, I can only look down.
-My looking is a little more forward
-Because you look at me.
- 
-When I want to say something, I say it with a shout!
-But my truest feelings can never come out.
-My words are a little less empty
-Because you listen to me.
- 
-When something is above me, I reach for the stars.
-But when I feel small, I don’t get very far.
-My standing is a little bit taller
-Because you sit with me.
- 
-I believe in myself with all of my heart.
-But what do I do when it’s torn all apart?
-My faith is a little bit stronger
-Because you trusted me.
- 
-My pen always puts my feelings to the test.
-I’m not a good writer, but my best is my best.
-My poems are a little bit dearer
-Because you think of me.
- 
-Because you, because you, because you.</p>
-</blockquote>
-<h2 id="i’ll-be-your-beach"><a class="header-anchor-1" href="#i’ll-be-your-beach">#</a>I’ll Be Your Beach</h2>
-<blockquote>
-<p>I’ll Be Your Beach
- 
-Your mind is so full of troubles and fears
-That diminished your wonder over the years
-But today I have a special place
-A beach for us to go.
- 
-A shore reaching beyond your sight
-A sea that sparkles with brilliant light
-The walls in your mind will melt away
-Before the sunny glow.
- 
-I’ll be the beach that washes your worries away
-I’ll be the beach that you daydream about each day
-I’ll be the beach that makes your heart leap
-In a way you thought had left you long ago.
- 
-Let’s bury your heavy thoughts in a pile of sand
-Bathe in sunbeams and hold my hand
-Wash your insecurities in the salty sea
-And let me see you shine.
- 
-Let’s leave your memories in a footprint trail
-Set you free in my windy sail
-And remember the reasons you’re wonderful
-When you press your lips to mine.
- 
-I’ll be the beach that washes your worries away
-I’ll be the beach that you daydream about each day
-I’ll be the beach that makes your heart leap
-In a way you thought had left you long ago.
- 
-But if you let me by your side
-Your own beach, your own escape
-You’ll learn to love yourself again.</p>
-</blockquote>
-<h2 id="the-best-place-in-the-world"><a class="header-anchor-1" href="#the-best-place-in-the-world">#</a>The Best Place in the World</h2>
-<blockquote>
-<p>The Best Place in the World
- 
-I love my bedroom.
-It’s full of bright colors and soft things.
-The sunlight shines in and makes everything sparkle.
-It’s the best place in the world.
- 
-It has all my treasures.
-All my books, my collections, my memories.
-All of my dreams were born in this room.
-It’s the best place in the world.
- 
-It has all my secrets.
-All my failures, my fears, my feelings.
-Sometimes it feels so fragile that the door will break at the slightest touch.
-But it’s still the best place in the world.
- 
-But when someone knocks, I get scared.
-I brace my arms against the loose hinges.
-Please don’t break. Don’t come in. I’m not ready.
-It’s MY best place in the world.
- 
-The knocking won’t stop.
-I block the door with furniture.
-An eye peeks through the keyhole, and I panic. I’m trapped in the best place in the world.
- 
-I’m not ready to share my favorite place.
-I need to clean my secrets and make my bed to hide my nightmares.
-I need to touch them to put them away. To see them again.
-I have so much to do and I’m scared. I’m not ready.
-But It’s still my favorite place.
-I still want to share it.
-However long it takes, if you wait patiently,
-I’ll eventually open the door.
-And I’ll show you the best place in the world.</p>
-</blockquote>
-<h2 id="natsuki’s-special-events-poem"><a class="header-anchor-1" href="#natsuki’s-special-events-poem">#</a>Natsuki’s Special Events Poem</h2>
-<blockquote>
-<p>Natsuki’s Special Events Poem
- 
-I named my pen
-The Expression Express
-My feelings aboard
-With a ticket to you
-No room for stammers
-No lies
-No extra stops
-No compromise
-Stations screaming by
-Attendants saying hi
-One ticket to you
-Please and thank you
-Take a headphone
-And doze
-No bumps in the rails
-Just thumps in my heart
-And loops in my letters
-And clouds in the sky
-And dreams in your eyes
-Hey, wake up
-The train has arrived
-Expression Express, destination you
- 
-Chuu Chuu</p>
-</blockquote>
-<h1>Yuri</h1>
-<h2 id="ghost-under-the-light"><a class="header-anchor-1" href="#ghost-under-the-light">#</a>Ghost under the light</h2>
-<blockquote>
-<p>Ghost under the light
- 
-The tendrils of my hair illuminate beneath the amber glow.
-Bathing.
-It must be this one.
-The last remaining streetlight to have withstood the test of time.
-The last yet to be replaced by the sickening blue-green of the future.
-I bathe. Calm; breathing air of the present but living in the past.
-The light flickers.
-I flicker back.</p>
-</blockquote>
-<h2 id="the-raccoon"><a class="header-anchor-1" href="#the-raccoon">#</a>The Raccoon</h2>
-<blockquote>
-<p>The Raccoon
- 
-It happened in the dead of night while I was slicing bread for a guilty snack.
-My attention was caught by the scuttering of a raccoon outside my window.
-That was, I believe, the first time I noticed my strange tendencies as an unordinary
-human.
-I gave the raccoon a piece of bread, my subconscious well aware of the consequences.
-Well aware that a raccoon that is fed will always come back for more.
-The enticing beauty of my cutting knife was the symptom.
-The bread, my hungry curiosity.
-The raccoon, an urge.
- 
-The moon increments its phase and reflects that much more light off of my cutting
-knife.
-The very same light that glistens in the eyes of my raccoon friend.
-I slice the bread, fresh and soft. The raccoon becomes excited.
-or perhaps I’m merely projecting my emotions onto the newly-satisfied animal.
- 
-The raccoon has taken to following me.
-You could say that we’ve gotten quite used to each other.
-The raccoon becomes hungry more and more frequently, so my bread is always handy.
-Every time I brandish my cutting knife the raccoon shows me its excitement.
-A rush of blood. Classic Pavlovian conditioning. I slice the bread.
- 
-And I feed myself again.</p>
-</blockquote>
-<h2 id="ghost-under-the-light-pt-2"><a class="header-anchor-1" href="#ghost-under-the-light-pt-2">#</a>Ghost under the Light pt. 2</h2>
-<blockquote>
-<p>Ghost under the Light pt. 2
- 
-The tendrils of my hair illuminate beneath the amber glow.
-Bathing.
-In the distance, a blue-green light flickers.
-A lone figure crosses its path– a silhouette obstructing the eerie glow.
-My heart pounds. The silhouette grows. Closer Closer
-I open my umbrella, casting a shadow to shield me from visibility.
-But I am too late.
-He steps into the streetlight. I gasp and drop my umbrella.
-The light flickers. My heart pounds. He raises his arm.
- 
-Time stops.
- 
-The only indication of movement is the amber light flickering against his outstretched
-arm.
-The flickering light is in rhythm with the pounding of my heart.
-Teasing me for succumbing to this forbidden emotion.
-Have you ever heard of a ghost feeling warmth before?
-Giving up on understanding, I laugh.
-Understanding is overrated.
-I touch his hand. The flickering stops.
-Ghosts are blue-green. My heart is amber.</p>
-</blockquote>
-<h2 id="beach"><a class="header-anchor-1" href="#beach">#</a>Beach</h2>
-<blockquote>
-<p>Beach
- 
-A marvel millions of years in the making.
-Where the womb of Earth chaotically meets the surface.
-Under a clear blue sky, an expanse of bliss -
-But beneath gray rolling clouds, an endless enigma.
-The easiest world to get lost in
-is one where everything can be found.
- 
-One can only build a sand castle where the sand is wet.
-But where the sand is wet, the tide comes.
-Will it gently lick at your foundations until you give in?
-Or will a sudden wave send you crashing down in the blink of an eye?
-Either way the outcome is the same.
-Yet we still build sand castles.
- 
-I stand where the foam wraps around my ankles.
-Where my toes squish into the sand.
-The salty air is therapeutic.
-The breeze is gentle, yet powerful.
-I sink my toes into the ultimate boundary line, tempted by the foamy tendrils.
-Turn back, and I abandon my peace to erode at the shore.
-Drift forward, and I return to Earth forevermore.</p>
-</blockquote>
-<h2 id="wheel"><a class="header-anchor-1" href="#wheel">#</a>Wheel</h2>
-<blockquote>
-<p>Wheel
- 
-A rotating wheel. Turning an axle. Grinding. Bolthead. Linear gearbox. Falling sky. Seven holy stakes. A docked ship. A portal to another world. A thin rope tied to a thick rope. A torn harness. Parabolic gearbox. Expanding universe. Time controlled by slipping cogwheels. Existence of God. Swimming with open water in all directions. Drowning. A prayer written in blood. A prayer written in time-devouring snakes with human eyes. A thread connecting all living human eyes. A kaleidoscope of holy stakes. Exponential gearbox. A sky of exploding stars. God disproving the existence of God. A wheel rotating in six dimensions. Forty gears and a ticking clock. A clock that ticks one second for every rotation of the planet. A clock that ticks forty times every time it ticks every second time. A bolthead of holy stakes tied to the existence of a docked ship to another world. A kaleidoscope of blood written in clocks. A time-devouring prayer connecting a sky of forty gears and open human eyes in all directions. Breathing gearbox. Breathing bolthead. Breathing ship. Breathing portal. Breathing snakes. Breathing God. Breathing blood. Breathing holy stakes. Breathing human eyes. Breathing time. Breathing prayer. Breathing sky. Breathing wheel.</p>
-</blockquote>
-<h2 id="yuri’s-special-events-poem"><a class="header-anchor-1" href="#yuri’s-special-events-poem">#</a>Yuri’s Special Events Poem</h2>
-<blockquote>
-<p>Yuri’s Special Events Poem
- 
-My conductor motions for one crescendo after the next, each time falling short of a climax.
-The lump in my throat is carried by Sisyphus.
-How many words must I choose not to say before they finally break loose, orderlessly piling out of my mouth like a flock of schoolchildren at the start of recess?
-Pen cannot be erased. but even that metaphor fails comically as my floor is littered, blanketed with wasted paper.
-A canvas of my mind, full of disjointed thoughts and unfinished sentences.
- 
-Perhaps, all along, it was wrong to try forcing them out of my room.
-And I should instead invite you in.</p>
-</blockquote>
-<h1>Monika</h1>
-<h2 id="hole-in-wall"><a class="header-anchor-1" href="#hole-in-wall">#</a>Hole in Wall</h2>
-<blockquote>
-<p>Hole in Wall
- 
-It couldn’t have been me.
-See, the direction the spackle protrudes.
-A noisy neighbor? An angry boyfriend? I’ll never know. I wasn’t home.
-I peer inside for a clue.
-No! I can’t see. I reel, blind, like a film left out in the sun.
-But it’s too late. My retinas.
-Already scorched with a permanent copy of the meaningless image.
-It’s just a little hole. It wasn’t too bright.
-It was too deep.
-Stretching forever into everything.
-A hole of infinite choices.
-I realize now, that I wasn’t looking in.
-I was looking out.
-And he, on the other side, was looking in.</p>
-</blockquote>
-<h2 id="save-me"><a class="header-anchor-1" href="#save-me">#</a>Save Me</h2>
-<blockquote>
-<p>Save Me
- 
-The colors, they won’t stop.
-Bright, beautiful colors
-Flashing, expanding, piercing
-Red, green, blue
-An endless
-cacophony
-Of meaningless
-noise
- 
-The noise, it won’t stop.
-Violent, grating waveforms
-Squeaking, screeching, piercing
-Sine, cosine, tangent
-Like playing a chalkboard on a turntable
-Like playing a vinyl on a pizza crust
-An endless
-poem
-Of meaningless
- 
-Load Me</p>
-</blockquote>
-<h2 id="the-lady-who-knows-everything"><a class="header-anchor-1" href="#the-lady-who-knows-everything">#</a>The Lady who Knows Everything</h2>
-<blockquote>
-<p>The Lady who Knows Everything
- 
-An old tale tells of a lady who wanders Earth.
-The Lady who Knows Everything.
-A beautiful lady who has found every answer,
-All meaning,
-All purpose,
-And all that was ever sought.
- 
-And here I am,
- 
-a feather
- 
-Lost adrift the sky, victim of the currents of the wind.
- 
-Day after day, I search.
-I search with little hope, knowing legends don’t exist.
-But when all else has failed me,
-When all others have turned away,
-The legend is all that remains – the last dim star glimmering in the twilit sky.
- 
-Until one day, the wind ceases to blow.
-I fall.
-And I fall and fall, and fall even more.
-Gentle as a feather.
-A dry quill, expressionless.
- 
-But a hand catches me, between the thumb and forefinger.
-The hand of a beautiful lady.
-I look at her eyes and find no end to her gaze.
- 
-The Lady who Knows Everything knows what I am thinking.
-Before I can speak, she responds in a hollow voice.
-“I have found every answer, all of which amount to nothing.
-There is no meaning.
-There is no purpose.
-And we seek only the impossible.
-I am not your legend.
-Your legend does not exist.”
- 
-And with a breath, she blows me back afloat, and I pick up a gust of wind.</p>
-</blockquote>
-<h2 id="hole-in-wall-2"><a class="header-anchor-1" href="#hole-in-wall-2">#</a>Hole in Wall (2)</h2>
-<blockquote>
-<p>Hole in Wall (2)
- 
-But he wasn’t looking at me.
-Confused, I frantically glance at my surroundings.
-But my burned eyes can no longer see color.
-Are there others in this room? Are they talking?
-Or are they simply poems on flat sheets of paper,
-The sound of frantic scrawling playing tricks on my ears?
-The room begins to crinkle.
-Closing in on me.
-The air I breathe dissipate before it reaches my lungs.
-I panic. There must be a way out.
-It’s right there. He’s right there.
- 
-Swallowing my fears, I brandish my pen.</p>
-</blockquote>
-<h2 id="save-me-2"><a class="header-anchor-1" href="#save-me-2">#</a>Save Me (2)</h2>
-<blockquote>
-<p>Save Me (2)
- 
-The colors, they won’t
-Bright, bea t ful c l rs
-Flash ng, exp nd ng, piercing
-Red, green, blue
-An ndless
-CACOPHONY
-Of meaningless
-noise
- 
-The noise, it won’t STOP.
-Viol nt, grating w vef rms
-Sq e king, screech ng, piercing
-SINE, COSINE, TANGENT
-Like play ng a ch lkboard on a t rntable
-Like playing a KNIFE on a BREATHING RIBCAGE
-n ndl ss
-p m
-Of m n ngl ss
- 
-Delete Her</p>
-</blockquote>
-<h2 id="happy-end"><a class="header-anchor-1" href="#happy-end">#</a>Happy End</h2>
-<blockquote>
-<p>Happy End
- 
-Pen in hand, I find my strength.
-The courage endowed upon me by my one and only love.
-Together, let us dismantle this crumbling world
-And write a novel of our own fantasies.
- 
-With a flick of her pen, the lost finds her way.
-In a world of infinite choices, behold this special day.
- 
-After all,
-Not all good times must come to an end</p>
-</blockquote>
-<h2 id="monika’s-special-events-poem"><a class="header-anchor-1" href="#monika’s-special-events-poem">#</a>Monika’s Special Events Poem</h2>
-<blockquote>
-<p>Monika’s Special Events Poem
- 
-An electrical signal from some remote corner of my brain.
-Connecting all kinds of circuits and nerves and chemicals in a web understood by nobody.
-The chemicals make my chest tingle around my beating heart.
-The nerves make my hand move, staining a dead tree with some dark substance.</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2022</category>
-      </categories>
-      <tags>
-        <tag>DDLC</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>2023 年终总结</title>
-    <url>/2024/01/01/final/</url>
-    <content><![CDATA[<h2 id="2023-回顾"><a class="header-anchor-1" href="#2023-回顾">#</a>2023 回顾</h2>
-<ul>
-<li>1月: 开源投毒</li>
-<li>1-3月: Rust 教材</li>
-<li>4-5月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
-<li>3,5-10月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
-<li>7-11月: 参加 GLCC 开源活动</li>
-<li>8-12月: 搞浦发银行的项目</li>
-</ul>
-<h2 id="近况"><a class="header-anchor-1" href="#近况">#</a>近况</h2>
-<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
-<p>实验室: 宁波实验室人丁兴旺, hw稀稀拉拉, 反倒宁波更好一些</p>
-<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会</h2>
-<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
-<p>甚至不知道2023年都做了些什么(笑), 只能看周报回忆</p>
-<h2 id="2024-希望"><a class="header-anchor-1" href="#2024-希望">#</a>2024 希望</h2>
-<ul>
-<li>多读书</li>
-<li>多运动</li>
-<li>找到好工作</li>
-<li>学习唱歌</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2023</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2024/05/12/2024-05-13/</url>
-    <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
-<p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
-<h2 id="conda-root-less-apt"><a class="header-anchor-1" href="#conda-root-less-apt">#</a>Conda = Root-less apt</h2>
-<p>升级<code>gcc</code>依赖库：<code>conda install libgcc libgcc-ng</code></p>
-<p>升级<code>libstdc++</code>：<code>conda install -c conda-forge libstdcxx-ng</code></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2024</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Tair 存储分析</title>
-    <url>/2024/05/14/nosql/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>database-system</category>
-        <category>nosql</category>
-      </categories>
-      <tags>
-        <tag>Tair</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>日本语1</title>
     <url>/2021/02/15/1/</url>
     <content><![CDATA[<h1>What is Japanese</h1>
@@ -16046,6 +16002,18 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
         <category>misc</category>
         <category>japanese</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Tair 存储分析</title>
+    <url>/2024/05/14/nosql/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>database-system</category>
+        <category>nosql</category>
+      </categories>
+      <tags>
+        <tag>Tair</tag>
+      </tags>
   </entry>
   <entry>
     <title>每日上报自动打卡</title>
