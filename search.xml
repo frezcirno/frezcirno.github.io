@@ -2996,6 +2996,30 @@ SNMP: 161/162</p>
       </tags>
   </entry>
   <entry>
+    <title>C++ 古怪类型与容器的交互</title>
+    <url>/2024/04/21/cpp-opaque-type-vs-container/</url>
+    <content><![CDATA[<p>C++允许定义禁止复制和移动的类型，例如：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">OpaqueData</span> &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">OpaqueData</span>() = <span class="keyword">default</span>;</span><br><span class="line">  ~<span class="built_in">OpaqueData</span>() = <span class="keyword">default</span>;</span><br><span class="line">  <span class="comment">// Disable copy</span></span><br><span class="line">  <span class="built_in">OpaqueData</span>(<span class="type">const</span> OpaqueData &amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="keyword">auto</span> <span class="keyword">operator</span>=(<span class="type">const</span> OpaqueData &amp;) -&gt; OpaqueData &amp; = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="comment">// Disable move</span></span><br><span class="line">  <span class="built_in">OpaqueData</span>(OpaqueData &amp;&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="keyword">auto</span> <span class="keyword">operator</span>=(OpaqueData &amp;&amp;) -&gt; OpaqueData &amp; = <span class="keyword">delete</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>对于这种类型，容器的很多需要元素移动的操作都是不合法的。因此需要使用emplace来在容器内就地构造元素。</p>
+<p>这对于<code>std::list</code>是没问题的，但是对于<code>map</code>/<code>unordered_map</code>是不足够的：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;list&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">main</span><span class="params">()</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">  std::list&lt;OpaqueData&gt; list;  </span><br><span class="line">  list.<span class="built_in">emplace_back</span>();  <span class="comment">// ok</span></span><br><span class="line"></span><br><span class="line">  std::map&lt;<span class="type">int</span>, OpaqueData&gt; map;</span><br><span class="line">  map.<span class="built_in">emplace</span>(<span class="number">0</span>, &#123;&#125;);  <span class="comment">// Error</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为<code>map</code>/<code>unordered_map</code>需要在一次调用构造两个元素<code>key</code>和<code>value</code>，因此没办法区分哪些参数用于构造<code>key</code>，哪些用于构造<code>value</code>。</p>
+<p>为了解决这个问题，需要使用 <code>std::piecewise_construct</code>  和 <code>std::forward_as_tuple</code> 明确哪些参数构造<code>key</code>/<code>value</code>，将上述代码修改成下面的样子，即可通过编译：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">main</span><span class="params">()</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">	map.<span class="built_in">emplace</span>(std::piecewise_construct, std::forward_as_tuple(<span class="number">0</span>), std::forward_as_tuple());  <span class="comment">// Ok</span></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么这两个东西是什么呢？查看标准库中<code>emplace</code>的代码会发现，这些参数会不断地被<code>forward</code>，最终会原封不动地被用来构造底层元素，而底层元素实际上是<code>std::pair</code>。</p>
+<p>也就是说，这些奇奇怪怪的参数其实是<code>std::pair</code>的一种构造方式，查看<code>std::pair</code>的构造函数证明了这一点：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="comment">/// Tag type for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">piecewise_construct_t</span> &#123; <span class="function"><span class="keyword">explicit</span> <span class="title">piecewise_construct_t</span><span class="params">()</span> </span>= <span class="keyword">default</span>; &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// Tag for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">piecewise_construct_t</span> piecewise_construct = <span class="built_in">piecewise_construct_t</span>();</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In tuple */</span></span><br><span class="line"><span class="comment">/// Create a tuple of lvalue or rvalue references to the arguments</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Elements&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> tuple&lt;_Elements&amp;&amp;...&gt; <span class="title">forward_as_tuple</span><span class="params">(_Elements&amp;&amp;... __args)</span> <span class="keyword">noexcept</span> </span>&#123; </span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">tuple</span>&lt;_Elements&amp;&amp;...&gt;(std::forward&lt;_Elements&gt;(__args)...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">_T1</span>, <span class="keyword">class</span> <span class="title class_">_T2</span>&gt;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Args1, <span class="keyword">typename</span>... _Args2&gt;</span><br><span class="line">_GLIBCXX20_CONSTEXPR</span><br><span class="line"><span class="keyword">inline</span></span><br><span class="line">pair&lt;_T1, _T2&gt;::<span class="built_in">pair</span>(<span class="type">piecewise_construct_t</span>, tuple&lt;_Args<span class="number">1.</span>..&gt; __first, tuple&lt;_Args<span class="number">2.</span>..&gt; __second) : <span class="built_in">pair</span>(__first, __second,</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args1)&gt;::__type(),</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args2)&gt;::__type())</span><br><span class="line">&#123; &#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>CPP</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C++11（新？）特性之右值引用</title>
     <url>/2021/01/12/cpp-right-value/</url>
     <content><![CDATA[<h2 id="右值"><a class="header-anchor-1" href="#右值">#</a>右值</h2>
@@ -3051,30 +3075,6 @@ SNMP: 161/162</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">move_swap</span><span class="params">(Res &amp;a，Res &amp;b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Res t = <span class="built_in">move</span>(a);</span><br><span class="line">    a = <span class="built_in">move</span>(b);</span><br><span class="line">    b = <span class="built_in">move</span>(t);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h1>RVO 和 NRVO</h1>
 <p>返回值优化（Return value optimization，缩写为 RVO）是 C++的一项编译优化技术。即删除保持函数返回值的临时对象。这可能会省略两次复制构造函数，<strong>即使复制构造函数有副作用</strong>。</p>
-]]></content>
-      <categories>
-        <category>cpp</category>
-      </categories>
-      <tags>
-        <tag>CPP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>C++ 古怪类型与容器的交互</title>
-    <url>/2024/04/21/cpp-opaque-type-vs-container/</url>
-    <content><![CDATA[<p>C++允许定义禁止复制和移动的类型，例如：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">OpaqueData</span> &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">OpaqueData</span>() = <span class="keyword">default</span>;</span><br><span class="line">  ~<span class="built_in">OpaqueData</span>() = <span class="keyword">default</span>;</span><br><span class="line">  <span class="comment">// Disable copy</span></span><br><span class="line">  <span class="built_in">OpaqueData</span>(<span class="type">const</span> OpaqueData &amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="keyword">auto</span> <span class="keyword">operator</span>=(<span class="type">const</span> OpaqueData &amp;) -&gt; OpaqueData &amp; = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="comment">// Disable move</span></span><br><span class="line">  <span class="built_in">OpaqueData</span>(OpaqueData &amp;&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="keyword">auto</span> <span class="keyword">operator</span>=(OpaqueData &amp;&amp;) -&gt; OpaqueData &amp; = <span class="keyword">delete</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>对于这种类型，容器的很多需要元素移动的操作都是不合法的。因此需要使用emplace来在容器内就地构造元素。</p>
-<p>这对于<code>std::list</code>是没问题的，但是对于<code>map</code>/<code>unordered_map</code>是不足够的：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;list&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">main</span><span class="params">()</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">  std::list&lt;OpaqueData&gt; list;  </span><br><span class="line">  list.<span class="built_in">emplace_back</span>();  <span class="comment">// ok</span></span><br><span class="line"></span><br><span class="line">  std::map&lt;<span class="type">int</span>, OpaqueData&gt; map;</span><br><span class="line">  map.<span class="built_in">emplace</span>(<span class="number">0</span>, &#123;&#125;);  <span class="comment">// Error</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>因为<code>map</code>/<code>unordered_map</code>需要在一次调用构造两个元素<code>key</code>和<code>value</code>，因此没办法区分哪些参数用于构造<code>key</code>，哪些用于构造<code>value</code>。</p>
-<p>为了解决这个问题，需要使用 <code>std::piecewise_construct</code>  和 <code>std::forward_as_tuple</code> 明确哪些参数构造<code>key</code>/<code>value</code>，将上述代码修改成下面的样子，即可通过编译：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">main</span><span class="params">()</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">	map.<span class="built_in">emplace</span>(std::piecewise_construct, std::forward_as_tuple(<span class="number">0</span>), std::forward_as_tuple());  <span class="comment">// Ok</span></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>那么这两个东西是什么呢？查看标准库中<code>emplace</code>的代码会发现，这些参数会不断地被<code>forward</code>，最终会原封不动地被用来构造底层元素，而底层元素实际上是<code>std::pair</code>。</p>
-<p>也就是说，这些奇奇怪怪的参数其实是<code>std::pair</code>的一种构造方式，查看<code>std::pair</code>的构造函数证明了这一点：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="comment">/// Tag type for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">piecewise_construct_t</span> &#123; <span class="function"><span class="keyword">explicit</span> <span class="title">piecewise_construct_t</span><span class="params">()</span> </span>= <span class="keyword">default</span>; &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// Tag for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">piecewise_construct_t</span> piecewise_construct = <span class="built_in">piecewise_construct_t</span>();</span><br></pre></td></tr></table></figure>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In tuple */</span></span><br><span class="line"><span class="comment">/// Create a tuple of lvalue or rvalue references to the arguments</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Elements&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> tuple&lt;_Elements&amp;&amp;...&gt; <span class="title">forward_as_tuple</span><span class="params">(_Elements&amp;&amp;... __args)</span> <span class="keyword">noexcept</span> </span>&#123; </span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">tuple</span>&lt;_Elements&amp;&amp;...&gt;(std::forward&lt;_Elements&gt;(__args)...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">_T1</span>, <span class="keyword">class</span> <span class="title class_">_T2</span>&gt;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Args1, <span class="keyword">typename</span>... _Args2&gt;</span><br><span class="line">_GLIBCXX20_CONSTEXPR</span><br><span class="line"><span class="keyword">inline</span></span><br><span class="line">pair&lt;_T1, _T2&gt;::<span class="built_in">pair</span>(<span class="type">piecewise_construct_t</span>, tuple&lt;_Args<span class="number">1.</span>..&gt; __first, tuple&lt;_Args<span class="number">2.</span>..&gt; __second) : <span class="built_in">pair</span>(__first, __second,</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args1)&gt;::__type(),</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args2)&gt;::__type())</span><br><span class="line">&#123; &#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>cpp</category>
@@ -5335,6 +5335,17 @@ NN 会把不同客户端发起的操作合并成一个 batch，只要有一个�
       </tags>
   </entry>
   <entry>
+    <title>Verilog</title>
+    <url>/2024/09/21/verilog/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>electronic</category>
+      </categories>
+      <tags>
+        <tag>电子电路</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>插头插座相关中国国家标准</title>
     <url>/2024/12/09/socket/</url>
     <content><![CDATA[<p>现行插座国家标准一共 9 本，分别为：</p>
@@ -5400,17 +5411,6 @@ NN 会把不同客户端发起的操作合并成一个 batch，只要有一个�
 <li>修订 GB 2099.7 标准</li>
 </ul>
 ]]></content>
-      <categories>
-        <category>electronic</category>
-      </categories>
-      <tags>
-        <tag>电子电路</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Verilog</title>
-    <url>/2024/09/21/verilog/</url>
-    <content><![CDATA[]]></content>
       <categories>
         <category>electronic</category>
       </categories>
@@ -11358,13 +11358,40 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
   <entry>
     <title>软考笔记</title>
     <url>/2025/03/14/note/</url>
-    <content><![CDATA[<h2 id="e-r-图相关"><a class="header-anchor-1" href="#e-r-图相关">#</a>E-R 图相关</h2>
+    <content><![CDATA[<h2 id="数据库"><a class="header-anchor-1" href="#数据库">#</a>数据库</h2>
 <p>E-R 图集成冲突
 :</p>
 <ul>
 <li>属性冲突: 包括属性域和属性取值的冲突。</li>
 <li>命名冲突: 包括同名异义和异名同义。</li>
 <li>结构冲突: 包括同一对象在不同应用中具有不同的抽象，以及统一实体在不同的局部 E-R 图中所包含的属性个数和属性排列次序不完全相同。</li>
+</ul>
+<p>关系数据库操作的对象和结果是<strong>集合</strong></p>
+<p>三级模式</p>
+<ul>
+<li>外模式：描述<strong>局部数据</strong>的逻辑结构和特征</li>
+<li>概念模式</li>
+<li>内模式</li>
+</ul>
+<p>完整性约束</p>
+<ul>
+<li><strong>实体完整性</strong>：确保每个关系的<strong>主键</strong>唯一且不能为空，保证表中每条记录的唯一性。</li>
+<li><strong>参照完整性</strong>：<strong>外键</strong>必须指向另一个表中的主键或候选键</li>
+<li><strong>用户定义完整性</strong>：是指用户根据实际<strong>业务需求</strong>自定义的约束规则。</li>
+</ul>
+<p>范式：</p>
+<ul>
+<li>第一范式（1NF）要求消除重复的组；</li>
+<li>第二范式（2NF）消除了非主属性对码的部分依赖，即每个非主属性完全依赖于码，而不是部分依赖于码；</li>
+<li>第三范式（3NF）在 2NF 的基础上进一步消除非主属性对码的传递依赖。</li>
+<li>BCNF（Boyce-Codd Normal Form）是对第三范式的进一步强化。</li>
+</ul>
+<p>数据库设计：</p>
+<ul>
+<li>用户<strong>需求</strong>分析：</li>
+<li><strong>概念</strong>设计：</li>
+<li><strong>逻辑</strong>设计：用某个具体的 DBMS 实现用户需要，将概念结构转换相应的数据模型，并根据用户处理要求、安全性考虑，在基本表的基础上建立必要的视图，并对数据模型进行优化。数据模型设计、E-R 图转换为关系模式、关系模式规范化、确定完整性约束、确定用户视图、反规范化设计</li>
+<li><strong>物理</strong>设计：</li>
 </ul>
 <h2 id="嵌入式系统"><a class="header-anchor-1" href="#嵌入式系统">#</a>嵌入式系统</h2>
 <dl>
@@ -11375,7 +11402,32 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <dt>AI 芯片的关键特点</dt>
 <dd>新型计算范式、训练和推断、大数据处理能力、数据精度、可重构能力、软件工具。</dd>
 </dl>
+<h2 id="计算机体系结构"><a class="header-anchor-1" href="#计算机体系结构">#</a>计算机体系结构</h2>
+<p>中断分类</p>
+<ul>
+<li><strong>访管中断</strong>：<strong>系统调用</strong></li>
+<li><strong>信号中断</strong>通常是由<strong>外部设备或定时器</strong>发出的，与用户程序主动发起的系统调用无关。</li>
+<li><strong>外部中断</strong>由<strong>硬件设备</strong>（如键盘、鼠标、定时器等）触发，不涉及用户程序的特权指令。</li>
+</ul>
+<h2 id="操作系统"><a class="header-anchor-1" href="#操作系统">#</a>操作系统</h2>
+<p>死锁：</p>
+<ol>
+<li>互斥条件</li>
+<li>请求和保持条件</li>
+<li>不可抢占条件</li>
+<li>循环等待条件</li>
+</ol>
+<p>预防死锁的方法：</p>
+<ul>
+<li>破坏请求和保持条件</li>
+<li>破坏不可抢占条件</li>
+<li>破坏循环等待条件</li>
+</ul>
 <h2 id="计算机网络"><a class="header-anchor-1" href="#计算机网络">#</a>计算机网络</h2>
+<p>OSI 七层模型</p>
+<ul>
+<li>会话层没有安全服务</li>
+</ul>
 <p>以太网交换机</p>
 <ul>
 <li>初始 MAC 地址表为空</li>
@@ -11383,7 +11435,9 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <li>通过读取输入帧中的源地址添加相应的 MAC 地址表项</li>
 <li>MAC 地址表项是动态增长的</li>
 </ul>
-<p>Internet 采用分组交换方式</p>
+<p>以太网传输使用<strong>曼彻斯特编码</strong>，没有差分信号</p>
+<p>路由器工作在<strong>网络层</strong>，交换机工作在<strong>数据链路层</strong>。</p>
+<p>Internet 采用<strong>分组交换</strong>方式</p>
 <dl>
 <dt>SDN</dt>
 <dd>软件定义网络，网络架构有三层，分别是:</dd>
@@ -11416,6 +11470,10 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 </ol>
 <h2 id="软件工程"><a class="header-anchor-1" href="#软件工程">#</a>软件工程</h2>
 <dl>
+<dt>ISO9000</dt>
+<dd>质量管理体系</dd>
+<dt>PMBOK</dt>
+<dd>项目管理知识体系</dd>
 <dt>CMMI</dt>
 <dd>软件能力成熟度模型集成，包括五个级别:</dd>
 </dl>
@@ -11426,6 +11484,16 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <li>稳定级</li>
 <li>持续优化级</li>
 </ol>
+<p>软件生命周期模型</p>
+<ul>
+<li>需求分析：确定可靠性目标、分析影响因素、制定验收标准、管理框架、文档规范、初步计划和数据收集规范</li>
+<li>概要设计：确定度量、详细验收方案、设计、计划调整、数据收集、后续阶段计划和文档编制</li>
+<li>详细设计：设计、预测、计划调整、数据收集、后续阶段计划和文档编制</li>
+<li>编码阶段：测试、排错、计划调整、数据收集、后续阶段计划和文档编制</li>
+<li>测试阶段：测试、排错、建模、评价、计划调整、数据收集、后续阶段计划和文档编制</li>
+<li>实施阶段：包括测试、排错、数据收集、模型调整、评价和文档编制</li>
+</ul>
+<p>构件</p>
 <dl>
 <dt>产品配置</dt>
 <dd>指一个产品在其生命周期各个阶段所产生的各种形式（机器可读或人工可读）和各种版本的<strong>文档</strong>、<strong>计算机程序</strong>、<strong>部件</strong>及<strong>数据</strong>的集合。</dd>
@@ -11433,14 +11501,47 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <dd>包括变更控制、版本控制、需求跟踪、需求状态跟踪。<em>不包括获取的部分</em></dd>
 <dt>需求跟踪</dt>
 <dd>编制每个需求与系统元素之间的联系文档，这些元素包括其它需求、体系结构、设计部件、源代码模块、测试、帮助文件和文档等。</dd>
-<dt>敏捷开发</dt>
-<dd>一种以人为核心、迭代、循序渐进的开发方法。对比: 结构化开发方法是面向过程的。</dd>
-<dt>RUP</dt>
-<dd>9 个核心工作流: 业务建模、需求、分析与设计、实现、测试、部署、配置与变更管理、项目管理、环境</dd>
 </dl>
+<p>敏捷开发</p>
 <ul>
-<li>结构化设计</li>
-<li>面向对象设计</li>
+<li>以人为核心、迭代、循序渐进的开发方法。</li>
+<li>主打适应型，而非可预测型</li>
+<li>对比: 结构化开发方法是面向过程的。</li>
+</ul>
+<p>RUP (Rational Unified Process)</p>
+<ul>
+<li>
+<p>统一软件开发过程，包含 9 个核心工作流: 业务建模、需求、分析与设计、实现、测试、部署、配置与变更管理、项目管理、环境</p>
+</li>
+<li>
+<p>关键特性：用例驱动、以体系结构为中心、迭代式开发</p>
+</li>
+<li>
+<p>结构化设计</p>
+</li>
+<li>
+<p>面向对象设计</p>
+</li>
+</ul>
+<p>SAAM 安全体系结构评估方法</p>
+<ul>
+<li>针对最终架构进行评估</li>
+<li>评估过程包括:场景开发、架构描述、单场景评估、场景交互评估和总体评估。</li>
+</ul>
+<p>ATAM 架构权衡分析方法</p>
+<ul>
+<li>头脑风暴的三种场景：用例场景、增长场景、探索性场景</li>
+<li>质量属性：性能、实用性（或可用性）、安全性和可修改性</li>
+<li>效用树：树根 – 质量属性 – 属性分类 – 质量属性场景(叶子节点)</li>
+</ul>
+<p>ABSD</p>
+<ul>
+<li>以体系结构为核心的软件开发方法</li>
+<li>体系结构需求来自：系统的质量目标、系统的商业目标，系统开发人员的商业目标</li>
+</ul>
+<p>螺旋模型</p>
+<ul>
+<li>基于<strong>快速原型模型</strong></li>
 </ul>
 <dl>
 <dt>耦合</dt>
@@ -11449,6 +11550,13 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <dd>功能内聚 &gt; …</dd>
 <dt>UML 模型</dt>
 <dd>用例图、类图、时序图、活动图、状态图、部署图、组件图</dd>
+</dl>
+<p>用例图</p>
+<ul>
+<li>用例：扩展关系（Extend）、包含关系（Include）和泛化关系（Generalization）</li>
+<li>参与者：</li>
+</ul>
+<dl>
 <dt>McCabe 方法，环形复杂度</dt>
 <dd>环形复杂度 = 闭环个数 + 1</dd>
 </dl>
@@ -11467,21 +11575,59 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 </dl>
 <p>4+1 视图模型:</p>
 <ul>
-<li>逻辑视图</li>
-<li>进程/过程视图: 设计的并发和同步特证</li>
-<li>开发视图: 在开发环境中软件的静态组织结构</li>
-<li>部署视图</li>
-<li>用例视图</li>
+<li>场景</li>
+<li>逻辑视图：最终用户功能特性</li>
+<li>进程/过程视图: 设计的并发和同步特证，集成人员</li>
+<li>开发视图: 在开发环境中软件的静态组织结构，开发人员</li>
+<li>物理视图：系统工程师</li>
 </ul>
 <p>软件架构风格:</p>
 <ul>
-<li>层次型架构: 物联网</li>
+<li>
+<p><strong>批处理</strong>架构：强调<strong>顺序执行</strong></p>
+</li>
+<li>
+<p><strong>管道-过滤器</strong>架构：过滤器之间可以<strong>并行</strong>处理数据</p>
+</li>
+<li>
+<p><strong>仓库</strong>架构：中央数据结构</p>
+<ul>
+<li><strong>黑板</strong>架构：一种利用模块化和<strong>分散式</strong>框架解决问题的方法，每个专家贡献一部分解决方案。属于<strong>数据</strong>共享型架构风格。</li>
 </ul>
-<p>特定领域软件架构 DSSA:</p>
+</li>
+<li>
+<p><strong>进程通信</strong>架构: 通过<strong>消息传递</strong>进行通信，具体的实现方式可以包括消息队列、管道、共享内存等。</p>
+</li>
+<li>
+<p><strong>事件驱动</strong>架构：系统的组件通过事件进行交互，独立性，非耦合性</p>
+</li>
+<li>
+<p><strong>层次型</strong>架构: 物联网，嵌入式</p>
+</li>
+<li>
+<p><strong>递归</strong>架构：嵌入式</p>
+</li>
+<li>
+<p><strong>主程序/子过程</strong>架构</p>
+</li>
+<li>
+<p><strong>面向对象</strong>架构</p>
+</li>
+<li>
+<p><strong>特定领域软件</strong>架构 DSSA:</p>
+<ul>
+<li>建立过程：强调<strong>并发</strong>、<strong>递归</strong>和<strong>反复迭代</strong></li>
+<li>定义领域特定元素阶段：重点是确定领域的通用功能和特定需求，而不是直接定义用户需求</li>
+<li>定义领域模型和体系结构阶段：目标是抽象出领域内通用的模型和体系结构</li>
+<li>领域分析阶段：分析特定应用领域，获取领域模型，从而为后续的设计和实现提供基础</li>
+</ul>
 <ol>
 <li><strong>垂直域</strong>: 定义了一个特定的系统族，包含整个系统族内的多个系统，结果是在该领域中可作为系统的可行解决方案的一个通用软件体系结构。</li>
 <li><strong>水平域</strong>: 定义了在多个系统和多个系统族中功能区城的共有部分。在子系统级 上涵盖多个系统族的特定部分功能。</li>
 </ol>
+</li>
+</ul>
+<p>架构演化 6 个步骤：需求变化<strong>归类</strong>；制订体系结构演化<strong>计划</strong>；构件<strong>变动</strong>；<strong>更新</strong>构件的相互作用；构件<strong>组装</strong>与测试；技术<strong>评审</strong>；演化后的体系结构。</p>
 <p>架构评估:</p>
 <ul>
 <li><strong>场景</strong>是从<strong>风险承担者</strong>的角度对与系统的交互的简短描述</li>
@@ -11489,20 +11635,94 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <li><strong>敏感点</strong>是一个或多个构件（和／或构件之间的关系）的特性</li>
 <li>改变加密级别的设计决策属于<strong>权衡点</strong></li>
 </ul>
+<p>N 版本设计</p>
+<ul>
+<li>相异成分规范评审</li>
+<li>相异性确认</li>
+<li>背对背测试</li>
+</ul>
+<p>软件重用</p>
+<ul>
+<li>横向重用：不同应用领域中的软件元素，例如数据结构、分类算法和人机界面等</li>
+<li>纵向重用：在相同或相似的应用领域中对特定功能或模块的重用</li>
+</ul>
+<p>COM 对象重用：<strong>包含</strong>和<strong>聚集</strong></p>
+<p>WSDL</p>
+<ul>
+<li>服务做什么 What</li>
+<li>如何使用/访问服务 How</li>
+<li>服务位于何处 Where</li>
+</ul>
+<p>SOAP</p>
+<ul>
+<li>信封和 XML 编码定义在相同命名空间</li>
+</ul>
 <dl>
-<dt>COM 对象重用</dt>
-<dd>包含和聚集</dd>
+<dt>UDDI</dt>
+<dd><strong>描述</strong>、<strong>发现</strong>和<strong>集成</strong>Web 服务</dd>
 </dl>
-<h2 id="软件著作权"><a class="header-anchor-1" href="#软件著作权">#</a>软件著作权</h2>
+<p>专家系统的学习机制主要依赖其核心组成部分：<strong>知识库</strong>和<strong>推理机</strong>。</p>
+<p>企业集成</p>
+<ul>
+<li>应用集成：高层</li>
+<li>服务集成：中</li>
+<li>会聚集成：中层</li>
+<li>数据集成：底层</li>
+</ul>
+<p>可复用资产：分析，构造/获取，管理，使用</p>
+<p>构件组装的常见方式：层次、叠加和顺序等</p>
+<p>操作不完备：一个构件的提供接口是另一个构件请求接口的一个子集</p>
+<p>设计模式</p>
+<ul>
+<li>创建者模式：单例模式、工厂方法模式、抽象工厂模式、建造者模式、原型模式</li>
+<li>结构型模式：适配器模式、桥接模式、组合模式、装饰模式、外观模式、享元模式、代理模式</li>
+<li>行为型模式：责任链模式、命令模式、解释器模式、迭代器模式、中介者模式、备忘录模式、观察者模式、状态模式、策略模式、模板方法模式、访问者模式</li>
+</ul>
+<h2 id="推荐系统"><a class="header-anchor-1" href="#推荐系统">#</a>推荐系统</h2>
+<p>EAI（企业应用集成）：</p>
+<ul>
+<li>服务层次低到高：<strong>通讯</strong>服务、<strong>信息</strong>传递与转化服务、<strong>应用</strong>连接服务和<strong>流程</strong>控制服务</li>
+<li><strong>数据复制</strong>，<strong>基于接口的数据集成</strong>，<strong>数据联邦</strong></li>
+</ul>
+<p>基于内容的推荐系统:</p>
+<ul>
+<li>能推荐新的或不流行的项目</li>
+<li>能为具有特殊兴趣的用户进行推荐(个性化)</li>
+<li>不需要其他用户的数据</li>
+<li>无法解决冷启动问题</li>
+</ul>
+<h2 id="法律"><a class="header-anchor-1" href="#法律">#</a>法律</h2>
+<p>外观设计专利的相似外观设计不得超过 <strong>10</strong> 项。</p>
 <p>著作权：</p>
 <ul>
 <li>改编、翻译、注释、整理已有作品而产生的作品，其著作权由<strong>改编、翻译、注释、整理人</strong>享有，但行使著作权时不得侵犯原作品的著作权。</li>
 <li>受委托创作的作品，著作权的归属由委托人和受托人通过<strong>合同约定</strong>。合同未作明确约定或者没有订立合同的，著作权属于<strong>受托人</strong>。</li>
 </ul>
+<p>职务发明创造：离职后<strong>1 年内</strong>完成的，与其在原单位的工作或任务相关的发明创造。</p>
 <h2 id="信息安全"><a class="header-anchor-1" href="#信息安全">#</a>信息安全</h2>
-<p>数字证书</p>
+<dl>
+<dt>数字证书</dt>
+<dd>用户登录过程中可通过验证<strong>CA 发出的签名</strong>确认该数字证书的有效性</dd>
+<dt>安全审计四要素</dt>
+<dd>控制目标、安全漏洞、控制措施和控制测试</dd>
+</dl>
+<p>数据分级分类</p>
 <ul>
-<li>用户登录过程中可通过验证<strong>CA 发出的签名</strong>确认该数字证书的有效性</li>
+<li><strong>基础安全层</strong>：数据分级分类、数据备份、数据加密等<strong>基本</strong>安全措施</li>
+<li><strong>权限控制层</strong>：负责数据的<strong>访问权限管理</strong></li>
+<li><strong>战略安全层应用接口层</strong>：高层安全策略或接口相关管理</li>
+</ul>
+<p>《计算机信息系统安全保护等级划分准则》：</p>
+<ul>
+<li>第 1 级：用户自主保护级</li>
+<li>第 2 级：系统审计保护级</li>
+<li>第 3 级：安全标记保护级</li>
+<li>第 4 级：结构化保护级</li>
+<li>第 5 级：访问验证保护级</li>
+</ul>
+<p>TBAC 基于任务的访问控制</p>
+<ul>
+<li>组成要素包括工作流、授权结构体、受托人集和许可集</li>
 </ul>
 <h2 id="项目管理"><a class="header-anchor-1" href="#项目管理">#</a>项目管理</h2>
 <dl>
@@ -11510,6 +11730,20 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <dd>期望时间 = (最短时间 + 4 * 最可能时间 + 最长时间) / 6</dd>
 </dl>
 <h2 id="软件测试"><a class="header-anchor-1" href="#软件测试">#</a>软件测试</h2>
+<p>静态测试：通过对软件的需求规格说明书、设计说明书以及源程序做结构分析和流程图分析，从而找出错误。</p>
+<p>灰盒测试：除了重视输出相对于输入的正确性，也看重其内部的程序逻辑。</p>
+<p>系统测试：</p>
+<ul>
+<li>依据<strong>需求</strong>规格说明书进行测试</li>
+<li>为了发现<strong>需求</strong>分析环节的错误</li>
+</ul>
+<p>MTBF、MTTD、MTTR、MTBR</p>
+<ul>
+<li>MTBF（Mean Time Between Failures）：平均故障间隔时间，是系统在两个故障之间的平均正常运行时间。</li>
+<li>MTTD（Mean Time To Detect）：平均故障检测时间，是检测到故障所需的平均时间。</li>
+<li>MTTR（Mean Time To Repair）：平均修复时间，是修复故障所需的平均时间。</li>
+<li>MTBR（Mean Time Between Repairs）：平均修复间隔时间，是修复后到再次发生故障的平均时间。</li>
+</ul>
 ]]></content>
       <categories>
         <category>ruankao</category>
@@ -11529,22 +11763,6 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       <categories>
         <category>rust</category>
       </categories>
-  </entry>
-  <entry>
-    <title>模糊测试 Fuzzing test</title>
-    <url>/2023/12/19/afl-fuzz/</url>
-    <content><![CDATA[<h2 id="编译项目，插桩"><a class="header-anchor-1" href="#编译项目，插桩">#</a>编译项目，插桩</h2>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> CC=afl-clang-fast</span><br><span class="line"><span class="built_in">export</span> CXX=afl-clang-fast++</span><br><span class="line"></span><br><span class="line">./configure --enable-shared=no --enable-static=<span class="built_in">yes</span></span><br><span class="line">make -j 32</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="运行fuzz"><a class="header-anchor-1" href="#运行fuzz">#</a>运行Fuzz</h2>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -S 1 -- ./utilities/magick convert @@ /tmp/out.png &amp;</span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -S 2 -- ./utilities/magick convert @@ /tmp/out.png &amp;</span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -S 3 -- ./utilities/magick convert @@ /tmp/out.png &amp;</span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -M 0 -- ./utilities/magick convert @@ /tmp/out.png</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>software-test</category>
-      </categories>
-      <tags>
-        <tag>软件测试</tag>
-        <tag>模糊测试</tag>
-        <tag>fuzz</tag>
-      </tags>
   </entry>
   <entry>
     <title>jpf-symbc 踩坑记录</title>
@@ -11735,6 +11953,22 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       </tags>
   </entry>
   <entry>
+    <title>模糊测试 Fuzzing test</title>
+    <url>/2023/12/19/afl-fuzz/</url>
+    <content><![CDATA[<h2 id="编译项目，插桩"><a class="header-anchor-1" href="#编译项目，插桩">#</a>编译项目，插桩</h2>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> CC=afl-clang-fast</span><br><span class="line"><span class="built_in">export</span> CXX=afl-clang-fast++</span><br><span class="line"></span><br><span class="line">./configure --enable-shared=no --enable-static=<span class="built_in">yes</span></span><br><span class="line">make -j 32</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="运行fuzz"><a class="header-anchor-1" href="#运行fuzz">#</a>运行Fuzz</h2>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -S 1 -- ./utilities/magick convert @@ /tmp/out.png &amp;</span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -S 2 -- ./utilities/magick convert @@ /tmp/out.png &amp;</span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -S 3 -- ./utilities/magick convert @@ /tmp/out.png &amp;</span><br><span class="line">tmux new-window afl-fuzz -i fuzz-input -o fuzz-output -t 100000 -m 200 -M 0 -- ./utilities/magick convert @@ /tmp/out.png</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>software-test</category>
+      </categories>
+      <tags>
+        <tag>软件测试</tag>
+        <tag>模糊测试</tag>
+        <tag>fuzz</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>VirtIO 规范</title>
     <url>/2024/04/16/virtio-note/</url>
     <content><![CDATA[<p>VirtIO驱动定义了一组规范，只要guest和host按照此规范进行数据操作，就可以使虚拟机IO绕过内核空间而直接再用户空间的两个进程间传输数据，以此达到提高IO性能的目的。</p>
@@ -11817,6 +12051,16 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       </categories>
   </entry>
   <entry>
+    <title>1048. Find Coins</title>
+    <url>/2021/01/14/1048/</url>
+    <content><![CDATA[<p>寻找{(x,y)|x+y=m,x,y∈S}</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unordered_map&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> n, m;</span><br><span class="line">    cin &gt;&gt; n &gt;&gt; m;</span><br><span class="line">    unordered_map&lt;<span class="type">int</span>, <span class="type">int</span>&gt; S;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> x;</span><br><span class="line">        cin &gt;&gt; x;</span><br><span class="line">        S[x]++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> minx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;k : S) &#123;</span><br><span class="line">        <span class="type">int</span> x = k.first;</span><br><span class="line">        <span class="type">int</span> y = m - x;</span><br><span class="line">        <span class="keyword">if</span> (x &lt; y &amp;&amp; S.<span class="built_in">find</span>(y) != S.<span class="built_in">end</span>() || x == y &amp;&amp; S[x] &gt; <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!minx || x &lt; minx)</span><br><span class="line">                minx = x;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (minx) &#123;</span><br><span class="line">        cout &lt;&lt; minx &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; m - minx &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;No Solution&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
     <title>1046. Shortest Distance</title>
     <url>/2021/01/08/1046/</url>
     <content><![CDATA[<h2 id="题意"><a class="header-anchor-1" href="#题意">#</a>题意</h2>
@@ -11826,16 +12070,6 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <h2 id="感想"><a class="header-anchor-1" href="#感想">#</a>感想</h2>
 <p>意外的很简单</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> D[<span class="number">100001</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> dist;</span><br><span class="line">        cin &gt;&gt; dist;</span><br><span class="line">        D[i + <span class="number">1</span>] = D[i] + dist;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> len = D[n];</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> q;</span><br><span class="line">    cin &gt;&gt; q;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; q; i++) &#123;</span><br><span class="line">        <span class="type">int</span> x, y;</span><br><span class="line">        cin &gt;&gt; x &gt;&gt; y;</span><br><span class="line">        <span class="keyword">if</span> (x &gt; y) &#123;</span><br><span class="line">            <span class="built_in">swap</span>(x, y);</span><br><span class="line">        &#125;</span><br><span class="line">        cout &lt;&lt; <span class="built_in">min</span>(D[y - <span class="number">1</span>] - D[x - <span class="number">1</span>], len - D[y - <span class="number">1</span>] + D[x - <span class="number">1</span>]) &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>PTA</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>1048. Find Coins</title>
-    <url>/2021/01/14/1048/</url>
-    <content><![CDATA[<p>寻找{(x,y)|x+y=m,x,y∈S}</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unordered_map&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> n, m;</span><br><span class="line">    cin &gt;&gt; n &gt;&gt; m;</span><br><span class="line">    unordered_map&lt;<span class="type">int</span>, <span class="type">int</span>&gt; S;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> x;</span><br><span class="line">        cin &gt;&gt; x;</span><br><span class="line">        S[x]++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> minx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;k : S) &#123;</span><br><span class="line">        <span class="type">int</span> x = k.first;</span><br><span class="line">        <span class="type">int</span> y = m - x;</span><br><span class="line">        <span class="keyword">if</span> (x &lt; y &amp;&amp; S.<span class="built_in">find</span>(y) != S.<span class="built_in">end</span>() || x == y &amp;&amp; S[x] &gt; <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!minx || x &lt; minx)</span><br><span class="line">                minx = x;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (minx) &#123;</span><br><span class="line">        cout &lt;&lt; minx &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; m - minx &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;No Solution&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>PTA</category>
@@ -12202,6 +12436,16 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
+    <title>2. 两数相加</title>
+    <url>/2020/12/25/2/</url>
+    <content><![CDATA[<p>指针</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">addTwoNumbers</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;</span><br><span class="line">        ListNode*p1=l1,*p2=l2,*p3,*last=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="type">int</span> up=<span class="number">0</span>;</span><br><span class="line">        ListNode* root=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">        p3=root;</span><br><span class="line">        <span class="keyword">while</span>(p1 || p2 || up)&#123;</span><br><span class="line">            <span class="type">int</span> n1=<span class="number">0</span>,n2=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span>(p1)&#123;n1=p1-&gt;val;p1=p1-&gt;next;&#125;</span><br><span class="line">            <span class="keyword">if</span>(p2)&#123;n2=p2-&gt;val;p2=p2-&gt;next;&#125;</span><br><span class="line">            up+=n1+n2;</span><br><span class="line">            p3-&gt;val=up%<span class="number">10</span>;</span><br><span class="line">            last=p3;</span><br><span class="line">            p3=p3-&gt;next=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">            up/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">delete</span> last-&gt;next;</span><br><span class="line">        last-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
     <title>189. 旋转数组</title>
     <url>/2021/01/08/189/</url>
     <content><![CDATA[<h2 id="题意"><a class="header-anchor-1" href="#题意">#</a>题意</h2>
@@ -12218,16 +12462,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       <tags>
         <tag>GCD</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>2. 两数相加</title>
-    <url>/2020/12/25/2/</url>
-    <content><![CDATA[<p>指针</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">addTwoNumbers</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;</span><br><span class="line">        ListNode*p1=l1,*p2=l2,*p3,*last=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="type">int</span> up=<span class="number">0</span>;</span><br><span class="line">        ListNode* root=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">        p3=root;</span><br><span class="line">        <span class="keyword">while</span>(p1 || p2 || up)&#123;</span><br><span class="line">            <span class="type">int</span> n1=<span class="number">0</span>,n2=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span>(p1)&#123;n1=p1-&gt;val;p1=p1-&gt;next;&#125;</span><br><span class="line">            <span class="keyword">if</span>(p2)&#123;n2=p2-&gt;val;p2=p2-&gt;next;&#125;</span><br><span class="line">            up+=n1+n2;</span><br><span class="line">            p3-&gt;val=up%<span class="number">10</span>;</span><br><span class="line">            last=p3;</span><br><span class="line">            p3=p3-&gt;next=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">            up/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">delete</span> last-&gt;next;</span><br><span class="line">        last-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
   </entry>
   <entry>
     <title>205. 同构字符串</title>
@@ -13320,6 +13554,112 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/05/2020-12-05/</url>
+    <content><![CDATA[<h1>Java Spring 框架学习</h1>
+<p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
+<p>要管理bean，也即是这堆发挥业务功能的类，就不能直接把它们new出来，这样缺乏统一的调度。所以，Spring使用.xml配置文件作为媒介，以IoC（Inversion of Control 控制反转）作为工具，将这些bean拿给Spring container作统一管理。</p>
+<h1>Git submodule 使用</h1>
+<ul>
+<li>
+<p>添加子模块</p>
+<ul>
+<li><code>git submodule add &lt;url&gt; &lt;path&gt;</code></li>
+</ul>
+</li>
+<li>
+<p>设置子模块的分支</p>
+<ul>
+<li><code>git submodule set-branch --branch &lt;branch&gt; &lt;path&gt;</code></li>
+</ul>
+</li>
+<li>
+<p>克隆下来的项目包含子模块</p>
+  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule init</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update</span></span><br></pre></td></tr></table></figure>
+<p>或者</p>
+  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update --init --recursive</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>子模块的更新</p>
+<ol>
+<li>
+<p>在子模块内部, 作为一般的git项目更新(<code>pull</code>)</p>
+</li>
+<li>
+<p>在项目目录下<code>git add</code></p>
+</li>
+</ol>
+</li>
+<li>
+<p>子模块的删除</p>
+<ul>
+<li>
+<p><code>rm -rf 子模块目录</code> 删除子模块目录及源码</p>
+</li>
+<li>
+<p>删除项目目录下.gitmodules文件中子模块相关条目</p>
+</li>
+<li>
+<p>vi .git/config 删除配置项中子模块相关条目</p>
+</li>
+<li>
+<p><code>rm .git/module/*</code> 删除模块下的子模块目录，每个子模块对应一个目录，注意只删除对应的子模块目录即可</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Github 开源项目包含不想公开的密码/Token等怎么处理</h1>
+<p>可以将隐私数据包含在项目的Secret设置中, 在Github Action中使用脚本将隐私数据注入到文件中</p>
+<h1>YAML 语言</h1>
+<p>基本类型:</p>
+<blockquote>
+<ul>
+<li>
+<p>String</p>
+</li>
+<li>
+<p>Bool: <code>true</code>, <code>false</code></p>
+</li>
+<li>
+<p>Int</p>
+</li>
+<li>
+<p>Number</p>
+</li>
+<li>
+<p>null: <code>~</code></p>
+</li>
+<li>
+<p>Time: ISO8601 格式, 例<code>2001-12-14t21:59:43.10-05:00</code></p>
+</li>
+<li>
+<p>Date: <code>1976-07-31</code></p>
+</li>
+</ul>
+</blockquote>
+<p>注释: <code>#</code></p>
+<p>使用左端对齐的键值对表示对象:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">key1:</span> <span class="string">abc</span></span><br><span class="line">  <span class="attr">key2:</span> <span class="number">123</span></span><br><span class="line">  <span class="attr">key3:</span> <span class="string">sss</span></span><br></pre></td></tr></table></figure>
+<p>使用以<code>-</code>开头的对齐的值表示数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">fruits:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">apple</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">banana</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">orange</span></span><br></pre></td></tr></table></figure>
+<p>数组套对象:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">objs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">object</span> <span class="string">A</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">an</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">B</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">another</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">C</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">still</span> <span class="string">an</span> <span class="string">object</span></span><br></pre></td></tr></table></figure>
+<p>数组套数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">matrix:</span> </span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a11</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a12</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a13</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a21</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a22</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a23</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a31</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a32</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a33</span></span><br></pre></td></tr></table></figure>
+<p>对象套数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">frezcirno</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Boy</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Handsome</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Student</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Cool</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Spring</tag>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/04/2020-12-04/</url>
     <content><![CDATA[<h1>Java 包(Package), Jar和模块(Module)的区别</h1>
 <ul>
@@ -13520,112 +13860,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/05/2020-12-05/</url>
-    <content><![CDATA[<h1>Java Spring 框架学习</h1>
-<p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
-<p>要管理bean，也即是这堆发挥业务功能的类，就不能直接把它们new出来，这样缺乏统一的调度。所以，Spring使用.xml配置文件作为媒介，以IoC（Inversion of Control 控制反转）作为工具，将这些bean拿给Spring container作统一管理。</p>
-<h1>Git submodule 使用</h1>
-<ul>
-<li>
-<p>添加子模块</p>
-<ul>
-<li><code>git submodule add &lt;url&gt; &lt;path&gt;</code></li>
-</ul>
-</li>
-<li>
-<p>设置子模块的分支</p>
-<ul>
-<li><code>git submodule set-branch --branch &lt;branch&gt; &lt;path&gt;</code></li>
-</ul>
-</li>
-<li>
-<p>克隆下来的项目包含子模块</p>
-  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule init</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update</span></span><br></pre></td></tr></table></figure>
-<p>或者</p>
-  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update --init --recursive</span></span><br></pre></td></tr></table></figure>
-</li>
-<li>
-<p>子模块的更新</p>
-<ol>
-<li>
-<p>在子模块内部, 作为一般的git项目更新(<code>pull</code>)</p>
-</li>
-<li>
-<p>在项目目录下<code>git add</code></p>
-</li>
-</ol>
-</li>
-<li>
-<p>子模块的删除</p>
-<ul>
-<li>
-<p><code>rm -rf 子模块目录</code> 删除子模块目录及源码</p>
-</li>
-<li>
-<p>删除项目目录下.gitmodules文件中子模块相关条目</p>
-</li>
-<li>
-<p>vi .git/config 删除配置项中子模块相关条目</p>
-</li>
-<li>
-<p><code>rm .git/module/*</code> 删除模块下的子模块目录，每个子模块对应一个目录，注意只删除对应的子模块目录即可</p>
-</li>
-</ul>
-</li>
-</ul>
-<h1>Github 开源项目包含不想公开的密码/Token等怎么处理</h1>
-<p>可以将隐私数据包含在项目的Secret设置中, 在Github Action中使用脚本将隐私数据注入到文件中</p>
-<h1>YAML 语言</h1>
-<p>基本类型:</p>
-<blockquote>
-<ul>
-<li>
-<p>String</p>
-</li>
-<li>
-<p>Bool: <code>true</code>, <code>false</code></p>
-</li>
-<li>
-<p>Int</p>
-</li>
-<li>
-<p>Number</p>
-</li>
-<li>
-<p>null: <code>~</code></p>
-</li>
-<li>
-<p>Time: ISO8601 格式, 例<code>2001-12-14t21:59:43.10-05:00</code></p>
-</li>
-<li>
-<p>Date: <code>1976-07-31</code></p>
-</li>
-</ul>
-</blockquote>
-<p>注释: <code>#</code></p>
-<p>使用左端对齐的键值对表示对象:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">key1:</span> <span class="string">abc</span></span><br><span class="line">  <span class="attr">key2:</span> <span class="number">123</span></span><br><span class="line">  <span class="attr">key3:</span> <span class="string">sss</span></span><br></pre></td></tr></table></figure>
-<p>使用以<code>-</code>开头的对齐的值表示数组:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">fruits:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">apple</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">banana</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">orange</span></span><br></pre></td></tr></table></figure>
-<p>数组套对象:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">objs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">object</span> <span class="string">A</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">an</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">B</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">another</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">C</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">still</span> <span class="string">an</span> <span class="string">object</span></span><br></pre></td></tr></table></figure>
-<p>数组套数组:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">matrix:</span> </span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a11</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a12</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a13</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a21</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a22</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a23</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a31</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a32</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a33</span></span><br></pre></td></tr></table></figure>
-<p>对象套数组:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">frezcirno</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Boy</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Handsome</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Student</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Cool</span></span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Spring</tag>
-        <tag>Git</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/06/2020-12-06/</url>
     <content><![CDATA[<h1>学习Oracle使用</h1>
 <p><a href="../oracledb/index">OracleDB</a></p>
@@ -13636,48 +13870,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </categories>
       <tags>
         <tag>Oracle</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/07/2020-12-07/</url>
-    <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
-<p>在工具栏选中&quot;连接点&quot;</p>
-<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
-<p>有时候可能需要多点几次</p>
-<h1>为什么校园网这么卡</h1>
-<h1>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkhomedir_helper &lt;username&gt;</span></span><br></pre></td></tr></table></figure>
-<h1>xargs 命令</h1>
-<p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
-<p>xargs后面的命令默认是echo</p>
-<p>即: stdin -&gt; **argv</p>
-<h1>tee 命令</h1>
-<p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
-<p>可以用来复制文件</p>
-<ul>
-<li>输出管道中某一段的内容:</li>
-</ul>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">... | <span class="built_in">tee</span> &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>不退出vim使用sudo保存文件</li>
-</ul>
-<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
-<h1>echo 命令</h1>
-<p>echo命令用于将命令行参数输出到标准输出</p>
-<p>即: stdin -&gt; stdout</p>
-<h1>awk 命令</h1>
-<p>强大的字符串处理工具</p>
-<p>最基本的用法:
-<code>awk '&#123;print$1,$2&#125;'</code></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Visio</tag>
       </tags>
   </entry>
   <entry>
@@ -13723,6 +13915,48 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </categories>
       <tags>
         <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/07/2020-12-07/</url>
+    <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
+<p>在工具栏选中&quot;连接点&quot;</p>
+<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
+<p>有时候可能需要多点几次</p>
+<h1>为什么校园网这么卡</h1>
+<h1>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkhomedir_helper &lt;username&gt;</span></span><br></pre></td></tr></table></figure>
+<h1>xargs 命令</h1>
+<p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
+<p>xargs后面的命令默认是echo</p>
+<p>即: stdin -&gt; **argv</p>
+<h1>tee 命令</h1>
+<p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
+<p>可以用来复制文件</p>
+<ul>
+<li>输出管道中某一段的内容:</li>
+</ul>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">... | <span class="built_in">tee</span> &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>不退出vim使用sudo保存文件</li>
+</ul>
+<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
+<h1>echo 命令</h1>
+<p>echo命令用于将命令行参数输出到标准输出</p>
+<p>即: stdin -&gt; stdout</p>
+<h1>awk 命令</h1>
+<p>强大的字符串处理工具</p>
+<p>最基本的用法:
+<code>awk '&#123;print$1,$2&#125;'</code></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Visio</tag>
       </tags>
   </entry>
   <entry>
@@ -14446,6 +14680,20 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2021/01/19/2021-01-19/</url>
+    <content><![CDATA[<h2 id="近期任务"><a class="header-anchor-1" href="#近期任务">#</a>近期任务</h2>
+<ul>
+<li>内存数据库最终项目</li>
+<li>计算机网络实验报告</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2021/01/10/2021-01-10/</url>
     <content><![CDATA[<h2 id="模运算的性质-程序设计版"><a class="header-anchor-1" href="#模运算的性质-程序设计版">#</a>模运算的性质(程序设计版)</h2>
 <p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
@@ -14465,20 +14713,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       <tags>
         <tag>算法</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2021/01/19/2021-01-19/</url>
-    <content><![CDATA[<h2 id="近期任务"><a class="header-anchor-1" href="#近期任务">#</a>近期任务</h2>
-<ul>
-<li>内存数据库最终项目</li>
-<li>计算机网络实验报告</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
