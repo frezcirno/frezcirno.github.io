@@ -3457,30 +3457,6 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
-    <title>设计数据密集型应用</title>
-    <url>/2024/09/18/DDIA/</url>
-    <content><![CDATA[<h2 id="第三章：存储与检索"><a class="header-anchor-1" href="#第三章：存储与检索">#</a>第三章：存储与检索</h2>
-<ul>
-<li>KV 数据
-<ul>
-<li>哈希表</li>
-</ul>
-</li>
-<li>BitCask 模型
-<ul>
-<li>磁盘保存 Value, 内存保存<code>&#123; Key -&gt; Value Offset &#125;</code>的索引</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>database-system</category>
-      </categories>
-      <tags>
-        <tag>Database</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CMU 15-445 数据库系统 课程笔记</title>
     <url>/2024/04/15/CMU-15-445-database-systems-fall-2023/</url>
     <content><![CDATA[<p>教师：Andy Pavlo</p>
@@ -3884,6 +3860,30 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
 <h2 id="lecture-18-mvcc"><a class="header-anchor-1" href="#lecture-18-mvcc">#</a>Lecture 18: MVCC</h2>
 <p>多版本并发控制 (MVCC) 是最广泛使用的数据库并发控制方法。</p>
 <h2 id="lecture-19-数据库日志"><a class="header-anchor-1" href="#lecture-19-数据库日志">#</a>Lecture 19: 数据库日志</h2>
+]]></content>
+      <categories>
+        <category>database-system</category>
+      </categories>
+      <tags>
+        <tag>Database</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>设计数据密集型应用</title>
+    <url>/2024/09/18/DDIA/</url>
+    <content><![CDATA[<h2 id="第三章：存储与检索"><a class="header-anchor-1" href="#第三章：存储与检索">#</a>第三章：存储与检索</h2>
+<ul>
+<li>KV 数据
+<ul>
+<li>哈希表</li>
+</ul>
+</li>
+<li>BitCask 模型
+<ul>
+<li>磁盘保存 Value, 内存保存<code>&#123; Key -&gt; Value Offset &#125;</code>的索引</li>
+</ul>
+</li>
+</ul>
 ]]></content>
       <categories>
         <category>database-system</category>
@@ -9140,105 +9140,6 @@ NN 会把不同客户端发起的操作合并成一个 batch，只要有一个�
       </tags>
   </entry>
   <entry>
-    <title>Linux Kernel 文件子系统</title>
-    <url>/2024/04/30/linux-kernel-file-subsystem/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux Kernel 中断子系统</title>
-    <url>/2024/04/16/linux-kernel-interrupt-subsystem/</url>
-    <content><![CDATA[<p>Linux 将中断处理流程划分成两个部分，一个是 top half，另一个是 bottom half。</p>
-<p>在执行 top half 时是关闭硬件中断的，即系统没办法响应后续的中断事件，因此应该保证 top half 尽可能短。</p>
-<p>把不那么紧急的事情 defer 到 bottom half 去做。</p>
-<h2 id="bottom-half"><a class="header-anchor-1" href="#bottom-half">#</a>bottom half</h2>
-<p>bottom half 有多个实现机制</p>
-<ul>
-<li>
-<p>BH 最早的实现，已经弃用了</p>
-</li>
-<li>
-<p>Task queue 已经弃用了</p>
-</li>
-<li>
-<p>Softirq
-运行在 interrupt context
-top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
-</li>
-<li>
-<p>tasklet
-运行在 interrupt context</p>
-</li>
-<li>
-<p>workqueue
-运行在 process context</p>
-</li>
-</ul>
-<h2 id="softirq"><a class="header-anchor-1" href="#softirq">#</a>Softirq</h2>
-<p>softirq 和 hardirq（硬件中断）对应，</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    HI_SOFTIRQ=<span class="number">0</span>,</span><br><span class="line">    TIMER_SOFTIRQ,</span><br><span class="line">    NET_TX_SOFTIRQ,</span><br><span class="line">    NET_RX_SOFTIRQ,</span><br><span class="line">    BLOCK_SOFTIRQ,</span><br><span class="line">    BLOCK_IOPOLL_SOFTIRQ,</span><br><span class="line">    TASKLET_SOFTIRQ,</span><br><span class="line">    SCHED_SOFTIRQ,</span><br><span class="line">    HRTIMER_SOFTIRQ,</span><br><span class="line">    RCU_SOFTIRQ,    <span class="comment">/* Preferable RCU should always be the last softirq */</span></span><br><span class="line">    NR_SOFTIRQS</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>softirq 有三个处理时机</p>
-<ol>
-<li>中断上下文 <code>irq_exit()</code> 的时候</li>
-<li>任意 <code>local_bh_enable()</code></li>
-<li><code>softirqd</code> 内核线程定期执行</li>
-</ol>
-<h2 id="tasklet"><a class="header-anchor-1" href="#tasklet">#</a>tasklet</h2>
-<p>per-cpu 会有一个 tasklet 的链表</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_vec)</span>;</span><br><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_hi_vec)</span>;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>嵌入式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>How to compile the Linux kernel</title>
-    <url>/2022/01/08/how-to-compile-linux-kernel/</url>
-    <content><![CDATA[<p><img src="https://frezcirno.github.io/static/images/NewTux.svg" alt="" /></p>
-<h2 id="访问-https-www-kernel-org-查看最新的内核版本，获取下载链接"><a class="header-anchor-1" href="#访问-https-www-kernel-org-查看最新的内核版本，获取下载链接">#</a>访问 <span class="exturl" data-url="aHR0cHM6Ly93d3cua2VybmVsLm9yZy8=">https://www.kernel.org/<i class="fa fa-external-link-alt"></i></span> 查看最新的内核版本，获取下载链接</h2>
-<h2 id="下载并解压到当前目录"><a class="header-anchor-1" href="#下载并解压到当前目录">#</a>下载并解压到当前目录</h2>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">wget -qO- https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.13.tar.xz | tar Jxvf -</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cd</span> linux-5.15.13</span></span><br></pre></td></tr></table></figure>
-<h2 id="编译配置"><a class="header-anchor-1" href="#编译配置">#</a>编译配置</h2>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cp</span> /boot/config-`<span class="built_in">uname</span> -r` .config</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make menuconfig</span></span><br></pre></td></tr></table></figure>
-<h2 id="开始编译"><a class="header-anchor-1" href="#开始编译">#</a>开始编译</h2>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make -j $(<span class="built_in">nproc</span>)</span></span><br></pre></td></tr></table></figure>
-<h2 id="安装到系统中"><a class="header-anchor-1" href="#安装到系统中">#</a>安装到系统中</h2>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> make INSTALL_MOD_STRIP=1 modules_install</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> make headers_install</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> make install</span></span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux Kernel 网络子系统</title>
-    <url>/2024/04/16/linux-kernel-network-subsystem/</url>
-    <content><![CDATA[<h2 id="napi"><a class="header-anchor-1" href="#napi">#</a>NAPI</h2>
-<p>NAPI 机制采用中断和轮询结合的方式收包</p>
-<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的 backlog</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>softnet_data</p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>计算机网络</tag>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>线性代数 - 概念总结</title>
     <url>/2021/01/08/linear-algebra/</url>
     <content><![CDATA[<h2 id="1-行列式"><a class="header-anchor-1" href="#1-行列式">#</a>1. 行列式</h2>
@@ -12205,6 +12106,105 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
       </tags>
   </entry>
   <entry>
+    <title>How to compile the Linux kernel</title>
+    <url>/2022/01/08/how-to-compile-linux-kernel/</url>
+    <content><![CDATA[<p><img src="https://frezcirno.github.io/static/images/NewTux.svg" alt="" /></p>
+<h2 id="访问-https-www-kernel-org-查看最新的内核版本，获取下载链接"><a class="header-anchor-1" href="#访问-https-www-kernel-org-查看最新的内核版本，获取下载链接">#</a>访问 <span class="exturl" data-url="aHR0cHM6Ly93d3cua2VybmVsLm9yZy8=">https://www.kernel.org/<i class="fa fa-external-link-alt"></i></span> 查看最新的内核版本，获取下载链接</h2>
+<h2 id="下载并解压到当前目录"><a class="header-anchor-1" href="#下载并解压到当前目录">#</a>下载并解压到当前目录</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">wget -qO- https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.13.tar.xz | tar Jxvf -</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cd</span> linux-5.15.13</span></span><br></pre></td></tr></table></figure>
+<h2 id="编译配置"><a class="header-anchor-1" href="#编译配置">#</a>编译配置</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cp</span> /boot/config-`<span class="built_in">uname</span> -r` .config</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make menuconfig</span></span><br></pre></td></tr></table></figure>
+<h2 id="开始编译"><a class="header-anchor-1" href="#开始编译">#</a>开始编译</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make -j $(<span class="built_in">nproc</span>)</span></span><br></pre></td></tr></table></figure>
+<h2 id="安装到系统中"><a class="header-anchor-1" href="#安装到系统中">#</a>安装到系统中</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> make INSTALL_MOD_STRIP=1 modules_install</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> make headers_install</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> make install</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux Kernel 文件子系统</title>
+    <url>/2024/04/30/linux-kernel-file-subsystem/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux Kernel 中断子系统</title>
+    <url>/2024/04/16/linux-kernel-interrupt-subsystem/</url>
+    <content><![CDATA[<p>Linux 将中断处理流程划分成两个部分，一个是 top half，另一个是 bottom half。</p>
+<p>在执行 top half 时是关闭硬件中断的，即系统没办法响应后续的中断事件，因此应该保证 top half 尽可能短。</p>
+<p>把不那么紧急的事情 defer 到 bottom half 去做。</p>
+<h2 id="bottom-half"><a class="header-anchor-1" href="#bottom-half">#</a>bottom half</h2>
+<p>bottom half 有多个实现机制</p>
+<ul>
+<li>
+<p>BH 最早的实现，已经弃用了</p>
+</li>
+<li>
+<p>Task queue 已经弃用了</p>
+</li>
+<li>
+<p>Softirq
+运行在 interrupt context
+top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
+</li>
+<li>
+<p>tasklet
+运行在 interrupt context</p>
+</li>
+<li>
+<p>workqueue
+运行在 process context</p>
+</li>
+</ul>
+<h2 id="softirq"><a class="header-anchor-1" href="#softirq">#</a>Softirq</h2>
+<p>softirq 和 hardirq（硬件中断）对应，</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    HI_SOFTIRQ=<span class="number">0</span>,</span><br><span class="line">    TIMER_SOFTIRQ,</span><br><span class="line">    NET_TX_SOFTIRQ,</span><br><span class="line">    NET_RX_SOFTIRQ,</span><br><span class="line">    BLOCK_SOFTIRQ,</span><br><span class="line">    BLOCK_IOPOLL_SOFTIRQ,</span><br><span class="line">    TASKLET_SOFTIRQ,</span><br><span class="line">    SCHED_SOFTIRQ,</span><br><span class="line">    HRTIMER_SOFTIRQ,</span><br><span class="line">    RCU_SOFTIRQ,    <span class="comment">/* Preferable RCU should always be the last softirq */</span></span><br><span class="line">    NR_SOFTIRQS</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>softirq 有三个处理时机</p>
+<ol>
+<li>中断上下文 <code>irq_exit()</code> 的时候</li>
+<li>任意 <code>local_bh_enable()</code></li>
+<li><code>softirqd</code> 内核线程定期执行</li>
+</ol>
+<h2 id="tasklet"><a class="header-anchor-1" href="#tasklet">#</a>tasklet</h2>
+<p>per-cpu 会有一个 tasklet 的链表</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_vec)</span>;</span><br><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_hi_vec)</span>;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>嵌入式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux Kernel 网络子系统</title>
+    <url>/2024/04/16/linux-kernel-network-subsystem/</url>
+    <content><![CDATA[<h2 id="napi"><a class="header-anchor-1" href="#napi">#</a>NAPI</h2>
+<p>NAPI 机制采用中断和轮询结合的方式收包</p>
+<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的 backlog</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>softnet_data</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>计算机网络</tag>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>软考高级系统架构设计师笔记</title>
     <url>/2025/03/14/note/</url>
     <content><![CDATA[<h2 id="考试安排"><a class="header-anchor-1" href="#考试安排">#</a>考试安排</h2>
@@ -13977,6 +13977,72 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/11/29/2020-11-29/</url>
+    <content><![CDATA[<h1>用 Hexo 搭建了个人 blog</h1>
+<h2 id="hexo-基本操作"><a class="header-anchor-1" href="#hexo-基本操作">#</a>Hexo 基本操作</h2>
+<ul>
+<li>
+<p>安装</p>
+<p><code>npm install -g hexo-cli</code></p>
+</li>
+<li>
+<p>初始化hexo</p>
+<p><code>hexo init</code></p>
+<ul>
+<li>当前目录必须是空的</li>
+</ul>
+</li>
+<li>
+<p>新建文章</p>
+<p><code>hexo new [layout] name</code></p>
+<ul>
+<li>
+<p>layout 可以是 post, page, draft 之一</p>
+</li>
+<li>
+<p>分别保存至 source/_posts, source, source/_drafts 中</p>
+</li>
+<li>
+<p>新建文件名可以在 _config.yml 里面指定, <code>new_post_name</code>, 默认为 <code>name.md</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p>临时开启 server</p>
+<p><code>hexo server</code></p>
+</li>
+</ul>
+<h1>React 入门</h1>
+<h2 id="复习-javascript"><a class="header-anchor-1" href="#复习-javascript">#</a>复习 JavaScript</h2>
+<ul>
+<li><span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvZW4tVVMvZG9jcy9XZWIvSmF2YVNjcmlwdC9BX3JlLWludHJvZHVjdGlvbl90b19KYXZhU2NyaXB0">很好的文章<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h1>Vue 和 React 路由模块的区别</h1>
+<h2 id="vue-路由"><a class="header-anchor-1" href="#vue-路由">#</a>Vue 路由</h2>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">Router</span>(&#123;</span><br><span class="line">    <span class="attr">mode</span>: <span class="string">&#x27;history&#x27;</span>,</span><br><span class="line">    <span class="attr">routes</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">path</span>: <span class="string">&#x27;/inspect&#x27;</span>,</span><br><span class="line">        <span class="attr">component</span>: <span class="title class_">Layout</span>,</span><br><span class="line">        <span class="attr">redirect</span>: <span class="string">&#x27;/inspect/table1&#x27;</span>,</span><br><span class="line">        <span class="attr">name</span>: <span class="string">&#x27;报表&#x27;</span>,</span><br><span class="line">        <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&#x27;报表&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;,</span><br><span class="line">        <span class="attr">children</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">path</span>: <span class="string">&#x27;table1&#x27;</span>,</span><br><span class="line">            <span class="attr">name</span>: <span class="string">&#x27;Table&#x27;</span>,</span><br><span class="line">            <span class="attr">component</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;@/views/table/index&#x27;</span>),</span><br><span class="line">            <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&#x27;Table&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h1>Vue 深入 —— MVVM 框架</h1>
+<ul>
+<li>
+<p>Observer 数据劫持</p>
+</li>
+<li>
+<p>Dep/Watcher 发布订阅</p>
+</li>
+<li>
+<p>Compiler 解析 <code>&#123;&#123; &#125;&#125;</code>, 创建watcher, 求解表达式</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/11/30/2020-11-30/</url>
     <content><![CDATA[<h1>Github Developer Settings</h1>
 <ul>
@@ -14926,48 +14992,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/07/2020-12-07/</url>
-    <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
-<p>在工具栏选中&quot;连接点&quot;</p>
-<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
-<p>有时候可能需要多点几次</p>
-<h1>为什么校园网这么卡</h1>
-<h1>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkhomedir_helper &lt;username&gt;</span></span><br></pre></td></tr></table></figure>
-<h1>xargs 命令</h1>
-<p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
-<p>xargs后面的命令默认是echo</p>
-<p>即: stdin -&gt; **argv</p>
-<h1>tee 命令</h1>
-<p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
-<p>可以用来复制文件</p>
-<ul>
-<li>输出管道中某一段的内容:</li>
-</ul>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">... | <span class="built_in">tee</span> &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>不退出vim使用sudo保存文件</li>
-</ul>
-<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
-<h1>echo 命令</h1>
-<p>echo命令用于将命令行参数输出到标准输出</p>
-<p>即: stdin -&gt; stdout</p>
-<h1>awk 命令</h1>
-<p>强大的字符串处理工具</p>
-<p>最基本的用法:
-<code>awk '&#123;print$1,$2&#125;'</code></p>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Visio</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/09/2020-12-09/</url>
     <content><![CDATA[<h1>Spring学习</h1>
 <h2 id="ioc容器"><a class="header-anchor-1" href="#ioc容器">#</a>IoC容器</h2>
@@ -15009,6 +15033,48 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </categories>
       <tags>
         <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/07/2020-12-07/</url>
+    <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
+<p>在工具栏选中&quot;连接点&quot;</p>
+<p>按住<kbd>Ctrl</kbd>键, 在画布上点击即可</p>
+<p>有时候可能需要多点几次</p>
+<h1>为什么校园网这么卡</h1>
+<h1>Linux 创建用户时忘了使用<code>-m</code>参数创建用户目录怎么办</h1>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkhomedir_helper &lt;username&gt;</span></span><br></pre></td></tr></table></figure>
+<h1>xargs 命令</h1>
+<p>xargs命令用于将上一个命令通过管道输出的内容, 作为命令行参数传递给下一个命令</p>
+<p>xargs后面的命令默认是echo</p>
+<p>即: stdin -&gt; **argv</p>
+<h1>tee 命令</h1>
+<p>tee命令用于将标准输入复制多份, 分别输出到不同的文件, 并输出到标准输出中去</p>
+<p>可以用来复制文件</p>
+<ul>
+<li>输出管道中某一段的内容:</li>
+</ul>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">... | <span class="built_in">tee</span> &gt;(xargs <span class="built_in">echo</span>) &gt;/dev/null | ...</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>不退出vim使用sudo保存文件</li>
+</ul>
+<p>命令<code>:w !&#123;cmd&#125;</code>表示把当前缓冲区的内容传给后面的命令</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">:w !sudo tee % </span><br></pre></td></tr></table></figure>
+<h1>echo 命令</h1>
+<p>echo命令用于将命令行参数输出到标准输出</p>
+<p>即: stdin -&gt; stdout</p>
+<h1>awk 命令</h1>
+<p>强大的字符串处理工具</p>
+<p>最基本的用法:
+<code>awk '&#123;print$1,$2&#125;'</code></p>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Visio</tag>
       </tags>
   </entry>
   <entry>
@@ -15828,21 +15894,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </tags>
   </entry>
   <entry>
-    <title>python 自定义 JSON Encoder</title>
-    <url>/2021/06/15/2021-06-15/</url>
-    <content><![CDATA[<h1>python 自定义 JSON Encoder</h1>
-<p>继承 json.JSONEncoder 类, 重载 default 方法</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).default(o)</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>json</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Rabin-Karp 算法</title>
     <url>/2021/07/02/2021-07-02/</url>
     <content><![CDATA[<h1>Rabin-Karp 算法</h1>
@@ -15925,6 +15976,21 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
       </categories>
       <tags>
         <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python 自定义 JSON Encoder</title>
+    <url>/2021/06/15/2021-06-15/</url>
+    <content><![CDATA[<h1>python 自定义 JSON Encoder</h1>
+<p>继承 json.JSONEncoder 类, 重载 default 方法</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).default(o)</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>json</tag>
       </tags>
   </entry>
   <entry>
@@ -16114,72 +16180,6 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
       </tags>
   </entry>
   <entry>
-    <title>每日小结</title>
-    <url>/2020/11/29/2020-11-29/</url>
-    <content><![CDATA[<h1>用 Hexo 搭建了个人 blog</h1>
-<h2 id="hexo-基本操作"><a class="header-anchor-1" href="#hexo-基本操作">#</a>Hexo 基本操作</h2>
-<ul>
-<li>
-<p>安装</p>
-<p><code>npm install -g hexo-cli</code></p>
-</li>
-<li>
-<p>初始化hexo</p>
-<p><code>hexo init</code></p>
-<ul>
-<li>当前目录必须是空的</li>
-</ul>
-</li>
-<li>
-<p>新建文章</p>
-<p><code>hexo new [layout] name</code></p>
-<ul>
-<li>
-<p>layout 可以是 post, page, draft 之一</p>
-</li>
-<li>
-<p>分别保存至 source/_posts, source, source/_drafts 中</p>
-</li>
-<li>
-<p>新建文件名可以在 _config.yml 里面指定, <code>new_post_name</code>, 默认为 <code>name.md</code></p>
-</li>
-</ul>
-</li>
-<li>
-<p>临时开启 server</p>
-<p><code>hexo server</code></p>
-</li>
-</ul>
-<h1>React 入门</h1>
-<h2 id="复习-javascript"><a class="header-anchor-1" href="#复习-javascript">#</a>复习 JavaScript</h2>
-<ul>
-<li><span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvZW4tVVMvZG9jcy9XZWIvSmF2YVNjcmlwdC9BX3JlLWludHJvZHVjdGlvbl90b19KYXZhU2NyaXB0">很好的文章<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h1>Vue 和 React 路由模块的区别</h1>
-<h2 id="vue-路由"><a class="header-anchor-1" href="#vue-路由">#</a>Vue 路由</h2>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">Router</span>(&#123;</span><br><span class="line">    <span class="attr">mode</span>: <span class="string">&#x27;history&#x27;</span>,</span><br><span class="line">    <span class="attr">routes</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">path</span>: <span class="string">&#x27;/inspect&#x27;</span>,</span><br><span class="line">        <span class="attr">component</span>: <span class="title class_">Layout</span>,</span><br><span class="line">        <span class="attr">redirect</span>: <span class="string">&#x27;/inspect/table1&#x27;</span>,</span><br><span class="line">        <span class="attr">name</span>: <span class="string">&#x27;报表&#x27;</span>,</span><br><span class="line">        <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&#x27;报表&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;,</span><br><span class="line">        <span class="attr">children</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">path</span>: <span class="string">&#x27;table1&#x27;</span>,</span><br><span class="line">            <span class="attr">name</span>: <span class="string">&#x27;Table&#x27;</span>,</span><br><span class="line">            <span class="attr">component</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;@/views/table/index&#x27;</span>),</span><br><span class="line">            <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&#x27;Table&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h1>Vue 深入 —— MVVM 框架</h1>
-<ul>
-<li>
-<p>Observer 数据劫持</p>
-</li>
-<li>
-<p>Dep/Watcher 发布订阅</p>
-</li>
-<li>
-<p>Compiler 解析 <code>&#123;&#123; &#125;&#125;</code>, 创建watcher, 求解表达式</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>hexo</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Scaling Distributed Machine Learning with the Parameter Server 阅读笔记</title>
     <url>/2025/03/13/scaling-distributed-machine-learning/</url>
     <content><![CDATA[<p>沐神投稿在 OSDI '14 的论文，提出了第三代 Parameter Server 框架。</p>
@@ -16222,9 +16222,9 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
 </ol>
 <p>机器的加入和离开会被视为维修和故障。</p>
 <p>服务节点的管理包括节点的添加和删除。</p>
-<h3 id="1-3-相计算"><a class="header-anchor-1" href="#1-3-相计算">#</a>1.3 相计算</h3>
+<h3 id="1-3-相关工作"><a class="header-anchor-1" href="#1-3-相关工作">#</a>1.3 相关工作</h3>
 <p>第一代 PS 是 YahooLDA，利用 memcached 作为同步机制，缺乏弹性和性能；</p>
-<p>第二代 PS 包括 Distbelief、parameter-server-for-distributed-machine-learning和 Petuum，引入了 Bounded delay model。</p>
+<p>第二代 PS 包括 Distbelief、作者的前一篇NIPS Workshop 和 Petuum，引入了 Bounded delay model。</p>
 <p>对比通用分布式系统，Mahout（基于 Hadoop）和 MLI（基于 Spark）采用迭代式的 MapReduce 框架，要求同步和迭代式的通信，不适用于大规模的机器学习任务。</p>
 <p>GraphLab 使用图模型，可扩展性差。</p>
 <p>Piccolo 缺乏消息压缩、复制和灵活一致性模型。</p>
@@ -16235,7 +16235,7 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
 <li>计算节点：LoadData()，WorkerIterate()</li>
 <li>服务节点: ServerIterate()</li>
 </ul>
-<p><img src="scaling-distributed-machine-learning/algo-1.png" alt="algo-1" /></p>
+<p><img src="algo-1.png" alt="algo-1" /></p>
 <h2 id="3-ps-架构"><a class="header-anchor-1" href="#3-ps-架构">#</a>3. PS 架构</h2>
 <p>一个 PS 示例包含四大元素：一个 Server Group，若干个 Worker Group，一个 Resource Manager 以及 Training Data。</p>
 <p>Worker Group 负责运行一个任务，包含一个 Task Scheduler 和若干个 Worker Node。</p>
