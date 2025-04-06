@@ -4750,76 +4750,6 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
       </tags>
   </entry>
   <entry>
-    <title>The Hadoop Distributed File System 论文阅读</title>
-    <url>/2025/02/25/the-hadoop-distributed-file-system/</url>
-    <content><![CDATA[<h2 id="0-摘要"><a class="header-anchor-1" href="#0-摘要">#</a>0. 摘要</h2>
-<p>HDFS 的设计目标是可靠存储大数据集，并提供高吞吐量的数据访问。</p>
-<h2 id="1-引言和相关工作"><a class="header-anchor-1" href="#1-引言和相关工作">#</a>1. 引言和相关工作</h2>
-<p>Hadoop 提供了分布式的文件系统和使用 MapReduce 范式来分析和处理大数据集的框架。</p>
-<p>和其他系统类似，HDFS 把元数据保存在单独的服务器上，称为 NameNode。应用数据保存在其他服务器上，称为 DataNode。</p>
-<p>HDFS 的 DataNode 不使用类似 RAID 的数据保护机制。而是采用多副本的方式来保证数据的可靠性。</p>
-<p>某些分布式存储系统设计了分布式的系统来管理 namespace。
-Ceph 使用动态子树分区算法来管理元数据。
-GFS 使用多个 Master 来管理元数据。
-Lustre 2.2 使用了聚类 namespace。</p>
-<h2 id="2-架构"><a class="header-anchor-1" href="#2-架构">#</a>2. 架构</h2>
-<h3 id="a-namenode"><a class="header-anchor-1" href="#a-namenode">#</a>A. NameNode</h3>
-<p>HDFS 的名字空间是文件和目录的树形结构。文件和目录在 NameNode 中表示成 inode，inode 包含文件的属性，例如权限、修改和访问时间、namespace 和磁盘配额。文件内容被分割成 128MB 大小的块，每个块被独立备份保存到 3 个 DataNode 上。
-NameNode 维护着 namespace 树和块到 DataNode 的映射。
-HDFS 客户端首先向 NameNode 请求文件的块位置，然后和最近的 DataNode 通信读取块数据。当写数据的时候，客户端首先请求 NameNode 分配三个块，然后以 pipeline 的方式将数据写入到 DataNode 上。</p>
-<p>HDFS 把整个 namespace 保存在内存中。
-namespace 的元数据包含 inode 数据和每个文件对应的块列表，称为 image。
-image 保存在本地文件系统上，称为 checkpoint。
-NameNode 还额外保存 image 的变更日志，称为 journal。</p>
-<h3 id="b-datanodes"><a class="header-anchor-1" href="#b-datanodes">#</a>B. DataNodes</h3>
-<p>DN 使用两个本地文件保存一个块的数据：一个文件保存块数据，另一个文件保存块的元数据，包括 checksum 和 generation stamp。</p>
-<p>DN 启动的时候，会先和 NN 连接然后进行一次 handshake，NN 会验证 DN 的 namespace ID 和软件版本是否匹配，如果任意一个不匹配，DN 就会退出。</p>
-<p>namespace ID 会在格式化文件系统的时候生成，永久保存在集群的所有节点上。
-ID 不同的节点不能加入到这个集群中，保证了集群的一致性。新初始化的 DN 没有 namespace ID，可以加入任何集群。</p>
-<p>handshake 之后，DN 会向 NN 注册自己。NN 会给 DN 分配一个 storage ID，这个 ID 是 DN 的内部 ID，保证即使 DN 的 IP 地址或者端口改变， NN 也能识别出这个 DN。</p>
-<p>DN 会定期给 NN 发送 <em>block report</em> 报告自己拥有的 block 副本。
-block report 中包含 block id，generation stamp 还有每个 block 的长度。第一次注册的时候，会立即发送一次，随后每小时发送一次。</p>
-<p>正常操作期间，DN 给 NN 发送 heartbeat，确认自己还活着。默认每 3 秒发送一次。如果 NN 在 10 分钟内没有收到 DN 的 heartbeat，就会认为这个 DN 挂了，随后开始安排数据复制过程。</p>
-<p>DN 的 heartbeat 也包含了一些统计信息，例如总的容量、剩余容量、正在传输的数据量等。用于 NN 做一些决策时参考。</p>
-<p>NN 不会直接向 DN 发送命令，而是通过对 heartbeat 的响应来发送命令。命令包括：</p>
-<ul>
-<li>复制 block 到另一个节点；</li>
-<li>删除本地的 block；</li>
-<li>重新注册或者退出；</li>
-<li>立即发送 block report。</li>
-</ul>
-<p>NN 每秒能处理数千的 heartbeat，不会影响其他的 NN 操作。</p>
-<h3 id="c-hdfs-客户端"><a class="header-anchor-1" href="#c-hdfs-客户端">#</a>C. HDFS 客户端</h3>
-<p>应用程序通过 HDFS 客户端库访问 HDFS。</p>
-<p>HDFS 客户端支持读取、写入、删除文件，创建和删除目录。</p>
-<p>读文件时，HDFS 客户端先询问 NN 获取文件的块所在的 DN 的列表。然后联系 DN 请求所需的 block。写文件时，HDFS 客户端先询问 NN 选择三个 DN 保存第一个 block，然后客户端负责组织一个 pipeline 然后开始写入。当第一个 block 写完后，客户端继续询问 NN 请求下一个 block 的 DN。</p>
-<p>HDFS 提供了一个 API 暴露 block 位置给应用程序，允许 MapReduce 框架把任务调度到数据所在的节点上，减少网络传输。</p>
-<p>HDFS 也允许应用程序设置文件的副本数，如果一个文件需要高频率访问，可以增加副本数。</p>
-<h3 id="d-image-和-journal"><a class="header-anchor-1" href="#d-image-和-journal">#</a>D. Image 和 Journal</h3>
-<p>文件系统目录结构的元数据称为 image。对 image 的每一次持久化记录是一个 checkpoint。
-journal 是文件系统目录结构的 WAL。对于每一次客户端事务，NN 会先把操作写入 journal 中，flush 和 sync 之后，才会返回给客户端。
-checkpoint 文件创建后不会修改，只会被新的替换。在启动的时候，NN 会读取最新的 checkpoint 和 journal，然后恢复到最新的状态。恢复后，新的 checkpoint 和空的 journal 会被创建。</p>
-<p>如果 checkpoint 或者 journal 损坏，整个文件系统会被不可用，因此这两个文件可以配置为保存多个副本。推荐的配置是放置在不同的 volume 上，还有一个放在远程的 NFS 上。</p>
-<p>NN 是一个多线程系统，可以同时处理多个客户端的请求。
-flush 和 sync 操作就变成了一个瓶颈，因为它们是同步的。
-NN 会把不同客户端发起的操作合并成一个 batch，只要有一个线程完成了 flush 和 sync，其他线程就可以继续处理下一个请求。</p>
-<h3 id="e-checkpointnode"><a class="header-anchor-1" href="#e-checkpointnode">#</a>E. CheckpointNode</h3>
-<p>NN 节点除了服务客户端请求外，还可以执行其他两种任务之一：CheckpointNode 和 BackupNode。执行哪一个任务在节点启动时执行。</p>
-<p>CheckpointNode 通常运行在和 NN 不同的节点上，因为它和 NN 一样需要大量的内存。它会从 NN 下载当前的 checkpoint 和 journal，然后进行 compaction，将合并后的 checkpoint 返回给 NN。</p>
-<p>创建新的 checkpoint 会导致 NN 截断 journal。</p>
-<h3 id="f-backupnode"><a class="header-anchor-1" href="#f-backupnode">#</a>F. BackupNode</h3>
-<p>BackupNode 会和 NN 保持同步。</p>
-]]></content>
-      <categories>
-        <category>distributed-system</category>
-      </categories>
-      <tags>
-        <tag>分布式系统</tag>
-        <tag>大数据</tag>
-        <tag>HDFS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>The Google File System 论文阅读</title>
     <url>/2025/02/23/the-google-file-system/</url>
     <content><![CDATA[<p>很早就想读读大名鼎鼎的 GFS 的论文了，这次终于抽出时间好好读一下。</p>
@@ -5126,6 +5056,149 @@ S1 会在过期之后主动退位。S1 退位之前，Master 不会给其他 chu
       <tags>
         <tag>分布式系统</tag>
         <tag>GFS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>The Hadoop Distributed File System 论文阅读</title>
+    <url>/2025/02/25/the-hadoop-distributed-file-system/</url>
+    <content><![CDATA[<h2 id="0-摘要"><a class="header-anchor-1" href="#0-摘要">#</a>0. 摘要</h2>
+<p>HDFS 的设计目标是可靠存储大数据集，并提供高吞吐量的数据访问。</p>
+<h2 id="1-引言和相关工作"><a class="header-anchor-1" href="#1-引言和相关工作">#</a>1. 引言和相关工作</h2>
+<p>Hadoop 提供了分布式的文件系统和使用 MapReduce 范式来分析和处理大数据集的框架。</p>
+<p>和其他系统类似，HDFS 把元数据保存在单独的服务器上，称为 NameNode。应用数据保存在其他服务器上，称为 DataNode。</p>
+<p>HDFS 的 DataNode 不使用类似 RAID 的数据保护机制。而是采用多副本的方式来保证数据的可靠性。</p>
+<p>某些分布式存储系统设计了分布式的系统来管理 namespace。
+Ceph 使用动态子树分区算法来管理元数据。
+GFS 使用多个 Master 来管理元数据。
+Lustre 2.2 使用了聚类 namespace。</p>
+<h2 id="2-架构"><a class="header-anchor-1" href="#2-架构">#</a>2. 架构</h2>
+<h3 id="a-namenode"><a class="header-anchor-1" href="#a-namenode">#</a>A. NameNode</h3>
+<p>HDFS 的名字空间是文件和目录的树形结构。文件和目录在 NameNode 中表示成 inode，inode 包含文件的属性，例如权限、修改和访问时间、namespace 和磁盘配额。文件内容被分割成 128MB 大小的块，每个块被独立备份保存到 3 个 DataNode 上。
+NameNode 维护着 namespace 树和块到 DataNode 的映射。
+HDFS 客户端首先向 NameNode 请求文件的块位置，然后和最近的 DataNode 通信读取块数据。当写数据的时候，客户端首先请求 NameNode 分配三个块，然后以 pipeline 的方式将数据写入到 DataNode 上。</p>
+<p>HDFS 把整个 namespace 保存在内存中。
+namespace 的元数据包含 inode 数据和每个文件对应的块列表，称为 image。
+image 保存在本地文件系统上，称为 checkpoint。
+NameNode 还额外保存 image 的变更日志，称为 journal。</p>
+<h3 id="b-datanodes"><a class="header-anchor-1" href="#b-datanodes">#</a>B. DataNodes</h3>
+<p>DN 使用两个本地文件保存一个块的数据：一个文件保存块数据，另一个文件保存块的元数据，包括 checksum 和 generation stamp。</p>
+<p>DN 启动的时候，会先和 NN 连接然后进行一次 handshake，NN 会验证 DN 的 namespace ID 和软件版本是否匹配，如果任意一个不匹配，DN 就会退出。</p>
+<p>namespace ID 会在格式化文件系统的时候生成，永久保存在集群的所有节点上。
+ID 不同的节点不能加入到这个集群中，保证了集群的一致性。新初始化的 DN 没有 namespace ID，可以加入任何集群。</p>
+<p>handshake 之后，DN 会向 NN 注册自己。NN 会给 DN 分配一个 storage ID，这个 ID 是 DN 的内部 ID，保证即使 DN 的 IP 地址或者端口改变， NN 也能识别出这个 DN。</p>
+<p>DN 会定期给 NN 发送 <em>block report</em> 报告自己拥有的 block 副本。
+block report 中包含 block id，generation stamp 还有每个 block 的长度。第一次注册的时候，会立即发送一次，随后每小时发送一次。</p>
+<p>正常操作期间，DN 给 NN 发送 heartbeat，确认自己还活着。默认每 3 秒发送一次。如果 NN 在 10 分钟内没有收到 DN 的 heartbeat，就会认为这个 DN 挂了，随后开始安排数据复制过程。</p>
+<p>DN 的 heartbeat 也包含了一些统计信息，例如总的容量、剩余容量、正在传输的数据量等。用于 NN 做一些决策时参考。</p>
+<p>NN 不会直接向 DN 发送命令，而是通过对 heartbeat 的响应来发送命令。命令包括：</p>
+<ul>
+<li>复制 block 到另一个节点；</li>
+<li>删除本地的 block；</li>
+<li>重新注册或者退出；</li>
+<li>立即发送 block report。</li>
+</ul>
+<p>NN 每秒能处理数千的 heartbeat，不会影响其他的 NN 操作。</p>
+<h3 id="c-hdfs-客户端"><a class="header-anchor-1" href="#c-hdfs-客户端">#</a>C. HDFS 客户端</h3>
+<p>应用程序通过 HDFS 客户端库访问 HDFS。</p>
+<p>HDFS 客户端支持读取、写入、删除文件，创建和删除目录。</p>
+<p>读文件时，HDFS 客户端先询问 NN 获取文件的块所在的 DN 的列表。然后联系 DN 请求所需的 block。写文件时，HDFS 客户端先询问 NN 选择三个 DN 保存第一个 block，然后客户端负责组织一个 pipeline 然后开始写入。当第一个 block 写完后，客户端继续询问 NN 请求下一个 block 的 DN。</p>
+<p>HDFS 提供了一个 API 暴露 block 位置给应用程序，允许 MapReduce 框架把任务调度到数据所在的节点上，减少网络传输。</p>
+<p>HDFS 也允许应用程序设置文件的副本数，如果一个文件需要高频率访问，可以增加副本数。</p>
+<h3 id="d-image-和-journal"><a class="header-anchor-1" href="#d-image-和-journal">#</a>D. Image 和 Journal</h3>
+<p>文件系统目录结构的元数据称为 image。对 image 的每一次持久化记录是一个 checkpoint。
+journal 是文件系统目录结构的 WAL。对于每一次客户端事务，NN 会先把操作写入 journal 中，flush 和 sync 之后，才会返回给客户端。
+checkpoint 文件创建后不会修改，只会被新的替换。在启动的时候，NN 会读取最新的 checkpoint 和 journal，然后恢复到最新的状态。恢复后，新的 checkpoint 和空的 journal 会被创建。</p>
+<p>如果 checkpoint 或者 journal 损坏，整个文件系统会被不可用，因此这两个文件可以配置为保存多个副本。推荐的配置是放置在不同的 volume 上，还有一个放在远程的 NFS 上。</p>
+<p>NN 是一个多线程系统，可以同时处理多个客户端的请求。
+flush 和 sync 操作就变成了一个瓶颈，因为它们是同步的。
+NN 会把不同客户端发起的操作合并成一个 batch，只要有一个线程完成了 flush 和 sync，其他线程就可以继续处理下一个请求。</p>
+<h3 id="e-checkpointnode"><a class="header-anchor-1" href="#e-checkpointnode">#</a>E. CheckpointNode</h3>
+<p>NN 节点除了服务客户端请求外，还可以执行其他两种任务之一：CheckpointNode 和 BackupNode。执行哪一个任务在节点启动时执行。</p>
+<p>CheckpointNode 通常运行在和 NN 不同的节点上，因为它和 NN 一样需要大量的内存。它会从 NN 下载当前的 checkpoint 和 journal，然后进行 compaction，将合并后的 checkpoint 返回给 NN。</p>
+<p>创建新的 checkpoint 会导致 NN 截断 journal。</p>
+<h3 id="f-backupnode"><a class="header-anchor-1" href="#f-backupnode">#</a>F. BackupNode</h3>
+<p>BackupNode 会和 NN 保持同步。</p>
+]]></content>
+      <categories>
+        <category>distributed-system</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+        <tag>大数据</tag>
+        <tag>HDFS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>插头插座相关中国国家标准整理</title>
+    <url>/2024/12/09/socket/</url>
+    <content><![CDATA[<p>现行插座国家标准一共 9 本，分别为：</p>
+<ul>
+<li>GB2099.1 家用和类似用途插头插座第 1 部分：通用要求、</li>
+<li>GB2099.2 家用和类似用途插头插座第 2 部分：器具插座的特殊要求、</li>
+<li>GB2099.3 家用和类似用途插头插座第 2-5 部分：<strong>转换器</strong>的特殊要求、</li>
+<li>GB2099.4 家用和类似用途插头插座第 2 部分：固定式无联锁带开关插座的特殊要求、</li>
+<li>GB2099.5 家用和类似用途插头插座第 2 部分：固定式有联锁带开关插座的特殊要求、</li>
+<li>GB2099.6 家用和类似用途插头插座第 2 部分：带熔断器插头的特殊要求、</li>
+<li>GB2099.7 家用和类似用途插头插座第 2-7 部分：<strong>延长线插座</strong>的特殊要求、</li>
+<li>GB2099.8 家用和类似用途插头插座第 2-4 部分：安全特低电压(SELV)插头插座的特殊要求、</li>
+<li>GB2099.9 家用和类似用途插头插座第 2-9 部分：<strong>信息插座</strong>（即光纤、电话线、宽带线等）的特殊要求</li>
+</ul>
+<h2 id="1997-年"><a class="header-anchor-1" href="#1997-年">#</a>1997 年</h2>
+<ul>
+<li>颁布 GB2099.1 ~ GB2099.6 六项新国标，分别规定了插头插座的通用要求和特殊要求。</li>
+</ul>
+<h2 id="2008-年"><a class="header-anchor-1" href="#2008-年">#</a>2008 年</h2>
+<ul>
+<li>修订 GB2099.3</li>
+</ul>
+<h2 id="2015-2017-年"><a class="header-anchor-1" href="#2015-2017-年">#</a>2015 - 2017 年</h2>
+<ul>
+<li>颁布 <strong>GB2099.7</strong> 标准，规定了延长线插座（俗称插排、插线板）的特殊要求</li>
+<li>颁布 <strong>GB/T 2099.7</strong> 推荐标准，规定了延长线插座（俗称插排、插线板）的推荐标准（俗称<strong>排插新国标</strong>）</li>
+<li>颁布 GB2099.8 标准，规定了安全特低电压（SELV）插头插座的特殊要求</li>
+<li>颁布 GB2099.9 标准，规定了信息插座（即光纤、电话线、宽带线等）的特殊要求</li>
+<li>修订 GB2099.3</li>
+<li>颁布 GB/T 2099.3；</li>
+</ul>
+<ol>
+<li>
+<p>提高电源线导线线径。新国标要求，额定电流 10A 的延长线插排，导线的最小横截面积由原来的 0.75mm^2 提高到 1mm^2;额定 16A 的则从 1mm^2 提高到 1.5mm^2。</p>
+</li>
+<li>
+<p>淘汰万能插排。新国标要求插排允许将符合国标 GB 1002 要求的二孔插孔与三孔插孔排列组合，但不能相互重合或共用。这意味着万能插排正式退市禁用。</p>
+</li>
+<li>
+<p>插线板必须设置保护安全门，避免儿童因为手指或金属物体插入导致触电。</p>
+</li>
+<li>
+<p>增加插排材料的阻燃等级。新国标插排新增了明火针焰测试，要求针焰明火与插排接触 30 秒钟后不起燃，或者起燃后 30 秒后自动熄灭。</p>
+</li>
+<li>
+<p>必须获得 CCC 认证。新国标要求排插必须要通过国家强制性产品认证，即“CCC&quot;认证，消费者可以在排插的本体上观察是否有这个标志。</p>
+</li>
+<li>
+<p>新增了针焰测试项目，要求针焰明火与插座接触 30 秒钟后不起燃，或者起燃后 30 秒后自动熄灭</p>
+</li>
+</ol>
+<p><img src="./socket/63fe470bab15e5297.png_e1080.jpg" alt="alt text" /></p>
+<h2 id="2021"><a class="header-anchor-1" href="#2021">#</a>2021</h2>
+<ul>
+<li>修订 GB2099.1</li>
+</ul>
+<h2 id="2022"><a class="header-anchor-1" href="#2022">#</a>2022</h2>
+<ul>
+<li>修订 GB2099.3</li>
+</ul>
+<h2 id="2024"><a class="header-anchor-1" href="#2024">#</a>2024</h2>
+<ul>
+<li>修订 GB 2099.7 标准</li>
+</ul>
+]]></content>
+      <categories>
+        <category>electronic</category>
+      </categories>
+      <tags>
+        <tag>电子电路</tag>
       </tags>
   </entry>
   <entry>
@@ -5581,79 +5654,6 @@ S1 会在过期之后主动退位。S1 退位之前，Master 不会给其他 chu
       </tags>
   </entry>
   <entry>
-    <title>插头插座相关中国国家标准整理</title>
-    <url>/2024/12/09/socket/</url>
-    <content><![CDATA[<p>现行插座国家标准一共 9 本，分别为：</p>
-<ul>
-<li>GB2099.1 家用和类似用途插头插座第 1 部分：通用要求、</li>
-<li>GB2099.2 家用和类似用途插头插座第 2 部分：器具插座的特殊要求、</li>
-<li>GB2099.3 家用和类似用途插头插座第 2-5 部分：<strong>转换器</strong>的特殊要求、</li>
-<li>GB2099.4 家用和类似用途插头插座第 2 部分：固定式无联锁带开关插座的特殊要求、</li>
-<li>GB2099.5 家用和类似用途插头插座第 2 部分：固定式有联锁带开关插座的特殊要求、</li>
-<li>GB2099.6 家用和类似用途插头插座第 2 部分：带熔断器插头的特殊要求、</li>
-<li>GB2099.7 家用和类似用途插头插座第 2-7 部分：<strong>延长线插座</strong>的特殊要求、</li>
-<li>GB2099.8 家用和类似用途插头插座第 2-4 部分：安全特低电压(SELV)插头插座的特殊要求、</li>
-<li>GB2099.9 家用和类似用途插头插座第 2-9 部分：<strong>信息插座</strong>（即光纤、电话线、宽带线等）的特殊要求</li>
-</ul>
-<h2 id="1997-年"><a class="header-anchor-1" href="#1997-年">#</a>1997 年</h2>
-<ul>
-<li>颁布 GB2099.1 ~ GB2099.6 六项新国标，分别规定了插头插座的通用要求和特殊要求。</li>
-</ul>
-<h2 id="2008-年"><a class="header-anchor-1" href="#2008-年">#</a>2008 年</h2>
-<ul>
-<li>修订 GB2099.3</li>
-</ul>
-<h2 id="2015-2017-年"><a class="header-anchor-1" href="#2015-2017-年">#</a>2015 - 2017 年</h2>
-<ul>
-<li>颁布 <strong>GB2099.7</strong> 标准，规定了延长线插座（俗称插排、插线板）的特殊要求</li>
-<li>颁布 <strong>GB/T 2099.7</strong> 推荐标准，规定了延长线插座（俗称插排、插线板）的推荐标准（俗称<strong>排插新国标</strong>）</li>
-<li>颁布 GB2099.8 标准，规定了安全特低电压（SELV）插头插座的特殊要求</li>
-<li>颁布 GB2099.9 标准，规定了信息插座（即光纤、电话线、宽带线等）的特殊要求</li>
-<li>修订 GB2099.3</li>
-<li>颁布 GB/T 2099.3；</li>
-</ul>
-<ol>
-<li>
-<p>提高电源线导线线径。新国标要求，额定电流 10A 的延长线插排，导线的最小横截面积由原来的 0.75mm^2 提高到 1mm^2;额定 16A 的则从 1mm^2 提高到 1.5mm^2。</p>
-</li>
-<li>
-<p>淘汰万能插排。新国标要求插排允许将符合国标 GB 1002 要求的二孔插孔与三孔插孔排列组合，但不能相互重合或共用。这意味着万能插排正式退市禁用。</p>
-</li>
-<li>
-<p>插线板必须设置保护安全门，避免儿童因为手指或金属物体插入导致触电。</p>
-</li>
-<li>
-<p>增加插排材料的阻燃等级。新国标插排新增了明火针焰测试，要求针焰明火与插排接触 30 秒钟后不起燃，或者起燃后 30 秒后自动熄灭。</p>
-</li>
-<li>
-<p>必须获得 CCC 认证。新国标要求排插必须要通过国家强制性产品认证，即“CCC&quot;认证，消费者可以在排插的本体上观察是否有这个标志。</p>
-</li>
-<li>
-<p>新增了针焰测试项目，要求针焰明火与插座接触 30 秒钟后不起燃，或者起燃后 30 秒后自动熄灭</p>
-</li>
-</ol>
-<p><img src="./socket/63fe470bab15e5297.png_e1080.jpg" alt="alt text" /></p>
-<h2 id="2021"><a class="header-anchor-1" href="#2021">#</a>2021</h2>
-<ul>
-<li>修订 GB2099.1</li>
-</ul>
-<h2 id="2022"><a class="header-anchor-1" href="#2022">#</a>2022</h2>
-<ul>
-<li>修订 GB2099.3</li>
-</ul>
-<h2 id="2024"><a class="header-anchor-1" href="#2024">#</a>2024</h2>
-<ul>
-<li>修订 GB 2099.7 标准</li>
-</ul>
-]]></content>
-      <categories>
-        <category>electronic</category>
-      </categories>
-      <tags>
-        <tag>电子电路</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Verilog</title>
     <url>/2024/09/21/verilog/</url>
     <content><![CDATA[]]></content>
@@ -5662,253 +5662,6 @@ S1 会在过期之后主动退位。S1 退位之前，Master 不会给其他 chu
       </categories>
       <tags>
         <tag>电子电路</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>EROFS 镜像布局分析</title>
-    <url>/2024/05/15/erofs-image-layout/</url>
-    <content><![CDATA[<p>以下参考 <span class="exturl" data-url="aHR0cHM6Ly9lcm9mcy5kb2NzLmtlcm5lbC5vcmcvZW4vbGF0ZXN0L2NvcmVfb25kaXNrLmh0bWw=">Core on-disk format<i class="fa fa-external-link-alt"></i></span></p>
-<p>EROFS 硬盘布局由<code>Super block</code> + <code>inode</code>区 + <code>data</code>区三部分组成。</p>
-<p>由于是只读文件系统，所有存储的文件大小都是已知的，因此相对于其他文件系统省去了<code>inode bitmap</code>和<code>data bitmap</code>的开销，节约空间。</p>
-<h2 id="super-block"><a class="header-anchor-1" href="#super-block">#</a>Super Block</h2>
-<p>Superblock 大小为 128 字节，位于分区开始的第 1024 字节处，兼容以前的 boot sector。Superblock 里面保存根目录的<code>inode_number</code>。</p>
-<h2 id="inode"><a class="header-anchor-1" href="#inode">#</a>Inode</h2>
-<p>Inode 按照固定位置紧密存放，一个<code>inode</code>的物理地址计算为 <code>inode_start + inode_number * 32</code>；</p>
-<p>Inode 有两种大小：</p>
-<ul>
-<li>Compact 版本 32 字节；</li>
-<li>Extended 版本 64 字节；</li>
-</ul>
-<p>Inode 有三种数据布局：</p>
-<ul>
-<li><code>FLAT_PLAIN</code>：内容全部保存在<code>i_u</code>所指向的 block 中；</li>
-<li><code>FLAT_INLINE</code>：整块的内容全部保存在<code>i_u</code>所指向的 block 中，剩余的部分保存在 inode metadata 后面；</li>
-<li><code>CHUNK_BASED</code>：数据被分成多个<code>chunks</code>，每个<code>chunk</code>按照<code>PLAIN</code>方式布局数据；</li>
-</ul>
-]]></content>
-      <categories>
-        <category>erofs</category>
-      </categories>
-      <tags>
-        <tag>文件系统</tag>
-        <tag>操作系统</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>EROFS: A Compression-friendly ReadonlyFile System for Resource-scarce Devices</title>
-    <url>/2024/05/09/erofs-paper-reading/</url>
-    <content><![CDATA[<h2 id="作者"><a class="header-anchor-1" href="#作者">#</a>作者</h2>
-<p>Gao Xiang @ 华为，MIngkai Dong @ IPADS @ SJTU</p>
-<p>USENIX ATC 2019</p>
-<h2 id="背景"><a class="header-anchor-1" href="#背景">#</a>背景</h2>
-<p>安卓系统本身对设备存储的占用越来越大。</p>
-<p><img src="android-system-size.png" alt="" /></p>
-<p>这些系统数据大部分都是 Read-only 的。Read-only 为压缩存储提供了巨大的优化空间。</p>
-<h3 id="ext4"><a class="header-anchor-1" href="#ext4">#</a>Ext4</h3>
-<p>Ext4 允许只读挂载文件系统，但是可以通过重新挂载绕过这种限制，不够安全。</p>
-<h3 id="btrfs"><a class="header-anchor-1" href="#btrfs">#</a>Btrfs</h3>
-<p>支持压缩，文件会分成 128KB 的块</p>
-<p>是 general-purposed 的文件系统，不能只为了压缩只读做很多优化</p>
-<h3 id="squashfs"><a class="header-anchor-1" href="#squashfs">#</a>SquashFs</h3>
-<p>Squashfs 广泛使用，支持多种压缩算法，可选的块大小 4KB~1MB。</p>
-<p>元数据可以被压缩，inode 和目录紧密存储，文件内容逐个块压缩，在 inode 中用一个 list 保存每个块压缩后的大小。</p>
-<h3 id="squashfs-的问题"><a class="header-anchor-1" href="#squashfs-的问题">#</a>SquashFs 的问题</h3>
-<p>在低端设备上使用 SquashFs 会导致数秒的巨大延迟（使用 FIO 测试，文件 enwik9）。</p>
-<h4 id="io-放大和计算浪费："><a class="header-anchor-1" href="#io-放大和计算浪费：">#</a>IO 放大和计算浪费：</h4>
-<p>SquashFs 按输入固定大小分块压缩，压缩后的数据是变长的。然后变长的数据被 compact 存储。</p>
-<p>Squashfs 固定要对原始数据先按 fixed-size 分块，分别压缩，再拼接到一起，即使只改了一个字节也要重复整个过程；</p>
-<p>读数据需要先把整个 block 读进来，整个解压缩后才能定位到需要读的数据；</p>
-<p>工程实现问题：压缩过的块和磁盘不强制对齐，最坏情况需要多读和解压两个块；</p>
-<p>可以把块大小减小到 4KB，然而会降低压缩率</p>
-<p><img src="squashfs-1.png" alt="" /></p>
-<h4 id="内存放大和数据拷贝"><a class="header-anchor-1" href="#内存放大和数据拷贝">#</a>内存放大和数据拷贝</h4>
-<p>SquashFs 在解压数据的时候需要大量的临时内存。</p>
-<p>读写数据的时候需要多次分配内存用于 page cache/保存解压缩后的数据等；</p>
-<p>在小内存机器上会额外加剧 swapping 开销；</p>
-<p>额外参考：<span class="exturl" data-url="aHR0cHM6Ly9zb3VyY2UuYW5kcm9pZC5nb29nbGUuY24vZG9jcy9jb3JlL290YS9hYi9hYl9mYXFzP2hsPXpoLWNuI3doeS1kaWRudC15b3UtdXNlLXNxdWFzaGZz">Android 为何不使用 SquashFS<i class="fa fa-external-link-alt"></i></span></p>
-<h2 id="erofs：增强的压缩文件系统"><a class="header-anchor-1" href="#erofs：增强的压缩文件系统">#</a>EROFS：增强的压缩文件系统</h2>
-<h3 id="fixed-sized-output-compression"><a class="header-anchor-1" href="#fixed-sized-output-compression">#</a>Fixed-sized output compression</h3>
-<p>为了缓解读放大的问题，EROFS 对压缩后的数据（而非压缩前）分块，这样的好处有：</p>
-<ol>
-<li>压缩比更大，因为一次压缩输入的数据可能更多；</li>
-<li>解压的时候只需要取包含了需要数据的块，没有额外的块读取和解压开销；</li>
-<li>允许进行就地解压，内存开销能够稍微小一些；</li>
-</ol>
-<p>EROFS 采用了滑动窗口来压缩数据，在 <code>输入大小到达 1MB</code> 或者 <code>输出大小到达 4k</code> 时输出一个新的 block。</p>
-<h3 id="缓存层优化"><a class="header-anchor-1" href="#缓存层优化">#</a>缓存层优化</h3>
-<p>对于压缩型文件系统，为了保存解压后的数据，需要额外分配内存，这部分对内存的需求很大。</p>
-<p>EROFS 对于是否要读完整的块，采用了两种不同策略，以优化读性能：</p>
-<ul>
-<li>Cached I/O：正常使用内核的 Page Cache；</li>
-<li>In-place I/O：绕过 Page Cache 机制；</li>
-</ul>
-<p>对于只需要读一部分数据（部分解压）的块，使用 Cached I/O。EROFS 使用了一个特别的<code>inode</code>的 page cache 保存 <code>物理块号-&gt;压缩块</code> 之间的映射关系，在读取时可以直接定位到需要的块。</p>
-<p>对于需要读全部数据（完全解压）的块，使用 In-place I/O。每次读文件会主动从 Page Cache 层分配页去保存文件数据，然后就地解压数据；空闲下来的页会被复用，以减小频繁内存分配。</p>
-<p>这里的想法是一个已经解压过的块不太可能被再次使用（因为已经有了解压后的原始数据），占用的 page cache 就可以回收利用；如果仍然 cache 的话就没有必要，而且会增加内存抖动。</p>
-<h3 id="解压缩优化"><a class="header-anchor-1" href="#解压缩优化">#</a>解压缩优化</h3>
-<p>EROFS 对解压做了很多细致的优化。</p>
-<h4 id="vmap-解压"><a class="header-anchor-1" href="#vmap-解压">#</a>vmap 解压</h4>
-<p><img src="erofs-decompression-1.png" alt="" /></p>
-<p>在 EROFS 中，每次解压一个块可能会得到多块数据，如果只需要读其中一部分，那么解压出来的其他数据块就没必要保存。为此，EROFS 利用了虚拟内存映射机制，将不需要的块映射到临时页。</p>
-<p>实现上，每个压缩的硬盘块中会保存原始数据的元数据（如长度），在解压时会先准备好足够的 Buffer，然后使用 <code>vmap</code> 手动映射成连续的虚拟地址空间， 以调用解压缩算法。</p>
-<p>在解压时，对于需要的部分，会<code>vmap</code>映射一段 page cache 空间，对于不需要的部分，只会映射到临时页。</p>
-<h4 id="per-cpu-解压"><a class="header-anchor-1" href="#per-cpu-解压">#</a>Per-CPU 解压</h4>
-<p>上述的方式还有两个问题：</p>
-<ol>
-<li>还是需要动态分配内存页，不好；</li>
-<li>每次解压都要调用<code>vmap</code>和<code>vunmap</code>，不好；</li>
-</ol>
-<p>为此，EROFS 静态分配了若干个页专门用于解压，具体来说，每个 CPU 会持有<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span>个页。当解压出来的数据不超过<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span>页的时候，就用这些页装解压后的数据，然后再 memcpy 到目标 page cache 位置。</p>
-<p>论文中采用的<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span>为 4。</p>
-<p><img src="erofs-buffer-decompression.png" alt="" /></p>
-<h4 id="滚动解压"><a class="header-anchor-1" href="#滚动解压">#</a>滚动解压</h4>
-<p>由于 LZ4 算法需要当前位置之前最多 64KB 的数据才能解压。EROFS 会给每个 CPU 预先分配若干个物理页，作为 vmap 解压时存储数据的基本 buffer。这些物理页会循环使用。</p>
-<h2 id="实现"><a class="header-anchor-1" href="#实现">#</a>实现</h2>
-<p>EROFS 已经合并进内核。使用内核的 4KB 块大小，LZ4 (v1.8.3) 压缩算法，文件元数据没有被压缩。</p>
-<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2F0YzE5LWVyb2Zz">atc19-erofs<i class="fa fa-external-link-alt"></i></span> 是合并进 5.3-rc1 的分支。</p>
-<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2F0YzE5LW1rZnM=">atc19-mkfs<i class="fa fa-external-link-alt"></i></span>是论文版本的 utils，最新版本在<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2Vyb2ZzLXV0aWxz">erofs-utils<i class="fa fa-external-link-alt"></i></span>。</p>
-<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2ttb2QtZXJvZnM=">kmod-erofs (WIP)<i class="fa fa-external-link-alt"></i></span>是 out-of-tree 版本的 erofs 模块，还没完成。</p>
-<h4 id="erofs-镜像布局"><a class="header-anchor-1" href="#erofs-镜像布局">#</a>EROFS 镜像布局</h4>
-<p><img src="erofs-layout.png" alt="" /></p>
-<p>和其他文件系统一样，EROFS 镜像的开头也是<code>Super block</code>；然后是混合存储的元数据和数据区。</p>
-<p>EROFS 允许元数据（inode，目录）和数据混合存储，即 inline data，目的是提高局部性，减少 I/O 操作。</p>
-<p>TODO</p>
-<h4 id="解压策略"><a class="header-anchor-1" href="#解压策略">#</a>解压策略</h4>
-<p>商业版：少于 4 页时采用 per-CPU 解压，否则采用 vmap 解压；</p>
-<p>最新版：增加了 in-place 解压的优化。</p>
-<h4 id="优化"><a class="header-anchor-1" href="#优化">#</a>优化</h4>
-<h5 id="索引内存优化"><a class="header-anchor-1" href="#索引内存优化">#</a>索引内存优化</h5>
-<p>TODO</p>
-<h5 id="调度优化"><a class="header-anchor-1" href="#调度优化">#</a>调度优化</h5>
-<p>EROFS 没有单独的解压线程，而是由读数据的线程解压数据。</p>
-<p>一旦硬盘块（硬件）准备好就会立即开始解压。</p>
-<h5 id="协同解压"><a class="header-anchor-1" href="#协同解压">#</a>协同解压</h5>
-<p>对同一个数据的多个请求会去重，避免重复解压相同的数据。</p>
-<h5 id="镜像补丁"><a class="header-anchor-1" href="#镜像补丁">#</a>镜像补丁</h5>
-<p>在镜像末尾放置更新数据，解压之后用新数据覆盖。</p>
-<h2 id="评估"><a class="header-anchor-1" href="#评估">#</a>评估</h2>
-<h2 id="相关工作"><a class="header-anchor-1" href="#相关工作">#</a>相关工作</h2>
-]]></content>
-      <categories>
-        <category>erofs</category>
-      </categories>
-      <tags>
-        <tag>文件系统</tag>
-        <tag>操作系统</tag>
-        <tag>论文阅读</tag>
-        <tag>EROFS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>EROFS 相关资料整理</title>
-    <url>/2024/05/14/erofs-resource/</url>
-    <content><![CDATA[<h2 id="代码仓库"><a class="header-anchor-1" href="#代码仓库">#</a>代码仓库</h2>
-<ul>
-<li>EROFS 内核驱动仓库: <span class="exturl" data-url="aHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQveGlhbmcvZXJvZnMuZ2l0">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git<i class="fa fa-external-link-alt"></i></span></li>
-<li>erofs-utils 仓库: <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2Vyb2ZzLXV0aWxz">https://github.com/erofs/erofs-utils<i class="fa fa-external-link-alt"></i></span></li>
-<li>其他相关项目: <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2Zz">https://github.com/erofs<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h2 id="文档"><a class="header-anchor-1" href="#文档">#</a>文档</h2>
-<ul>
-<li>ATC '19 论文主页: <span class="exturl" data-url="aHR0cHM6Ly93d3cudXNlbml4Lm9yZy9jb25mZXJlbmNlL2F0YzE5L3ByZXNlbnRhdGlvbi9nYW8=">https://www.usenix.org/conference/atc19/presentation/gao<i class="fa fa-external-link-alt"></i></span></li>
-<li>内核 EROFS 文档: <span class="exturl" data-url="aHR0cHM6Ly9kb2NzLmtlcm5lbC5vcmcvZmlsZXN5c3RlbXMvZXJvZnMuaHRtbA==">https://docs.kernel.org/filesystems/erofs.html<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS 项目主页: <span class="exturl" data-url="aHR0cHM6Ly9lcm9mcy5kb2NzLmtlcm5lbC5vcmcvZW4vbGF0ZXN0LyM=">https://erofs.docs.kernel.org/en/latest/#<i class="fa fa-external-link-alt"></i></span></li>
-<li>An introduction to EROFS (from LWN): <span class="exturl" data-url="aHR0cHM6Ly9sd24ubmV0L0FydGljbGVzLzkzNDA0Ny8=">https://lwn.net/Articles/934047/<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS 项目 mannual: <span class="exturl" data-url="aHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQveGlhbmcvZXJvZnMtdXRpbHMuZ2l0L2Fib3V0Lw==">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/about/<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS Introducing Mail: <span class="exturl" data-url="aHR0cHM6Ly9tYXJjLmluZm8vP2w9bGludXgtZnNkZXZlbCZtPTE1Mjc3NjQ4MDQyNTYyNA==">https://marc.info/?l=linux-fsdevel&amp;m=152776480425624<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h2 id="slide"><a class="header-anchor-1" href="#slide">#</a>Slide</h2>
-<ul>
-<li>ATC '19 汇报 Slides: <span class="exturl" data-url="aHR0cHM6Ly93d3cudXNlbml4Lm9yZy9zaXRlcy9kZWZhdWx0L2ZpbGVzL2NvbmZlcmVuY2UvcHJvdGVjdGVkLWZpbGVzL2F0YzE5X3NsaWRlc19nYW8ucGRm">https://www.usenix.org/sites/default/files/conference/protected-files/atc19_slides_gao.pdf<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS Everywhere: An Image-Based Kernel Approach for Various Use Cases@KubeCon China '23: <span class="exturl" data-url="aHR0cHM6Ly9zdGF0aWMuc2NoZWQuY29tL2hvc3RlZF9maWxlcy9rY2NuY29zc2NobjIwMjMvMTMvT1NTLUNoaW5hLTIwMjMtRVJPRlMucGRm">https://static.sched.com/hosted_files/kccncosschn2023/13/OSS-China-2023-EROFS.pdf<i class="fa fa-external-link-alt"></i></span></li>
-<li>Image-based read-only filesystems (EROFS) 龙蜥社区: <span class="exturl" data-url="aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vcHJlc2VudGF0aW9uL2QvMTZMd0QtRjBJS3k4b2trQzhxQjk0djJZZ0RjV0JCRTI2cm1Nbl9zMU1xeGMvZWRpdA==">https://docs.google.com/presentation/d/16LwD-F0IKy8okkC8qB94v2YgDcWBBE26rmMn_s1Mqxc/edit<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h2 id="其他资源"><a class="header-anchor-1" href="#其他资源">#</a>其他资源</h2>
-<ul>
-<li>Linux-erofs Mail List: <span class="exturl" data-url="aHR0cHM6Ly9saXN0cy5vemxhYnMub3JnL2xpc3RpbmZvL2xpbnV4LWVyb2Zz">https://lists.ozlabs.org/listinfo/linux-erofs<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS 文件系统这几年（一） —— 缘起: <span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvUlU5SmNwaklIYXJnQV8tb0Y5dFRjZw==">https://mp.weixin.qq.com/s/RU9JcpjIHargA_-oF9tTcg<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS 文件系统生态进展（-2024 年 1 月）: <span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvM1FwYmFtdWpRU28zNzh2WHI3UGxBQQ==">https://mp.weixin.qq.com/s/3QpbamujQSo378vXr7PlAA<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h2 id="第三方"><a class="header-anchor-1" href="#第三方">#</a>第三方</h2>
-<ul>
-<li>论文阅读记录（by @SToPire 大佬）: <span class="exturl" data-url="aHR0cHM6Ly9zdG9waXJlLmdpdGh1Yi5pby8yMDIzLzA1LzA3L0VST0ZTLUEtQ29tcHJlc3Npb24tZnJpZW5kbHktUmVhZG9ubHktRmlsZS1TeXN0ZW0tZm9yLVJlc291cmNlLXNjYXJjZS1EZXZpY2VzLw==">https://stopire.github.io/2023/05/07/EROFS-A-Compression-friendly-Readonly-File-System-for-Resource-scarce-Devices/<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS 压缩文件格式和读取流程分析（by @SToPire 大佬）: <span class="exturl" data-url="aHR0cHM6Ly9zdG9waXJlLmdpdGh1Yi5pby8yMDIzLzA3LzA1L0VST0ZTJUU1JThFJThCJUU3JUJDJUE5JUU2JTk2JTg3JUU0JUJCJUI2JUU2JUEwJUJDJUU1JUJDJThGJUU1JTkyJThDJUU4JUFGJUJCJUU1JThGJTk2JUU2JUI1JTgxJUU3JUE4JThCJUU1JTg4JTg2JUU2JTlFJTkwLw==">https://stopire.github.io/2023/07/05/EROFS压缩文件格式和读取流程分析/<i class="fa fa-external-link-alt"></i></span></li>
-<li>论文阅读（by @mwish）: <span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC82NjM3ODI1OTQ=">https://zhuanlan.zhihu.com/p/663782594<i class="fa fa-external-link-alt"></i></span></li>
-<li>论文阅读（by elecfans）: <span class="exturl" data-url="aHR0cHM6Ly9iYnMuZWxlY2ZhbnMuY29tL2ppc2h1XzIyOTY3MDBfMV8xLmh0bWw=">https://bbs.elecfans.com/jishu_2296700_1_1.html<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS on-disk compact index 生成分析: <span class="exturl" data-url="aHR0cHM6Ly90anRlY2gubWUvZXJvZnMtY29tcGFjdGVkLWluZGV4LWdlbmVyYXRpb24uaHRtbA==">https://tjtech.me/erofs-compacted-index-generation.html<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS ztailpacking 特性实现详解: <span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvWmdLVTY4SmJnc2s4YkFLNWVSUjhFUQ==">https://mp.weixin.qq.com/s/ZgKU68Jbgsk8bAK5eRR8EQ<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS 源码阅读笔记: <span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L20wXzM3NjM3NTExL2FydGljbGUvZGV0YWlscy8xMjQzMzAxNTg=">https://blog.csdn.net/m0_37637511/article/details/124330158<i class="fa fa-external-link-alt"></i></span></li>
-<li>浅谈华为 EROFS 文件系统的两个主要技术: <span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NodWFuZ2d1bzEyMS9hcnRpY2xlL2RldGFpbHMvOTA5MDExMzE=">https://blog.csdn.net/shuangguo121/article/details/90901131<i class="fa fa-external-link-alt"></i></span></li>
-<li>用 EROFS 进行存储与备份: <span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC82NDYzMjIzNjQ=">https://zhuanlan.zhihu.com/p/646322364<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h2 id="links"><a class="header-anchor-1" href="#links">#</a>Links</h2>
-<ul>
-<li>我的论文阅读记录: <a href="/2024/05/09/erofs-paper-reading/" title="EROFS: A Compression-friendly ReadonlyFile System for Resource-scarce Devices">论文阅读</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>erofs</category>
-      </categories>
-      <tags>
-        <tag>文件系统</tag>
-        <tag>操作系统</tag>
-        <tag>EROFS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>EROFS 源码阅读</title>
-    <url>/2024/05/12/erofs-source-reading/</url>
-    <content><![CDATA[<h2 id="erofs-in-tree-驱动"><a class="header-anchor-1" href="#erofs-in-tree-驱动">#</a>erofs in-tree 驱动</h2>
-<p>in-tree 的代码也是模块的形式，以 <code>module_init</code> 开始</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">module_init(erofs_module_init);</span><br><span class="line">module_exit(erofs_module_exit);</span><br><span class="line"></span><br><span class="line"><span class="comment">// in erofs_module_init()</span></span><br><span class="line">err = register_filesystem(&amp;erofs_fs_type);</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span> <span class="title">erofs_fs_type</span> =</span> &#123;</span><br><span class="line">    .owner          = THIS_MODULE,</span><br><span class="line">    .name           = <span class="string">&quot;erofs&quot;</span>,</span><br><span class="line">    .init_fs_context = erofs_init_fs_context, <span class="comment">// init -&gt;ops and -&gt;fs_private</span></span><br><span class="line">    .kill_sb        = erofs_kill_sb, <span class="comment">// shutdown a fs</span></span><br><span class="line">    .fs_flags       = FS_REQUIRES_DEV | FS_ALLOW_IDMAP,</span><br><span class="line">&#125;;</span><br><span class="line">MODULE_ALIAS_FS(<span class="string">&quot;erofs&quot;</span>);</span><br></pre></td></tr></table></figure>
-<p><code>Kconfig</code> 中包含的一些选项：</p>
-<ul>
-<li><code>EROFS_FS_DEBUG</code> DEBUG 支持</li>
-<li><code>EROFS_FS_XATTR</code> 拓展属性支持</li>
-<li><code>EROFS_FS_POSIX_ACL</code> ACL 支持</li>
-<li><code>EROFS_FS_SECURITY</code> 安全标签支持</li>
-<li><code>EROFS_FS_ZIP</code> 压缩支持，默认只支持读取 LZ4 压缩的数据
-<ul>
-<li><code>EROFS_FS_ZIP_LZMA</code> 支持读取 microLZMA 压缩的数据</li>
-<li><code>EROFS_FS_ZIP_DEFLATE</code> 支持读取 DEFLATE 压缩的数据</li>
-<li><code>EROFS_FS_PCPU_KTHREAD</code> 用 per-cpu 的线程池去作异步数据解压缩
-<ul>
-<li><code>EROFS_FS_PCPU_KTHREAD_HIPRI</code> 把这些线程设为高优先级</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><code>EROFS_FS_ONDEMAND</code> 利用 fscache 实现 on-demand 读</li>
-</ul>
-<h3 id="初始化流程"><a class="header-anchor-1" href="#初始化流程">#</a>初始化流程</h3>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">fs_context_operations</span> <span class="title">erofs_context_ops</span> =</span> &#123;</span><br><span class="line">    .parse_param	= erofs_fc_parse_param, <span class="comment">// add a fs param</span></span><br><span class="line">    .get_tree       = erofs_fc_get_tree, <span class="comment">// ~mount a fs</span></span><br><span class="line">    .reconfigure    = erofs_fc_reconfigure, <span class="comment">// sb reconfiguration</span></span><br><span class="line">    .<span class="built_in">free</span>		= erofs_fc_free, <span class="comment">// clean up</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h3 id="内核的-fs-context-结构"><a class="header-anchor-1" href="#内核的-fs-context-结构">#</a>内核的 <code>fs_context</code> 结构</h3>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">fs_context</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">fs_context_operations</span> *<span class="title">ops</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span> *<span class="title">fs_type</span>;</span></span><br><span class="line">    <span class="type">void</span>			*fs_private;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span>		*<span class="title">root</span>;</span>  <span class="comment">// the root of fs tree</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_namespace</span>	*<span class="title">user_ns</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">net</span>		*<span class="title">net_ns</span>;</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span>	*<span class="title">cred</span>;</span></span><br><span class="line">    <span class="type">char</span>			*source;  <span class="comment">// /dev/sda1 or host:/path, etc.</span></span><br><span class="line">    <span class="type">char</span>			*subtype;</span><br><span class="line">    <span class="type">void</span>			*security;</span><br><span class="line">    <span class="type">void</span>			*s_fs_info;  <span class="comment">// user data -&gt; erofs_sb_info</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>		sb_flags;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>		sb_flags_mask;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>		s_iflags;</span><br><span class="line">    <span class="class"><span class="keyword">enum</span> <span class="title">fs_context_purpose</span>	<span class="title">purpose</span>:</span><span class="number">8</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h3 id="erofs-的元数据-erofs-sb-info"><a class="header-anchor-1" href="#erofs-的元数据-erofs-sb-info">#</a>EROFS 的元数据 <code>erofs_sb_info</code></h3>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">erofs_sb_info</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">erofs_mount_opts</span> <span class="title">opt</span>;</span>	<span class="comment">/* options */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_EROFS_FS_ZIP</span></span><br><span class="line">    <span class="comment">/* list for all registered superblocks, mainly for shrinker */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">list</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mutex</span> <span class="title">umount_mutex</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* managed XArray arranged in physical block number */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">xarray</span> <span class="title">managed_pslots</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> shrinker_run_no;</span><br><span class="line">    u16 available_compr_algs;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* pseudo inode to manage cached pages */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">managed_cache</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">erofs_sb_lz4_info</span> <span class="title">lz4</span>;</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span>    <span class="comment">/* CONFIG_EROFS_FS_ZIP */</span></span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">packed_inode</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">erofs_dev_context</span> *<span class="title">devs</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dax_device</span> *<span class="title">dax_dev</span>;</span></span><br><span class="line">    u64 dax_part_off;</span><br><span class="line">    u64 total_blocks;</span><br><span class="line">    u32 primarydevice_blocks;</span><br><span class="line"></span><br><span class="line">    u32 meta_blkaddr;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_EROFS_FS_XATTR</span></span><br><span class="line">    u32 xattr_blkaddr;</span><br><span class="line">    u32 xattr_prefix_start;</span><br><span class="line">    u8 xattr_prefix_count;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">erofs_xattr_prefix_item</span> *<span class="title">xattr_prefixes</span>;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> xattr_filter_reserved;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    u16 device_id_mask;	<span class="comment">/* valid bits of device id to be used */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> islotbits;	<span class="comment">/* inode slot unit size in bit shift */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> blkszbits;	<span class="comment">/* filesystem block size in bit shift */</span></span><br><span class="line"></span><br><span class="line">    u32 sb_size;			<span class="comment">/* total superblock size */</span></span><br><span class="line">    u32 build_time_nsec;</span><br><span class="line">    u64 build_time;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* what we really care is nid, rather than ino.. */</span></span><br><span class="line">    <span class="type">erofs_nid_t</span> root_nid;</span><br><span class="line">    <span class="type">erofs_nid_t</span> packed_nid;</span><br><span class="line">    <span class="comment">/* used for statfs, f_files - f_favail */</span></span><br><span class="line">    u64 inos;</span><br><span class="line"></span><br><span class="line">    u8 uuid[<span class="number">16</span>];                    <span class="comment">/* 128-bit uuid for volume */</span></span><br><span class="line">    u8 volume_name[<span class="number">16</span>];             <span class="comment">/* volume name */</span></span><br><span class="line">    u32 feature_compat;</span><br><span class="line">    u32 feature_incompat;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* sysfs support */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">kobject</span> <span class="title">s_kobj</span>;</span>		<span class="comment">/* /sys/fs/erofs/&lt;devname&gt; */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">completion</span> <span class="title">s_kobj_unregister</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* fscache support */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fscache_volume</span> *<span class="title">volume</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">erofs_fscache</span> *<span class="title">s_fscache</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">erofs_domain</span> *<span class="title">domain</span>;</span></span><br><span class="line">    <span class="type">char</span> *fsid;</span><br><span class="line">    <span class="type">char</span> *domain_id;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p><code>bdev.c</code> 中负责硬盘块操作</p>
-<p><span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC80NjYyNzI5NDU=">申请 super_block<i class="fa fa-external-link-alt"></i></span></p>
-<p><code>erofs_fc_fill_super</code> 其实是从硬盘上读取数据，初始化 user 的 sb 信息</p>
-<h3 id="inode-操作"><a class="header-anchor-1" href="#inode-操作">#</a>inode 操作</h3>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_generic_iops</span> =</span> &#123;</span><br><span class="line">    .getattr = erofs_getattr,</span><br><span class="line">    .listxattr = erofs_listxattr,</span><br><span class="line">    .get_inode_acl = erofs_get_acl,</span><br><span class="line">    .fiemap = erofs_fiemap,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_symlink_iops</span> =</span> &#123;</span><br><span class="line">    .get_link = page_get_link,</span><br><span class="line">    .getattr = erofs_getattr,</span><br><span class="line">    .listxattr = erofs_listxattr,</span><br><span class="line">    .get_inode_acl = erofs_get_acl,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_fast_symlink_iops</span> =</span> &#123;</span><br><span class="line">    .get_link = simple_get_link,</span><br><span class="line">    .getattr = erofs_getattr,</span><br><span class="line">    .listxattr = erofs_listxattr,</span><br><span class="line">    .get_inode_acl = erofs_get_acl,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="erofs-utils"><a class="header-anchor-1" href="#erofs-utils">#</a>erofs-utils</h2>
-<ul>
-<li><code>mkfs.erofs</code> 创建一个 erofs 文件系统；</li>
-<li><code>fsck.erofs</code> 检查 erofs 镜像的完整性；</li>
-<li><code>dump.erofs</code> 导出 erofs 镜像中的相关细节；</li>
-<li><code>erofsfuse</code> 用户态</li>
-</ul>
-<h2 id="mkfs"><a class="header-anchor-1" href="#mkfs">#</a>mkfs</h2>
-<h2 id="fsck"><a class="header-anchor-1" href="#fsck">#</a>fsck</h2>
-<h2 id="dump"><a class="header-anchor-1" href="#dump">#</a>dump</h2>
-<h2 id="erofsfuse"><a class="header-anchor-1" href="#erofsfuse">#</a>erofsfuse</h2>
-]]></content>
-      <categories>
-        <category>erofs</category>
-      </categories>
-      <tags>
-        <tag>文件系统</tag>
-        <tag>操作系统</tag>
       </tags>
   </entry>
   <entry>
@@ -9024,6 +8777,253 @@ S1 会在过期之后主动退位。S1 退位之前，Master 不会给其他 chu
       </categories>
       <tags>
         <tag>面试</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>EROFS 镜像布局分析</title>
+    <url>/2024/05/15/erofs-image-layout/</url>
+    <content><![CDATA[<p>以下参考 <span class="exturl" data-url="aHR0cHM6Ly9lcm9mcy5kb2NzLmtlcm5lbC5vcmcvZW4vbGF0ZXN0L2NvcmVfb25kaXNrLmh0bWw=">Core on-disk format<i class="fa fa-external-link-alt"></i></span></p>
+<p>EROFS 硬盘布局由<code>Super block</code> + <code>inode</code>区 + <code>data</code>区三部分组成。</p>
+<p>由于是只读文件系统，所有存储的文件大小都是已知的，因此相对于其他文件系统省去了<code>inode bitmap</code>和<code>data bitmap</code>的开销，节约空间。</p>
+<h2 id="super-block"><a class="header-anchor-1" href="#super-block">#</a>Super Block</h2>
+<p>Superblock 大小为 128 字节，位于分区开始的第 1024 字节处，兼容以前的 boot sector。Superblock 里面保存根目录的<code>inode_number</code>。</p>
+<h2 id="inode"><a class="header-anchor-1" href="#inode">#</a>Inode</h2>
+<p>Inode 按照固定位置紧密存放，一个<code>inode</code>的物理地址计算为 <code>inode_start + inode_number * 32</code>；</p>
+<p>Inode 有两种大小：</p>
+<ul>
+<li>Compact 版本 32 字节；</li>
+<li>Extended 版本 64 字节；</li>
+</ul>
+<p>Inode 有三种数据布局：</p>
+<ul>
+<li><code>FLAT_PLAIN</code>：内容全部保存在<code>i_u</code>所指向的 block 中；</li>
+<li><code>FLAT_INLINE</code>：整块的内容全部保存在<code>i_u</code>所指向的 block 中，剩余的部分保存在 inode metadata 后面；</li>
+<li><code>CHUNK_BASED</code>：数据被分成多个<code>chunks</code>，每个<code>chunk</code>按照<code>PLAIN</code>方式布局数据；</li>
+</ul>
+]]></content>
+      <categories>
+        <category>erofs</category>
+      </categories>
+      <tags>
+        <tag>文件系统</tag>
+        <tag>操作系统</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>EROFS: A Compression-friendly ReadonlyFile System for Resource-scarce Devices</title>
+    <url>/2024/05/09/erofs-paper-reading/</url>
+    <content><![CDATA[<h2 id="作者"><a class="header-anchor-1" href="#作者">#</a>作者</h2>
+<p>Gao Xiang @ 华为，MIngkai Dong @ IPADS @ SJTU</p>
+<p>USENIX ATC 2019</p>
+<h2 id="背景"><a class="header-anchor-1" href="#背景">#</a>背景</h2>
+<p>安卓系统本身对设备存储的占用越来越大。</p>
+<p><img src="android-system-size.png" alt="" /></p>
+<p>这些系统数据大部分都是 Read-only 的。Read-only 为压缩存储提供了巨大的优化空间。</p>
+<h3 id="ext4"><a class="header-anchor-1" href="#ext4">#</a>Ext4</h3>
+<p>Ext4 允许只读挂载文件系统，但是可以通过重新挂载绕过这种限制，不够安全。</p>
+<h3 id="btrfs"><a class="header-anchor-1" href="#btrfs">#</a>Btrfs</h3>
+<p>支持压缩，文件会分成 128KB 的块</p>
+<p>是 general-purposed 的文件系统，不能只为了压缩只读做很多优化</p>
+<h3 id="squashfs"><a class="header-anchor-1" href="#squashfs">#</a>SquashFs</h3>
+<p>Squashfs 广泛使用，支持多种压缩算法，可选的块大小 4KB~1MB。</p>
+<p>元数据可以被压缩，inode 和目录紧密存储，文件内容逐个块压缩，在 inode 中用一个 list 保存每个块压缩后的大小。</p>
+<h3 id="squashfs-的问题"><a class="header-anchor-1" href="#squashfs-的问题">#</a>SquashFs 的问题</h3>
+<p>在低端设备上使用 SquashFs 会导致数秒的巨大延迟（使用 FIO 测试，文件 enwik9）。</p>
+<h4 id="io-放大和计算浪费："><a class="header-anchor-1" href="#io-放大和计算浪费：">#</a>IO 放大和计算浪费：</h4>
+<p>SquashFs 按输入固定大小分块压缩，压缩后的数据是变长的。然后变长的数据被 compact 存储。</p>
+<p>Squashfs 固定要对原始数据先按 fixed-size 分块，分别压缩，再拼接到一起，即使只改了一个字节也要重复整个过程；</p>
+<p>读数据需要先把整个 block 读进来，整个解压缩后才能定位到需要读的数据；</p>
+<p>工程实现问题：压缩过的块和磁盘不强制对齐，最坏情况需要多读和解压两个块；</p>
+<p>可以把块大小减小到 4KB，然而会降低压缩率</p>
+<p><img src="squashfs-1.png" alt="" /></p>
+<h4 id="内存放大和数据拷贝"><a class="header-anchor-1" href="#内存放大和数据拷贝">#</a>内存放大和数据拷贝</h4>
+<p>SquashFs 在解压数据的时候需要大量的临时内存。</p>
+<p>读写数据的时候需要多次分配内存用于 page cache/保存解压缩后的数据等；</p>
+<p>在小内存机器上会额外加剧 swapping 开销；</p>
+<p>额外参考：<span class="exturl" data-url="aHR0cHM6Ly9zb3VyY2UuYW5kcm9pZC5nb29nbGUuY24vZG9jcy9jb3JlL290YS9hYi9hYl9mYXFzP2hsPXpoLWNuI3doeS1kaWRudC15b3UtdXNlLXNxdWFzaGZz">Android 为何不使用 SquashFS<i class="fa fa-external-link-alt"></i></span></p>
+<h2 id="erofs：增强的压缩文件系统"><a class="header-anchor-1" href="#erofs：增强的压缩文件系统">#</a>EROFS：增强的压缩文件系统</h2>
+<h3 id="fixed-sized-output-compression"><a class="header-anchor-1" href="#fixed-sized-output-compression">#</a>Fixed-sized output compression</h3>
+<p>为了缓解读放大的问题，EROFS 对压缩后的数据（而非压缩前）分块，这样的好处有：</p>
+<ol>
+<li>压缩比更大，因为一次压缩输入的数据可能更多；</li>
+<li>解压的时候只需要取包含了需要数据的块，没有额外的块读取和解压开销；</li>
+<li>允许进行就地解压，内存开销能够稍微小一些；</li>
+</ol>
+<p>EROFS 采用了滑动窗口来压缩数据，在 <code>输入大小到达 1MB</code> 或者 <code>输出大小到达 4k</code> 时输出一个新的 block。</p>
+<h3 id="缓存层优化"><a class="header-anchor-1" href="#缓存层优化">#</a>缓存层优化</h3>
+<p>对于压缩型文件系统，为了保存解压后的数据，需要额外分配内存，这部分对内存的需求很大。</p>
+<p>EROFS 对于是否要读完整的块，采用了两种不同策略，以优化读性能：</p>
+<ul>
+<li>Cached I/O：正常使用内核的 Page Cache；</li>
+<li>In-place I/O：绕过 Page Cache 机制；</li>
+</ul>
+<p>对于只需要读一部分数据（部分解压）的块，使用 Cached I/O。EROFS 使用了一个特别的<code>inode</code>的 page cache 保存 <code>物理块号-&gt;压缩块</code> 之间的映射关系，在读取时可以直接定位到需要的块。</p>
+<p>对于需要读全部数据（完全解压）的块，使用 In-place I/O。每次读文件会主动从 Page Cache 层分配页去保存文件数据，然后就地解压数据；空闲下来的页会被复用，以减小频繁内存分配。</p>
+<p>这里的想法是一个已经解压过的块不太可能被再次使用（因为已经有了解压后的原始数据），占用的 page cache 就可以回收利用；如果仍然 cache 的话就没有必要，而且会增加内存抖动。</p>
+<h3 id="解压缩优化"><a class="header-anchor-1" href="#解压缩优化">#</a>解压缩优化</h3>
+<p>EROFS 对解压做了很多细致的优化。</p>
+<h4 id="vmap-解压"><a class="header-anchor-1" href="#vmap-解压">#</a>vmap 解压</h4>
+<p><img src="erofs-decompression-1.png" alt="" /></p>
+<p>在 EROFS 中，每次解压一个块可能会得到多块数据，如果只需要读其中一部分，那么解压出来的其他数据块就没必要保存。为此，EROFS 利用了虚拟内存映射机制，将不需要的块映射到临时页。</p>
+<p>实现上，每个压缩的硬盘块中会保存原始数据的元数据（如长度），在解压时会先准备好足够的 Buffer，然后使用 <code>vmap</code> 手动映射成连续的虚拟地址空间， 以调用解压缩算法。</p>
+<p>在解压时，对于需要的部分，会<code>vmap</code>映射一段 page cache 空间，对于不需要的部分，只会映射到临时页。</p>
+<h4 id="per-cpu-解压"><a class="header-anchor-1" href="#per-cpu-解压">#</a>Per-CPU 解压</h4>
+<p>上述的方式还有两个问题：</p>
+<ol>
+<li>还是需要动态分配内存页，不好；</li>
+<li>每次解压都要调用<code>vmap</code>和<code>vunmap</code>，不好；</li>
+</ol>
+<p>为此，EROFS 静态分配了若干个页专门用于解压，具体来说，每个 CPU 会持有<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span>个页。当解压出来的数据不超过<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span>页的时候，就用这些页装解压后的数据，然后再 memcpy 到目标 page cache 位置。</p>
+<p>论文中采用的<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span>为 4。</p>
+<p><img src="erofs-buffer-decompression.png" alt="" /></p>
+<h4 id="滚动解压"><a class="header-anchor-1" href="#滚动解压">#</a>滚动解压</h4>
+<p>由于 LZ4 算法需要当前位置之前最多 64KB 的数据才能解压。EROFS 会给每个 CPU 预先分配若干个物理页，作为 vmap 解压时存储数据的基本 buffer。这些物理页会循环使用。</p>
+<h2 id="实现"><a class="header-anchor-1" href="#实现">#</a>实现</h2>
+<p>EROFS 已经合并进内核。使用内核的 4KB 块大小，LZ4 (v1.8.3) 压缩算法，文件元数据没有被压缩。</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2F0YzE5LWVyb2Zz">atc19-erofs<i class="fa fa-external-link-alt"></i></span> 是合并进 5.3-rc1 的分支。</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2F0YzE5LW1rZnM=">atc19-mkfs<i class="fa fa-external-link-alt"></i></span>是论文版本的 utils，最新版本在<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2Vyb2ZzLXV0aWxz">erofs-utils<i class="fa fa-external-link-alt"></i></span>。</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2ttb2QtZXJvZnM=">kmod-erofs (WIP)<i class="fa fa-external-link-alt"></i></span>是 out-of-tree 版本的 erofs 模块，还没完成。</p>
+<h4 id="erofs-镜像布局"><a class="header-anchor-1" href="#erofs-镜像布局">#</a>EROFS 镜像布局</h4>
+<p><img src="erofs-layout.png" alt="" /></p>
+<p>和其他文件系统一样，EROFS 镜像的开头也是<code>Super block</code>；然后是混合存储的元数据和数据区。</p>
+<p>EROFS 允许元数据（inode，目录）和数据混合存储，即 inline data，目的是提高局部性，减少 I/O 操作。</p>
+<p>TODO</p>
+<h4 id="解压策略"><a class="header-anchor-1" href="#解压策略">#</a>解压策略</h4>
+<p>商业版：少于 4 页时采用 per-CPU 解压，否则采用 vmap 解压；</p>
+<p>最新版：增加了 in-place 解压的优化。</p>
+<h4 id="优化"><a class="header-anchor-1" href="#优化">#</a>优化</h4>
+<h5 id="索引内存优化"><a class="header-anchor-1" href="#索引内存优化">#</a>索引内存优化</h5>
+<p>TODO</p>
+<h5 id="调度优化"><a class="header-anchor-1" href="#调度优化">#</a>调度优化</h5>
+<p>EROFS 没有单独的解压线程，而是由读数据的线程解压数据。</p>
+<p>一旦硬盘块（硬件）准备好就会立即开始解压。</p>
+<h5 id="协同解压"><a class="header-anchor-1" href="#协同解压">#</a>协同解压</h5>
+<p>对同一个数据的多个请求会去重，避免重复解压相同的数据。</p>
+<h5 id="镜像补丁"><a class="header-anchor-1" href="#镜像补丁">#</a>镜像补丁</h5>
+<p>在镜像末尾放置更新数据，解压之后用新数据覆盖。</p>
+<h2 id="评估"><a class="header-anchor-1" href="#评估">#</a>评估</h2>
+<h2 id="相关工作"><a class="header-anchor-1" href="#相关工作">#</a>相关工作</h2>
+]]></content>
+      <categories>
+        <category>erofs</category>
+      </categories>
+      <tags>
+        <tag>文件系统</tag>
+        <tag>操作系统</tag>
+        <tag>论文阅读</tag>
+        <tag>EROFS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>EROFS 相关资料整理</title>
+    <url>/2024/05/14/erofs-resource/</url>
+    <content><![CDATA[<h2 id="代码仓库"><a class="header-anchor-1" href="#代码仓库">#</a>代码仓库</h2>
+<ul>
+<li>EROFS 内核驱动仓库: <span class="exturl" data-url="aHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQveGlhbmcvZXJvZnMuZ2l0">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git<i class="fa fa-external-link-alt"></i></span></li>
+<li>erofs-utils 仓库: <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2Vyb2ZzLXV0aWxz">https://github.com/erofs/erofs-utils<i class="fa fa-external-link-alt"></i></span></li>
+<li>其他相关项目: <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2Zz">https://github.com/erofs<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h2 id="文档"><a class="header-anchor-1" href="#文档">#</a>文档</h2>
+<ul>
+<li>ATC '19 论文主页: <span class="exturl" data-url="aHR0cHM6Ly93d3cudXNlbml4Lm9yZy9jb25mZXJlbmNlL2F0YzE5L3ByZXNlbnRhdGlvbi9nYW8=">https://www.usenix.org/conference/atc19/presentation/gao<i class="fa fa-external-link-alt"></i></span></li>
+<li>内核 EROFS 文档: <span class="exturl" data-url="aHR0cHM6Ly9kb2NzLmtlcm5lbC5vcmcvZmlsZXN5c3RlbXMvZXJvZnMuaHRtbA==">https://docs.kernel.org/filesystems/erofs.html<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 项目主页: <span class="exturl" data-url="aHR0cHM6Ly9lcm9mcy5kb2NzLmtlcm5lbC5vcmcvZW4vbGF0ZXN0LyM=">https://erofs.docs.kernel.org/en/latest/#<i class="fa fa-external-link-alt"></i></span></li>
+<li>An introduction to EROFS (from LWN): <span class="exturl" data-url="aHR0cHM6Ly9sd24ubmV0L0FydGljbGVzLzkzNDA0Ny8=">https://lwn.net/Articles/934047/<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 项目 mannual: <span class="exturl" data-url="aHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQveGlhbmcvZXJvZnMtdXRpbHMuZ2l0L2Fib3V0Lw==">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/about/<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS Introducing Mail: <span class="exturl" data-url="aHR0cHM6Ly9tYXJjLmluZm8vP2w9bGludXgtZnNkZXZlbCZtPTE1Mjc3NjQ4MDQyNTYyNA==">https://marc.info/?l=linux-fsdevel&amp;m=152776480425624<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h2 id="slide"><a class="header-anchor-1" href="#slide">#</a>Slide</h2>
+<ul>
+<li>ATC '19 汇报 Slides: <span class="exturl" data-url="aHR0cHM6Ly93d3cudXNlbml4Lm9yZy9zaXRlcy9kZWZhdWx0L2ZpbGVzL2NvbmZlcmVuY2UvcHJvdGVjdGVkLWZpbGVzL2F0YzE5X3NsaWRlc19nYW8ucGRm">https://www.usenix.org/sites/default/files/conference/protected-files/atc19_slides_gao.pdf<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS Everywhere: An Image-Based Kernel Approach for Various Use Cases@KubeCon China '23: <span class="exturl" data-url="aHR0cHM6Ly9zdGF0aWMuc2NoZWQuY29tL2hvc3RlZF9maWxlcy9rY2NuY29zc2NobjIwMjMvMTMvT1NTLUNoaW5hLTIwMjMtRVJPRlMucGRm">https://static.sched.com/hosted_files/kccncosschn2023/13/OSS-China-2023-EROFS.pdf<i class="fa fa-external-link-alt"></i></span></li>
+<li>Image-based read-only filesystems (EROFS) 龙蜥社区: <span class="exturl" data-url="aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vcHJlc2VudGF0aW9uL2QvMTZMd0QtRjBJS3k4b2trQzhxQjk0djJZZ0RjV0JCRTI2cm1Nbl9zMU1xeGMvZWRpdA==">https://docs.google.com/presentation/d/16LwD-F0IKy8okkC8qB94v2YgDcWBBE26rmMn_s1Mqxc/edit<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h2 id="其他资源"><a class="header-anchor-1" href="#其他资源">#</a>其他资源</h2>
+<ul>
+<li>Linux-erofs Mail List: <span class="exturl" data-url="aHR0cHM6Ly9saXN0cy5vemxhYnMub3JnL2xpc3RpbmZvL2xpbnV4LWVyb2Zz">https://lists.ozlabs.org/listinfo/linux-erofs<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 文件系统这几年（一） —— 缘起: <span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvUlU5SmNwaklIYXJnQV8tb0Y5dFRjZw==">https://mp.weixin.qq.com/s/RU9JcpjIHargA_-oF9tTcg<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 文件系统生态进展（-2024 年 1 月）: <span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvM1FwYmFtdWpRU28zNzh2WHI3UGxBQQ==">https://mp.weixin.qq.com/s/3QpbamujQSo378vXr7PlAA<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h2 id="第三方"><a class="header-anchor-1" href="#第三方">#</a>第三方</h2>
+<ul>
+<li>论文阅读记录（by @SToPire 大佬）: <span class="exturl" data-url="aHR0cHM6Ly9zdG9waXJlLmdpdGh1Yi5pby8yMDIzLzA1LzA3L0VST0ZTLUEtQ29tcHJlc3Npb24tZnJpZW5kbHktUmVhZG9ubHktRmlsZS1TeXN0ZW0tZm9yLVJlc291cmNlLXNjYXJjZS1EZXZpY2VzLw==">https://stopire.github.io/2023/05/07/EROFS-A-Compression-friendly-Readonly-File-System-for-Resource-scarce-Devices/<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 压缩文件格式和读取流程分析（by @SToPire 大佬）: <span class="exturl" data-url="aHR0cHM6Ly9zdG9waXJlLmdpdGh1Yi5pby8yMDIzLzA3LzA1L0VST0ZTJUU1JThFJThCJUU3JUJDJUE5JUU2JTk2JTg3JUU0JUJCJUI2JUU2JUEwJUJDJUU1JUJDJThGJUU1JTkyJThDJUU4JUFGJUJCJUU1JThGJTk2JUU2JUI1JTgxJUU3JUE4JThCJUU1JTg4JTg2JUU2JTlFJTkwLw==">https://stopire.github.io/2023/07/05/EROFS压缩文件格式和读取流程分析/<i class="fa fa-external-link-alt"></i></span></li>
+<li>论文阅读（by @mwish）: <span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC82NjM3ODI1OTQ=">https://zhuanlan.zhihu.com/p/663782594<i class="fa fa-external-link-alt"></i></span></li>
+<li>论文阅读（by elecfans）: <span class="exturl" data-url="aHR0cHM6Ly9iYnMuZWxlY2ZhbnMuY29tL2ppc2h1XzIyOTY3MDBfMV8xLmh0bWw=">https://bbs.elecfans.com/jishu_2296700_1_1.html<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS on-disk compact index 生成分析: <span class="exturl" data-url="aHR0cHM6Ly90anRlY2gubWUvZXJvZnMtY29tcGFjdGVkLWluZGV4LWdlbmVyYXRpb24uaHRtbA==">https://tjtech.me/erofs-compacted-index-generation.html<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS ztailpacking 特性实现详解: <span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvWmdLVTY4SmJnc2s4YkFLNWVSUjhFUQ==">https://mp.weixin.qq.com/s/ZgKU68Jbgsk8bAK5eRR8EQ<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 源码阅读笔记: <span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L20wXzM3NjM3NTExL2FydGljbGUvZGV0YWlscy8xMjQzMzAxNTg=">https://blog.csdn.net/m0_37637511/article/details/124330158<i class="fa fa-external-link-alt"></i></span></li>
+<li>浅谈华为 EROFS 文件系统的两个主要技术: <span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NodWFuZ2d1bzEyMS9hcnRpY2xlL2RldGFpbHMvOTA5MDExMzE=">https://blog.csdn.net/shuangguo121/article/details/90901131<i class="fa fa-external-link-alt"></i></span></li>
+<li>用 EROFS 进行存储与备份: <span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC82NDYzMjIzNjQ=">https://zhuanlan.zhihu.com/p/646322364<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h2 id="links"><a class="header-anchor-1" href="#links">#</a>Links</h2>
+<ul>
+<li>我的论文阅读记录: <a href="/2024/05/09/erofs-paper-reading/" title="EROFS: A Compression-friendly ReadonlyFile System for Resource-scarce Devices">论文阅读</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>erofs</category>
+      </categories>
+      <tags>
+        <tag>文件系统</tag>
+        <tag>操作系统</tag>
+        <tag>EROFS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>EROFS 源码阅读</title>
+    <url>/2024/05/12/erofs-source-reading/</url>
+    <content><![CDATA[<h2 id="erofs-in-tree-驱动"><a class="header-anchor-1" href="#erofs-in-tree-驱动">#</a>erofs in-tree 驱动</h2>
+<p>in-tree 的代码也是模块的形式，以 <code>module_init</code> 开始</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">module_init(erofs_module_init);</span><br><span class="line">module_exit(erofs_module_exit);</span><br><span class="line"></span><br><span class="line"><span class="comment">// in erofs_module_init()</span></span><br><span class="line">err = register_filesystem(&amp;erofs_fs_type);</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span> <span class="title">erofs_fs_type</span> =</span> &#123;</span><br><span class="line">    .owner          = THIS_MODULE,</span><br><span class="line">    .name           = <span class="string">&quot;erofs&quot;</span>,</span><br><span class="line">    .init_fs_context = erofs_init_fs_context, <span class="comment">// init -&gt;ops and -&gt;fs_private</span></span><br><span class="line">    .kill_sb        = erofs_kill_sb, <span class="comment">// shutdown a fs</span></span><br><span class="line">    .fs_flags       = FS_REQUIRES_DEV | FS_ALLOW_IDMAP,</span><br><span class="line">&#125;;</span><br><span class="line">MODULE_ALIAS_FS(<span class="string">&quot;erofs&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p><code>Kconfig</code> 中包含的一些选项：</p>
+<ul>
+<li><code>EROFS_FS_DEBUG</code> DEBUG 支持</li>
+<li><code>EROFS_FS_XATTR</code> 拓展属性支持</li>
+<li><code>EROFS_FS_POSIX_ACL</code> ACL 支持</li>
+<li><code>EROFS_FS_SECURITY</code> 安全标签支持</li>
+<li><code>EROFS_FS_ZIP</code> 压缩支持，默认只支持读取 LZ4 压缩的数据
+<ul>
+<li><code>EROFS_FS_ZIP_LZMA</code> 支持读取 microLZMA 压缩的数据</li>
+<li><code>EROFS_FS_ZIP_DEFLATE</code> 支持读取 DEFLATE 压缩的数据</li>
+<li><code>EROFS_FS_PCPU_KTHREAD</code> 用 per-cpu 的线程池去作异步数据解压缩
+<ul>
+<li><code>EROFS_FS_PCPU_KTHREAD_HIPRI</code> 把这些线程设为高优先级</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>EROFS_FS_ONDEMAND</code> 利用 fscache 实现 on-demand 读</li>
+</ul>
+<h3 id="初始化流程"><a class="header-anchor-1" href="#初始化流程">#</a>初始化流程</h3>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">fs_context_operations</span> <span class="title">erofs_context_ops</span> =</span> &#123;</span><br><span class="line">    .parse_param	= erofs_fc_parse_param, <span class="comment">// add a fs param</span></span><br><span class="line">    .get_tree       = erofs_fc_get_tree, <span class="comment">// ~mount a fs</span></span><br><span class="line">    .reconfigure    = erofs_fc_reconfigure, <span class="comment">// sb reconfiguration</span></span><br><span class="line">    .<span class="built_in">free</span>		= erofs_fc_free, <span class="comment">// clean up</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="内核的-fs-context-结构"><a class="header-anchor-1" href="#内核的-fs-context-结构">#</a>内核的 <code>fs_context</code> 结构</h3>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">fs_context</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">fs_context_operations</span> *<span class="title">ops</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file_system_type</span> *<span class="title">fs_type</span>;</span></span><br><span class="line">    <span class="type">void</span>			*fs_private;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span>		*<span class="title">root</span>;</span>  <span class="comment">// the root of fs tree</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_namespace</span>	*<span class="title">user_ns</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">net</span>		*<span class="title">net_ns</span>;</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span>	*<span class="title">cred</span>;</span></span><br><span class="line">    <span class="type">char</span>			*source;  <span class="comment">// /dev/sda1 or host:/path, etc.</span></span><br><span class="line">    <span class="type">char</span>			*subtype;</span><br><span class="line">    <span class="type">void</span>			*security;</span><br><span class="line">    <span class="type">void</span>			*s_fs_info;  <span class="comment">// user data -&gt; erofs_sb_info</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>		sb_flags;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>		sb_flags_mask;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span>		s_iflags;</span><br><span class="line">    <span class="class"><span class="keyword">enum</span> <span class="title">fs_context_purpose</span>	<span class="title">purpose</span>:</span><span class="number">8</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="erofs-的元数据-erofs-sb-info"><a class="header-anchor-1" href="#erofs-的元数据-erofs-sb-info">#</a>EROFS 的元数据 <code>erofs_sb_info</code></h3>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">erofs_sb_info</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">erofs_mount_opts</span> <span class="title">opt</span>;</span>	<span class="comment">/* options */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_EROFS_FS_ZIP</span></span><br><span class="line">    <span class="comment">/* list for all registered superblocks, mainly for shrinker */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">list</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mutex</span> <span class="title">umount_mutex</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* managed XArray arranged in physical block number */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">xarray</span> <span class="title">managed_pslots</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> shrinker_run_no;</span><br><span class="line">    u16 available_compr_algs;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* pseudo inode to manage cached pages */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">managed_cache</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">erofs_sb_lz4_info</span> <span class="title">lz4</span>;</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span>    <span class="comment">/* CONFIG_EROFS_FS_ZIP */</span></span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">packed_inode</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">erofs_dev_context</span> *<span class="title">devs</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dax_device</span> *<span class="title">dax_dev</span>;</span></span><br><span class="line">    u64 dax_part_off;</span><br><span class="line">    u64 total_blocks;</span><br><span class="line">    u32 primarydevice_blocks;</span><br><span class="line"></span><br><span class="line">    u32 meta_blkaddr;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_EROFS_FS_XATTR</span></span><br><span class="line">    u32 xattr_blkaddr;</span><br><span class="line">    u32 xattr_prefix_start;</span><br><span class="line">    u8 xattr_prefix_count;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">erofs_xattr_prefix_item</span> *<span class="title">xattr_prefixes</span>;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> xattr_filter_reserved;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    u16 device_id_mask;	<span class="comment">/* valid bits of device id to be used */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> islotbits;	<span class="comment">/* inode slot unit size in bit shift */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> blkszbits;	<span class="comment">/* filesystem block size in bit shift */</span></span><br><span class="line"></span><br><span class="line">    u32 sb_size;			<span class="comment">/* total superblock size */</span></span><br><span class="line">    u32 build_time_nsec;</span><br><span class="line">    u64 build_time;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* what we really care is nid, rather than ino.. */</span></span><br><span class="line">    <span class="type">erofs_nid_t</span> root_nid;</span><br><span class="line">    <span class="type">erofs_nid_t</span> packed_nid;</span><br><span class="line">    <span class="comment">/* used for statfs, f_files - f_favail */</span></span><br><span class="line">    u64 inos;</span><br><span class="line"></span><br><span class="line">    u8 uuid[<span class="number">16</span>];                    <span class="comment">/* 128-bit uuid for volume */</span></span><br><span class="line">    u8 volume_name[<span class="number">16</span>];             <span class="comment">/* volume name */</span></span><br><span class="line">    u32 feature_compat;</span><br><span class="line">    u32 feature_incompat;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* sysfs support */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">kobject</span> <span class="title">s_kobj</span>;</span>		<span class="comment">/* /sys/fs/erofs/&lt;devname&gt; */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">completion</span> <span class="title">s_kobj_unregister</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* fscache support */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fscache_volume</span> *<span class="title">volume</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">erofs_fscache</span> *<span class="title">s_fscache</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">erofs_domain</span> *<span class="title">domain</span>;</span></span><br><span class="line">    <span class="type">char</span> *fsid;</span><br><span class="line">    <span class="type">char</span> *domain_id;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>bdev.c</code> 中负责硬盘块操作</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC80NjYyNzI5NDU=">申请 super_block<i class="fa fa-external-link-alt"></i></span></p>
+<p><code>erofs_fc_fill_super</code> 其实是从硬盘上读取数据，初始化 user 的 sb 信息</p>
+<h3 id="inode-操作"><a class="header-anchor-1" href="#inode-操作">#</a>inode 操作</h3>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_generic_iops</span> =</span> &#123;</span><br><span class="line">    .getattr = erofs_getattr,</span><br><span class="line">    .listxattr = erofs_listxattr,</span><br><span class="line">    .get_inode_acl = erofs_get_acl,</span><br><span class="line">    .fiemap = erofs_fiemap,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_symlink_iops</span> =</span> &#123;</span><br><span class="line">    .get_link = page_get_link,</span><br><span class="line">    .getattr = erofs_getattr,</span><br><span class="line">    .listxattr = erofs_listxattr,</span><br><span class="line">    .get_inode_acl = erofs_get_acl,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">erofs_fast_symlink_iops</span> =</span> &#123;</span><br><span class="line">    .get_link = simple_get_link,</span><br><span class="line">    .getattr = erofs_getattr,</span><br><span class="line">    .listxattr = erofs_listxattr,</span><br><span class="line">    .get_inode_acl = erofs_get_acl,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="erofs-utils"><a class="header-anchor-1" href="#erofs-utils">#</a>erofs-utils</h2>
+<ul>
+<li><code>mkfs.erofs</code> 创建一个 erofs 文件系统；</li>
+<li><code>fsck.erofs</code> 检查 erofs 镜像的完整性；</li>
+<li><code>dump.erofs</code> 导出 erofs 镜像中的相关细节；</li>
+<li><code>erofsfuse</code> 用户态</li>
+</ul>
+<h2 id="mkfs"><a class="header-anchor-1" href="#mkfs">#</a>mkfs</h2>
+<h2 id="fsck"><a class="header-anchor-1" href="#fsck">#</a>fsck</h2>
+<h2 id="dump"><a class="header-anchor-1" href="#dump">#</a>dump</h2>
+<h2 id="erofsfuse"><a class="header-anchor-1" href="#erofsfuse">#</a>erofsfuse</h2>
+]]></content>
+      <categories>
+        <category>erofs</category>
+      </categories>
+      <tags>
+        <tag>文件系统</tag>
+        <tag>操作系统</tag>
       </tags>
   </entry>
   <entry>
@@ -12423,9 +12423,9 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
     <url>/2025/03/14/note/</url>
     <content><![CDATA[<h2 id="考试安排"><a class="header-anchor-1" href="#考试安排">#</a>考试安排</h2>
 <p>一般是周末</p>
-<p>上午 9:00-11:30 选择题；</p>
-<p>下午 13:30-15:00 3 道简答题；</p>
-<p>15:30-17:30 论文题</p>
+<p>上午 8:30-12:30 选择题 75 题 满分 75；</p>
+<p>上午 8:30-12:30 案例分析(简答题) 5 题 第一题必做，后面 4 选 2 满分 75；</p>
+<p>下午 14:30-16:30 论文题</p>
 <p><img src="./image.png" alt="alt text" /></p>
 <p>考试形式：机考，机器上有输入法。</p>
 <p>有草稿纸，需要自带水笔。</p>
@@ -13101,6 +13101,299 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
 <li><strong>共享脚本</strong>: 共享脚本是指一个脚本可以被多个测试用例使用，即脚本语言允许一个脚本调用另一个脚本。</li>
 <li><strong>数据驱动脚本</strong>: 数据驱动脚本是指将测试输入存储在<strong>独立的数据文件</strong>中，而不是脚本中。这样，脚本可以针对不同的数据输入实现多个测试用例。</li>
 <li><strong>关键字驱动脚本</strong>: 关键字驱动脚本是数据驱动脚本的逻辑扩展，它用测试文件描述测试用例，它说明测试用例做什么，而不是如何做。关键字驱动脚本允许使用描述性的方法，只需要提供测试用例的描述，即可生成测试用例。</li>
+</ul>
+<h2 id="案例分析"><a class="header-anchor-1" href="#案例分析">#</a>案例分析</h2>
+<p>第一题必做，后面 4 选 2</p>
+<h3 id="题型"><a class="header-anchor-1" href="#题型">#</a>题型</h3>
+<p>选词填空型、简答填空型、概念对比型、概念简述型、解决方案简述型</p>
+<p>DFD 数据流图</p>
+<ul>
+<li>父图 ( 上层数据流图 ) 与 子图 ( 下层数据流图 ) 平衡（也叫作分层细化过程平衡）。个数一致：两层数据流图中的数据流个数一致。方向一致：两层数据流图中的数据流方向一致。</li>
+<li>黑洞 加工只有输入没有输出（只进不出）</li>
+<li>奇迹 加工只有输出没有输入（只出不进）</li>
+<li>灰洞 加工不出输出流</li>
+<li>数据存储 一般来说这个点可以不提。正常情况下必须既有读的数据流，又有写的数据流；在某张子图中，可能只有读没有写，或者只有写没有读。</li>
+</ul>
+<p>STD 状态(转换)图</p>
+<ul>
+<li>（1）状态、初态、终态。</li>
+<li>（2）事件、转移、动作。</li>
+<li>（3）并发状态机。状态机图的推荐使用场合：包括类设计场合</li>
+</ul>
+<p>用例图</p>
+<ul>
+<li>用例之间的关系: 包含、扩展和泛化</li>
+</ul>
+<p>类图</p>
+<ul>
+<li>类之间的关系: 关联–、依赖-|+&gt;、泛化-|&gt;、聚合-&lt;&gt;、组合-&lt;+&gt;和实现-.-|&gt;
+<ul>
+<li>关联–: 一般的关联关系</li>
+<li>聚合-&lt;&gt;和组合-&lt;+&gt;的区别: 组合关系的部分不能脱离整体而存在，聚合关系没有生命周期约束</li>
+<li>依赖-|+&gt;，泛化-|&gt;，实现-.-|&gt;的区别: 依赖关系是 A 依赖 B，泛化关系是 A 是 B 的子类，实现关系是 A 实现 B 的接口</li>
+</ul>
+</li>
+</ul>
+<p>顺序图/时序图</p>
+<ul>
+<li>对象 生命线</li>
+<li>交互片段</li>
+<li>执行发生</li>
+<li>同步、异步、返回消息</li>
+</ul>
+<p>通信图/协作图</p>
+<ul>
+<li>对象 生命线</li>
+<li>连接</li>
+<li>同步、异步、返回消息</li>
+</ul>
+<p>时序图 vs 通信图: 顺序图以时间轴为主线，通过垂直生命线和消息箭头清晰展示消息传递的时序关系，适合体现复杂的操作流程、并发或者异步操作；而通信图则以对象间的结构关系为中心，通过节点和链接呈现交互路径，强调对象协作的拓扑结构，适合分析静态关系紧密、消息路径简单的场景。两者语义等价，可以相互转换。实际应用中需要根据具体需求和复杂度选择合适的图示方式，关注时序细节用顺序图，强调结构关系用通信图，也可以结合使用以全面描述交互逻辑。</p>
+<p>活动图</p>
+<ul>
+<li>活动 对象 分区</li>
+<li>起点 终点 决策点 分叉/合并</li>
+<li>控制流 对象流</li>
+</ul>
+<p>类识别</p>
+<ul>
+<li>实体类 边界类 控制类</li>
+</ul>
+<p>面向对象设计原则</p>
+<ul>
+<li>SOLID
+<ul>
+<li>S: 单一职责原则</li>
+<li>O: 开放-封闭原则</li>
+<li>L: 里氏替换原则</li>
+<li>I: 接口隔离原则</li>
+<li>D: 依赖倒置原则</li>
+</ul>
+</li>
+</ul>
+<p>开闭原则: 面向对象设计的开闭原则（Open Closed Principle, OCP）指的是一个软件实体（类、模块、函数等）应该对扩展开放，对修改关闭。也就是说，在设计一个模块时，应该允许在不修改原有代码的情况下，通过增加新代码来扩展其功能或者行为。</p>
+<p>单一职责原则: 单一职责原则（Single Responsibility Principle, SRP）是指一个类应该只有一个设计原因，即一个类应该只有一个职责。</p>
+<p>里氏替换原则: 里氏替换原则（Liskov Substitution Principle, LSP）是指子类对象应该能够替换父类对象，并且程序的行为不会发生变化。</p>
+<p>表现层层次结构</p>
+<ul>
+<li>MVC 模式
+<ul>
+<li>视图 -&gt; 控制器 -&gt; 模型 -&gt; 视图更新</li>
+</ul>
+</li>
+<li>MVP 模式
+<ul>
+<li>视图 &lt;-&gt; 呈现器 &lt;-&gt; 模型</li>
+</ul>
+</li>
+<li>MVVC 模式
+<ul>
+<li>视图 &lt;-&gt; 视图模型 &lt;-&gt; 模型</li>
+</ul>
+</li>
+</ul>
+<p>中间层架构</p>
+<p>数据层架构</p>
+<ul>
+<li>在线访问模式: 应用程序直接操作数据库</li>
+<li>DAO: 通过接口封装数据库操作</li>
+<li>DTO: 用于跨进程/跨网络传输数据的对象</li>
+<li>ORM: 对象关系映射</li>
+</ul>
+<p>数据库程序采用在线访问方式的优点包括性能较高、能够处理复杂查询；缺点是要求开发人员具备 SQL 编程能力，且代码修改维护相对困难。
+ORM 的优点是简化了数据库操作，降低了学习和开发成本，无需编写 SQL 语句，减少代码量，降低 SQL 质量带来的影响；缺点是性能不如在线访问方式，且处理复杂查询困难。选择 ORM 的主要考虑因素是团队的技术水平和项目的复杂性。</p>
+<p>增加数据访问层的原因是为了实现数据和业务逻辑的分离，提高系统的可维护性和可扩展性。数据访问层的主要功能是提供对数据源的访问和操作，封装数据访问的细节，使得业务逻辑层不需要关心数据存储的具体实现。简化开发流程，方便后续的维护和扩展，提升系统的可重用性和可测试性。</p>
+<p>物联网</p>
+<ul>
+<li>感知层 网络层 应用层</li>
+</ul>
+<p>云原生架构原则</p>
+<ul>
+<li>弹性原则 系统自动伸缩，适配业务需求</li>
+<li>韧性原则 抵御软硬件异常，保障系统稳定</li>
+</ul>
+<p>云原生架构模式</p>
+<ul>
+<li>服务化架构模式: 以应用模块划分软件，通过接口契约、标准协议定义业务关系，结合 DDD、TDD、容器化部署提升代码质量与迭代速度，典型模式为微服务、小服务</li>
+<li>Mesh 化架构模式: 将中间件框架（RPC、缓存等）从业务进程分离，业务进程仅保留薄 Client，中间件逻辑由 Mesh 进程完成</li>
+<li>Serverless 模式: 开发者无需关心应用运行环境，云自动处理应用启动、调度、关闭，业务流量/ 事件触发处理</li>
+<li>存储计算分离模式: 分布式环境中，将暂态数据、持久数据采用云服务保存，有状态场景通过时间日志 + 快照恢复服务</li>
+<li>分布式事务模式: 针对多数据源场景，提供多种事务模式：XA 模式（强一致，性能差）；基于消息最终一致性（高性能，通用性有限）；TCC 模式（应用层控制，侵入性强）；SAGA 模式（补偿事务，开发维护成本高）；SEATA AT 模式（高性能、无代码工作量，有场景限制）</li>
+<li>可观测架构: 通过 Logging（多级别日志）、Tracing（请求链路跟踪）、Metrics（系统量化度量）实现可观测性，定义组件 SLO（并发度、耗时等）</li>
+<li>事件驱动架构: 基于事件集成应用 / 组件，事件含 schema 可校验，具备 QoS 保障与失败响应机制，用于服务解耦、数据变化通知、事件流处理等</li>
+</ul>
+<p>云原生架构反模式</p>
+<ul>
+<li>庞大的单体应用</li>
+<li>单体应用“硬拆”为微服务</li>
+<li>缺乏自动化能力的微服务</li>
+</ul>
+<p>容器技术</p>
+<p>容器技术是一种轻量级的隔离技术，允许多个应用在同一操作系统内核上运行，每个容器运行一个或者一组应用，具有独立的文件系统、运行环境等，实现应用的快速部署和隔离。虚拟机技术通过虚拟化技术在物理服务器上模拟出多个独立的虚拟计算机，每个虚拟机有自己的硬件资源、操作系统和应用程序，实现完全的隔离和资源分配。容器技术相较于虚拟机技术更加轻量级，资源占用更少，启动速度更快，能更加高效地利用硬件资源，满足系统升级中对于资源利用优化的需求。且在当前技术发展下，安全问题可通过安全策略、容器隔离等方式进行防护，在满足业务需求的同时，能以更低的成本和更高的效率实现资源的利用。契合企业系统升级的初衷。</p>
+<p>容器编排技术</p>
+<dl>
+<dt>SOA 面向服务架构</dt>
+<dd>面向服务架构（SOA）是一种软件架构风格，强调将应用程序的不同功能单元划分为松耦合的服务，并将这些服务通过标准化的接口和契约联系起来。接口是采用中立的方式进行定义的，而且独立于实现服务的硬件平台、操作系统和编程语言。者使得构建和集成复杂的分布式系统变得更加灵活和高效。</dd>
+</dl>
+<p>服务注册模式</p>
+<ul>
+<li>服务提供者 服务注册中心 服务请求者</li>
+<li>UDDI 注册中心</li>
+<li>WSDL 服务定义语言</li>
+<li>SOAP 简单对象访问协议 基于 XML 用于通信</li>
+</ul>
+<p>REST 风格</p>
+<ul>
+<li>资源 URI</li>
+<li>统一资源接口</li>
+<li>资源表述</li>
+<li>资源链接</li>
+<li>状态转移</li>
+</ul>
+<dl>
+<dt>ESB 企业服务总线</dt>
+<dd>企业服务总线（ESB）提供位置透明的消息路由和寻址服务、服务注册和命名管理功能，支持多种消息传递模式（点对点、发布/订阅等），多种传输协议，多种消息格式，提供服务编排和转换功能，支持事务处理和安全性等。</dd>
+</dl>
+<p>微服务</p>
+<ul>
+<li>解耦复杂应用、独立部署、技术选型灵活、容错性好、易扩展。</li>
+<li>聚合器微服务</li>
+<li>代理微服务</li>
+<li>链式微服务</li>
+<li>分支微服务</li>
+<li>数据共享微服务</li>
+<li>异步消息微服务</li>
+</ul>
+<p>软件架构风格</p>
+<ul>
+<li>数据流架构
+<ul>
+<li>批处理</li>
+<li>管道-过滤器</li>
+</ul>
+</li>
+<li>调用/返回架构
+<ul>
+<li>主程序/子程序</li>
+<li>面向对象</li>
+<li>客户端/服务器</li>
+</ul>
+</li>
+<li>以数据为中心的架构
+<ul>
+<li>仓库</li>
+<li>黑板</li>
+</ul>
+</li>
+<li>虚拟机
+<ul>
+<li>解释器</li>
+</ul>
+</li>
+<li>独立构件
+<ul>
+<li>事件驱动</li>
+</ul>
+</li>
+<li>特殊
+<ul>
+<li>C2</li>
+<li>过程控制</li>
+</ul>
+</li>
+</ul>
+<p>面向对象和解释器风格的对比分析: 应该选择解释器风格。折扣规则的变化频繁，且变化的规则数量较多，使用面向对象风格会导致类的数量过多，增加了系统的复杂性和维护成本。而解释器风格则可以通过动态加载和解析规则来实现灵活的规则处理，适应性更强，且可以更好地支持规则的变化和扩展。个性化折扣定义灵活性方面，解析器风格可以通过定义规则的语法和语义来实现个性化折扣的定义，做到千人千面。系统性能方面，面向对象风格可能略优于解释器风格，但在实际应用中，解释器风格的性能也可以通过优化解析器和规则引擎来提升。综合考虑，解释器风格更适合该系统的需求。</p>
+<dl>
+<dt>面向架构评估的质量属性</dt>
+<dd>易理解性、可扩展性、可重用性、可测试性、可维护性、可移植性、性能、安全性</dd>
+</dl>
+<p>质量属性场景描述</p>
+<ul>
+<li>刺激源 刺激 环境 制品 响应 响应度量</li>
+</ul>
+<p>系统架构评估方法</p>
+<ul>
+<li>基于调查问卷或调查表</li>
+<li>基于场景的评估 包括 SAAM ATAM</li>
+<li>基于度量的评估</li>
+</ul>
+<p>SAAM</p>
+<ul>
+<li>输入: 问题描述、需求声明、架构描述</li>
+<li>过程: 场景开发、架构描述、单场景评估、场景交互评估、总体评估</li>
+</ul>
+<p>ATAM 基于 SAAM</p>
+<ul>
+<li>演示、调查和分析、测试、报告
+<ul>
+<li>调查和分析: 场景和需求收集、架构视图和场景实现、属性模型构造和分析、权衡</li>
+</ul>
+</li>
+<li>效用树: 树根-质量属性-属性分类-质量属性场景（叶子节点）</li>
+<li>主要关注的质量属性: <strong>性能</strong>、<strong>安全性</strong>、<strong>可修改性</strong>、<strong>可用性</strong></li>
+</ul>
+<p>安全架构</p>
+<ul>
+<li>可用性、完整性、机密性</li>
+</ul>
+<p>数据加密技术</p>
+<ul>
+<li>对称加密</li>
+<li>非对称加密</li>
+<li>数字签名</li>
+<li>数字证书</li>
+</ul>
+<p>基于口令的简单认证机制 vs 基于公钥体系的机制:
+（1）基于口令的认证方式实现简单，但由于口令复杂度及管理方面的原因，易受到认证攻击；而在基于公钥体系的认证机制中，由于使用了公钥和私钥的非对称加密技术，在认证过程中，私钥仅存储在用户本地，不在网络中传输，因此可以有效地防止认证攻击，与基于口令的认证方式相比，安全性更高。（2）按照需求描述，系统在完成用户身份鉴别后，需根据用户的身份信息进行权限控制。在基于口令的认证机制中，用户口令为用户和认证服务器共享，没有用户独有的直接秘密信息。而在基于公钥体系的认证机制中，可基于用户私钥对私有数据进行加密，只有用户本人才能解密，实现更加简便。（3）基于公钥体系的认证机制的协议和计算相对复杂，因此在性能上会略逊于基于口令的认证机制。但由于企业业务环境的总用户在 100 人以内，规模不大，运行环境又为局域网环境，因此基于公钥体系的认证机制可以满足平台效率要求。</p>
+<p>系统架构原则</p>
+<p>批处理和流处理</p>
+<p>Lambda 架构</p>
+<ul>
+<li>批处理层 Hive Spark MapReduce</li>
+<li>速度处理层 Storm Spark Streaming Flink</li>
+<li>服务层 Kylin Presto Impala Druid
+<ul>
+<li>以批处理层和加速层结果数据为基础，对外提供低延时数据查询和即席查询服务</li>
+</ul>
+</li>
+</ul>
+<p>Kappa 架构</p>
+<ul>
+<li>只保留流处理层，批处理层被流处理层替代</li>
+</ul>
+<p>对比</p>
+<p>IOTA 架构</p>
+<p>数据库系统</p>
+<p>索引</p>
+<p>数据分片</p>
+<p>数据分区</p>
+<p>数据库高可用模式</p>
+<ul>
+<li>读写分离</li>
+<li>主从复制</li>
+<li>一致性问题</li>
+</ul>
+<p>数据库选型</p>
+<p>分布式系统</p>
+<ul>
+<li>CAP 理论: 数据一致性、可用性和分区容错性</li>
+<li>BASE 理论: 基本可用、软状态和最终一致性</li>
+</ul>
+<p>分布式事务</p>
+<ul>
+<li>2PC 两阶段提交协议</li>
+<li>TCC 柔性事务</li>
+<li>柔性事务本地消息表</li>
+</ul>
+<p>Redis</p>
+<p>MongoDB</p>
+<ul>
+<li>分片集群</li>
+<li>主从副本</li>
+</ul>
+<p>ElasticSearch</p>
+<ul>
+<li>全文搜索</li>
+<li>倒排索引</li>
 </ul>
 <h2 id="论文"><a class="header-anchor-1" href="#论文">#</a>论文</h2>
 <h3 id=""><a class="header-anchor-1" href="#">#</a></h3>
@@ -13820,21 +14113,21 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>217. 存在重复元素</title>
-    <url>/2020/12/13/217/</url>
-    <content><![CDATA[<p>给定一个整数数组，判断是否存在重复元素。</p>
-<p>如果任意一值在数组中出现至少两次，函数返回 true 。如果数组中每个元素都不相同，则返回 false 。</p>
-<p>没啥好说的:</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">containsDuplicate</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">sort</span>(nums.<span class="built_in">begin</span>(),nums.<span class="built_in">end</span>());</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">unique</span>(nums.<span class="built_in">begin</span>(),nums.<span class="built_in">end</span>())!=nums.<span class="built_in">end</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>205. 同构字符串</title>
+    <url>/2020/12/27/205/</url>
+    <content><![CDATA[<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">isIsomorphic</span><span class="params">(string s, string t)</span> </span>&#123;</span><br><span class="line">        map&lt;<span class="type">char</span>, <span class="type">char</span>&gt;M;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            <span class="type">char</span> ss = s[i], tt = t[i];</span><br><span class="line">            <span class="keyword">if</span>(M.<span class="built_in">find</span>(ss)==M.<span class="built_in">end</span>())&#123;</span><br><span class="line">                <span class="keyword">if</span>(<span class="built_in">find_if</span>(M.<span class="built_in">begin</span>(),M.<span class="built_in">end</span>(),[&amp;](<span class="type">const</span> map&lt;<span class="type">char</span>, <span class="type">char</span>&gt;::iterator&amp;it)&#123;<span class="keyword">return</span> it-&gt;second==tt;&#125;)!=M.<span class="built_in">end</span>())&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    M[ss]=tt;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(M[ss]!=tt)&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
       </categories>
   </entry>
   <entry>
-    <title>205. 同构字符串</title>
-    <url>/2020/12/27/205/</url>
-    <content><![CDATA[<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">isIsomorphic</span><span class="params">(string s, string t)</span> </span>&#123;</span><br><span class="line">        map&lt;<span class="type">char</span>, <span class="type">char</span>&gt;M;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            <span class="type">char</span> ss = s[i], tt = t[i];</span><br><span class="line">            <span class="keyword">if</span>(M.<span class="built_in">find</span>(ss)==M.<span class="built_in">end</span>())&#123;</span><br><span class="line">                <span class="keyword">if</span>(<span class="built_in">find_if</span>(M.<span class="built_in">begin</span>(),M.<span class="built_in">end</span>(),[&amp;](<span class="type">const</span> map&lt;<span class="type">char</span>, <span class="type">char</span>&gt;::iterator&amp;it)&#123;<span class="keyword">return</span> it-&gt;second==tt;&#125;)!=M.<span class="built_in">end</span>())&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    M[ss]=tt;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(M[ss]!=tt)&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>217. 存在重复元素</title>
+    <url>/2020/12/13/217/</url>
+    <content><![CDATA[<p>给定一个整数数组，判断是否存在重复元素。</p>
+<p>如果任意一值在数组中出现至少两次，函数返回 true 。如果数组中每个元素都不相同，则返回 false 。</p>
+<p>没啥好说的:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">containsDuplicate</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">sort</span>(nums.<span class="built_in">begin</span>(),nums.<span class="built_in">end</span>());</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">unique</span>(nums.<span class="built_in">begin</span>(),nums.<span class="built_in">end</span>())!=nums.<span class="built_in">end</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -13861,6 +14154,15 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
+    <title>25. K 个一组翻转链表</title>
+    <url>/2021/03/01/25/</url>
+    <content><![CDATA[<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode *<span class="title">reverseKGroup</span><span class="params">(ListNode *head, <span class="type">int</span> k)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        ListNode _header(<span class="number">0</span>, head);</span><br><span class="line">        ListNode *last = &amp;_header;</span><br><span class="line">        head = last;</span><br><span class="line">        <span class="type">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (head) &#123;</span><br><span class="line">            head = head-&gt;next;</span><br><span class="line">            count++;</span><br><span class="line">            <span class="keyword">if</span> (head &amp;&amp; count == k) &#123;</span><br><span class="line">                count -= k;</span><br><span class="line">                ListNode *tmp_last_next = last-&gt;next;</span><br><span class="line">                <span class="built_in">reverseK</span>(last, k);</span><br><span class="line">                head = last = tmp_last_next;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> _header.next;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">reverseK</span><span class="params">(ListNode *start, <span class="type">int</span> k)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        ListNode *cur = start, *next = start-&gt;next;</span><br><span class="line">        <span class="type">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (count &lt; k) &#123;</span><br><span class="line">            ListNode *tmp = next-&gt;next;</span><br><span class="line">            next-&gt;next = cur;</span><br><span class="line">            cur = next;</span><br><span class="line">            next = tmp;</span><br><span class="line">            count++;</span><br><span class="line">        &#125;</span><br><span class="line">        start-&gt;next-&gt;next = next;</span><br><span class="line">        start-&gt;next = cur;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
     <title>290. 单词规律</title>
     <url>/2020/12/16/290/</url>
     <content><![CDATA[<p>判断给定<em>字符串</em>是不是按照给定<em>模式</em>的短语, 例如&quot;dog dog cat cat&quot;就是&quot;aabb&quot;式的短语</p>
@@ -13872,15 +14174,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
 <p>两者都返回迭代器</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">M.<span class="built_in">find</span>(someKey);</span><br><span class="line"><span class="built_in">find_if</span>(M.<span class="built_in">begin</span>(), M.<span class="built_in">end</span>(), [&amp;](<span class="type">const</span> <span class="keyword">auto</span>&amp; kv)&#123; <span class="comment">/* ... */</span> &#125;);</span><br></pre></td></tr></table></figure>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">wordPattern</span><span class="params">(string pattern, string s)</span> </span>&#123;</span><br><span class="line">        map&lt;<span class="type">char</span>, string&gt; M;</span><br><span class="line">        vector&lt;string&gt; S;</span><br><span class="line">        <span class="type">char</span> *p = <span class="built_in">strtok</span>((<span class="type">char</span> *)s.<span class="built_in">c_str</span>(), <span class="string">&quot; &quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (p) <span class="keyword">do</span> &#123;</span><br><span class="line">            S.<span class="built_in">push_back</span>(p);</span><br><span class="line">        &#125; <span class="keyword">while</span> (p = <span class="built_in">strtok</span>(<span class="literal">NULL</span>, <span class="string">&quot; &quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (pattern.<span class="built_in">size</span>() != S.<span class="built_in">size</span>()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; pattern.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            <span class="type">char</span> ch = pattern[i];</span><br><span class="line">            <span class="keyword">if</span> (M.<span class="built_in">find</span>(ch) == M.<span class="built_in">end</span>()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="built_in">find_if</span>(M.<span class="built_in">begin</span>(),M.<span class="built_in">end</span>(),[&amp;](<span class="type">const</span> <span class="keyword">auto</span>&amp;p)&#123;<span class="keyword">return</span> p.second==S[i];&#125;)!=M.<span class="built_in">end</span>())&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                cout&lt;&lt;ch&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;S[i]&lt;&lt;endl;</span><br><span class="line">                M[ch] = S[i];</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (M[ch] != S[i]) &#123;</span><br><span class="line">                cout&lt;&lt;M[ch]&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;S[i]&lt;&lt;endl;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>25. K 个一组翻转链表</title>
-    <url>/2021/03/01/25/</url>
-    <content><![CDATA[<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode *<span class="title">reverseKGroup</span><span class="params">(ListNode *head, <span class="type">int</span> k)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        ListNode _header(<span class="number">0</span>, head);</span><br><span class="line">        ListNode *last = &amp;_header;</span><br><span class="line">        head = last;</span><br><span class="line">        <span class="type">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (head) &#123;</span><br><span class="line">            head = head-&gt;next;</span><br><span class="line">            count++;</span><br><span class="line">            <span class="keyword">if</span> (head &amp;&amp; count == k) &#123;</span><br><span class="line">                count -= k;</span><br><span class="line">                ListNode *tmp_last_next = last-&gt;next;</span><br><span class="line">                <span class="built_in">reverseK</span>(last, k);</span><br><span class="line">                head = last = tmp_last_next;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> _header.next;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">reverseK</span><span class="params">(ListNode *start, <span class="type">int</span> k)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        ListNode *cur = start, *next = start-&gt;next;</span><br><span class="line">        <span class="type">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (count &lt; k) &#123;</span><br><span class="line">            ListNode *tmp = next-&gt;next;</span><br><span class="line">            next-&gt;next = cur;</span><br><span class="line">            cur = next;</span><br><span class="line">            next = tmp;</span><br><span class="line">            count++;</span><br><span class="line">        &#125;</span><br><span class="line">        start-&gt;next-&gt;next = next;</span><br><span class="line">        start-&gt;next = cur;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -15367,16 +15660,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/12/2020-12-12/</url>
-    <content><![CDATA[<h1>线性代数</h1>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/13/2020-12-13/</url>
     <content><![CDATA[<h1>C++ STL中unique的用法</h1>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>, <span class="keyword">class</span> <span class="title class_">BinaryPredicate</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last,</span></span></span><br><span class="line"><span class="params"><span class="function">                           BinaryPredicate pred )</span></span>;</span><br></pre></td></tr></table></figure>
@@ -15396,6 +15679,16 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>STL</tag>
         <tag>CCFCSP</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/12/2020-12-12/</url>
+    <content><![CDATA[<h1>线性代数</h1>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
