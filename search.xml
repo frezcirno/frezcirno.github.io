@@ -2064,17 +2064,6 @@ I=\{
       </categories>
   </entry>
   <entry>
-    <title>现代编译原理 阅读记录</title>
-    <url>/2024/04/30/tiger-book/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>compiler-principle</category>
-      </categories>
-      <tags>
-        <tag>编译原理</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>编译原理课程笔记 - Chapter 5 优化</title>
     <url>/2020/12/17/note5-profile/</url>
     <content><![CDATA[<h2 id="提纲"><a class="header-anchor-1" href="#提纲">#</a>提纲</h2>
@@ -2203,6 +2192,17 @@ I=\{
       <categories>
         <category>compiler-principle</category>
       </categories>
+  </entry>
+  <entry>
+    <title>现代编译原理 阅读记录</title>
+    <url>/2024/04/30/tiger-book/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>compiler-principle</category>
+      </categories>
+      <tags>
+        <tag>编译原理</tag>
+      </tags>
   </entry>
   <entry>
     <title>计算机网络课程笔记</title>
@@ -2905,6 +2905,38 @@ SNMP: 161/162</p>
       </tags>
   </entry>
   <entry>
+    <title>C++ 并发三件套 - future, promise, async</title>
+    <url>/2024/04/20/cpp-concurrency/</url>
+    <content><![CDATA[<p>C++标准库提供了很多用于并发编程的工具，不太熟悉，总结一下。</p>
+<h2 id="异步计算结果-std-future-t"><a class="header-anchor-1" href="#异步计算结果-std-future-t">#</a>异步计算结果 <code>std::future&lt;T&gt;</code></h2>
+<p><code>std::future&lt;T&gt;</code> 表示一个异步计算过程的结果。</p>
+<p><code>std::future::wait()</code> 方法阻塞当前线程直至计算完成。如果计算已经完成，则直接返回。</p>
+<p><code>std::future::get()</code> 方法等待计算完成，并获取 <code>future&lt;T&gt;</code> 表示的值或异常。<code>get()</code> 方法会消耗掉当前 future 保存的值，因此只能调用一次。</p>
+<p><code>std::future::valid()</code> 方法表示当前 future 中是否还有值可以被获取，如果值已经被 get 过，则会返回 false。</p>
+<p><code>std::future::share()</code> 方法返回一个 <code>std::shared_future&lt;T&gt;</code>。</p>
+<p><code>std::future&lt;T&gt;</code> 是 move-only 的结构，且独占 <code>T</code> 的所有权。当多个对等的线程需要访问同一个期望值时，可以使用 copyable 的 <code>std::shared_future&lt;T&gt;</code>。注意，<code>std::shared_future&lt;T&gt;</code> 本身并不是线程安全的，需要每个线程拷贝并持有一个自己的 <code>std::shared_future&lt;T&gt;</code>。</p>
+<h2 id="异步生产者-std-promise-t"><a class="header-anchor-1" href="#异步生产者-std-promise-t">#</a>异步生产者 <code>std::promise&lt;T&gt;</code></h2>
+<p><code>std::promise&lt;T&gt;</code> 用于生产者提供一个 <code>std::future&lt;T&gt;</code> 及其中的值给消费者。<code>std::promise&lt;T&gt;::get_future()</code> 方法返回一个 <code>std::future&lt;T&gt;</code> 给消费者。</p>
+<p>对于生产者，使用 <code>std::promise&lt;T&gt;::set_value()</code> 方法填充 <code>future</code> 中的值；或者使用 <code>std::promise&lt;T&gt;::set_exception()</code> 方法填充 <code>future</code> 中的异常；</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> std::promise&lt;<span class="type">double</span>&gt; some_promise;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_value</span>(<span class="built_in">calculate_value</span>());</span><br><span class="line">&#125; <span class="built_in">catch</span>(...) &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_exception</span>(std::<span class="built_in">current_exception</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="异步执行-std-async"><a class="header-anchor-1" href="#异步执行-std-async">#</a>异步执行 <code>std::async()</code></h2>
+<p><code>std::async</code> 是一个函数，它启动一个异步任务去执行指定的函数，返回一个表示计算结果的 <code>std::future</code></p>
+<p><code>std::async</code> 允许额外指定一个<code>std::launch</code>类型的参数来指定任务启动的方式，有以下几种启动策略：</p>
+<ul>
+<li><code>std::launch::async</code>: 任务必须在独立线程中执行，因此需要库去负责线程创建和销毁；</li>
+<li><code>std::launch::deferred</code>: 任务可以延迟到<code>wait()</code>或者<code>get()</code>的时候，在调用者线程上同步执行 (有点类似 Rust Tokio 的设计)；</li>
+<li><code>std::launch::async | std::launch::deferred</code>: 默认的方式，表示以上两种执行时机都可以，由具体实现去选择。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>CPP</tag>
+        <tag>并发编程</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C++ `constexpr` 的限制</title>
     <url>/2024/04/21/cpp-constexpr-usage/</url>
     <content><![CDATA[<ol>
@@ -2945,38 +2977,6 @@ SNMP: 161/162</p>
       </categories>
       <tags>
         <tag>CPP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>C++ 并发三件套 - future, promise, async</title>
-    <url>/2024/04/20/cpp-concurrency/</url>
-    <content><![CDATA[<p>C++标准库提供了很多用于并发编程的工具，不太熟悉，总结一下。</p>
-<h2 id="异步计算结果-std-future-t"><a class="header-anchor-1" href="#异步计算结果-std-future-t">#</a>异步计算结果 <code>std::future&lt;T&gt;</code></h2>
-<p><code>std::future&lt;T&gt;</code> 表示一个异步计算过程的结果。</p>
-<p><code>std::future::wait()</code> 方法阻塞当前线程直至计算完成。如果计算已经完成，则直接返回。</p>
-<p><code>std::future::get()</code> 方法等待计算完成，并获取 <code>future&lt;T&gt;</code> 表示的值或异常。<code>get()</code> 方法会消耗掉当前 future 保存的值，因此只能调用一次。</p>
-<p><code>std::future::valid()</code> 方法表示当前 future 中是否还有值可以被获取，如果值已经被 get 过，则会返回 false。</p>
-<p><code>std::future::share()</code> 方法返回一个 <code>std::shared_future&lt;T&gt;</code>。</p>
-<p><code>std::future&lt;T&gt;</code> 是 move-only 的结构，且独占 <code>T</code> 的所有权。当多个对等的线程需要访问同一个期望值时，可以使用 copyable 的 <code>std::shared_future&lt;T&gt;</code>。注意，<code>std::shared_future&lt;T&gt;</code> 本身并不是线程安全的，需要每个线程拷贝并持有一个自己的 <code>std::shared_future&lt;T&gt;</code>。</p>
-<h2 id="异步生产者-std-promise-t"><a class="header-anchor-1" href="#异步生产者-std-promise-t">#</a>异步生产者 <code>std::promise&lt;T&gt;</code></h2>
-<p><code>std::promise&lt;T&gt;</code> 用于生产者提供一个 <code>std::future&lt;T&gt;</code> 及其中的值给消费者。<code>std::promise&lt;T&gt;::get_future()</code> 方法返回一个 <code>std::future&lt;T&gt;</code> 给消费者。</p>
-<p>对于生产者，使用 <code>std::promise&lt;T&gt;::set_value()</code> 方法填充 <code>future</code> 中的值；或者使用 <code>std::promise&lt;T&gt;::set_exception()</code> 方法填充 <code>future</code> 中的异常；</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> std::promise&lt;<span class="type">double</span>&gt; some_promise;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_value</span>(<span class="built_in">calculate_value</span>());</span><br><span class="line">&#125; <span class="built_in">catch</span>(...) &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_exception</span>(std::<span class="built_in">current_exception</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="异步执行-std-async"><a class="header-anchor-1" href="#异步执行-std-async">#</a>异步执行 <code>std::async()</code></h2>
-<p><code>std::async</code> 是一个函数，它启动一个异步任务去执行指定的函数，返回一个表示计算结果的 <code>std::future</code></p>
-<p><code>std::async</code> 允许额外指定一个<code>std::launch</code>类型的参数来指定任务启动的方式，有以下几种启动策略：</p>
-<ul>
-<li><code>std::launch::async</code>: 任务必须在独立线程中执行，因此需要库去负责线程创建和销毁；</li>
-<li><code>std::launch::deferred</code>: 任务可以延迟到<code>wait()</code>或者<code>get()</code>的时候，在调用者线程上同步执行 (有点类似 Rust Tokio 的设计)；</li>
-<li><code>std::launch::async | std::launch::deferred</code>: 默认的方式，表示以上两种执行时机都可以，由具体实现去选择。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>cpp</category>
-      </categories>
-      <tags>
-        <tag>CPP</tag>
-        <tag>并发编程</tag>
       </tags>
   </entry>
   <entry>
@@ -4400,29 +4400,6 @@ Google Analytics 总结这些信息，然后提供给网站所有者。</p>
       </tags>
   </entry>
   <entry>
-    <title>MIT 6.824/6.5840 分布式系统 Lab 2</title>
-    <url>/2025/02/20/mit-6.824-distributed-system-lab2/</url>
-    <content><![CDATA[<h2 id="lab-2-key-value-server"><a class="header-anchor-1" href="#lab-2-key-value-server">#</a>Lab 2: Key/Value Server</h2>
-<p>新版本 6.824 课程添加了一个 Lab 2，实现一个请求幂等的简单 KV 存储服务，还有对应的 Client 端。</p>
-<p>幂等性：题目依赖的底层 RPC 网络是不可靠的。为此，在请求中携带一个递增的 Sequence Number，在服务端忽略每个 Client 的旧 Request 即可。</p>
-<p>服务端实现：维护一个 <code>map[int]int</code>，记录每一个 Client 发来的最大的 Sequence Number；注意 Append 命令还需要缓存执行的结果。</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Last <span class="keyword">struct</span> &#123;</span><br><span class="line">    Seq   <span class="type">int</span></span><br><span class="line">    Value <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> KVServer <span class="keyword">struct</span> &#123;</span><br><span class="line">    last  <span class="keyword">map</span>[<span class="type">int</span>]Last</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Get 命令无需考虑幂等性，直接返回即可：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Get(args *GetArgs, reply *GetReply) &#123;</span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    reply.Value = kv.store[args.Key]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Put 命令需要保证幂等性：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Put(args *PutAppendArgs, reply *PutAppendReply) &#123;</span><br><span class="line">    <span class="comment">// log.Println(&quot;Put&quot;, args)</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">if</span> last, ok := kv.last[args.ClientId]; ok &#123;</span><br><span class="line">        <span class="keyword">if</span> args.Seq &lt; last.Seq &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">&quot;seq &lt; last&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> args.Seq == last.Seq &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    kv.last[args.ClientId] = Last&#123;Seq: args.Seq&#125;</span><br><span class="line">    kv.store[args.Key] = args.Value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Append 命令不仅需要保证幂等性，还需要缓存执行的结果：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Append(args *PutAppendArgs, reply *PutAppendReply) &#123;</span><br><span class="line">    <span class="comment">// log.Println(&quot;Append&quot;, args)</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">if</span> last, ok := kv.last[args.ClientId]; ok &#123;</span><br><span class="line">        <span class="keyword">if</span> args.Seq &lt; last.Seq &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">&quot;seq &lt; last&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> args.Seq == last.Seq &#123;</span><br><span class="line">            reply.Value = last.Value</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Reply with the old value</span></span><br><span class="line">    reply.Value = kv.store[args.Key]</span><br><span class="line">    kv.last[args.ClientId] = Last&#123;Seq: args.Seq, Value: kv.store[args.Key]&#125;</span><br><span class="line">    kv.store[args.Key] += args.Value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>distributed-system</category>
-      </categories>
-      <tags>
-        <tag>分布式系统</tag>
-        <tag>Raft</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>MIT 6.824/6.5840 分布式系统 Lab 1: MapReduce</title>
     <url>/2024/03/25/mit-6.824-distributed-system-lab1/</url>
     <content><![CDATA[<p>本次 Lab 1 讲的是分布式计算的 MapReduce。</p>
@@ -4544,6 +4521,29 @@ Google Analytics 总结这些信息，然后提供给网站所有者。</p>
         <tag>分布式系统</tag>
         <tag>MapReduce</tag>
         <tag>大数据</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MIT 6.824/6.5840 分布式系统 Lab 2</title>
+    <url>/2025/02/20/mit-6.824-distributed-system-lab2/</url>
+    <content><![CDATA[<h2 id="lab-2-key-value-server"><a class="header-anchor-1" href="#lab-2-key-value-server">#</a>Lab 2: Key/Value Server</h2>
+<p>新版本 6.824 课程添加了一个 Lab 2，实现一个请求幂等的简单 KV 存储服务，还有对应的 Client 端。</p>
+<p>幂等性：题目依赖的底层 RPC 网络是不可靠的。为此，在请求中携带一个递增的 Sequence Number，在服务端忽略每个 Client 的旧 Request 即可。</p>
+<p>服务端实现：维护一个 <code>map[int]int</code>，记录每一个 Client 发来的最大的 Sequence Number；注意 Append 命令还需要缓存执行的结果。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Last <span class="keyword">struct</span> &#123;</span><br><span class="line">    Seq   <span class="type">int</span></span><br><span class="line">    Value <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> KVServer <span class="keyword">struct</span> &#123;</span><br><span class="line">    last  <span class="keyword">map</span>[<span class="type">int</span>]Last</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Get 命令无需考虑幂等性，直接返回即可：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Get(args *GetArgs, reply *GetReply) &#123;</span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    reply.Value = kv.store[args.Key]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Put 命令需要保证幂等性：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Put(args *PutAppendArgs, reply *PutAppendReply) &#123;</span><br><span class="line">    <span class="comment">// log.Println(&quot;Put&quot;, args)</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">if</span> last, ok := kv.last[args.ClientId]; ok &#123;</span><br><span class="line">        <span class="keyword">if</span> args.Seq &lt; last.Seq &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">&quot;seq &lt; last&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> args.Seq == last.Seq &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    kv.last[args.ClientId] = Last&#123;Seq: args.Seq&#125;</span><br><span class="line">    kv.store[args.Key] = args.Value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Append 命令不仅需要保证幂等性，还需要缓存执行的结果：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Append(args *PutAppendArgs, reply *PutAppendReply) &#123;</span><br><span class="line">    <span class="comment">// log.Println(&quot;Append&quot;, args)</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">if</span> last, ok := kv.last[args.ClientId]; ok &#123;</span><br><span class="line">        <span class="keyword">if</span> args.Seq &lt; last.Seq &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">&quot;seq &lt; last&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> args.Seq == last.Seq &#123;</span><br><span class="line">            reply.Value = last.Value</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Reply with the old value</span></span><br><span class="line">    reply.Value = kv.store[args.Key]</span><br><span class="line">    kv.last[args.ClientId] = Last&#123;Seq: args.Seq, Value: kv.store[args.Key]&#125;</span><br><span class="line">    kv.store[args.Key] += args.Value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>distributed-system</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+        <tag>Raft</tag>
       </tags>
   </entry>
   <entry>
@@ -5909,6 +5909,218 @@ NN 会把不同客户端发起的操作合并成一个 batch，只要有一个�
       <tags>
         <tag>文件系统</tag>
         <tag>操作系统</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2024开源OS训练营 - rCore实验记录</title>
+    <url>/2024/05/01/learningos-2024-note/</url>
+    <content><![CDATA[<h2 id="chapter-4-内存管理"><a class="header-anchor-1" href="#chapter-4-内存管理">#</a>Chapter 4 内存管理</h2>
+<h3 id="内存布局"><a class="header-anchor-1" href="#内存布局">#</a>内存布局</h3>
+<p>所谓 OS 内核无非就是一个裸机上跑的程序，首先要确定的就是程序本身的内存布局问题。</p>
+<p>说到内存布局那就是 linker 的工作范围了，linker script 启动。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// @linker.ld</span><br><span class="line">OUTPUT_ARCH(riscv)</span><br><span class="line">ENTRY(_start)</span><br><span class="line">BASE_ADDRESS = 0x80200000; // 程序加载的起始地址</span><br><span class="line"></span><br><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">    . = BASE_ADDRESS;</span><br><span class="line">    skernel = .;    // 定义标签 skernel -&gt; 0x80200000</span><br><span class="line"></span><br><span class="line">    stext = .;      // 定义标签 stext 代码段开始</span><br><span class="line">    .text : &#123;       // .text 段，把之前的几个段放这里</span><br><span class="line">        *(.text.entry)</span><br><span class="line">        . = ALIGN(4K);</span><br><span class="line">        strampoline = .;    // 定义标签 strampoline 跳板页</span><br><span class="line">        *(.text.trampoline);</span><br><span class="line">        . = ALIGN(4K);</span><br><span class="line">        *(.text .text.*)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4K);</span><br><span class="line">    etext = .;      // 定义标签 etext 代码段结束</span><br><span class="line">    srodata = .;    // 定义标签 srodata 只读数据段开始</span><br><span class="line">    .rodata : &#123;</span><br><span class="line">        *(.rodata .rodata.*)</span><br><span class="line">        *(.srodata .srodata.*)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4K);</span><br><span class="line">    erodata = .;    // 定义标签 erodata 只读数据段结束</span><br><span class="line">    sdata = .;      // 定义标签 sdata 数据段开始</span><br><span class="line">    .data : &#123;</span><br><span class="line">        *(.data .data.*)</span><br><span class="line">        *(.sdata .sdata.*)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4K);</span><br><span class="line">    edata = .;      // 定义标签 edata 数据段结束</span><br><span class="line">    sbss_with_stack = .;    // 定义标签 sbss_with_stack 堆栈段开始</span><br><span class="line">    .bss : &#123;        // .bss 段</span><br><span class="line">        *(.bss.stack)</span><br><span class="line">        sbss = .;</span><br><span class="line">        *(.bss .bss.*)</span><br><span class="line">        *(.sbss .sbss.*)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4K);</span><br><span class="line">    ebss = .;       // 定义标签 ebss 堆栈段结束</span><br><span class="line">    ekernel = .;    // 定义标签 ekernel 内核结束</span><br><span class="line"></span><br><span class="line">    /DISCARD/ : &#123;   // 丢弃段</span><br><span class="line">        *(.eh_frame)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以，rcore 的内存布局：</p>
+<ul>
+<li>skernel(0x80200000) - srodata: 代码段</li>
+<li>srodata - erodata: 只读数据段</li>
+<li>sdata - edata: 数据段</li>
+<li>sbss_with_stack - sbss: 栈</li>
+<li>sbss - ebss: bss 段</li>
+<li>ekernel: 内核结束</li>
+</ul>
+<p>在 <code>entry.asm</code> 中定义了 <code>_start</code> 符号，这是程序的入口地址</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">    .section .text.entry</span><br><span class="line">    .globl _start</span><br><span class="line">_start:</span><br><span class="line">    la sp, boot_stack_top</span><br><span class="line">    call rust_main  ; 调用 rust_main 函数</span><br><span class="line"></span><br><span class="line">    ; 下面定义一些全局变量</span><br><span class="line">    ; boot_stack_lower_bound 是堆栈的起始地址，大小为 16 个 Page = 64KB</span><br><span class="line">    ; boot_stack_top 是堆栈的结束地址</span><br><span class="line">    .section .bss.stack</span><br><span class="line">    .globl boot_stack_lower_bound</span><br><span class="line">boot_stack_lower_bound:</span><br><span class="line">    .space 4096 * 16</span><br><span class="line">    .globl boot_stack_top</span><br><span class="line">boot_stack_top:</span><br></pre></td></tr></table></figure>
+<p>Rust 语言的入口是 rust_main 函数，这个函数在 <span class="exturl" data-url="aHR0cDovL21haW4ucnM=">main.rs<i class="fa fa-external-link-alt"></i></span> 中定义</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="meta">#[no_mangle]</span></span><br><span class="line"><span class="comment">/// the rust entry-point of os</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">rust_main</span>() <span class="punctuation">-&gt;</span> ! &#123;</span><br><span class="line">    <span class="title function_ invoke__">clear_bss</span>();        <span class="comment">// 把 sbss 到 ebss 的内存清零</span></span><br><span class="line">    <span class="title function_ invoke__">kernel_log_info</span>();  <span class="comment">// 打印段的起始和结束地址，日志输出由SBI提供</span></span><br><span class="line">    mm::<span class="title function_ invoke__">init</span>();         <span class="comment">// 初始化内存管理（堆内存管理，页表管理）</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;[kernel] back to world!&quot;</span>);</span><br><span class="line">    mm::<span class="title function_ invoke__">remap_test</span>();</span><br><span class="line">    trap::<span class="title function_ invoke__">init</span>();</span><br><span class="line">    trap::<span class="title function_ invoke__">enable_timer_interrupt</span>();</span><br><span class="line">    timer::<span class="title function_ invoke__">set_next_trigger</span>();</span><br><span class="line">    task::<span class="title function_ invoke__">run_first_task</span>(); <span class="comment">// 运行第一个任务</span></span><br><span class="line">    <span class="built_in">panic!</span>(<span class="string">&quot;Unreachable in rust_main!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="内存管理子系统"><a class="header-anchor-1" href="#内存管理子系统">#</a>内存管理子系统</h3>
+<p>内存管理子系统主要包括：</p>
+<ul>
+<li>heap_allocator: 堆内存管理</li>
+<li>frame_allocator: 页表管理</li>
+<li>KERNEL_SPACE: 内核空间</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">init</span>() &#123;</span><br><span class="line">    heap_allocator::<span class="title function_ invoke__">init_heap</span>();</span><br><span class="line">    frame_allocator::<span class="title function_ invoke__">init_frame_allocator</span>();</span><br><span class="line">    KERNEL_SPACE.<span class="title function_ invoke__">exclusive_access</span>().<span class="title function_ invoke__">activate</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第一部分内核堆其实就是一个巨大的全局数组，会被编译器放在 .bss 段，然后通过堆内存管理器进行管理。</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> KERNEL_HEAP_SIZE: <span class="type">usize</span> = <span class="number">0x200_0000</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">mut</span> HEAP_SPACE: [<span class="type">u8</span>; KERNEL_HEAP_SIZE] = [<span class="number">0</span>; KERNEL_HEAP_SIZE];</span><br><span class="line"><span class="comment">/// initiate heap allocator</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">init_heap</span>() &#123;</span><br><span class="line">    <span class="keyword">unsafe</span> &#123;</span><br><span class="line">        HEAP_ALLOCATOR</span><br><span class="line">            .<span class="title function_ invoke__">lock</span>()</span><br><span class="line">            .<span class="title function_ invoke__">init</span>(HEAP_SPACE.<span class="title function_ invoke__">as_ptr</span>() <span class="keyword">as</span> <span class="type">usize</span>, KERNEL_HEAP_SIZE);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第二部分是物理页管理，负责管理计算机上从 ekernel 到 MEMORY_END 之间的物理内存。物理内存是分页管理的，页大小固定是 4k。</p>
+<ul>
+<li><code>PhysPageNum</code> 物理页号</li>
+<li><code>PhysAddr</code> 物理地址</li>
+<li><code>VirtPageNum</code> 虚拟页号</li>
+<li><code>VirtAddr</code> 虚拟地址</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> MEMORY_END: <span class="type">usize</span> = <span class="number">0x88000000</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// initiate the frame allocator using `ekernel` and `MEMORY_END`</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">init_frame_allocator</span>() &#123;</span><br><span class="line">    <span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> &#123;</span><br><span class="line">        <span class="keyword">fn</span> <span class="title function_">ekernel</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    FRAME_ALLOCATOR.<span class="title function_ invoke__">exclusive_access</span>().<span class="title function_ invoke__">init</span>(</span><br><span class="line">        PhysAddr::<span class="title function_ invoke__">from</span>(ekernel <span class="keyword">as</span> <span class="type">usize</span>).<span class="title function_ invoke__">ceil</span>(),</span><br><span class="line">        PhysAddr::<span class="title function_ invoke__">from</span>(MEMORY_END).<span class="title function_ invoke__">floor</span>(),</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第三部分页表管理，记录内核以及进程的地址空间</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// 一个进程或者内核的地址空间</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">MemorySet</span> &#123;</span><br><span class="line">    page_table: PageTable,</span><br><span class="line">    areas: <span class="type">Vec</span>&lt;MapArea&gt;, <span class="comment">// 多个映射区段，不保证有序</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 真实生效的页表，维护PTE</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">PageTable</span> &#123;</span><br><span class="line">    root_ppn: PhysPageNum, <span class="comment">// 指向页表所在的物理页，其上保存PTE</span></span><br><span class="line">    frames: <span class="type">Vec</span>&lt;FrameTracker&gt;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 预备页映射关系</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">MapArea</span> &#123;</span><br><span class="line">    vpn_range: VPNRange, <span class="comment">// 页范围</span></span><br><span class="line">    data_frames: BTreeMap&lt;VirtPageNum, FrameTracker&gt;,</span><br><span class="line">    map_type: MapType,</span><br><span class="line">    map_perm: MapPermission,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 一段连续的虚拟页</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">type</span> <span class="title class_">VPNRange</span> = SimpleRange&lt;VirtPageNum&gt;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 用RAII风格管理的物理页</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">FrameTracker</span> &#123;</span><br><span class="line">    <span class="comment">/// physical page number</span></span><br><span class="line">    <span class="keyword">pub</span> ppn: PhysPageNum,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>MapArea</code> 结构表示一段连续的虚拟内存映射，用于快捷修改<code>page_table</code>。</p>
+<p>内存映射分为两种类型：</p>
+<ul>
+<li><code>Identical</code>：虚拟页号 X 映射到物理页号 X</li>
+<li><code>Framed</code>：虚拟页映射到临时分配的物理页</li>
+</ul>
+<p>相关方法：</p>
+<ul>
+<li><code>MapArea::map(self, page_table)</code> 修改<code>page_table</code>，执行自身所描述的映射</li>
+<li><code>MapArea::unmap(self, page_table)</code> 修改<code>page_table</code>，取消自身所描述的映射</li>
+<li><code>MapArea::append_to(self, page_table, new_end)</code> 修改<code>page_table</code>，更新自身描述的映射的结束位置</li>
+<li><code>MapArea::shrink_to(self, page_table, new_end)</code> 修改<code>page_table</code>，更新自身描述的映射的结束位置</li>
+</ul>
+<p>跳板页映射：把地址空间最高的地址映射到 strampoline 页</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> TRAMPOLINE: <span class="type">usize</span> = <span class="type">usize</span>::MAX - PAGE_SIZE + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">map_trampoline</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>) &#123;</span><br><span class="line">    <span class="keyword">self</span>.page_table.<span class="title function_ invoke__">map</span>(</span><br><span class="line">        VirtAddr::<span class="title function_ invoke__">from</span>(TRAMPOLINE).<span class="title function_ invoke__">into</span>(),</span><br><span class="line">        PhysAddr::<span class="title function_ invoke__">from</span>(strampoline <span class="keyword">as</span> <span class="type">usize</span>).<span class="title function_ invoke__">into</span>(),</span><br><span class="line">        PTEFlags::R | PTEFlags::X,</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="chapter-6-文件系统"><a class="header-anchor-1" href="#chapter-6-文件系统">#</a>Chapter 6 文件系统</h2>
+<p>与内存类似，硬盘也被分成固定大小的块，按照 <code>block_id</code> 读写。rCore 采用的块大小为 512 字节。</p>
+<h3 id="块读写层"><a class="header-anchor-1" href="#块读写层">#</a>块读写层</h3>
+<ul>
+<li><code>BlockDevice::read_block(&amp;self, block_id: usize, buf)</code> 从硬盘上读取一个块</li>
+<li><code>BlockDevice::write_block(&amp;self, block_id: usize, buf)</code> 在硬盘上写入一个块</li>
+</ul>
+<p>目前只有一个 <code>VirtIOBlock</code> 实现了这个 <code>trait</code></p>
+<h3 id="硬盘块缓存"><a class="header-anchor-1" href="#硬盘块缓存">#</a>硬盘块缓存</h3>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// Cached block inside memory</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">BlockCache</span> &#123;</span><br><span class="line">    <span class="comment">/// cached block data</span></span><br><span class="line">    cache: [<span class="type">u8</span>; BLOCK_SZ],</span><br><span class="line">    <span class="comment">/// underlying block id</span></span><br><span class="line">    block_id: <span class="type">usize</span>,</span><br><span class="line">    <span class="comment">/// underlying block device</span></span><br><span class="line">    block_device: Arc&lt;<span class="keyword">dyn</span> BlockDevice&gt;,</span><br><span class="line">    <span class="comment">/// whether the block is dirty</span></span><br><span class="line">    modified: <span class="type">bool</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">BlockCache</span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">read</span>&lt;T, V&gt;(&amp;<span class="keyword">self</span>, offset: <span class="type">usize</span>, f: <span class="keyword">impl</span> <span class="title class_">FnOnce</span>(&amp;T) <span class="punctuation">-&gt;</span> V) <span class="punctuation">-&gt;</span> V &#123;</span><br><span class="line">        <span class="title function_ invoke__">f</span>(<span class="keyword">self</span>.<span class="title function_ invoke__">get_ref</span>(offset))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">modify</span>&lt;T, V&gt;(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, offset: <span class="type">usize</span>, f: <span class="keyword">impl</span> <span class="title class_">FnOnce</span>(&amp;<span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> V) <span class="punctuation">-&gt;</span> V &#123;</span><br><span class="line">        <span class="title function_ invoke__">f</span>(<span class="keyword">self</span>.<span class="title function_ invoke__">get_mut</span>(offset))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>提供了<code>read</code>和<code>modify</code>两个 API 用于读和写一个硬盘块，读和写的操作需要作为一个<code>FnOnce</code>回调函数传入。</p>
+<p>缓存块的管理内部使用了一个队列：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">BlockCacheManager</span> &#123;</span><br><span class="line">    queue: VecDeque&lt;(<span class="type">usize</span>, Arc&lt;Mutex&lt;BlockCache&gt;&gt;)&gt;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">BlockCacheManager</span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">get_block_cache</span>(</span><br><span class="line">        &amp;<span class="keyword">mut</span> <span class="keyword">self</span>,</span><br><span class="line">        block_id: <span class="type">usize</span>,</span><br><span class="line">        block_device: Arc&lt;<span class="keyword">dyn</span> BlockDevice&gt;,</span><br><span class="line">    ) <span class="punctuation">-&gt;</span> Arc&lt;Mutex&lt;BlockCache&gt;&gt; &#123; ... &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>get_block_cache(block_id, block_device)</code> 用于获取对应块的 <code>BlockCache</code>。</p>
+<h3 id="easyfs-文件系统"><a class="header-anchor-1" href="#easyfs-文件系统">#</a>EasyFS 文件系统</h3>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// An easy file system on block</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">EasyFileSystem</span> &#123;</span><br><span class="line">    <span class="comment">/// Real device</span></span><br><span class="line">    <span class="keyword">pub</span> block_device: Arc&lt;<span class="keyword">dyn</span> BlockDevice&gt;,</span><br><span class="line">    <span class="comment">/// Inode bitmap</span></span><br><span class="line">    <span class="keyword">pub</span> inode_bitmap: Bitmap,</span><br><span class="line">    <span class="comment">/// Data bitmap</span></span><br><span class="line">    <span class="keyword">pub</span> data_bitmap: Bitmap,</span><br><span class="line">    <span class="comment">/// Inode区块范围</span></span><br><span class="line">    inode_area_start_block: <span class="type">u32</span>,</span><br><span class="line">    data_area_start_block: <span class="type">u32</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>文件系统结构：</p>
+<ul>
+<li><code>[0]</code>：超级块；</li>
+<li><code>[1, 1+inode_bitmap_blocks)</code>：inode 位图区
+<ul>
+<li>大小：共<code>inode_bitmap_blocks</code>个块，每个块大小是 512 字节，能够表示 4k 个状态位</li>
+<li>记录每一个<code>inode</code>是否被使用</li>
+</ul>
+</li>
+<li><code>[inode_area_start_block, ]</code>：inode 区
+<ul>
+<li>保存位图区能表示数量的<code>inode</code></li>
+<li><code>inode</code>连续存储，总大小取整到 block 边界</li>
+<li><code>inode</code>按顺序编号，从 0 开始</li>
+</ul>
+</li>
+<li><code>[...]</code>：data 位图区</li>
+<li><code>[data_area_start_block, total_blocks)</code>：data 区</li>
+</ul>
+<p>超级块：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">SuperBlock</span> &#123;</span><br><span class="line">    magic: <span class="type">u32</span>,  <span class="comment">// 0x3b800001</span></span><br><span class="line">    <span class="keyword">pub</span> total_blocks: <span class="type">u32</span>,</span><br><span class="line">    <span class="keyword">pub</span> inode_bitmap_blocks: <span class="type">u32</span>,</span><br><span class="line">    <span class="keyword">pub</span> inode_area_blocks: <span class="type">u32</span>,</span><br><span class="line">    <span class="keyword">pub</span> data_bitmap_blocks: <span class="type">u32</span>,</span><br><span class="line">    <span class="keyword">pub</span> data_area_blocks: <span class="type">u32</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>inode 结构设计：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// A disk inode</span></span><br><span class="line"><span class="meta">#[repr(C)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">DiskInode</span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> size: <span class="type">u32</span>,</span><br><span class="line">    <span class="keyword">pub</span> direct: [<span class="type">u32</span>; INODE_DIRECT_COUNT],</span><br><span class="line">    <span class="keyword">pub</span> indirect1: <span class="type">u32</span>,</span><br><span class="line">    <span class="keyword">pub</span> indirect2: <span class="type">u32</span>,</span><br><span class="line">    type_: DiskInodeType,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>inode 采用了经典的三级索引设计，有 28 个直接条目；1 个间接索引，包含 128 个条目；1 个二级间接索引，包含 128 个间接索引，等于<code>128*128</code>个直接条目。</p>
+<p>Easyfs 中的<code>0</code>号<code>inode</code>是文件系统的根节点。</p>
+<p>Easyfs 没有多级目录设计。</p>
+<h2 id="chapter-8-同步机制"><a class="header-anchor-1" href="#chapter-8-同步机制">#</a>Chapter 8 同步机制</h2>
+<p>死锁检测：</p>
+<ul>
+<li>用一个全局变量记录每个<code>task</code>的<code>hold</code>和<code>wait</code>集合，即当前持有的资源（及数量）和正在等待的资源。</li>
+<li>在尝试获取资源（即加锁）时，进行死锁检测。</li>
+</ul>
+<p>死锁检测算法就是对未来的执行状态进行模拟：找到下一个可以执行的任务，模拟执行，然后释放它拥有的资源，循环。当所有任务都可以执行，说明不存在死锁；否则就是存在死锁。</p>
+]]></content>
+      <categories>
+        <category>learningos-2024</category>
+      </categories>
+      <tags>
+        <tag>操作系统</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>How to compile the Linux kernel</title>
+    <url>/2022/01/08/how-to-compile-linux-kernel/</url>
+    <content><![CDATA[<p><img src="https://frezcirno.github.io/static/images/NewTux.svg" alt="" /></p>
+<h2 id="访问-https-www-kernel-org-查看最新的内核版本，获取下载链接"><a class="header-anchor-1" href="#访问-https-www-kernel-org-查看最新的内核版本，获取下载链接">#</a>访问 <span class="exturl" data-url="aHR0cHM6Ly93d3cua2VybmVsLm9yZy8=">https://www.kernel.org/<i class="fa fa-external-link-alt"></i></span> 查看最新的内核版本，获取下载链接</h2>
+<h2 id="下载并解压到当前目录"><a class="header-anchor-1" href="#下载并解压到当前目录">#</a>下载并解压到当前目录</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">wget -qO- https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.13.tar.xz | tar Jxvf -</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cd</span> linux-5.15.13</span></span><br></pre></td></tr></table></figure>
+<h2 id="编译配置"><a class="header-anchor-1" href="#编译配置">#</a>编译配置</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cp</span> /boot/config-`<span class="built_in">uname</span> -r` .config</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make menuconfig</span></span><br></pre></td></tr></table></figure>
+<h2 id="开始编译"><a class="header-anchor-1" href="#开始编译">#</a>开始编译</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make -j $(<span class="built_in">nproc</span>)</span></span><br></pre></td></tr></table></figure>
+<h2 id="安装到系统中"><a class="header-anchor-1" href="#安装到系统中">#</a>安装到系统中</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> make INSTALL_MOD_STRIP=1 modules_install</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> make headers_install</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> make install</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux Kernel 文件子系统</title>
+    <url>/2024/04/30/linux-kernel-file-subsystem/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux Kernel 中断子系统</title>
+    <url>/2024/04/16/linux-kernel-interrupt-subsystem/</url>
+    <content><![CDATA[<p>Linux 将中断处理流程划分成两个部分，一个是 top half，另一个是 bottom half。</p>
+<p>在执行 top half 时是关闭硬件中断的，即系统没办法响应后续的中断事件，因此应该保证 top half 尽可能短。</p>
+<p>把不那么紧急的事情 defer 到 bottom half 去做。</p>
+<h2 id="bottom-half"><a class="header-anchor-1" href="#bottom-half">#</a>bottom half</h2>
+<p>bottom half 有多个实现机制</p>
+<ul>
+<li>
+<p>BH 最早的实现，已经弃用了</p>
+</li>
+<li>
+<p>Task queue 已经弃用了</p>
+</li>
+<li>
+<p>Softirq
+运行在 interrupt context
+top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
+</li>
+<li>
+<p>tasklet
+运行在 interrupt context</p>
+</li>
+<li>
+<p>workqueue
+运行在 process context</p>
+</li>
+</ul>
+<h2 id="softirq"><a class="header-anchor-1" href="#softirq">#</a>Softirq</h2>
+<p>softirq 和 hardirq（硬件中断）对应，</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    HI_SOFTIRQ=<span class="number">0</span>,</span><br><span class="line">    TIMER_SOFTIRQ,</span><br><span class="line">    NET_TX_SOFTIRQ,</span><br><span class="line">    NET_RX_SOFTIRQ,</span><br><span class="line">    BLOCK_SOFTIRQ,</span><br><span class="line">    BLOCK_IOPOLL_SOFTIRQ,</span><br><span class="line">    TASKLET_SOFTIRQ,</span><br><span class="line">    SCHED_SOFTIRQ,</span><br><span class="line">    HRTIMER_SOFTIRQ,</span><br><span class="line">    RCU_SOFTIRQ,    <span class="comment">/* Preferable RCU should always be the last softirq */</span></span><br><span class="line">    NR_SOFTIRQS</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>softirq 有三个处理时机</p>
+<ol>
+<li>中断上下文 <code>irq_exit()</code> 的时候</li>
+<li>任意 <code>local_bh_enable()</code></li>
+<li><code>softirqd</code> 内核线程定期执行</li>
+</ol>
+<h2 id="tasklet"><a class="header-anchor-1" href="#tasklet">#</a>tasklet</h2>
+<p>per-cpu 会有一个 tasklet 的链表</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_vec)</span>;</span><br><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_hi_vec)</span>;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>嵌入式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux Kernel 网络子系统</title>
+    <url>/2024/04/16/linux-kernel-network-subsystem/</url>
+    <content><![CDATA[<h2 id="napi"><a class="header-anchor-1" href="#napi">#</a>NAPI</h2>
+<p>NAPI 机制采用中断和轮询结合的方式收包</p>
+<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的 backlog</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>softnet_data</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>计算机网络</tag>
+        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -9027,218 +9239,6 @@ NN 会把不同客户端发起的操作合并成一个 batch，只要有一个�
       </tags>
   </entry>
   <entry>
-    <title>How to compile the Linux kernel</title>
-    <url>/2022/01/08/how-to-compile-linux-kernel/</url>
-    <content><![CDATA[<p><img src="https://frezcirno.github.io/static/images/NewTux.svg" alt="" /></p>
-<h2 id="访问-https-www-kernel-org-查看最新的内核版本，获取下载链接"><a class="header-anchor-1" href="#访问-https-www-kernel-org-查看最新的内核版本，获取下载链接">#</a>访问 <span class="exturl" data-url="aHR0cHM6Ly93d3cua2VybmVsLm9yZy8=">https://www.kernel.org/<i class="fa fa-external-link-alt"></i></span> 查看最新的内核版本，获取下载链接</h2>
-<h2 id="下载并解压到当前目录"><a class="header-anchor-1" href="#下载并解压到当前目录">#</a>下载并解压到当前目录</h2>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">wget -qO- https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.13.tar.xz | tar Jxvf -</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cd</span> linux-5.15.13</span></span><br></pre></td></tr></table></figure>
-<h2 id="编译配置"><a class="header-anchor-1" href="#编译配置">#</a>编译配置</h2>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cp</span> /boot/config-`<span class="built_in">uname</span> -r` .config</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make menuconfig</span></span><br></pre></td></tr></table></figure>
-<h2 id="开始编译"><a class="header-anchor-1" href="#开始编译">#</a>开始编译</h2>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make -j $(<span class="built_in">nproc</span>)</span></span><br></pre></td></tr></table></figure>
-<h2 id="安装到系统中"><a class="header-anchor-1" href="#安装到系统中">#</a>安装到系统中</h2>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> make INSTALL_MOD_STRIP=1 modules_install</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> make headers_install</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> make install</span></span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>2024开源OS训练营 - rCore实验记录</title>
-    <url>/2024/05/01/learningos-2024-note/</url>
-    <content><![CDATA[<h2 id="chapter-4-内存管理"><a class="header-anchor-1" href="#chapter-4-内存管理">#</a>Chapter 4 内存管理</h2>
-<h3 id="内存布局"><a class="header-anchor-1" href="#内存布局">#</a>内存布局</h3>
-<p>所谓 OS 内核无非就是一个裸机上跑的程序，首先要确定的就是程序本身的内存布局问题。</p>
-<p>说到内存布局那就是 linker 的工作范围了，linker script 启动。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// @linker.ld</span><br><span class="line">OUTPUT_ARCH(riscv)</span><br><span class="line">ENTRY(_start)</span><br><span class="line">BASE_ADDRESS = 0x80200000; // 程序加载的起始地址</span><br><span class="line"></span><br><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">    . = BASE_ADDRESS;</span><br><span class="line">    skernel = .;    // 定义标签 skernel -&gt; 0x80200000</span><br><span class="line"></span><br><span class="line">    stext = .;      // 定义标签 stext 代码段开始</span><br><span class="line">    .text : &#123;       // .text 段，把之前的几个段放这里</span><br><span class="line">        *(.text.entry)</span><br><span class="line">        . = ALIGN(4K);</span><br><span class="line">        strampoline = .;    // 定义标签 strampoline 跳板页</span><br><span class="line">        *(.text.trampoline);</span><br><span class="line">        . = ALIGN(4K);</span><br><span class="line">        *(.text .text.*)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4K);</span><br><span class="line">    etext = .;      // 定义标签 etext 代码段结束</span><br><span class="line">    srodata = .;    // 定义标签 srodata 只读数据段开始</span><br><span class="line">    .rodata : &#123;</span><br><span class="line">        *(.rodata .rodata.*)</span><br><span class="line">        *(.srodata .srodata.*)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4K);</span><br><span class="line">    erodata = .;    // 定义标签 erodata 只读数据段结束</span><br><span class="line">    sdata = .;      // 定义标签 sdata 数据段开始</span><br><span class="line">    .data : &#123;</span><br><span class="line">        *(.data .data.*)</span><br><span class="line">        *(.sdata .sdata.*)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4K);</span><br><span class="line">    edata = .;      // 定义标签 edata 数据段结束</span><br><span class="line">    sbss_with_stack = .;    // 定义标签 sbss_with_stack 堆栈段开始</span><br><span class="line">    .bss : &#123;        // .bss 段</span><br><span class="line">        *(.bss.stack)</span><br><span class="line">        sbss = .;</span><br><span class="line">        *(.bss .bss.*)</span><br><span class="line">        *(.sbss .sbss.*)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4K);</span><br><span class="line">    ebss = .;       // 定义标签 ebss 堆栈段结束</span><br><span class="line">    ekernel = .;    // 定义标签 ekernel 内核结束</span><br><span class="line"></span><br><span class="line">    /DISCARD/ : &#123;   // 丢弃段</span><br><span class="line">        *(.eh_frame)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>所以，rcore 的内存布局：</p>
-<ul>
-<li>skernel(0x80200000) - srodata: 代码段</li>
-<li>srodata - erodata: 只读数据段</li>
-<li>sdata - edata: 数据段</li>
-<li>sbss_with_stack - sbss: 栈</li>
-<li>sbss - ebss: bss 段</li>
-<li>ekernel: 内核结束</li>
-</ul>
-<p>在 <code>entry.asm</code> 中定义了 <code>_start</code> 符号，这是程序的入口地址</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">    .section .text.entry</span><br><span class="line">    .globl _start</span><br><span class="line">_start:</span><br><span class="line">    la sp, boot_stack_top</span><br><span class="line">    call rust_main  ; 调用 rust_main 函数</span><br><span class="line"></span><br><span class="line">    ; 下面定义一些全局变量</span><br><span class="line">    ; boot_stack_lower_bound 是堆栈的起始地址，大小为 16 个 Page = 64KB</span><br><span class="line">    ; boot_stack_top 是堆栈的结束地址</span><br><span class="line">    .section .bss.stack</span><br><span class="line">    .globl boot_stack_lower_bound</span><br><span class="line">boot_stack_lower_bound:</span><br><span class="line">    .space 4096 * 16</span><br><span class="line">    .globl boot_stack_top</span><br><span class="line">boot_stack_top:</span><br></pre></td></tr></table></figure>
-<p>Rust 语言的入口是 rust_main 函数，这个函数在 <span class="exturl" data-url="aHR0cDovL21haW4ucnM=">main.rs<i class="fa fa-external-link-alt"></i></span> 中定义</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="meta">#[no_mangle]</span></span><br><span class="line"><span class="comment">/// the rust entry-point of os</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">rust_main</span>() <span class="punctuation">-&gt;</span> ! &#123;</span><br><span class="line">    <span class="title function_ invoke__">clear_bss</span>();        <span class="comment">// 把 sbss 到 ebss 的内存清零</span></span><br><span class="line">    <span class="title function_ invoke__">kernel_log_info</span>();  <span class="comment">// 打印段的起始和结束地址，日志输出由SBI提供</span></span><br><span class="line">    mm::<span class="title function_ invoke__">init</span>();         <span class="comment">// 初始化内存管理（堆内存管理，页表管理）</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;[kernel] back to world!&quot;</span>);</span><br><span class="line">    mm::<span class="title function_ invoke__">remap_test</span>();</span><br><span class="line">    trap::<span class="title function_ invoke__">init</span>();</span><br><span class="line">    trap::<span class="title function_ invoke__">enable_timer_interrupt</span>();</span><br><span class="line">    timer::<span class="title function_ invoke__">set_next_trigger</span>();</span><br><span class="line">    task::<span class="title function_ invoke__">run_first_task</span>(); <span class="comment">// 运行第一个任务</span></span><br><span class="line">    <span class="built_in">panic!</span>(<span class="string">&quot;Unreachable in rust_main!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="内存管理子系统"><a class="header-anchor-1" href="#内存管理子系统">#</a>内存管理子系统</h3>
-<p>内存管理子系统主要包括：</p>
-<ul>
-<li>heap_allocator: 堆内存管理</li>
-<li>frame_allocator: 页表管理</li>
-<li>KERNEL_SPACE: 内核空间</li>
-</ul>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">init</span>() &#123;</span><br><span class="line">    heap_allocator::<span class="title function_ invoke__">init_heap</span>();</span><br><span class="line">    frame_allocator::<span class="title function_ invoke__">init_frame_allocator</span>();</span><br><span class="line">    KERNEL_SPACE.<span class="title function_ invoke__">exclusive_access</span>().<span class="title function_ invoke__">activate</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>第一部分内核堆其实就是一个巨大的全局数组，会被编译器放在 .bss 段，然后通过堆内存管理器进行管理。</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> KERNEL_HEAP_SIZE: <span class="type">usize</span> = <span class="number">0x200_0000</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">mut</span> HEAP_SPACE: [<span class="type">u8</span>; KERNEL_HEAP_SIZE] = [<span class="number">0</span>; KERNEL_HEAP_SIZE];</span><br><span class="line"><span class="comment">/// initiate heap allocator</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">init_heap</span>() &#123;</span><br><span class="line">    <span class="keyword">unsafe</span> &#123;</span><br><span class="line">        HEAP_ALLOCATOR</span><br><span class="line">            .<span class="title function_ invoke__">lock</span>()</span><br><span class="line">            .<span class="title function_ invoke__">init</span>(HEAP_SPACE.<span class="title function_ invoke__">as_ptr</span>() <span class="keyword">as</span> <span class="type">usize</span>, KERNEL_HEAP_SIZE);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>第二部分是物理页管理，负责管理计算机上从 ekernel 到 MEMORY_END 之间的物理内存。物理内存是分页管理的，页大小固定是 4k。</p>
-<ul>
-<li><code>PhysPageNum</code> 物理页号</li>
-<li><code>PhysAddr</code> 物理地址</li>
-<li><code>VirtPageNum</code> 虚拟页号</li>
-<li><code>VirtAddr</code> 虚拟地址</li>
-</ul>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> MEMORY_END: <span class="type">usize</span> = <span class="number">0x88000000</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// initiate the frame allocator using `ekernel` and `MEMORY_END`</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">init_frame_allocator</span>() &#123;</span><br><span class="line">    <span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> &#123;</span><br><span class="line">        <span class="keyword">fn</span> <span class="title function_">ekernel</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    FRAME_ALLOCATOR.<span class="title function_ invoke__">exclusive_access</span>().<span class="title function_ invoke__">init</span>(</span><br><span class="line">        PhysAddr::<span class="title function_ invoke__">from</span>(ekernel <span class="keyword">as</span> <span class="type">usize</span>).<span class="title function_ invoke__">ceil</span>(),</span><br><span class="line">        PhysAddr::<span class="title function_ invoke__">from</span>(MEMORY_END).<span class="title function_ invoke__">floor</span>(),</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>第三部分页表管理，记录内核以及进程的地址空间</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// 一个进程或者内核的地址空间</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">MemorySet</span> &#123;</span><br><span class="line">    page_table: PageTable,</span><br><span class="line">    areas: <span class="type">Vec</span>&lt;MapArea&gt;, <span class="comment">// 多个映射区段，不保证有序</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 真实生效的页表，维护PTE</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">PageTable</span> &#123;</span><br><span class="line">    root_ppn: PhysPageNum, <span class="comment">// 指向页表所在的物理页，其上保存PTE</span></span><br><span class="line">    frames: <span class="type">Vec</span>&lt;FrameTracker&gt;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 预备页映射关系</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">MapArea</span> &#123;</span><br><span class="line">    vpn_range: VPNRange, <span class="comment">// 页范围</span></span><br><span class="line">    data_frames: BTreeMap&lt;VirtPageNum, FrameTracker&gt;,</span><br><span class="line">    map_type: MapType,</span><br><span class="line">    map_perm: MapPermission,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 一段连续的虚拟页</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">type</span> <span class="title class_">VPNRange</span> = SimpleRange&lt;VirtPageNum&gt;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 用RAII风格管理的物理页</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">FrameTracker</span> &#123;</span><br><span class="line">    <span class="comment">/// physical page number</span></span><br><span class="line">    <span class="keyword">pub</span> ppn: PhysPageNum,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>MapArea</code> 结构表示一段连续的虚拟内存映射，用于快捷修改<code>page_table</code>。</p>
-<p>内存映射分为两种类型：</p>
-<ul>
-<li><code>Identical</code>：虚拟页号 X 映射到物理页号 X</li>
-<li><code>Framed</code>：虚拟页映射到临时分配的物理页</li>
-</ul>
-<p>相关方法：</p>
-<ul>
-<li><code>MapArea::map(self, page_table)</code> 修改<code>page_table</code>，执行自身所描述的映射</li>
-<li><code>MapArea::unmap(self, page_table)</code> 修改<code>page_table</code>，取消自身所描述的映射</li>
-<li><code>MapArea::append_to(self, page_table, new_end)</code> 修改<code>page_table</code>，更新自身描述的映射的结束位置</li>
-<li><code>MapArea::shrink_to(self, page_table, new_end)</code> 修改<code>page_table</code>，更新自身描述的映射的结束位置</li>
-</ul>
-<p>跳板页映射：把地址空间最高的地址映射到 strampoline 页</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> TRAMPOLINE: <span class="type">usize</span> = <span class="type">usize</span>::MAX - PAGE_SIZE + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">map_trampoline</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>) &#123;</span><br><span class="line">    <span class="keyword">self</span>.page_table.<span class="title function_ invoke__">map</span>(</span><br><span class="line">        VirtAddr::<span class="title function_ invoke__">from</span>(TRAMPOLINE).<span class="title function_ invoke__">into</span>(),</span><br><span class="line">        PhysAddr::<span class="title function_ invoke__">from</span>(strampoline <span class="keyword">as</span> <span class="type">usize</span>).<span class="title function_ invoke__">into</span>(),</span><br><span class="line">        PTEFlags::R | PTEFlags::X,</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="chapter-6-文件系统"><a class="header-anchor-1" href="#chapter-6-文件系统">#</a>Chapter 6 文件系统</h2>
-<p>与内存类似，硬盘也被分成固定大小的块，按照 <code>block_id</code> 读写。rCore 采用的块大小为 512 字节。</p>
-<h3 id="块读写层"><a class="header-anchor-1" href="#块读写层">#</a>块读写层</h3>
-<ul>
-<li><code>BlockDevice::read_block(&amp;self, block_id: usize, buf)</code> 从硬盘上读取一个块</li>
-<li><code>BlockDevice::write_block(&amp;self, block_id: usize, buf)</code> 在硬盘上写入一个块</li>
-</ul>
-<p>目前只有一个 <code>VirtIOBlock</code> 实现了这个 <code>trait</code></p>
-<h3 id="硬盘块缓存"><a class="header-anchor-1" href="#硬盘块缓存">#</a>硬盘块缓存</h3>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// Cached block inside memory</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">BlockCache</span> &#123;</span><br><span class="line">    <span class="comment">/// cached block data</span></span><br><span class="line">    cache: [<span class="type">u8</span>; BLOCK_SZ],</span><br><span class="line">    <span class="comment">/// underlying block id</span></span><br><span class="line">    block_id: <span class="type">usize</span>,</span><br><span class="line">    <span class="comment">/// underlying block device</span></span><br><span class="line">    block_device: Arc&lt;<span class="keyword">dyn</span> BlockDevice&gt;,</span><br><span class="line">    <span class="comment">/// whether the block is dirty</span></span><br><span class="line">    modified: <span class="type">bool</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">BlockCache</span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">read</span>&lt;T, V&gt;(&amp;<span class="keyword">self</span>, offset: <span class="type">usize</span>, f: <span class="keyword">impl</span> <span class="title class_">FnOnce</span>(&amp;T) <span class="punctuation">-&gt;</span> V) <span class="punctuation">-&gt;</span> V &#123;</span><br><span class="line">        <span class="title function_ invoke__">f</span>(<span class="keyword">self</span>.<span class="title function_ invoke__">get_ref</span>(offset))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">modify</span>&lt;T, V&gt;(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, offset: <span class="type">usize</span>, f: <span class="keyword">impl</span> <span class="title class_">FnOnce</span>(&amp;<span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> V) <span class="punctuation">-&gt;</span> V &#123;</span><br><span class="line">        <span class="title function_ invoke__">f</span>(<span class="keyword">self</span>.<span class="title function_ invoke__">get_mut</span>(offset))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>提供了<code>read</code>和<code>modify</code>两个 API 用于读和写一个硬盘块，读和写的操作需要作为一个<code>FnOnce</code>回调函数传入。</p>
-<p>缓存块的管理内部使用了一个队列：</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">BlockCacheManager</span> &#123;</span><br><span class="line">    queue: VecDeque&lt;(<span class="type">usize</span>, Arc&lt;Mutex&lt;BlockCache&gt;&gt;)&gt;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">BlockCacheManager</span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">get_block_cache</span>(</span><br><span class="line">        &amp;<span class="keyword">mut</span> <span class="keyword">self</span>,</span><br><span class="line">        block_id: <span class="type">usize</span>,</span><br><span class="line">        block_device: Arc&lt;<span class="keyword">dyn</span> BlockDevice&gt;,</span><br><span class="line">    ) <span class="punctuation">-&gt;</span> Arc&lt;Mutex&lt;BlockCache&gt;&gt; &#123; ... &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>get_block_cache(block_id, block_device)</code> 用于获取对应块的 <code>BlockCache</code>。</p>
-<h3 id="easyfs-文件系统"><a class="header-anchor-1" href="#easyfs-文件系统">#</a>EasyFS 文件系统</h3>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// An easy file system on block</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">EasyFileSystem</span> &#123;</span><br><span class="line">    <span class="comment">/// Real device</span></span><br><span class="line">    <span class="keyword">pub</span> block_device: Arc&lt;<span class="keyword">dyn</span> BlockDevice&gt;,</span><br><span class="line">    <span class="comment">/// Inode bitmap</span></span><br><span class="line">    <span class="keyword">pub</span> inode_bitmap: Bitmap,</span><br><span class="line">    <span class="comment">/// Data bitmap</span></span><br><span class="line">    <span class="keyword">pub</span> data_bitmap: Bitmap,</span><br><span class="line">    <span class="comment">/// Inode区块范围</span></span><br><span class="line">    inode_area_start_block: <span class="type">u32</span>,</span><br><span class="line">    data_area_start_block: <span class="type">u32</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>文件系统结构：</p>
-<ul>
-<li><code>[0]</code>：超级块；</li>
-<li><code>[1, 1+inode_bitmap_blocks)</code>：inode 位图区
-<ul>
-<li>大小：共<code>inode_bitmap_blocks</code>个块，每个块大小是 512 字节，能够表示 4k 个状态位</li>
-<li>记录每一个<code>inode</code>是否被使用</li>
-</ul>
-</li>
-<li><code>[inode_area_start_block, ]</code>：inode 区
-<ul>
-<li>保存位图区能表示数量的<code>inode</code></li>
-<li><code>inode</code>连续存储，总大小取整到 block 边界</li>
-<li><code>inode</code>按顺序编号，从 0 开始</li>
-</ul>
-</li>
-<li><code>[...]</code>：data 位图区</li>
-<li><code>[data_area_start_block, total_blocks)</code>：data 区</li>
-</ul>
-<p>超级块：</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">SuperBlock</span> &#123;</span><br><span class="line">    magic: <span class="type">u32</span>,  <span class="comment">// 0x3b800001</span></span><br><span class="line">    <span class="keyword">pub</span> total_blocks: <span class="type">u32</span>,</span><br><span class="line">    <span class="keyword">pub</span> inode_bitmap_blocks: <span class="type">u32</span>,</span><br><span class="line">    <span class="keyword">pub</span> inode_area_blocks: <span class="type">u32</span>,</span><br><span class="line">    <span class="keyword">pub</span> data_bitmap_blocks: <span class="type">u32</span>,</span><br><span class="line">    <span class="keyword">pub</span> data_area_blocks: <span class="type">u32</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>inode 结构设计：</p>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// A disk inode</span></span><br><span class="line"><span class="meta">#[repr(C)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">DiskInode</span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> size: <span class="type">u32</span>,</span><br><span class="line">    <span class="keyword">pub</span> direct: [<span class="type">u32</span>; INODE_DIRECT_COUNT],</span><br><span class="line">    <span class="keyword">pub</span> indirect1: <span class="type">u32</span>,</span><br><span class="line">    <span class="keyword">pub</span> indirect2: <span class="type">u32</span>,</span><br><span class="line">    type_: DiskInodeType,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>inode 采用了经典的三级索引设计，有 28 个直接条目；1 个间接索引，包含 128 个条目；1 个二级间接索引，包含 128 个间接索引，等于<code>128*128</code>个直接条目。</p>
-<p>Easyfs 中的<code>0</code>号<code>inode</code>是文件系统的根节点。</p>
-<p>Easyfs 没有多级目录设计。</p>
-<h2 id="chapter-8-同步机制"><a class="header-anchor-1" href="#chapter-8-同步机制">#</a>Chapter 8 同步机制</h2>
-<p>死锁检测：</p>
-<ul>
-<li>用一个全局变量记录每个<code>task</code>的<code>hold</code>和<code>wait</code>集合，即当前持有的资源（及数量）和正在等待的资源。</li>
-<li>在尝试获取资源（即加锁）时，进行死锁检测。</li>
-</ul>
-<p>死锁检测算法就是对未来的执行状态进行模拟：找到下一个可以执行的任务，模拟执行，然后释放它拥有的资源，循环。当所有任务都可以执行，说明不存在死锁；否则就是存在死锁。</p>
-]]></content>
-      <categories>
-        <category>learningos-2024</category>
-      </categories>
-      <tags>
-        <tag>操作系统</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux Kernel 文件子系统</title>
-    <url>/2024/04/30/linux-kernel-file-subsystem/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux Kernel 中断子系统</title>
-    <url>/2024/04/16/linux-kernel-interrupt-subsystem/</url>
-    <content><![CDATA[<p>Linux 将中断处理流程划分成两个部分，一个是 top half，另一个是 bottom half。</p>
-<p>在执行 top half 时是关闭硬件中断的，即系统没办法响应后续的中断事件，因此应该保证 top half 尽可能短。</p>
-<p>把不那么紧急的事情 defer 到 bottom half 去做。</p>
-<h2 id="bottom-half"><a class="header-anchor-1" href="#bottom-half">#</a>bottom half</h2>
-<p>bottom half 有多个实现机制</p>
-<ul>
-<li>
-<p>BH 最早的实现，已经弃用了</p>
-</li>
-<li>
-<p>Task queue 已经弃用了</p>
-</li>
-<li>
-<p>Softirq
-运行在 interrupt context
-top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
-</li>
-<li>
-<p>tasklet
-运行在 interrupt context</p>
-</li>
-<li>
-<p>workqueue
-运行在 process context</p>
-</li>
-</ul>
-<h2 id="softirq"><a class="header-anchor-1" href="#softirq">#</a>Softirq</h2>
-<p>softirq 和 hardirq（硬件中断）对应，</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    HI_SOFTIRQ=<span class="number">0</span>,</span><br><span class="line">    TIMER_SOFTIRQ,</span><br><span class="line">    NET_TX_SOFTIRQ,</span><br><span class="line">    NET_RX_SOFTIRQ,</span><br><span class="line">    BLOCK_SOFTIRQ,</span><br><span class="line">    BLOCK_IOPOLL_SOFTIRQ,</span><br><span class="line">    TASKLET_SOFTIRQ,</span><br><span class="line">    SCHED_SOFTIRQ,</span><br><span class="line">    HRTIMER_SOFTIRQ,</span><br><span class="line">    RCU_SOFTIRQ,    <span class="comment">/* Preferable RCU should always be the last softirq */</span></span><br><span class="line">    NR_SOFTIRQS</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>softirq 有三个处理时机</p>
-<ol>
-<li>中断上下文 <code>irq_exit()</code> 的时候</li>
-<li>任意 <code>local_bh_enable()</code></li>
-<li><code>softirqd</code> 内核线程定期执行</li>
-</ol>
-<h2 id="tasklet"><a class="header-anchor-1" href="#tasklet">#</a>tasklet</h2>
-<p>per-cpu 会有一个 tasklet 的链表</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_vec)</span>;</span><br><span class="line"><span class="type">static</span> <span class="title function_">DEFINE_PER_CPU</span><span class="params">(<span class="keyword">struct</span> tasklet_head, tasklet_hi_vec)</span>;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>嵌入式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux Kernel 网络子系统</title>
-    <url>/2024/04/16/linux-kernel-network-subsystem/</url>
-    <content><![CDATA[<h2 id="napi"><a class="header-anchor-1" href="#napi">#</a>NAPI</h2>
-<p>NAPI 机制采用中断和轮询结合的方式收包</p>
-<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的 backlog</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>softnet_data</p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>计算机网络</tag>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>线性代数 - 概念总结</title>
     <url>/2021/01/08/linear-algebra/</url>
     <content><![CDATA[<h2 id="1-行列式"><a class="header-anchor-1" href="#1-行列式">#</a>1. 行列式</h2>
@@ -10791,6 +10791,31 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       </categories>
   </entry>
   <entry>
+    <title>短文本相似度：Jaro-Winkler 相似度</title>
+    <url>/2024/05/07/jaro-winkler-similarity/</url>
+    <content><![CDATA[<p>Jaro-Winkler similarity是由Matthew A. Jaro在1989年提出，William E. Winkler在1990年又进行了改进的算法，用于评估两个序列之间的编辑距离。</p>
+<p>对于字符串 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">s1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal">s</span><span class="mord">1</span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">s2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal">s</span><span class="mord">2</span></span></span></span>，Jaro相似度的计算公式为：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>s</mi><mi>i</mi><msub><mi>m</mi><mi>j</mi></msub><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><mi>m</mi><mo>=</mo><mn>0</mn></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mfrac><mn>1</mn><mn>3</mn></mfrac><mrow><mo fence="true">(</mo><mfrac><mi>m</mi><mrow><mi mathvariant="normal">∣</mi><msub><mi>s</mi><mn>1</mn></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo>+</mo><mfrac><mi>m</mi><mrow><mi mathvariant="normal">∣</mi><msub><mi>s</mi><mn>2</mn></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo>+</mo><mfrac><mrow><mi>m</mi><mo>−</mo><mi>t</mi></mrow><mi>m</mi></mfrac><mo fence="true">)</mo></mrow></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>otherwise</mtext></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">sim_j = \begin{cases}
+0 &amp;\text{if } m=0 \\
+\frac{1}{3}\left(
+ \frac{m}{|s_1|} +
+ \frac{m}{|s_2|} +
+ \frac{m-t}{m}
+\right) &amp;\text{otherwise}\\
+\end{cases}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9456em;vertical-align:-0.2861em;"></span><span class="mord mathnormal">s</span><span class="mord mathnormal">i</span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:3.24em;vertical-align:-1.37em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.87em;"><span style="top:-4.012em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.43em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size2">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8246em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size2">)</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.37em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.87em;"><span style="top:-4.012em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord text"><span class="mord">if </span></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">0</span></span></span><span style="top:-2.43em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord text"><span class="mord">otherwise</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.37em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>其中，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mi>s</mi><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">|s|</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord mathnormal">s</span><span class="mord">∣</span></span></span></span>表示字符串<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span>的长度；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span>表示两个字符串的匹配字符数</p>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>机器学习</tag>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Poems in DDLC</title>
     <url>/2022/01/07/poems-in-ddlc/</url>
     <content><![CDATA[<style>
@@ -11536,31 +11561,6 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
       <categories>
         <category>misc</category>
       </categories>
-  </entry>
-  <entry>
-    <title>短文本相似度：Jaro-Winkler 相似度</title>
-    <url>/2024/05/07/jaro-winkler-similarity/</url>
-    <content><![CDATA[<p>Jaro-Winkler similarity是由Matthew A. Jaro在1989年提出，William E. Winkler在1990年又进行了改进的算法，用于评估两个序列之间的编辑距离。</p>
-<p>对于字符串 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">s1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal">s</span><span class="mord">1</span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">s2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal">s</span><span class="mord">2</span></span></span></span>，Jaro相似度的计算公式为：</p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>s</mi><mi>i</mi><msub><mi>m</mi><mi>j</mi></msub><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><mi>m</mi><mo>=</mo><mn>0</mn></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mfrac><mn>1</mn><mn>3</mn></mfrac><mrow><mo fence="true">(</mo><mfrac><mi>m</mi><mrow><mi mathvariant="normal">∣</mi><msub><mi>s</mi><mn>1</mn></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo>+</mo><mfrac><mi>m</mi><mrow><mi mathvariant="normal">∣</mi><msub><mi>s</mi><mn>2</mn></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo>+</mo><mfrac><mrow><mi>m</mi><mo>−</mo><mi>t</mi></mrow><mi>m</mi></mfrac><mo fence="true">)</mo></mrow></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>otherwise</mtext></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">sim_j = \begin{cases}
-0 &amp;\text{if } m=0 \\
-\frac{1}{3}\left(
- \frac{m}{|s_1|} +
- \frac{m}{|s_2|} +
- \frac{m-t}{m}
-\right) &amp;\text{otherwise}\\
-\end{cases}
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9456em;vertical-align:-0.2861em;"></span><span class="mord mathnormal">s</span><span class="mord mathnormal">i</span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:3.24em;vertical-align:-1.37em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.87em;"><span style="top:-4.012em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.43em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size2">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8246em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size2">)</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.37em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.87em;"><span style="top:-4.012em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord text"><span class="mord">if </span></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">0</span></span></span><span style="top:-2.43em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord text"><span class="mord">otherwise</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.37em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
-<p>其中，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mi>s</mi><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">|s|</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord mathnormal">s</span><span class="mord">∣</span></span></span></span>表示字符串<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span>的长度；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span>表示两个字符串的匹配字符数</p>
-]]></content>
-      <categories>
-        <category>misc</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>机器学习</tag>
-        <tag>算法</tag>
-      </tags>
   </entry>
   <entry>
     <title>RIME 输入法配置指南</title>
@@ -13785,30 +13785,32 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
   <entry>
     <title>VirtIO 规范</title>
     <url>/2024/04/16/virtio-note/</url>
-    <content><![CDATA[<p>VirtIO 驱动定义了一组规范，只要 guest 和 host 按照此规范进行数据操作，就可以使虚拟机 IO 绕过内核空间而直接再用户空间的两个进程间传输数据，以此达到提高 IO 性能的目的。</p>
-<p>真实硬件具有复杂的细节，模拟复杂且效率低，让 Guest 访问虚拟设备的寄存器 or 内存时，会 trap 到 QEMU 的设备模拟代码。当我们只需要最基本的内外传输的功能时，VirtIO 是很好的选择。</p>
+    <content><![CDATA[<p>VirtIO 是一种通用的半虚拟化的解决方案，它定义了一组规范：只要 Guest 和 Host 按照此规范进行数据操作，就可以使虚拟机绕过内核空间而直接和用户空间的进程间通信，以此达到提高 IO 性能的目的。</p>
+<p>众所周知，真实硬件具有复杂的细节，模拟起来不仅复杂且效率低，当一个 Guest 访问到完全虚拟设备的寄存器 or 内存时，会 trap 到 Hypervisor 的设备模拟代码中，这一过程需要虚拟机内、外的多次切换过程，效率很低。
+VirtIO 极大地简化了设备的实现，当我们只需要最基本的内外传输的功能时，VirtIO 是很好的选择。</p>
 <p>VirtIO 属于半虚拟化的一种，即 Guest 知道自己是虚拟出来的。</p>
-<p>具体实现有多种，最常见的是 VirtIO over PCI，也有 VirtIO over MMIO 和 VirtIO over Channel IO。</p>
+<p>VirtIO 规范目前由 OASIS 维护，目前已经更新到 virtio v1.3 版本。
+VirtIO 规范中定义了多种实现方式，最常见的是 VirtIO over PCI，也有 VirtIO over MMIO 和 VirtIO over Channel I/O。</p>
 <h2 id="virtio-架构"><a class="header-anchor-1" href="#virtio-架构">#</a>VirtIO 架构</h2>
 <p><img src="arch.png" alt="virtio-arch" /></p>
-<p>位于 Guest 中的部分称为前端。对于不同类型的设备有不同类型的驱动。源码位于 Linux 内核中。</p>
+<p>VirtIO 支持虚拟多种类型的设备，例如块设备(virtio_blk)，网卡设备（virtio_net），SCSI 总线设备(virtio_scsi)等。</p>
+<p>位于 Guest 中的部分（即虚拟出来的设备）称为前端。对于 VirtIO 系列设备，Linux 内核中早已有对应的驱动支持。</p>
+<p>位于 Host 上的部分为后端。源码位于 Hypervisor 中。</p>
 <p>不管是哪种类型的设备，底层的数据通道都是一样的。</p>
-<p>位于 Host 上的部分为后端。源码位于 hypervisor 中。</p>
 <h2 id="前端-virtio-设备"><a class="header-anchor-1" href="#前端-virtio-设备">#</a>前端 VirtIO 设备</h2>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">virtio_device</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">vqs</span>;</span> <span class="comment">// VQ</span></span><br><span class="line">    u64 features;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p><code>features</code> 是 virtio_driver &amp; virtio_device 同时支持的通信特性，也就是前后端最终协商的通信特性。</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">virtio_driver</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> (*probe)(<span class="keyword">struct</span> virtio_device *dev);</span><br><span class="line">    <span class="type">int</span> (*scan)(<span class="keyword">struct</span> virtio_device *dev);</span><br><span class="line">    <span class="type">int</span> (*remove)(<span class="keyword">struct</span> virtio_device *dev);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>设备加载和注销等</p>
-<h2 id="virtqueue"><a class="header-anchor-1" href="#virtqueue">#</a>VirtQueue</h2>
+<h2 id="virtqueue（vq）"><a class="header-anchor-1" href="#virtqueue（vq）">#</a>VirtQueue（VQ）</h2>
 <p>Host 和 Guest 之前通信的抽象数据通道称为 VirtQueue，具有双向数据收发的能力。</p>
-<p>根据实际设备收发能力，可以拥有一个或者多个 VirtQueue。</p>
-<p>virtio-net 默认有两条 VirtQueue。</p>
-<p>VQ 创建于 PCI 设备的<code>probe</code>阶段，由 Guest 侧创建，然后把地址传递给后端。</p>
+<p>根据实际设备收发速率，可能存在一个或者多个 VirtQueue。比如 virtio-net 默认创建了两条 VirtQueue。</p>
+<p>VQ 创建于 PCI 设备的<code>probe</code>阶段，由 Guest 侧创建，然后把 VQ 的物理地址传递给后端。</p>
 <h3 id="virtqueue-add-发送数据"><a class="header-anchor-1" href="#virtqueue-add-发送数据">#</a><code>virtqueue_add()</code> 发送数据</h3>
 <p>VQ 发送函数，负责把一个 SG list 放进 VQ。</p>
 <h3 id="virtqueue-kick-通知后端"><a class="header-anchor-1" href="#virtqueue-kick-通知后端">#</a><code>virtqueue_kick()</code> 通知后端</h3>
 <h2 id="vring"><a class="header-anchor-1" href="#vring">#</a>VRing</h2>
-<p>VirtQueue 的实现是利用 VRing，即 vring_virtqueue。</p>
+<p>VirtQueue是一个抽象类，其具体实现是 VRing，即 vring_virtqueue。</p>
 <p>VRing 是实际进行数据传输的实现，整体结构包含三部门：Descriptor 表和两个存放<code>Descriptor*</code>的 Ring Buffer。</p>
 <p>两个 Ring 分别是 Avail Ring 和 Used Ring，用于双向传递数据。Avail 用于从内向外，Used 用于从外向内，是站在 Host 角度命名的。</p>
 <p>每个 Descriptor 描述了一块数据区，主要包含 Guest 缓冲区的物理地址和长度。</p>
@@ -14323,17 +14325,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>3. 无重复字符的最长子串</title>
-    <url>/2021/03/01/3/</url>
-    <content><![CDATA[<h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
-<p>滑动窗口</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(string s)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        unordered_set&lt;<span class="type">char</span>&gt; cur_group;</span><br><span class="line">        <span class="type">int</span> end = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (end &lt; s.<span class="built_in">size</span>() &amp;&amp; cur_group.<span class="built_in">find</span>(s[end]) == cur_group.<span class="built_in">end</span>()) &#123;</span><br><span class="line">            cur_group.<span class="built_in">insert</span>(s[end++]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> max_length = cur_group.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; s.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            cur_group.<span class="built_in">erase</span>(s[i]);</span><br><span class="line">            <span class="keyword">while</span> (end &lt; s.<span class="built_in">size</span>() &amp;&amp; cur_group.<span class="built_in">find</span>(s[end]) == cur_group.<span class="built_in">end</span>()) &#123;</span><br><span class="line">                cur_group.<span class="built_in">insert</span>(s[end++]);</span><br><span class="line">            &#125;</span><br><span class="line">            max_length = std::<span class="built_in">max</span>(max_length, cur_group.<span class="built_in">size</span>());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max_length;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
     <title>290. 单词规律</title>
     <url>/2020/12/16/290/</url>
     <content><![CDATA[<p>判断给定<em>字符串</em>是不是按照给定<em>模式</em>的短语, 例如&quot;dog dog cat cat&quot;就是&quot;aabb&quot;式的短语</p>
@@ -14345,6 +14336,17 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
 <p>两者都返回迭代器</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">M.<span class="built_in">find</span>(someKey);</span><br><span class="line"><span class="built_in">find_if</span>(M.<span class="built_in">begin</span>(), M.<span class="built_in">end</span>(), [&amp;](<span class="type">const</span> <span class="keyword">auto</span>&amp; kv)&#123; <span class="comment">/* ... */</span> &#125;);</span><br></pre></td></tr></table></figure>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">wordPattern</span><span class="params">(string pattern, string s)</span> </span>&#123;</span><br><span class="line">        map&lt;<span class="type">char</span>, string&gt; M;</span><br><span class="line">        vector&lt;string&gt; S;</span><br><span class="line">        <span class="type">char</span> *p = <span class="built_in">strtok</span>((<span class="type">char</span> *)s.<span class="built_in">c_str</span>(), <span class="string">&quot; &quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (p) <span class="keyword">do</span> &#123;</span><br><span class="line">            S.<span class="built_in">push_back</span>(p);</span><br><span class="line">        &#125; <span class="keyword">while</span> (p = <span class="built_in">strtok</span>(<span class="literal">NULL</span>, <span class="string">&quot; &quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (pattern.<span class="built_in">size</span>() != S.<span class="built_in">size</span>()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; pattern.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            <span class="type">char</span> ch = pattern[i];</span><br><span class="line">            <span class="keyword">if</span> (M.<span class="built_in">find</span>(ch) == M.<span class="built_in">end</span>()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="built_in">find_if</span>(M.<span class="built_in">begin</span>(),M.<span class="built_in">end</span>(),[&amp;](<span class="type">const</span> <span class="keyword">auto</span>&amp;p)&#123;<span class="keyword">return</span> p.second==S[i];&#125;)!=M.<span class="built_in">end</span>())&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                cout&lt;&lt;ch&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;S[i]&lt;&lt;endl;</span><br><span class="line">                M[ch] = S[i];</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (M[ch] != S[i]) &#123;</span><br><span class="line">                cout&lt;&lt;M[ch]&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;S[i]&lt;&lt;endl;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>3. 无重复字符的最长子串</title>
+    <url>/2021/03/01/3/</url>
+    <content><![CDATA[<h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
+<p>滑动窗口</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(string s)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        unordered_set&lt;<span class="type">char</span>&gt; cur_group;</span><br><span class="line">        <span class="type">int</span> end = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (end &lt; s.<span class="built_in">size</span>() &amp;&amp; cur_group.<span class="built_in">find</span>(s[end]) == cur_group.<span class="built_in">end</span>()) &#123;</span><br><span class="line">            cur_group.<span class="built_in">insert</span>(s[end++]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> max_length = cur_group.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; s.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            cur_group.<span class="built_in">erase</span>(s[i]);</span><br><span class="line">            <span class="keyword">while</span> (end &lt; s.<span class="built_in">size</span>() &amp;&amp; cur_group.<span class="built_in">find</span>(s[end]) == cur_group.<span class="built_in">end</span>()) &#123;</span><br><span class="line">                cur_group.<span class="built_in">insert</span>(s[end++]);</span><br><span class="line">            &#125;</span><br><span class="line">            max_length = std::<span class="built_in">max</span>(max_length, cur_group.<span class="built_in">size</span>());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max_length;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -14664,6 +14666,72 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/11/29/2020-11-29/</url>
+    <content><![CDATA[<h1>用 Hexo 搭建了个人 blog</h1>
+<h2 id="hexo-基本操作"><a class="header-anchor-1" href="#hexo-基本操作">#</a>Hexo 基本操作</h2>
+<ul>
+<li>
+<p>安装</p>
+<p><code>npm install -g hexo-cli</code></p>
+</li>
+<li>
+<p>初始化hexo</p>
+<p><code>hexo init</code></p>
+<ul>
+<li>当前目录必须是空的</li>
+</ul>
+</li>
+<li>
+<p>新建文章</p>
+<p><code>hexo new [layout] name</code></p>
+<ul>
+<li>
+<p>layout 可以是 post, page, draft 之一</p>
+</li>
+<li>
+<p>分别保存至 source/_posts, source, source/_drafts 中</p>
+</li>
+<li>
+<p>新建文件名可以在 _config.yml 里面指定, <code>new_post_name</code>, 默认为 <code>name.md</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p>临时开启 server</p>
+<p><code>hexo server</code></p>
+</li>
+</ul>
+<h1>React 入门</h1>
+<h2 id="复习-javascript"><a class="header-anchor-1" href="#复习-javascript">#</a>复习 JavaScript</h2>
+<ul>
+<li><span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvZW4tVVMvZG9jcy9XZWIvSmF2YVNjcmlwdC9BX3JlLWludHJvZHVjdGlvbl90b19KYXZhU2NyaXB0">很好的文章<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h1>Vue 和 React 路由模块的区别</h1>
+<h2 id="vue-路由"><a class="header-anchor-1" href="#vue-路由">#</a>Vue 路由</h2>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">Router</span>(&#123;</span><br><span class="line">    <span class="attr">mode</span>: <span class="string">&#x27;history&#x27;</span>,</span><br><span class="line">    <span class="attr">routes</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">path</span>: <span class="string">&#x27;/inspect&#x27;</span>,</span><br><span class="line">        <span class="attr">component</span>: <span class="title class_">Layout</span>,</span><br><span class="line">        <span class="attr">redirect</span>: <span class="string">&#x27;/inspect/table1&#x27;</span>,</span><br><span class="line">        <span class="attr">name</span>: <span class="string">&#x27;报表&#x27;</span>,</span><br><span class="line">        <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&#x27;报表&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;,</span><br><span class="line">        <span class="attr">children</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">path</span>: <span class="string">&#x27;table1&#x27;</span>,</span><br><span class="line">            <span class="attr">name</span>: <span class="string">&#x27;Table&#x27;</span>,</span><br><span class="line">            <span class="attr">component</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;@/views/table/index&#x27;</span>),</span><br><span class="line">            <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&#x27;Table&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h1>Vue 深入 —— MVVM 框架</h1>
+<ul>
+<li>
+<p>Observer 数据劫持</p>
+</li>
+<li>
+<p>Dep/Watcher 发布订阅</p>
+</li>
+<li>
+<p>Compiler 解析 <code>&#123;&#123; &#125;&#125;</code>, 创建watcher, 求解表达式</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/11/30/2020-11-30/</url>
     <content><![CDATA[<h1>Github Developer Settings</h1>
 <ul>
@@ -14751,72 +14819,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       <tags>
         <tag>Github</tag>
         <tag>Hexo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/11/29/2020-11-29/</url>
-    <content><![CDATA[<h1>用 Hexo 搭建了个人 blog</h1>
-<h2 id="hexo-基本操作"><a class="header-anchor-1" href="#hexo-基本操作">#</a>Hexo 基本操作</h2>
-<ul>
-<li>
-<p>安装</p>
-<p><code>npm install -g hexo-cli</code></p>
-</li>
-<li>
-<p>初始化hexo</p>
-<p><code>hexo init</code></p>
-<ul>
-<li>当前目录必须是空的</li>
-</ul>
-</li>
-<li>
-<p>新建文章</p>
-<p><code>hexo new [layout] name</code></p>
-<ul>
-<li>
-<p>layout 可以是 post, page, draft 之一</p>
-</li>
-<li>
-<p>分别保存至 source/_posts, source, source/_drafts 中</p>
-</li>
-<li>
-<p>新建文件名可以在 _config.yml 里面指定, <code>new_post_name</code>, 默认为 <code>name.md</code></p>
-</li>
-</ul>
-</li>
-<li>
-<p>临时开启 server</p>
-<p><code>hexo server</code></p>
-</li>
-</ul>
-<h1>React 入门</h1>
-<h2 id="复习-javascript"><a class="header-anchor-1" href="#复习-javascript">#</a>复习 JavaScript</h2>
-<ul>
-<li><span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvZW4tVVMvZG9jcy9XZWIvSmF2YVNjcmlwdC9BX3JlLWludHJvZHVjdGlvbl90b19KYXZhU2NyaXB0">很好的文章<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h1>Vue 和 React 路由模块的区别</h1>
-<h2 id="vue-路由"><a class="header-anchor-1" href="#vue-路由">#</a>Vue 路由</h2>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">Router</span>(&#123;</span><br><span class="line">    <span class="attr">mode</span>: <span class="string">&#x27;history&#x27;</span>,</span><br><span class="line">    <span class="attr">routes</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">path</span>: <span class="string">&#x27;/inspect&#x27;</span>,</span><br><span class="line">        <span class="attr">component</span>: <span class="title class_">Layout</span>,</span><br><span class="line">        <span class="attr">redirect</span>: <span class="string">&#x27;/inspect/table1&#x27;</span>,</span><br><span class="line">        <span class="attr">name</span>: <span class="string">&#x27;报表&#x27;</span>,</span><br><span class="line">        <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&#x27;报表&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;,</span><br><span class="line">        <span class="attr">children</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">path</span>: <span class="string">&#x27;table1&#x27;</span>,</span><br><span class="line">            <span class="attr">name</span>: <span class="string">&#x27;Table&#x27;</span>,</span><br><span class="line">            <span class="attr">component</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;@/views/table/index&#x27;</span>),</span><br><span class="line">            <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&#x27;Table&#x27;</span>, <span class="attr">icon</span>: <span class="string">&#x27;table&#x27;</span> &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h1>Vue 深入 —— MVVM 框架</h1>
-<ul>
-<li>
-<p>Observer 数据劫持</p>
-</li>
-<li>
-<p>Dep/Watcher 发布订阅</p>
-</li>
-<li>
-<p>Compiler 解析 <code>&#123;&#123; &#125;&#125;</code>, 创建watcher, 求解表达式</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -15891,6 +15893,20 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/16/2020-12-16/</url>
+    <content><![CDATA[<h1>Spring Security</h1>
+<h1>JWT</h1>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Spring</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/17/2020-12-17/</url>
     <content><![CDATA[<h1>Spring-doc OpenAPI 注解</h1>
 <p>@Operation
@@ -15970,20 +15986,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <category>daily</category>
         <category>2020</category>
       </categories>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/16/2020-12-16/</url>
-    <content><![CDATA[<h1>Spring Security</h1>
-<h1>JWT</h1>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Spring</tag>
-      </tags>
   </entry>
   <entry>
     <title>每日小结</title>
@@ -16422,6 +16424,22 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </categories>
   </entry>
   <entry>
+    <title>每日小结</title>
+    <url>/2021/01/22/2021-01-22/</url>
+    <content><![CDATA[<p>考试结束</p>
+<p>假期的一些计划</p>
+<ul>
+<li>完善<code>codepass</code>项目</li>
+<li>刷算法题目</li>
+<li>深入学习c++</li>
+</ul>
+]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+  </entry>
+  <entry>
     <title>shell脚本编程</title>
     <url>/2021/01/29/2021-01-29/</url>
     <content><![CDATA[<h1>注释</h1>
@@ -16534,22 +16552,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </tags>
   </entry>
   <entry>
-    <title>每日小结</title>
-    <url>/2021/01/22/2021-01-22/</url>
-    <content><![CDATA[<p>考试结束</p>
-<p>假期的一些计划</p>
-<ul>
-<li>完善<code>codepass</code>项目</li>
-<li>刷算法题目</li>
-<li>深入学习c++</li>
-</ul>
-]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Numpy, SciPy, Matplotlib 和 Pandas 学习</title>
     <url>/2021/03/14/2021-03-14/</url>
     <content><![CDATA[<p>时间过的真快啊，转眼间已经是 <del>3</del> 4 月了！</p>
@@ -16578,6 +16580,21 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>numpy</tag>
         <tag>matplotlib</tag>
         <tag>pandas</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python 自定义 JSON Encoder</title>
+    <url>/2021/06/15/2021-06-15/</url>
+    <content><![CDATA[<h1>python 自定义 JSON Encoder</h1>
+<p>继承 json.JSONEncoder 类, 重载 default 方法</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).default(o)</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>json</tag>
       </tags>
   </entry>
   <entry>
@@ -16663,21 +16680,6 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
       </categories>
       <tags>
         <tag>算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>python 自定义 JSON Encoder</title>
-    <url>/2021/06/15/2021-06-15/</url>
-    <content><![CDATA[<h1>python 自定义 JSON Encoder</h1>
-<p>继承 json.JSONEncoder 类, 重载 default 方法</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).default(o)</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>json</tag>
       </tags>
   </entry>
   <entry>
