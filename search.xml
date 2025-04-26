@@ -2044,6 +2044,94 @@ I=\{
       </tags>
   </entry>
   <entry>
+    <title>ARP协议</title>
+    <url>/2021/10/20/arp-protocol/</url>
+    <content><![CDATA[<h2 id="arp-协议"><a class="header-anchor-1" href="#arp-协议">#</a>ARP 协议</h2>
+<p>ARP 协议的全称是 Address Resolution Protocol(地址解析协议)，它是一个通过解析网络层地址来找寻数据链路层地址的网络传输协议，它在 IPv4 中<strong>极其重要</strong>。是 IPv4 能够正常工作的基础。</p>
+<p>ARP 协议与 IP 协议一样，位于网络层，ARP 报文在以太网帧结构中的帧类型字段为<code>0x0806</code></p>
+<p>在 IPv6 中邻居发现协议（NDP）用于代替地址解析协议（ARP）。</p>
+<h3 id="arp-报文格式"><a class="header-anchor-1" href="#arp-报文格式">#</a>ARP 报文格式</h3>
+<p>以太网首部：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ether_hdr</span> &#123;</span><br><span class="line">    <span class="type">uint8_t</span> target_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint8_t</span> sender_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint16_t</span> ptype; <span class="comment">/* equal to 0x0806 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ARP 报文：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">arp_hdr</span> &#123;</span><br><span class="line">    <span class="type">uint16_t</span> htype;</span><br><span class="line">    <span class="type">uint16_t</span> ptype;</span><br><span class="line">    <span class="type">uint8_t</span> hlen;</span><br><span class="line">    <span class="type">uint8_t</span> plen;</span><br><span class="line">    <span class="type">uint16_t</span> opcode;</span><br><span class="line">    <span class="type">uint8_t</span> sender_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint8_t</span> sender_ip[<span class="number">4</span>];</span><br><span class="line">    <span class="type">uint8_t</span> target_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint8_t</span> target_ip[<span class="number">4</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="arp-表"><a class="header-anchor-1" href="#arp-表">#</a>ARP 表</h3>
+<p>在每台安装有 TCP/IP 协议的电脑或路由器里都有一个 ARP 缓存表，表里的 IP 地址与 MAC 地址是一对应的，表中的每一行表示在<strong>当前局域网</strong>中，拥有<code>IP地址</code>的设备的 MAC 地址是<code>MAC地址</code>，如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th>主机名称</th>
+<th>IP 地址</th>
+<th>MAC 地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>192.168.38.10</td>
+<td>00-AA-00-62-D2-02</td>
+</tr>
+<tr>
+<td>B</td>
+<td>192.168.38.11</td>
+<td>00-BB-00-62-C2-02</td>
+</tr>
+<tr>
+<td>C</td>
+<td>192.168.38.12</td>
+<td>00-CC-00-62-C2-02</td>
+</tr>
+<tr>
+<td>D</td>
+<td>192.168.38.13</td>
+<td>00-DD-00-62-C2-02</td>
+</tr>
+<tr>
+<td>E</td>
+<td>192.168.38.14</td>
+<td>00-EE-00-62-C2-02</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<p>ARP 缓存表采用老化机制，在一段时间内如果表中的某一行没有使用，就会被删除，这样可减少缓存表的长度，加快查询速度。</p>
+<h3 id="arp-流程"><a class="header-anchor-1" href="#arp-流程">#</a>ARP 流程</h3>
+<ol>
+<li>
+<p>当发送数据时，主机 A 会在自己的 ARP 缓存表中寻找是否有目标 IP 地址。如果找到就知道目标 MAC 地址为（00-BB-00-62-C2-02），直接把目标 MAC 地址写入帧里面发送就可。</p>
+</li>
+<li>
+<p>如果在 ARP 缓存表中没有找到相对应的 IP 地址，主机 A 就会在网络上发送一个广播（ARP request），目标 MAC 地址是“FF.FF.FF.FF.FF.FF”，这表示向同一网段内的所有主机发出这样的询问：“192.168.38.11 的 MAC 地址是什么？”</p>
+</li>
+<li>
+<p>网络上其他主机并不响应 ARP 询问，只有主机 B 接收到这个帧时，才向主机 A 做出这样的回应（ARP response）：“192.168.38.11 的 MAC 地址是 00-BB-00-62-C2-02”，此回应以单播方式。这样，主机 A 就知道主机 B 的 MAC 地址，它就可以向主机 B 发送信息。同时它还更新自己的 ARP 高速缓存（ARP cache），下次再向主机 B 发送信息时，直接从 ARP 缓存表里查找就可。</p>
+</li>
+</ol>
+<h3 id="免费-arp"><a class="header-anchor-1" href="#免费-arp">#</a>免费 ARP</h3>
+<p>免费 ARP（gratuitous ARP）是指主机发送 ARP 查询（广播）自己的 IP 地址，当 ARP 功能被开启或者是端口初始配置完成，主机向网络发送免费 ARP 来查询自己的 IP 地址确认地址唯一可用。</p>
+<p>作用：</p>
+<ol>
+<li>
+<p>确定网络中是否有其他主机使用了 IP 地址，如果有应答则产生错误消息。</p>
+</li>
+<li>
+<p>免费 ARP 可以做更新 ARP 缓存用，网络中的其他主机收到该广播则在缓存中更新条目，收到该广播的主机无论是否存在与 IP 地址相关的条目都会强制更新，如果存在旧条目则会将 MAC 更新为广播包中的 MAC。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>computer-networking</category>
+      </categories>
+      <tags>
+        <tag>计算机网络</tag>
+        <tag>基础架构</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>计算机网络课程笔记</title>
     <url>/2021/01/05/computer-networking-notes/</url>
     <content><![CDATA[<h2 id="按章节"><a class="header-anchor-1" href="#按章节">#</a>按章节</h2>
@@ -2819,24 +2907,6 @@ SNMP: 161/162</p>
       </tags>
   </entry>
   <entry>
-    <title>支持元素更新的D元最小堆模版</title>
-    <url>/2024/04/21/cpp-d-ary-heap-structure/</url>
-    <content><![CDATA[<p>做 CMU 15-445 的时候需要实现一个支持元素更新的堆。</p>
-<p>STL 中的堆是不支持元素更新的，但是我们可以利用元素上浮和元素下沉的操作实现元素更新。具体做法也很简单，根据元素是增大还是减小，调用对应操作保证符合堆的性质即可。</p>
-<p>不幸的是 STL 又没有暴露元素上浮和元素下沉的接口，于是只能自己写一个了。</p>
-<p>为了能够更新元素的值，给每个元素都附带了一个<code>key</code>标签，凭<code>key</code>去更新元素值，所以最终整个数据结构演变成了类似哈希表的结构。</p>
-<p>实现时顺便实现了<span class="exturl" data-url="aHR0cHM6Ly93d3cud2lraXdhbmQuY29tL2VuL0QtYXJ5X2hlYXA=">D 元堆<i class="fa fa-external-link-alt"></i></span>，元数作为模版参数。</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * KeyedMinHeap is a min-heap that supports the following operations:</span></span><br><span class="line"><span class="comment"> * - Insert: Insert a key with a score into the heap</span></span><br><span class="line"><span class="comment"> * - Update: Update the score of a key in the heap</span></span><br><span class="line"><span class="comment"> * - TopKey: Get the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - TopScore: Get the minimum score</span></span><br><span class="line"><span class="comment"> * - Pop: Remove the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - Erase: Remove a key from the heap</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, std::<span class="type">size_t</span> ARITY = <span class="number">4</span>&gt;</span><br><span class="line"><span class="keyword">class</span> KeyedMinHeap &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">using</span> <span class="type">heap_index_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line">  <span class="keyword">using</span> <span class="type">score_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">KeyedMinHeap</span>() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Insert</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> score)</span> </span>&#123;</span><br><span class="line">    keys_map_[key] = heap_.<span class="built_in">size</span>();</span><br><span class="line">    heap_.<span class="built_in">emplace_back</span>(key, score);</span><br><span class="line">    <span class="built_in">BubbleUp</span>(heap_.<span class="built_in">size</span>() - <span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Increment</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second++;</span><br><span class="line">    <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Update</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> new_score)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    <span class="type">score_t</span> old_score = heap_[h_index].second;</span><br><span class="line">    <span class="keyword">if</span> (old_score == new_score) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second = new_score;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (new_score &lt; old_score) &#123;</span><br><span class="line">      <span class="built_in">BubbleUp</span>(h_index);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopKey</span><span class="params">()</span> <span class="type">const</span> -&gt; Key </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().first;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopScore</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">score_t</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().second;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Pop</span><span class="params">()</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> top_key = heap_.<span class="built_in">front</span>().first;</span><br><span class="line">    <span class="keyword">auto</span> last_key = heap_.<span class="built_in">back</span>().first;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(top_key);</span><br><span class="line">    keys_map_[last_key] = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_.<span class="built_in">front</span>(), heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleDown</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Erase</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> entry = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(entry != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">heap_index_t</span> index = entry-&gt;second;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(entry);</span><br><span class="line">    keys_map_[heap_.<span class="built_in">back</span>().first] = index;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_[index], heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleUp</span>(index);</span><br><span class="line">    <span class="built_in">BubbleDown</span>(index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Size</span><span class="params">()</span> <span class="type">const</span> -&gt; std::<span class="type">size_t</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">size</span>(); &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Empty</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">bool</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">empty</span>(); &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ParentIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123; <span class="keyword">return</span> (h_index - <span class="number">1</span>) / ARITY; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Returns the index of the child_number-th child of the node at index</span></span><br><span class="line">  <span class="comment">// The children are numbered from 1 to ARITY</span></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ChildIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index, std::<span class="type">size_t</span> child_number)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ARITY * h_index + child_number;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleUp</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (h_index != <span class="number">0</span>) &#123;</span><br><span class="line">      std::<span class="type">size_t</span> parent = <span class="built_in">ParentIndex</span>(h_index);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">auto</span> &amp;parent_entry = heap_[parent];</span><br><span class="line">      <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (entry.second &lt; parent_entry.second) &#123;</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[parent_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(entry, parent_entry);</span><br><span class="line">        h_index = parent;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleDown</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">      <span class="type">heap_index_t</span> smallest = h_index;</span><br><span class="line">      <span class="keyword">for</span> (std::<span class="type">size_t</span> i = <span class="number">1</span>; i &lt;= ARITY; ++i) &#123;</span><br><span class="line">        <span class="type">heap_index_t</span> child = <span class="built_in">ChildIndex</span>(h_index, i);</span><br><span class="line">        <span class="keyword">if</span> (child &lt; heap_.<span class="built_in">size</span>() &amp;&amp; heap_[child].second &lt; heap_[smallest].second) &#123;</span><br><span class="line">          smallest = child;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (smallest != h_index) &#123;</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;smallest_entry = heap_[smallest];</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[smallest_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(heap_[h_index], heap_[smallest]);</span><br><span class="line">        h_index = smallest;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  std::unordered_map&lt;Key, <span class="type">heap_index_t</span>&gt; keys_map_;</span><br><span class="line">  std::vector&lt;std::pair&lt;Key, <span class="type">score_t</span>&gt;&gt; heap_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>cpp</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-        <tag>数据结构</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>C++ 古怪类型与容器的交互</title>
     <url>/2024/04/21/cpp-opaque-type-vs-container/</url>
     <content><![CDATA[<p>C++允许定义禁止复制和移动的类型，例如：</p>
@@ -2858,6 +2928,24 @@ SNMP: 161/162</p>
       </categories>
       <tags>
         <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>支持元素更新的D元最小堆模版</title>
+    <url>/2024/04/21/cpp-d-ary-heap-structure/</url>
+    <content><![CDATA[<p>做 CMU 15-445 的时候需要实现一个支持元素更新的堆。</p>
+<p>STL 中的堆是不支持元素更新的，但是我们可以利用元素上浮和元素下沉的操作实现元素更新。具体做法也很简单，根据元素是增大还是减小，调用对应操作保证符合堆的性质即可。</p>
+<p>不幸的是 STL 又没有暴露元素上浮和元素下沉的接口，于是只能自己写一个了。</p>
+<p>为了能够更新元素的值，给每个元素都附带了一个<code>key</code>标签，凭<code>key</code>去更新元素值，所以最终整个数据结构演变成了类似哈希表的结构。</p>
+<p>实现时顺便实现了<span class="exturl" data-url="aHR0cHM6Ly93d3cud2lraXdhbmQuY29tL2VuL0QtYXJ5X2hlYXA=">D 元堆<i class="fa fa-external-link-alt"></i></span>，元数作为模版参数。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * KeyedMinHeap is a min-heap that supports the following operations:</span></span><br><span class="line"><span class="comment"> * - Insert: Insert a key with a score into the heap</span></span><br><span class="line"><span class="comment"> * - Update: Update the score of a key in the heap</span></span><br><span class="line"><span class="comment"> * - TopKey: Get the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - TopScore: Get the minimum score</span></span><br><span class="line"><span class="comment"> * - Pop: Remove the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - Erase: Remove a key from the heap</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, std::<span class="type">size_t</span> ARITY = <span class="number">4</span>&gt;</span><br><span class="line"><span class="keyword">class</span> KeyedMinHeap &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">using</span> <span class="type">heap_index_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line">  <span class="keyword">using</span> <span class="type">score_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">KeyedMinHeap</span>() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Insert</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> score)</span> </span>&#123;</span><br><span class="line">    keys_map_[key] = heap_.<span class="built_in">size</span>();</span><br><span class="line">    heap_.<span class="built_in">emplace_back</span>(key, score);</span><br><span class="line">    <span class="built_in">BubbleUp</span>(heap_.<span class="built_in">size</span>() - <span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Increment</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second++;</span><br><span class="line">    <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Update</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> new_score)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    <span class="type">score_t</span> old_score = heap_[h_index].second;</span><br><span class="line">    <span class="keyword">if</span> (old_score == new_score) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second = new_score;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (new_score &lt; old_score) &#123;</span><br><span class="line">      <span class="built_in">BubbleUp</span>(h_index);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopKey</span><span class="params">()</span> <span class="type">const</span> -&gt; Key </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().first;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopScore</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">score_t</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().second;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Pop</span><span class="params">()</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> top_key = heap_.<span class="built_in">front</span>().first;</span><br><span class="line">    <span class="keyword">auto</span> last_key = heap_.<span class="built_in">back</span>().first;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(top_key);</span><br><span class="line">    keys_map_[last_key] = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_.<span class="built_in">front</span>(), heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleDown</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Erase</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> entry = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(entry != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">heap_index_t</span> index = entry-&gt;second;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(entry);</span><br><span class="line">    keys_map_[heap_.<span class="built_in">back</span>().first] = index;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_[index], heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleUp</span>(index);</span><br><span class="line">    <span class="built_in">BubbleDown</span>(index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Size</span><span class="params">()</span> <span class="type">const</span> -&gt; std::<span class="type">size_t</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">size</span>(); &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Empty</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">bool</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">empty</span>(); &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ParentIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123; <span class="keyword">return</span> (h_index - <span class="number">1</span>) / ARITY; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Returns the index of the child_number-th child of the node at index</span></span><br><span class="line">  <span class="comment">// The children are numbered from 1 to ARITY</span></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ChildIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index, std::<span class="type">size_t</span> child_number)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ARITY * h_index + child_number;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleUp</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (h_index != <span class="number">0</span>) &#123;</span><br><span class="line">      std::<span class="type">size_t</span> parent = <span class="built_in">ParentIndex</span>(h_index);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">auto</span> &amp;parent_entry = heap_[parent];</span><br><span class="line">      <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (entry.second &lt; parent_entry.second) &#123;</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[parent_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(entry, parent_entry);</span><br><span class="line">        h_index = parent;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleDown</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">      <span class="type">heap_index_t</span> smallest = h_index;</span><br><span class="line">      <span class="keyword">for</span> (std::<span class="type">size_t</span> i = <span class="number">1</span>; i &lt;= ARITY; ++i) &#123;</span><br><span class="line">        <span class="type">heap_index_t</span> child = <span class="built_in">ChildIndex</span>(h_index, i);</span><br><span class="line">        <span class="keyword">if</span> (child &lt; heap_.<span class="built_in">size</span>() &amp;&amp; heap_[child].second &lt; heap_[smallest].second) &#123;</span><br><span class="line">          smallest = child;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (smallest != h_index) &#123;</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;smallest_entry = heap_[smallest];</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[smallest_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(heap_[h_index], heap_[smallest]);</span><br><span class="line">        h_index = smallest;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  std::unordered_map&lt;Key, <span class="type">heap_index_t</span>&gt; keys_map_;</span><br><span class="line">  std::vector&lt;std::pair&lt;Key, <span class="type">score_t</span>&gt;&gt; heap_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>数据结构</tag>
       </tags>
   </entry>
   <entry>
@@ -2958,9 +3046,16 @@ SNMP: 161/162</p>
 <h2 id="project-0-c-primer"><a class="header-anchor-1" href="#project-0-c-primer">#</a>Project 0 - C++ Primer</h2>
 <p>简单的 C++ 语法练习，略过。</p>
 <h2 id="project-1-buffer-pool-manager"><a class="header-anchor-1" href="#project-1-buffer-pool-manager">#</a>Project 1 - Buffer Pool Manager</h2>
-<p>Project 1 要求实现 DBMS 最底层的组件之一 —— Buffer Pool Manager (BPM)，BPM 是对数据库所在的物理存储的抽象。在 DBMS 中，底层物理存储被抽象为一个包含巨量 4KB 大小页的持久数组，DMBS 的上层抽象，例如 B 树、哈希表结构 和数据库中实际保存的数据就持久化在这样的物理存储上。</p>
+<p>Project 1 要求实现 DBMS 最底层的组件之一 —— Buffer Pool Manager (BPM)，BPM 是对数据库所在的物理存储的抽象，负责在内存和外存中换入换出页面，其作用类似与操作系统的 page cache。在 DBMS 中，底层物理是一个包含海量空间的持久化存储介质，DMBS 的上层抽象，例如 B 树、哈希表结构 和数据库中实际保存的数据就持久化在这样的物理存储上。</p>
 <p>然而，按照冯诺依曼架构，CPU 想要操作物理存储并不是一件轻松的事情，以 POSIX 文件接口为例，需要先<code>open</code>打开文件，然后<code>seek</code>移动到正确的位置，才能<code>read</code>/<code>write</code>需要的数据。更坏的是，我们想要读或者写的数据往往非常复杂，需要先加载到内存中，进行一定的计算和分析，才能真正执行读写操作。</p>
 <p>BPM 组件就是为了简化这些细节，它提供了换入换出某个物理页的接口，能够自动管理内存和不需要的物理页，方便上层使用。</p>
+<p>BPM 的主要组件包括：</p>
+<ul>
+<li>Slots：存储换入页数据的Buffer；</li>
+<li>HouseKeeping：记录Slot和Page之间的对应关系；</li>
+<li>Replacer：统计每个换入页的访问次数和频率，当空间不够时决策应该换出哪个页；</li>
+</ul>
+<p><img src="buffer_pool_manager.excalidraw.svg" alt="" /></p>
 <h3 id="基本实现"><a class="header-anchor-1" href="#基本实现">#</a>基本实现</h3>
 <h4 id="task-1-lru-k"><a class="header-anchor-1" href="#task-1-lru-k">#</a>Task 1 - LRU-K</h4>
 <p>LRU-K 是 LRU 算法的一种变体，与原版 LRU 算法相比，在淘汰时，LRU-K 算法会衡量每个数据条目的倒数第 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span> 次被访问的时间，按照这个时间去淘汰最久的元素。</p>
@@ -3029,11 +3124,11 @@ BPM 可以根据这个信息做未来页面的预测。</p>
 <p>（桶装满）比较<code>Bucket</code>的<code>Local Depth (LD)</code> 和 <code>Global Depth (GD)</code>；</p>
 </li>
 <li>
-<p>如果<code>LD == GD</code>，如果<code>Directory</code>已经达到最大深度，结束；否则翻倍<code>Directory</code>，<code>GD += 1</code>，然后重新定位<code>Bucket</code>；</p>
+<p>如果<code>LD == GD</code>，如果<code>Directory</code>已经达到最大深度，结束；否则翻倍<code>Directory</code>，<code>GD += 1</code>；然后重新定位<code>Bucket</code>；</p>
 <p><img src="ext_hashtable_init_insert2.excalidraw.svg" alt="" /></p>
 </li>
 <li>
-<p>如果<code>LD &lt; GD</code>，说明该桶包含了多个<code>entry</code>的元素，且元素的最后<code>LD</code>位是一样的：进行分裂操作，将这个<code>Bucket</code>拆分成两个，元素按照<code>1 &lt;&lt; LD</code>位分散到两个桶中；然后根据<code>entry</code>的最后<code>LD</code>位，更新一半的<code>entry</code>指针到新的<code>Bucket</code>上；</p>
+<p>如果<code>LD &lt; GD</code>，说明该桶包含了多个<code>entry</code>的元素，且元素的最后<code>LD</code>位是一样的：进行分裂操作，将这个<code>Bucket</code>拆分成两个，<code>LD</code>均设置为<code>LD+1</code>，元素按照第<code>1 &lt;&lt; LD</code>位分散到两个桶中；然后根据<code>entry</code>的最后<code>LD</code>位，更新一半的<code>entry</code>指针到新的<code>Bucket</code>上；</p>
 <p><img src="ext_hashtable_init_insert2_step2.excalidraw.svg" alt="" /></p>
 </li>
 <li>
@@ -3047,11 +3142,11 @@ BPM 可以根据这个信息做未来页面的预测。</p>
 <h4 id="示例-1：目录翻倍两次"><a class="header-anchor-1" href="#示例-1：目录翻倍两次">#</a>示例 1：目录翻倍两次</h4>
 <p>原状态：</p>
 <p><img src="ext_hashtable_init_insert2_step3.excalidraw.svg" alt="" /></p>
-<p>插入…1001，目录拓展：</p>
+<p>插入…1001，拓展目录：</p>
 <p><img src="ext_hashtable_insert2.excalidraw.svg" alt="" /></p>
-<p>桶分裂，但是仍然空间不足：</p>
 <p><img src="ext_hashtable_insert2_step2.excalidraw.svg" alt="" /></p>
-<p>再次拓展目录，成功插入：</p>
+<p>再次拓展目录：</p>
+<p><img src="ext_hashtable_insert2_step3.1.excalidraw.svg" alt="" /></p>
 <p><img src="ext_hashtable_insert2_step3.excalidraw.svg" alt="" /></p>
 <h4 id="示例-2：指针更新"><a class="header-anchor-1" href="#示例-2：指针更新">#</a>示例 2：指针更新</h4>
 <p>原状态：</p>
@@ -3061,6 +3156,9 @@ BPM 可以根据这个信息做未来页面的预测。</p>
 Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
 <p><img src="ext_hashtable_insert2_insert1.excalidraw.svg" alt="" /></p>
 <h3 id="删除算法"><a class="header-anchor-1" href="#删除算法">#</a>删除算法</h3>
+<p>删除算法基本上是插入算法的逆序操作。</p>
+<h3 id="优化：sharded-buffer-pool-manager"><a class="header-anchor-1" href="#优化：sharded-buffer-pool-manager">#</a>优化：Sharded Buffer Pool Manager</h3>
+<p><img src="sharded-buffer-pool-manager.excalidraw.svg" alt="sharded-buffer-pool-manager.excalidraw.svg" /></p>
 <h3 id="坑点"><a class="header-anchor-1" href="#坑点">#</a>坑点</h3>
 <p>计算哈希值要调用<code>Hash()</code>而不是<code>hash_fn_.GetHash()</code>。</p>
 <h2 id="project-3-query-execution"><a class="header-anchor-1" href="#project-3-query-execution">#</a>Project 3 - Query Execution</h2>
@@ -5164,6 +5262,23 @@ NN 会把不同客户端发起的操作合并成一个 batch，只要有一个�
       </tags>
   </entry>
   <entry>
+    <title>word2vec</title>
+    <url>/2023/10/28/word2vec/</url>
+    <content><![CDATA[<h2 id="what’s-it"><a class="header-anchor-1" href="#what’s-it">#</a>What’s it</h2>
+<p>2013 年，Google 开源的，用于词向量计算的工具</p>
+<h2 id="架构"><a class="header-anchor-1" href="#架构">#</a>架构</h2>
+<p>X – Dense – Dense – Softmax – Y</p>
+<p>CBoW: 利用上下文预测当前词</p>
+<p>Skip-gram: 利用当前词预测上下文</p>
+]]></content>
+      <categories>
+        <category>machine-learning</category>
+      </categories>
+      <tags>
+        <tag>NLP</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Bash 基本使用总结</title>
     <url>/2021/02/11/bash/</url>
     <content><![CDATA[<h2 id="bash-基本使用"><a class="header-anchor-1" href="#bash-基本使用">#</a>Bash 基本使用</h2>
@@ -5358,23 +5473,6 @@ NN 会把不同客户端发起的操作合并成一个 batch，只要有一个�
       </tags>
   </entry>
   <entry>
-    <title>Linux Kernel 网络子系统</title>
-    <url>/2024/04/16/linux-kernel-network-subsystem/</url>
-    <content><![CDATA[<h2 id="napi"><a class="header-anchor-1" href="#napi">#</a>NAPI</h2>
-<p>NAPI 机制采用中断和轮询结合的方式收包</p>
-<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的 backlog</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>softnet_data</p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>计算机网络</tag>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Linux Kernel 中断子系统</title>
     <url>/2024/04/16/linux-kernel-interrupt-subsystem/</url>
     <content><![CDATA[<p>Linux 将中断处理流程划分成两个部分，一个是 top half，另一个是 bottom half。</p>
@@ -5422,6 +5520,23 @@ top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
       <tags>
         <tag>Linux</tag>
         <tag>嵌入式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux Kernel 网络子系统</title>
+    <url>/2024/04/16/linux-kernel-network-subsystem/</url>
+    <content><![CDATA[<h2 id="napi"><a class="header-anchor-1" href="#napi">#</a>NAPI</h2>
+<p>NAPI 机制采用中断和轮询结合的方式收包</p>
+<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的 backlog</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>softnet_data</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>计算机网络</tag>
+        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -5553,23 +5668,6 @@ top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
       </categories>
       <tags>
         <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>word2vec</title>
-    <url>/2023/10/28/word2vec/</url>
-    <content><![CDATA[<h2 id="what’s-it"><a class="header-anchor-1" href="#what’s-it">#</a>What’s it</h2>
-<p>2013 年，Google 开源的，用于词向量计算的工具</p>
-<h2 id="架构"><a class="header-anchor-1" href="#架构">#</a>架构</h2>
-<p>X – Dense – Dense – Softmax – Y</p>
-<p>CBoW: 利用上下文预测当前词</p>
-<p>Skip-gram: 利用当前词预测上下文</p>
-]]></content>
-      <categories>
-        <category>machine-learning</category>
-      </categories>
-      <tags>
-        <tag>NLP</tag>
       </tags>
   </entry>
   <entry>
@@ -8838,94 +8936,6 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       </tags>
   </entry>
   <entry>
-    <title>ARP协议</title>
-    <url>/2021/10/20/arp-protocol/</url>
-    <content><![CDATA[<h2 id="arp-协议"><a class="header-anchor-1" href="#arp-协议">#</a>ARP 协议</h2>
-<p>ARP 协议的全称是 Address Resolution Protocol(地址解析协议)，它是一个通过解析网络层地址来找寻数据链路层地址的网络传输协议，它在 IPv4 中<strong>极其重要</strong>。是 IPv4 能够正常工作的基础。</p>
-<p>ARP 协议与 IP 协议一样，位于网络层，ARP 报文在以太网帧结构中的帧类型字段为<code>0x0806</code></p>
-<p>在 IPv6 中邻居发现协议（NDP）用于代替地址解析协议（ARP）。</p>
-<h3 id="arp-报文格式"><a class="header-anchor-1" href="#arp-报文格式">#</a>ARP 报文格式</h3>
-<p>以太网首部：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ether_hdr</span> &#123;</span><br><span class="line">    <span class="type">uint8_t</span> target_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint8_t</span> sender_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint16_t</span> ptype; <span class="comment">/* equal to 0x0806 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>ARP 报文：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">arp_hdr</span> &#123;</span><br><span class="line">    <span class="type">uint16_t</span> htype;</span><br><span class="line">    <span class="type">uint16_t</span> ptype;</span><br><span class="line">    <span class="type">uint8_t</span> hlen;</span><br><span class="line">    <span class="type">uint8_t</span> plen;</span><br><span class="line">    <span class="type">uint16_t</span> opcode;</span><br><span class="line">    <span class="type">uint8_t</span> sender_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint8_t</span> sender_ip[<span class="number">4</span>];</span><br><span class="line">    <span class="type">uint8_t</span> target_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint8_t</span> target_ip[<span class="number">4</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h3 id="arp-表"><a class="header-anchor-1" href="#arp-表">#</a>ARP 表</h3>
-<p>在每台安装有 TCP/IP 协议的电脑或路由器里都有一个 ARP 缓存表，表里的 IP 地址与 MAC 地址是一对应的，表中的每一行表示在<strong>当前局域网</strong>中，拥有<code>IP地址</code>的设备的 MAC 地址是<code>MAC地址</code>，如下表所示。</p>
-<table>
-<thead>
-<tr>
-<th>主机名称</th>
-<th>IP 地址</th>
-<th>MAC 地址</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>A</td>
-<td>192.168.38.10</td>
-<td>00-AA-00-62-D2-02</td>
-</tr>
-<tr>
-<td>B</td>
-<td>192.168.38.11</td>
-<td>00-BB-00-62-C2-02</td>
-</tr>
-<tr>
-<td>C</td>
-<td>192.168.38.12</td>
-<td>00-CC-00-62-C2-02</td>
-</tr>
-<tr>
-<td>D</td>
-<td>192.168.38.13</td>
-<td>00-DD-00-62-C2-02</td>
-</tr>
-<tr>
-<td>E</td>
-<td>192.168.38.14</td>
-<td>00-EE-00-62-C2-02</td>
-</tr>
-<tr>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-</tr>
-</tbody>
-</table>
-<p>ARP 缓存表采用老化机制，在一段时间内如果表中的某一行没有使用，就会被删除，这样可减少缓存表的长度，加快查询速度。</p>
-<h3 id="arp-流程"><a class="header-anchor-1" href="#arp-流程">#</a>ARP 流程</h3>
-<ol>
-<li>
-<p>当发送数据时，主机 A 会在自己的 ARP 缓存表中寻找是否有目标 IP 地址。如果找到就知道目标 MAC 地址为（00-BB-00-62-C2-02），直接把目标 MAC 地址写入帧里面发送就可。</p>
-</li>
-<li>
-<p>如果在 ARP 缓存表中没有找到相对应的 IP 地址，主机 A 就会在网络上发送一个广播（ARP request），目标 MAC 地址是“FF.FF.FF.FF.FF.FF”，这表示向同一网段内的所有主机发出这样的询问：“192.168.38.11 的 MAC 地址是什么？”</p>
-</li>
-<li>
-<p>网络上其他主机并不响应 ARP 询问，只有主机 B 接收到这个帧时，才向主机 A 做出这样的回应（ARP response）：“192.168.38.11 的 MAC 地址是 00-BB-00-62-C2-02”，此回应以单播方式。这样，主机 A 就知道主机 B 的 MAC 地址，它就可以向主机 B 发送信息。同时它还更新自己的 ARP 高速缓存（ARP cache），下次再向主机 B 发送信息时，直接从 ARP 缓存表里查找就可。</p>
-</li>
-</ol>
-<h3 id="免费-arp"><a class="header-anchor-1" href="#免费-arp">#</a>免费 ARP</h3>
-<p>免费 ARP（gratuitous ARP）是指主机发送 ARP 查询（广播）自己的 IP 地址，当 ARP 功能被开启或者是端口初始配置完成，主机向网络发送免费 ARP 来查询自己的 IP 地址确认地址唯一可用。</p>
-<p>作用：</p>
-<ol>
-<li>
-<p>确定网络中是否有其他主机使用了 IP 地址，如果有应答则产生错误消息。</p>
-</li>
-<li>
-<p>免费 ARP 可以做更新 ARP 缓存用，网络中的其他主机收到该广播则在缓存中更新条目，收到该广播的主机无论是否存在与 IP 地址相关的条目都会强制更新，如果存在旧条目则会将 MAC 更新为广播包中的 MAC。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>computer-networking</category>
-      </categories>
-      <tags>
-        <tag>计算机网络</tag>
-        <tag>基础架构</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Scaling Distributed Machine Learning with the Parameter Server 阅读笔记</title>
     <url>/2025/03/13/scaling-distributed-machine-learning/</url>
     <content><![CDATA[<p>沐神投稿在 OSDI '14 的论文，提出了第三代 Parameter Server 框架。</p>
@@ -9548,29 +9558,6 @@ S&amp;=\sum_{i=1}^{n}{C_{i}a_{i}}\\
       </categories>
   </entry>
   <entry>
-    <title>1123. Is It a Complete AVL Tree</title>
-    <url>/2020/12/18/1123/</url>
-    <content><![CDATA[<h2 id="题目"><a class="header-anchor-1" href="#题目">#</a>题目</h2>
-<p>按输入序列构造AVL树, 输出层次序遍历的结果, 和AVL树是否为完全二叉树</p>
-<h2 id="一些小技巧"><a class="header-anchor-1" href="#一些小技巧">#</a>一些小技巧:</h2>
-<h3 id="1-树的初始化问题"><a class="header-anchor-1" href="#1-树的初始化问题">#</a>1. 树的初始化问题</h3>
-<p>我们可以让insert函数返回插入后新的树根(从而可以递归调用), 调用时采用 <code>node = insert(node, val)</code> 的方式, 从而统一了第一个节点和其他节点的处理, 极大地简化了判断逻辑</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">node* <span class="title">insert</span><span class="params">(node* p, <span class="type">int</span> x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!p)&#123;</span><br><span class="line">        p=<span class="keyword">new</span> <span class="built_in">node</span>();</span><br><span class="line">        p-&gt;val=x;</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(x&lt;p-&gt;val)&#123;</span><br><span class="line">        p-&gt;left=<span class="built_in">insert</span>(p-&gt;left,x);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        p-&gt;right=<span class="built_in">insert</span>(p-&gt;right,x);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    node*root=<span class="literal">nullptr</span>;</span><br><span class="line">    root=<span class="built_in">insert</span>(root,<span class="number">1</span>);</span><br><span class="line">    root=<span class="built_in">insert</span>(root,<span class="number">2</span>);</span><br><span class="line">    root=<span class="built_in">insert</span>(root,<span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会:</h2>
-<ol>
-<li>KISS, 简单的才是最好的</li>
-<li>用好递归能节约大量代码</li>
-<li>数据结构题不必在性能上过多纠结</li>
-</ol>
-<h2 id="代码"><a class="header-anchor-1" href="#代码">#</a>代码</h2>
-<p>(部分参考自网络)</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">node</span> &#123;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    node *left = <span class="literal">nullptr</span>, *right = <span class="literal">nullptr</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">depth</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> p ? <span class="number">1</span> + <span class="built_in">max</span>(<span class="built_in">depth</span>(p-&gt;left), <span class="built_in">depth</span>(p-&gt;right)) : <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">rr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *lc = p-&gt;left;</span><br><span class="line">    p-&gt;left = lc-&gt;right;</span><br><span class="line">    lc-&gt;right = p;</span><br><span class="line">    <span class="keyword">return</span> lc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">lr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *rc = p-&gt;right;</span><br><span class="line">    p-&gt;right = rc-&gt;left;</span><br><span class="line">    rc-&gt;left = p;</span><br><span class="line">    <span class="keyword">return</span> rc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">lrr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    p-&gt;left = <span class="built_in">lr</span>(p-&gt;left);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">rr</span>(p);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">rlr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    p-&gt;right = <span class="built_in">rr</span>(p-&gt;right);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">lr</span>(p);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">insert</span><span class="params">(node *p, <span class="type">int</span> x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!p) &#123;</span><br><span class="line">        p = <span class="keyword">new</span> <span class="built_in">node</span>();</span><br><span class="line">        p-&gt;val = x;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (x &lt; p-&gt;val) &#123;</span><br><span class="line">        p-&gt;left = <span class="built_in">insert</span>(p-&gt;left, x);</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">depth</span>(p-&gt;left) - <span class="built_in">depth</span>(p-&gt;right) &gt; <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x &lt; p-&gt;left-&gt;val)</span><br><span class="line">                p = <span class="built_in">rr</span>(p);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                p = <span class="built_in">lrr</span>(p);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        p-&gt;right = <span class="built_in">insert</span>(p-&gt;right, x);</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">depth</span>(p-&gt;left) - <span class="built_in">depth</span>(p-&gt;right) &lt; <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x &gt; p-&gt;right-&gt;val)</span><br><span class="line">                p = <span class="built_in">lr</span>(p);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                p = <span class="built_in">rlr</span>(p);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">trav</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> first = <span class="number">1</span>;</span><br><span class="line">    <span class="type">int</span> empty = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> comp = <span class="number">1</span>;</span><br><span class="line">    queue&lt;node *&gt; Q;</span><br><span class="line">    <span class="keyword">if</span> (p) &#123;</span><br><span class="line">        Q.<span class="built_in">push</span>(p);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (Q.<span class="built_in">size</span>()) &#123;</span><br><span class="line">        node *top = Q.<span class="built_in">front</span>();</span><br><span class="line">        Q.<span class="built_in">pop</span>();</span><br><span class="line">        <span class="keyword">if</span> (!first) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        first = <span class="number">0</span>;</span><br><span class="line">        cout &lt;&lt; top-&gt;val;</span><br><span class="line">        <span class="keyword">if</span> (top-&gt;left) &#123;</span><br><span class="line">            <span class="keyword">if</span> (empty) &#123;</span><br><span class="line">                comp = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            Q.<span class="built_in">push</span>(top-&gt;left);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            empty = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (top-&gt;right) &#123;</span><br><span class="line">            <span class="keyword">if</span> (empty) &#123;</span><br><span class="line">                comp = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            Q.<span class="built_in">push</span>(top-&gt;right);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            empty = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; endl &lt;&lt; (comp ? <span class="string">&quot;YES&quot;</span> : <span class="string">&quot;NO&quot;</span>) &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *root = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> x;</span><br><span class="line">        cin &gt;&gt; x;</span><br><span class="line">        root = <span class="built_in">insert</span>(root, x);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">trav</span>(root);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>PTA</category>
-      </categories>
-  </entry>
-  <entry>
     <title>1140. Look-and-say Sequence</title>
     <url>/2021/01/10/1140/</url>
     <content><![CDATA[<h2 id="题意"><a class="header-anchor-1" href="#题意">#</a>题意</h2>
@@ -9588,6 +9575,29 @@ S&amp;=\sum_{i=1}^{n}{C_{i}a_{i}}\\
     <content><![CDATA[<p>二叉树上寻找最近公共祖先</p>
 <p>需要注意节点的key不一定连续</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unordered_map&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">node</span> &#123;</span><br><span class="line">    <span class="type">int</span> left, right, parent, depth;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">unordered_map&lt;<span class="type">int</span>, node&gt; N;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">build</span><span class="params">(<span class="type">const</span> vector&lt;<span class="type">int</span>&gt;::iterator &amp;preord_b,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">const</span> vector&lt;<span class="type">int</span>&gt;::iterator &amp;preord_e,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">const</span> vector&lt;<span class="type">int</span>&gt;::iterator &amp;inord_b,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">const</span> vector&lt;<span class="type">int</span>&gt;::iterator &amp;inord_e,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">int</span> parent,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">int</span> depth)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (preord_b == preord_e)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> key = *preord_b;</span><br><span class="line">    <span class="keyword">auto</span> inord_mid = <span class="built_in">find</span>(inord_b, inord_e, key);</span><br><span class="line">    <span class="type">int</span> left_len = inord_mid - inord_b;</span><br><span class="line">    N[key].left = <span class="built_in">build</span>(preord_b + <span class="number">1</span>, preord_b + <span class="number">1</span> + left_len, inord_b,</span><br><span class="line">        inord_mid, key, depth + <span class="number">1</span>);</span><br><span class="line">    N[key].right = <span class="built_in">build</span>(preord_b + <span class="number">1</span> + left_len, preord_e, inord_mid + <span class="number">1</span>,</span><br><span class="line">        inord_e, key, depth + <span class="number">1</span>);</span><br><span class="line">    N[key].parent = parent;</span><br><span class="line">    N[key].depth = depth;</span><br><span class="line">    <span class="keyword">return</span> key;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">lca</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (a == b) &#123;</span><br><span class="line">        <span class="keyword">return</span> a;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (N[a].depth &gt; N[b].depth) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">lca</span>(N[a].parent, b);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (N[a].depth &lt; N[b].depth) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">lca</span>(N[b].parent, a);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">lca</span>(N[a].parent, N[b].parent);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> m;</span><br><span class="line">    cin &gt;&gt; m;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line"></span><br><span class="line">    <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">inord</span><span class="params">(n)</span>, <span class="title">preord</span><span class="params">(n)</span></span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++)</span><br><span class="line">        cin &gt;&gt; inord[i];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++)</span><br><span class="line">        cin &gt;&gt; preord[i];</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> root =</span><br><span class="line">        <span class="built_in">build</span>(preord.<span class="built_in">begin</span>(), preord.<span class="built_in">end</span>(), inord.<span class="built_in">begin</span>(), inord.<span class="built_in">end</span>(), <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">        <span class="type">int</span> u, v;</span><br><span class="line">        cin &gt;&gt; u &gt;&gt; v;</span><br><span class="line">        <span class="type">bool</span> e1 = (N.<span class="built_in">find</span>(u) == N.<span class="built_in">end</span>());</span><br><span class="line">        <span class="type">bool</span> e2 = (N.<span class="built_in">find</span>(v) == N.<span class="built_in">end</span>());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (e1 &amp;&amp; e2) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;ERROR: &quot;</span> &lt;&lt; u &lt;&lt; <span class="string">&quot; and &quot;</span> &lt;&lt; v &lt;&lt; <span class="string">&quot; are not found.&quot;</span> &lt;&lt; endl;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e1 || e2) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;ERROR: &quot;</span> &lt;&lt; (e1 ? u : v) &lt;&lt; <span class="string">&quot; is not found.&quot;</span> &lt;&lt; endl;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> a = <span class="built_in">lca</span>(u, v);</span><br><span class="line">        <span class="keyword">if</span> (a == u || a == v) &#123;</span><br><span class="line">            cout &lt;&lt; a &lt;&lt; <span class="string">&quot; is an ancestor of &quot;</span> &lt;&lt; (a == u ? v : u) &lt;&lt; <span class="string">&quot;.&quot;</span></span><br><span class="line">                 &lt;&lt; endl;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;LCA of &quot;</span> &lt;&lt; u &lt;&lt; <span class="string">&quot; and &quot;</span> &lt;&lt; v &lt;&lt; <span class="string">&quot; is &quot;</span> &lt;&lt; a &lt;&lt; <span class="string">&quot;.&quot;</span></span><br><span class="line">                 &lt;&lt; endl;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>1123. Is It a Complete AVL Tree</title>
+    <url>/2020/12/18/1123/</url>
+    <content><![CDATA[<h2 id="题目"><a class="header-anchor-1" href="#题目">#</a>题目</h2>
+<p>按输入序列构造AVL树, 输出层次序遍历的结果, 和AVL树是否为完全二叉树</p>
+<h2 id="一些小技巧"><a class="header-anchor-1" href="#一些小技巧">#</a>一些小技巧:</h2>
+<h3 id="1-树的初始化问题"><a class="header-anchor-1" href="#1-树的初始化问题">#</a>1. 树的初始化问题</h3>
+<p>我们可以让insert函数返回插入后新的树根(从而可以递归调用), 调用时采用 <code>node = insert(node, val)</code> 的方式, 从而统一了第一个节点和其他节点的处理, 极大地简化了判断逻辑</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">node* <span class="title">insert</span><span class="params">(node* p, <span class="type">int</span> x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!p)&#123;</span><br><span class="line">        p=<span class="keyword">new</span> <span class="built_in">node</span>();</span><br><span class="line">        p-&gt;val=x;</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(x&lt;p-&gt;val)&#123;</span><br><span class="line">        p-&gt;left=<span class="built_in">insert</span>(p-&gt;left,x);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        p-&gt;right=<span class="built_in">insert</span>(p-&gt;right,x);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    node*root=<span class="literal">nullptr</span>;</span><br><span class="line">    root=<span class="built_in">insert</span>(root,<span class="number">1</span>);</span><br><span class="line">    root=<span class="built_in">insert</span>(root,<span class="number">2</span>);</span><br><span class="line">    root=<span class="built_in">insert</span>(root,<span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会:</h2>
+<ol>
+<li>KISS, 简单的才是最好的</li>
+<li>用好递归能节约大量代码</li>
+<li>数据结构题不必在性能上过多纠结</li>
+</ol>
+<h2 id="代码"><a class="header-anchor-1" href="#代码">#</a>代码</h2>
+<p>(部分参考自网络)</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">node</span> &#123;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    node *left = <span class="literal">nullptr</span>, *right = <span class="literal">nullptr</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">depth</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> p ? <span class="number">1</span> + <span class="built_in">max</span>(<span class="built_in">depth</span>(p-&gt;left), <span class="built_in">depth</span>(p-&gt;right)) : <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">rr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *lc = p-&gt;left;</span><br><span class="line">    p-&gt;left = lc-&gt;right;</span><br><span class="line">    lc-&gt;right = p;</span><br><span class="line">    <span class="keyword">return</span> lc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">lr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *rc = p-&gt;right;</span><br><span class="line">    p-&gt;right = rc-&gt;left;</span><br><span class="line">    rc-&gt;left = p;</span><br><span class="line">    <span class="keyword">return</span> rc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">lrr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    p-&gt;left = <span class="built_in">lr</span>(p-&gt;left);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">rr</span>(p);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">rlr</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    p-&gt;right = <span class="built_in">rr</span>(p-&gt;right);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">lr</span>(p);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">node *<span class="title">insert</span><span class="params">(node *p, <span class="type">int</span> x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!p) &#123;</span><br><span class="line">        p = <span class="keyword">new</span> <span class="built_in">node</span>();</span><br><span class="line">        p-&gt;val = x;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (x &lt; p-&gt;val) &#123;</span><br><span class="line">        p-&gt;left = <span class="built_in">insert</span>(p-&gt;left, x);</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">depth</span>(p-&gt;left) - <span class="built_in">depth</span>(p-&gt;right) &gt; <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x &lt; p-&gt;left-&gt;val)</span><br><span class="line">                p = <span class="built_in">rr</span>(p);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                p = <span class="built_in">lrr</span>(p);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        p-&gt;right = <span class="built_in">insert</span>(p-&gt;right, x);</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">depth</span>(p-&gt;left) - <span class="built_in">depth</span>(p-&gt;right) &lt; <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x &gt; p-&gt;right-&gt;val)</span><br><span class="line">                p = <span class="built_in">lr</span>(p);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                p = <span class="built_in">rlr</span>(p);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">trav</span><span class="params">(node *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> first = <span class="number">1</span>;</span><br><span class="line">    <span class="type">int</span> empty = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> comp = <span class="number">1</span>;</span><br><span class="line">    queue&lt;node *&gt; Q;</span><br><span class="line">    <span class="keyword">if</span> (p) &#123;</span><br><span class="line">        Q.<span class="built_in">push</span>(p);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (Q.<span class="built_in">size</span>()) &#123;</span><br><span class="line">        node *top = Q.<span class="built_in">front</span>();</span><br><span class="line">        Q.<span class="built_in">pop</span>();</span><br><span class="line">        <span class="keyword">if</span> (!first) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        first = <span class="number">0</span>;</span><br><span class="line">        cout &lt;&lt; top-&gt;val;</span><br><span class="line">        <span class="keyword">if</span> (top-&gt;left) &#123;</span><br><span class="line">            <span class="keyword">if</span> (empty) &#123;</span><br><span class="line">                comp = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            Q.<span class="built_in">push</span>(top-&gt;left);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            empty = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (top-&gt;right) &#123;</span><br><span class="line">            <span class="keyword">if</span> (empty) &#123;</span><br><span class="line">                comp = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            Q.<span class="built_in">push</span>(top-&gt;right);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            empty = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; endl &lt;&lt; (comp ? <span class="string">&quot;YES&quot;</span> : <span class="string">&quot;NO&quot;</span>) &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    node *root = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> x;</span><br><span class="line">        cin &gt;&gt; x;</span><br><span class="line">        root = <span class="built_in">insert</span>(root, x);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">trav</span>(root);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>PTA</category>
@@ -9964,17 +9974,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>738. 单调递增的数字</title>
-    <url>/2020/12/15/738/</url>
-    <content><![CDATA[<p>思路: 对于数字<code>x = an ... ai+1 ai ... a1 a0</code>, 如果任意相邻的<code>ai+1</code>,<code>ai</code>不符合单调递增, 就给原数字减去<code>(ai + 1) * 10 ^ i</code>, 减去之后得到的新数字即为<code>y</code></p>
-<p>可以发现, 若<code>x</code>与<code>y</code>不完全相同, 则最终结果在第一个不相同位之后的位必定全是<code>9</code>, 按此规律修正结果即可.</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">monotoneIncreasingDigits</span><span class="params">(<span class="type">int</span> N)</span> </span>&#123;</span><br><span class="line">        string s = <span class="built_in">to_string</span>(N);</span><br><span class="line">        string olds=s;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> bor=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=s.<span class="built_in">size</span>()<span class="number">-1</span>;i&gt;<span class="number">0</span>;i--)&#123;</span><br><span class="line">            <span class="keyword">if</span>(bor)&#123;</span><br><span class="line">                s[i]--;</span><br><span class="line">                s[i<span class="number">+1</span>]+=<span class="number">10</span>;</span><br><span class="line">                bor=<span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;s[i<span class="number">-1</span>])&#123;</span><br><span class="line">                <span class="comment">// -s[i]-1</span></span><br><span class="line">                s[i]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                s[i<span class="number">-1</span>]--;</span><br><span class="line">                <span class="keyword">if</span>(s[i<span class="number">-1</span>]&lt;<span class="string">&#x27;0&#x27;</span>) bor = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// fix</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;olds[i])&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="type">int</span> j=i<span class="number">+1</span>;j&lt;s.<span class="built_in">size</span>();j++)&#123;</span><br><span class="line">                    s[j]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// restore</span></span><br><span class="line">        <span class="type">int</span> val =<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            val=val*<span class="number">10</span>+s[i]-<span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
     <title>每日 leetcode</title>
     <url>/2020/12/12/index/</url>
     <content><![CDATA[<h1>决定开始刷leetcode了</h1>
@@ -9988,8 +9987,19 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
+    <title>738. 单调递增的数字</title>
+    <url>/2020/12/15/738/</url>
+    <content><![CDATA[<p>思路: 对于数字<code>x = an ... ai+1 ai ... a1 a0</code>, 如果任意相邻的<code>ai+1</code>,<code>ai</code>不符合单调递增, 就给原数字减去<code>(ai + 1) * 10 ^ i</code>, 减去之后得到的新数字即为<code>y</code></p>
+<p>可以发现, 若<code>x</code>与<code>y</code>不完全相同, 则最终结果在第一个不相同位之后的位必定全是<code>9</code>, 按此规律修正结果即可.</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">monotoneIncreasingDigits</span><span class="params">(<span class="type">int</span> N)</span> </span>&#123;</span><br><span class="line">        string s = <span class="built_in">to_string</span>(N);</span><br><span class="line">        string olds=s;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> bor=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=s.<span class="built_in">size</span>()<span class="number">-1</span>;i&gt;<span class="number">0</span>;i--)&#123;</span><br><span class="line">            <span class="keyword">if</span>(bor)&#123;</span><br><span class="line">                s[i]--;</span><br><span class="line">                s[i<span class="number">+1</span>]+=<span class="number">10</span>;</span><br><span class="line">                bor=<span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;s[i<span class="number">-1</span>])&#123;</span><br><span class="line">                <span class="comment">// -s[i]-1</span></span><br><span class="line">                s[i]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                s[i<span class="number">-1</span>]--;</span><br><span class="line">                <span class="keyword">if</span>(s[i<span class="number">-1</span>]&lt;<span class="string">&#x27;0&#x27;</span>) bor = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// fix</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(s[i]&lt;olds[i])&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="type">int</span> j=i<span class="number">+1</span>;j&lt;s.<span class="built_in">size</span>();j++)&#123;</span><br><span class="line">                    s[j]=<span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// restore</span></span><br><span class="line">        <span class="type">int</span> val =<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            val=val*<span class="number">10</span>+s[i]-<span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
     <title>dlmalloc 内存分配器</title>
-    <url>/2025/04/16/dlmalloc/</url>
+    <url>/2025/04/26/dlmalloc/</url>
     <content><![CDATA[<p>dlmalloc 是一个 C 语言实现的流行的内存分配器实现，由纽约州立大学 Oswego 分校计算机系教授 Doug Lea 在 1980 年代编写，许多人称之为 Doug Lea 的 malloc，或者简称 dlmalloc。</p>
 <div class="info">
 <p>关于 Doug Lea</p>
@@ -10242,6 +10252,23 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
+    <title>每日小结</title>
+    <url>/2024/05/12/2024-05-13/</url>
+    <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
+<p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
+<h2 id="conda-root-less-apt"><a class="header-anchor-1" href="#conda-root-less-apt">#</a>Conda = Root-less apt</h2>
+<p>升级<code>gcc</code>依赖库：<code>conda install libgcc libgcc-ng</code></p>
+<p>升级<code>libstdc++</code>：<code>conda install -c conda-forge libstdcxx-ng</code></p>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>2024 年终总结 -- 记学生时代的终结</title>
     <url>/2025/03/15/2024-summary/</url>
     <content><![CDATA[<p>不知不觉 2025 年已经过去了两个多月，感觉再不写这篇总结就要忘记了。</p>
@@ -10353,23 +10380,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       <tags>
         <tag>学习</tag>
         <tag>面试</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2024/05/12/2024-05-13/</url>
-    <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
-<p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
-<h2 id="conda-root-less-apt"><a class="header-anchor-1" href="#conda-root-less-apt">#</a>Conda = Root-less apt</h2>
-<p>升级<code>gcc</code>依赖库：<code>conda install libgcc libgcc-ng</code></p>
-<p>升级<code>libstdc++</code>：<code>conda install -c conda-forge libstdcxx-ng</code></p>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -15072,6 +15082,18 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
       </tags>
   </entry>
   <entry>
+    <title>Verilog</title>
+    <url>/2024/09/21/verilog/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>misc</category>
+        <category>electronic</category>
+      </categories>
+      <tags>
+        <tag>电子电路</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>20 行代码速通 Safe Rust Double Free (整活向)</title>
     <url>/2025/02/11/unsound-rust/</url>
     <content><![CDATA[<p>受到 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL1NwZXlraW91cy9jdmUtcnM=">cve-rs<i class="fa fa-external-link-alt"></i></span> 项目启发，利用 Type system 的固有 Unsoundness 实现一个经典的 Double Free。</p>
@@ -15084,18 +15106,6 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
         <category>misc</category>
         <category>rust</category>
       </categories>
-  </entry>
-  <entry>
-    <title>Verilog</title>
-    <url>/2024/09/21/verilog/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>misc</category>
-        <category>electronic</category>
-      </categories>
-      <tags>
-        <tag>电子电路</tag>
-      </tags>
   </entry>
   <entry>
     <title>ELF 文件格式分析</title>
@@ -15267,6 +15277,74 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
       </tags>
   </entry>
   <entry>
+    <title>jpf-symbc 踩坑记录</title>
+    <url>/2023/12/20/jpf-symbc/</url>
+    <content><![CDATA[<h2 id="jpf"><a class="header-anchor-1" href="#jpf">#</a>JPF</h2>
+<p>Analysis system for Java</p>
+<p>Developed by NASA</p>
+<p>jpf 可以用来:</p>
+<ul>
+<li>software model checking (deadlock &amp; race detection)</li>
+<li>deep inspection (numeric analysis, invalid access)</li>
+<li>test case generation (symbolic execution)</li>
+</ul>
+<h2 id="组件"><a class="header-anchor-1" href="#组件">#</a>组件</h2>
+<p>Java 字节码解释器(虚拟机)</p>
+<p>Listeners: To print results of symbolic analysis (path conditions, test vectors or test sequences); to influence the search</p>
+<h2 id="相关资源"><a class="header-anchor-1" href="#相关资源">#</a>相关资源</h2>
+<ul>
+<li><span class="exturl" data-url="aHR0cHM6Ly95YW5uaWNub2xsZXIubm90aW9uLnNpdGUvU3ltYm9saWMtUGF0aEZpbmRlci1TZXR1cC00N2ZlNzg0ZDgxNjE0Zjk4YjQ1MjVmMjYwNjE4ZmEzNSNmY2QyYmQ0ZGVhMGQ0ZGFhOWRhYjgzNTIwZGE2OGZlMQ==">jpf-symbc 作者的 notion 笔记<i class="fa fa-external-link-alt"></i></span></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly9taXIuY3MuaWxsaW5vaXMuZWR1L21hcmlub3YvcmlvMjAxMS9KUEYtNTgucGRm">JavaPathfinder Tutorial 02/2010<i class="fa fa-external-link-alt"></i></span></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly93d3cuc2xpZGVzZXJ2ZS5jb20vb21lci9qcGYtdHV0b3JpYWw=">JPF Tutorial – Part 2 Symbolic PathFinder – Symbolic Execution of Java Byte-code<i class="fa fa-external-link-alt"></i></span></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly9mbS5jc2wuc3JpLmNvbS9TU0ZUMTEvSlBGLWxlY3R1cmUtMi5wZGY=">Java Pathfinder Lecture 2: Under the Hood<i class="fa fa-external-link-alt"></i></span></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly93d3cudWlvLm5vL3N0dWRpZXIvZW1uZXIvbWF0bmF0L2lmaS9JTkY1MTQwL3YxNS9zbGlkZXMvanBmLnBkZg==">Java Path Finder 2015<i class="fa fa-external-link-alt"></i></span></li>
+<li></li>
+</ul>
+<h2 id="安装和配置"><a class="header-anchor-1" href="#安装和配置">#</a>安装和配置</h2>
+<p>安装配置文档竟在<span class="exturl" data-url="aHR0cHM6Ly95YW5uaWNub2xsZXIubm90aW9uLnNpdGUvU3ltYm9saWMtUGF0aEZpbmRlci1TZXR1cC00N2ZlNzg0ZDgxNjE0Zjk4YjQ1MjVmMjYwNjE4ZmEzNSNmY2QyYmQ0ZGVhMGQ0ZGFhOWRhYjgzNTIwZGE2OGZlMQ==">作者的 notion 笔记<i class="fa fa-external-link-alt"></i></span>里面…</p>
+<p>下面讲一下笔者的踩坑经验</p>
+<ol>
+<li>克隆项目</li>
+</ol>
+<p><code>jpf-core</code> 和 <code>jpf-symbc</code> 放在同一个目录下面</p>
+<p><code>jpf-core</code> 要用这个版本 -&gt; <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3lhbm5pY25vbGxlci9qcGYtY29yZQ==">https://github.com/yannicnoller/jpf-core<i class="fa fa-external-link-alt"></i></span></p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── jpf-core</span><br><span class="line">└── jpf-symbc</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>编译项目</li>
+</ol>
+<p><code>jpf-symbc</code> 只支持 Java 8</p>
+<p>切换到 Java 8</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">jabba install temulin@8</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">jabba use temulin@8</span></span><br></pre></td></tr></table></figure>
+<p><code>jpf-core</code> 用 <code>ant</code> 编译</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">## in jpf-core</span></span><br><span class="line">ant build</span><br><span class="line"></span><br><span class="line"><span class="comment">## (Optional) test</span></span><br><span class="line">JUNIT_HOME=/usr/share/maven-repo/junit/junit/4.13.2/ ant <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+<p><code>jpf-symbc</code> 用 <code>ant</code> 编译</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">## in jpf-symbc</span></span><br><span class="line">ant build</span><br><span class="line"></span><br><span class="line"><span class="comment">## (Optional) test</span></span><br><span class="line">JUNIT_HOME=/usr/share/maven-repo/junit/junit/4.13.2/ ant <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>配置 <code>~/.jpf/site.properties</code></li>
+</ol>
+<p>里面填写如下内容</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">jpf-core</span> = <span class="string">$&#123;user.home&#125;/src/javapathfinder/jpf-core</span></span><br><span class="line"><span class="attr">jpf-symbc</span> = <span class="string">$&#123;user.home&#125;/src/javapathfinder/jpf-symbc</span></span><br><span class="line"><span class="attr">extensions</span> = <span class="string">$&#123;jpf-core&#125;,$&#123;jpf-symbc&#125;</span></span><br></pre></td></tr></table></figure>
+<p>其中对应修改两个项目的路径</p>
+<ol start="4">
+<li>测试下能否正常使用</li>
+</ol>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># in jpf-symbc</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">java -Xmx1024m -ea -jar ../jpf-core/build/RunJPF.jar src/examples/demo/NumericExample.jpf</span></span><br><span class="line">symbolic.min_int=-2147483648</span><br><span class="line">symbolic.min_long=-9223372036854775808</span><br><span class="line">symbolic.min_short=-32768</span><br><span class="line">symbolic.min_byte=-128</span><br><span class="line">symbolic.min_char=0</span><br><span class="line">symbolic.max_int=2147483647</span><br><span class="line">symbolic.max_long=9223372036854775807</span><br><span class="line">symbolic.max_short=32767</span><br><span class="line">symbolic.max_byte=127</span><br><span class="line">symbolic.max_char=65535</span><br><span class="line">symbolic.min_double=4.9E-324</span><br><span class="line">symbolic.max_double=1.7976931348623157E308</span><br><span class="line">JavaPathfinder core system v8.0 - (C) 2005-2014 United States Government. All rights reserved.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">====================================================== system under test</span><br><span class="line">demo.NumericExample.main()</span><br><span class="line"></span><br><span class="line">====================================================== search started: 23-12-29 下午2:55</span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">0</span></span><br><span class="line">&lt;=0</span><br><span class="line">Property Violated: PC is constraint ## = 1</span><br><span class="line">((a_1_SYMINT[15] + b_2_SYMINT[-13]) - CONST_2) == CONST_0</span><br><span class="line">Property Violated: result is  &quot;java.lang.ArithmeticException: div by 0...&quot;</span><br><span class="line">****************************</span><br><span class="line"></span><br><span class="line">====================================================== error 1</span><br><span class="line">gov.nasa.jpf.vm.NoUncaughtExceptionsProperty</span><br><span class="line">java.lang.ArithmeticException: div by 0</span><br><span class="line">        at demo.NumericExample.test(NumericExample.java:26)</span><br><span class="line">        at demo.NumericExample.main(NumericExample.java:34)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">====================================================== snapshot #1</span><br><span class="line">thread java.lang.Thread:&#123;id:0,name:main,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0&#125;</span><br><span class="line">  call stack:</span><br><span class="line">        at demo.NumericExample.test(NumericExample.java:26)</span><br><span class="line">        at demo.NumericExample.main(NumericExample.java:34)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">====================================================== Method Summaries</span><br><span class="line">Inputs: a_1_SYMINT,b_2_SYMINT</span><br><span class="line"></span><br><span class="line">demo.NumericExample.test(-50,17)  --&gt; Return Value: --</span><br><span class="line">demo.NumericExample.test(0,0)  --&gt; Return Value: --</span><br><span class="line">demo.NumericExample.test(15,-13)  --&gt; &quot;java.lang.ArithmeticException: div by 0...&quot;</span><br><span class="line"></span><br><span class="line">====================================================== Method Summaries (HTML)</span><br><span class="line">&lt;h1&gt;Test Cases Generated by Symbolic JavaPath Finder for demo.NumericExample.test (Path Coverage) &lt;/h1&gt;</span><br><span class="line">&lt;table border=1&gt;</span><br><span class="line">&lt;tr&gt;&lt;td&gt;a_1_SYMINT&lt;/td&gt;&lt;td&gt;b_2_SYMINT&lt;/td&gt;&lt;td&gt;RETURN&lt;/td&gt;&lt;/tr&gt;</span><br><span class="line">&lt;tr&gt;&lt;td&gt;-50&lt;/td&gt;&lt;td&gt;17&lt;/td&gt;&lt;td&gt;Return Value: --&lt;/td&gt;&lt;/tr&gt;</span><br><span class="line">&lt;tr&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;Return Value: --&lt;/td&gt;&lt;/tr&gt;</span><br><span class="line">&lt;tr&gt;&lt;td&gt;15&lt;/td&gt;&lt;td&gt;-13&lt;/td&gt;&lt;td&gt;&quot;java.lang.ArithmeticException: div by 0...&quot;&lt;/td&gt;&lt;/tr&gt;</span><br><span class="line">&lt;/table&gt;</span><br><span class="line"></span><br><span class="line">====================================================== results</span><br><span class="line">error #1: gov.nasa.jpf.vm.NoUncaughtExceptionsProperty &quot;java.lang.ArithmeticException: div by 0  at demo.N...&quot;</span><br><span class="line"></span><br><span class="line">====================================================== statistics</span><br><span class="line">elapsed time:       00:00:00</span><br><span class="line">states:             new=5,visited=0,backtracked=5,end=2</span><br><span class="line">search:             maxDepth=3,constraints=0</span><br><span class="line">choice generators:  thread=1 (signal=0,lock=1,sharedRef=0,threadApi=0,reschedule=0), data=2</span><br><span class="line">heap:               new=371,released=20,maxLive=349,gcCycles=3</span><br><span class="line">instructions:       3246</span><br><span class="line">max memory:         709MB</span><br><span class="line">loaded code:        classes=64,methods=1325</span><br><span class="line"></span><br><span class="line">====================================================== search finished: 23-12-29 下午2:55</span><br></pre></td></tr></table></figure>
+<h2 id="jpf-symbc-使用"><a class="header-anchor-1" href="#jpf-symbc-使用">#</a><code>jpf-symbc</code> 使用</h2>
+<p>对于每个要进行符号执行的程序, 需要编写一个 <code>.jpf</code> 文件, 然后调用 <code>RunJPF.jar</code>:</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># in jpf-symbc</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">java -Xmx1024m -ea -jar ../jpf-core/build/RunJPF.jar src/examples/demo/NumericExample.jpf</span></span><br></pre></td></tr></table></figure>
+<h3 id="jpf-文件内容含义"><a class="header-anchor-1" href="#jpf-文件内容含义">#</a><code>.jpf</code> 文件内容含义</h3>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="comment">; 测试的application类</span></span><br><span class="line"><span class="attr">target</span>=x.y.TreeMapSimple</span><br><span class="line"></span><br><span class="line"><span class="attr">target.args</span>=arg1,arg2</span><br><span class="line"></span><br><span class="line"><span class="attr">classpath</span>=<span class="variable">$&#123;jpf-symbc&#125;</span>/build/examples  <span class="comment">; path to your class example</span></span><br><span class="line"><span class="attr">sourcepath</span>=<span class="variable">$&#123;jpf-symbc&#125;</span>/build/examples  <span class="comment">; path to the source of your example</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 注册到jpf-core的listener</span></span><br><span class="line"><span class="comment">; 控制接下来做什么</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.listener.PreciseRaceDetector  竞争情况检查</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.listener.CoverageAnalyzer   分析覆盖率</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.listener.DeadlockAnalyzer   分析代码死锁</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.listener.MethodAnalyzer</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.symbc.SymbolicListener   输出 PC 和 JUnit test</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener  输出 JUnit test</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.symbc.GreenListener</span></span><br><span class="line"><span class="attr">listener</span>=gov.nasa.jpf.symbc.SymbolicListener,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener,gov.nasa.jpf.listener.PreciseRaceDetector,gov.nasa.jpf.listener.CoverageAnalyzer</span><br><span class="line"></span><br><span class="line"><span class="comment">; specify some search limit</span></span><br><span class="line"><span class="attr">search.depth_limit</span>=<span class="number">15</span></span><br><span class="line"></span><br><span class="line"><span class="comment">;</span></span><br><span class="line"><span class="attr">coverage.include</span>=dataflow.Billing</span><br><span class="line"><span class="attr">coverage.show_requirements</span>=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 遇到exception的时候打印stack trace</span></span><br><span class="line"><span class="comment">; 和 PreciseRaceDetector 一起使用</span></span><br><span class="line"><span class="comment">; error trace snapshot</span></span><br><span class="line"><span class="attr">report.console.property_violation</span>=error,trace</span><br><span class="line"></span><br><span class="line"><span class="comment">; 对于 random.nextInt 枚举随机数</span></span><br><span class="line"><span class="attr">cg.enumerate_random</span>=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 和 MethodAnalyzer 一起使用</span></span><br><span class="line"><span class="attr">method.include</span>=*Robot*</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">; 测试的目标方法, 多个函数用逗号分隔</span></span><br><span class="line"><span class="comment">; 函数参数用 (sym) 表示, 多个参数用 ## 分隔</span></span><br><span class="line"><span class="comment">; 例如: triangle.Triangle.getType(sym#sym#sym)</span></span><br><span class="line"><span class="attr">symbolic.method</span>=TreeMapSimple.containsKey(sym),TreeMapSimple.put(sym),TreeMapSimple.remove(sym)</span><br><span class="line"></span><br><span class="line"><span class="comment">; specify the decision procedure to use</span></span><br><span class="line"><span class="comment">; z3, z3inc, z3bitvector, z3bitvectorinc</span></span><br><span class="line"><span class="comment">; cvc3, cvc3bitvec, choco, iasolver</span></span><br><span class="line"><span class="attr">symbolic.dp</span>=z3bitvector</span><br><span class="line"><span class="attr">symbolic.bvlength</span>=<span class="number">64</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 各种类型的范围</span></span><br><span class="line"><span class="attr">symbolic.min_int</span>=-<span class="number">100</span></span><br><span class="line"><span class="attr">symbolic.max_int</span>=<span class="number">100</span></span><br><span class="line"><span class="attr">symbolic.min_double</span>=-<span class="number">100.0</span></span><br><span class="line"><span class="attr">symbolic.max_double</span>=<span class="number">100.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; print some debug information</span></span><br><span class="line"><span class="attr">symbolic.debug</span>=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; handling symbolic arrays</span></span><br><span class="line"><span class="attr">symbolic.lazy</span>=<span class="literal">on</span></span><br><span class="line"><span class="attr">symbolic.arrays</span>=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; specify string analysis</span></span><br><span class="line"><span class="attr">symbolic.strings</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">symbolic.string_dp</span>=ABC  <span class="comment">; or z3str</span></span><br><span class="line"><span class="attr">symbolic.string_dp_timeout_ms</span>=<span class="number">3000</span></span><br></pre></td></tr></table></figure>
+<!-- ## `jpf` 源码分析 -->
+]]></content>
+      <categories>
+        <category>program-analysis</category>
+        <category>software-test</category>
+      </categories>
+      <tags>
+        <tag>jpf-symbc</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>模糊测试 Fuzzing test</title>
     <url>/2023/12/19/afl-fuzz/</url>
     <content><![CDATA[<h2 id="编译项目，插桩"><a class="header-anchor-1" href="#编译项目，插桩">#</a>编译项目，插桩</h2>
@@ -15406,148 +15484,6 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
       </tags>
   </entry>
   <entry>
-    <title>jpf-symbc 踩坑记录</title>
-    <url>/2023/12/20/jpf-symbc/</url>
-    <content><![CDATA[<h2 id="jpf"><a class="header-anchor-1" href="#jpf">#</a>JPF</h2>
-<p>Analysis system for Java</p>
-<p>Developed by NASA</p>
-<p>jpf 可以用来:</p>
-<ul>
-<li>software model checking (deadlock &amp; race detection)</li>
-<li>deep inspection (numeric analysis, invalid access)</li>
-<li>test case generation (symbolic execution)</li>
-</ul>
-<h2 id="组件"><a class="header-anchor-1" href="#组件">#</a>组件</h2>
-<p>Java 字节码解释器(虚拟机)</p>
-<p>Listeners: To print results of symbolic analysis (path conditions, test vectors or test sequences); to influence the search</p>
-<h2 id="相关资源"><a class="header-anchor-1" href="#相关资源">#</a>相关资源</h2>
-<ul>
-<li><span class="exturl" data-url="aHR0cHM6Ly95YW5uaWNub2xsZXIubm90aW9uLnNpdGUvU3ltYm9saWMtUGF0aEZpbmRlci1TZXR1cC00N2ZlNzg0ZDgxNjE0Zjk4YjQ1MjVmMjYwNjE4ZmEzNSNmY2QyYmQ0ZGVhMGQ0ZGFhOWRhYjgzNTIwZGE2OGZlMQ==">jpf-symbc 作者的 notion 笔记<i class="fa fa-external-link-alt"></i></span></li>
-<li><span class="exturl" data-url="aHR0cHM6Ly9taXIuY3MuaWxsaW5vaXMuZWR1L21hcmlub3YvcmlvMjAxMS9KUEYtNTgucGRm">JavaPathfinder Tutorial 02/2010<i class="fa fa-external-link-alt"></i></span></li>
-<li><span class="exturl" data-url="aHR0cHM6Ly93d3cuc2xpZGVzZXJ2ZS5jb20vb21lci9qcGYtdHV0b3JpYWw=">JPF Tutorial – Part 2 Symbolic PathFinder – Symbolic Execution of Java Byte-code<i class="fa fa-external-link-alt"></i></span></li>
-<li><span class="exturl" data-url="aHR0cHM6Ly9mbS5jc2wuc3JpLmNvbS9TU0ZUMTEvSlBGLWxlY3R1cmUtMi5wZGY=">Java Pathfinder Lecture 2: Under the Hood<i class="fa fa-external-link-alt"></i></span></li>
-<li><span class="exturl" data-url="aHR0cHM6Ly93d3cudWlvLm5vL3N0dWRpZXIvZW1uZXIvbWF0bmF0L2lmaS9JTkY1MTQwL3YxNS9zbGlkZXMvanBmLnBkZg==">Java Path Finder 2015<i class="fa fa-external-link-alt"></i></span></li>
-<li></li>
-</ul>
-<h2 id="安装和配置"><a class="header-anchor-1" href="#安装和配置">#</a>安装和配置</h2>
-<p>安装配置文档竟在<span class="exturl" data-url="aHR0cHM6Ly95YW5uaWNub2xsZXIubm90aW9uLnNpdGUvU3ltYm9saWMtUGF0aEZpbmRlci1TZXR1cC00N2ZlNzg0ZDgxNjE0Zjk4YjQ1MjVmMjYwNjE4ZmEzNSNmY2QyYmQ0ZGVhMGQ0ZGFhOWRhYjgzNTIwZGE2OGZlMQ==">作者的 notion 笔记<i class="fa fa-external-link-alt"></i></span>里面…</p>
-<p>下面讲一下笔者的踩坑经验</p>
-<ol>
-<li>克隆项目</li>
-</ol>
-<p><code>jpf-core</code> 和 <code>jpf-symbc</code> 放在同一个目录下面</p>
-<p><code>jpf-core</code> 要用这个版本 -&gt; <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3lhbm5pY25vbGxlci9qcGYtY29yZQ==">https://github.com/yannicnoller/jpf-core<i class="fa fa-external-link-alt"></i></span></p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── jpf-core</span><br><span class="line">└── jpf-symbc</span><br></pre></td></tr></table></figure>
-<ol start="2">
-<li>编译项目</li>
-</ol>
-<p><code>jpf-symbc</code> 只支持 Java 8</p>
-<p>切换到 Java 8</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">jabba install temulin@8</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">jabba use temulin@8</span></span><br></pre></td></tr></table></figure>
-<p><code>jpf-core</code> 用 <code>ant</code> 编译</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">## in jpf-core</span></span><br><span class="line">ant build</span><br><span class="line"></span><br><span class="line"><span class="comment">## (Optional) test</span></span><br><span class="line">JUNIT_HOME=/usr/share/maven-repo/junit/junit/4.13.2/ ant <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
-<p><code>jpf-symbc</code> 用 <code>ant</code> 编译</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">## in jpf-symbc</span></span><br><span class="line">ant build</span><br><span class="line"></span><br><span class="line"><span class="comment">## (Optional) test</span></span><br><span class="line">JUNIT_HOME=/usr/share/maven-repo/junit/junit/4.13.2/ ant <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
-<ol start="3">
-<li>配置 <code>~/.jpf/site.properties</code></li>
-</ol>
-<p>里面填写如下内容</p>
-<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">jpf-core</span> = <span class="string">$&#123;user.home&#125;/src/javapathfinder/jpf-core</span></span><br><span class="line"><span class="attr">jpf-symbc</span> = <span class="string">$&#123;user.home&#125;/src/javapathfinder/jpf-symbc</span></span><br><span class="line"><span class="attr">extensions</span> = <span class="string">$&#123;jpf-core&#125;,$&#123;jpf-symbc&#125;</span></span><br></pre></td></tr></table></figure>
-<p>其中对应修改两个项目的路径</p>
-<ol start="4">
-<li>测试下能否正常使用</li>
-</ol>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># in jpf-symbc</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">java -Xmx1024m -ea -jar ../jpf-core/build/RunJPF.jar src/examples/demo/NumericExample.jpf</span></span><br><span class="line">symbolic.min_int=-2147483648</span><br><span class="line">symbolic.min_long=-9223372036854775808</span><br><span class="line">symbolic.min_short=-32768</span><br><span class="line">symbolic.min_byte=-128</span><br><span class="line">symbolic.min_char=0</span><br><span class="line">symbolic.max_int=2147483647</span><br><span class="line">symbolic.max_long=9223372036854775807</span><br><span class="line">symbolic.max_short=32767</span><br><span class="line">symbolic.max_byte=127</span><br><span class="line">symbolic.max_char=65535</span><br><span class="line">symbolic.min_double=4.9E-324</span><br><span class="line">symbolic.max_double=1.7976931348623157E308</span><br><span class="line">JavaPathfinder core system v8.0 - (C) 2005-2014 United States Government. All rights reserved.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">====================================================== system under test</span><br><span class="line">demo.NumericExample.main()</span><br><span class="line"></span><br><span class="line">====================================================== search started: 23-12-29 下午2:55</span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">0</span></span><br><span class="line">&lt;=0</span><br><span class="line">Property Violated: PC is constraint ## = 1</span><br><span class="line">((a_1_SYMINT[15] + b_2_SYMINT[-13]) - CONST_2) == CONST_0</span><br><span class="line">Property Violated: result is  &quot;java.lang.ArithmeticException: div by 0...&quot;</span><br><span class="line">****************************</span><br><span class="line"></span><br><span class="line">====================================================== error 1</span><br><span class="line">gov.nasa.jpf.vm.NoUncaughtExceptionsProperty</span><br><span class="line">java.lang.ArithmeticException: div by 0</span><br><span class="line">        at demo.NumericExample.test(NumericExample.java:26)</span><br><span class="line">        at demo.NumericExample.main(NumericExample.java:34)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">====================================================== snapshot #1</span><br><span class="line">thread java.lang.Thread:&#123;id:0,name:main,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0&#125;</span><br><span class="line">  call stack:</span><br><span class="line">        at demo.NumericExample.test(NumericExample.java:26)</span><br><span class="line">        at demo.NumericExample.main(NumericExample.java:34)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">====================================================== Method Summaries</span><br><span class="line">Inputs: a_1_SYMINT,b_2_SYMINT</span><br><span class="line"></span><br><span class="line">demo.NumericExample.test(-50,17)  --&gt; Return Value: --</span><br><span class="line">demo.NumericExample.test(0,0)  --&gt; Return Value: --</span><br><span class="line">demo.NumericExample.test(15,-13)  --&gt; &quot;java.lang.ArithmeticException: div by 0...&quot;</span><br><span class="line"></span><br><span class="line">====================================================== Method Summaries (HTML)</span><br><span class="line">&lt;h1&gt;Test Cases Generated by Symbolic JavaPath Finder for demo.NumericExample.test (Path Coverage) &lt;/h1&gt;</span><br><span class="line">&lt;table border=1&gt;</span><br><span class="line">&lt;tr&gt;&lt;td&gt;a_1_SYMINT&lt;/td&gt;&lt;td&gt;b_2_SYMINT&lt;/td&gt;&lt;td&gt;RETURN&lt;/td&gt;&lt;/tr&gt;</span><br><span class="line">&lt;tr&gt;&lt;td&gt;-50&lt;/td&gt;&lt;td&gt;17&lt;/td&gt;&lt;td&gt;Return Value: --&lt;/td&gt;&lt;/tr&gt;</span><br><span class="line">&lt;tr&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;Return Value: --&lt;/td&gt;&lt;/tr&gt;</span><br><span class="line">&lt;tr&gt;&lt;td&gt;15&lt;/td&gt;&lt;td&gt;-13&lt;/td&gt;&lt;td&gt;&quot;java.lang.ArithmeticException: div by 0...&quot;&lt;/td&gt;&lt;/tr&gt;</span><br><span class="line">&lt;/table&gt;</span><br><span class="line"></span><br><span class="line">====================================================== results</span><br><span class="line">error #1: gov.nasa.jpf.vm.NoUncaughtExceptionsProperty &quot;java.lang.ArithmeticException: div by 0  at demo.N...&quot;</span><br><span class="line"></span><br><span class="line">====================================================== statistics</span><br><span class="line">elapsed time:       00:00:00</span><br><span class="line">states:             new=5,visited=0,backtracked=5,end=2</span><br><span class="line">search:             maxDepth=3,constraints=0</span><br><span class="line">choice generators:  thread=1 (signal=0,lock=1,sharedRef=0,threadApi=0,reschedule=0), data=2</span><br><span class="line">heap:               new=371,released=20,maxLive=349,gcCycles=3</span><br><span class="line">instructions:       3246</span><br><span class="line">max memory:         709MB</span><br><span class="line">loaded code:        classes=64,methods=1325</span><br><span class="line"></span><br><span class="line">====================================================== search finished: 23-12-29 下午2:55</span><br></pre></td></tr></table></figure>
-<h2 id="jpf-symbc-使用"><a class="header-anchor-1" href="#jpf-symbc-使用">#</a><code>jpf-symbc</code> 使用</h2>
-<p>对于每个要进行符号执行的程序, 需要编写一个 <code>.jpf</code> 文件, 然后调用 <code>RunJPF.jar</code>:</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># in jpf-symbc</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">java -Xmx1024m -ea -jar ../jpf-core/build/RunJPF.jar src/examples/demo/NumericExample.jpf</span></span><br></pre></td></tr></table></figure>
-<h3 id="jpf-文件内容含义"><a class="header-anchor-1" href="#jpf-文件内容含义">#</a><code>.jpf</code> 文件内容含义</h3>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="comment">; 测试的application类</span></span><br><span class="line"><span class="attr">target</span>=x.y.TreeMapSimple</span><br><span class="line"></span><br><span class="line"><span class="attr">target.args</span>=arg1,arg2</span><br><span class="line"></span><br><span class="line"><span class="attr">classpath</span>=<span class="variable">$&#123;jpf-symbc&#125;</span>/build/examples  <span class="comment">; path to your class example</span></span><br><span class="line"><span class="attr">sourcepath</span>=<span class="variable">$&#123;jpf-symbc&#125;</span>/build/examples  <span class="comment">; path to the source of your example</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 注册到jpf-core的listener</span></span><br><span class="line"><span class="comment">; 控制接下来做什么</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.listener.PreciseRaceDetector  竞争情况检查</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.listener.CoverageAnalyzer   分析覆盖率</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.listener.DeadlockAnalyzer   分析代码死锁</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.listener.MethodAnalyzer</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.symbc.SymbolicListener   输出 PC 和 JUnit test</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener  输出 JUnit test</span></span><br><span class="line"><span class="comment">; gov.nasa.jpf.symbc.GreenListener</span></span><br><span class="line"><span class="attr">listener</span>=gov.nasa.jpf.symbc.SymbolicListener,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener,gov.nasa.jpf.listener.PreciseRaceDetector,gov.nasa.jpf.listener.CoverageAnalyzer</span><br><span class="line"></span><br><span class="line"><span class="comment">; specify some search limit</span></span><br><span class="line"><span class="attr">search.depth_limit</span>=<span class="number">15</span></span><br><span class="line"></span><br><span class="line"><span class="comment">;</span></span><br><span class="line"><span class="attr">coverage.include</span>=dataflow.Billing</span><br><span class="line"><span class="attr">coverage.show_requirements</span>=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 遇到exception的时候打印stack trace</span></span><br><span class="line"><span class="comment">; 和 PreciseRaceDetector 一起使用</span></span><br><span class="line"><span class="comment">; error trace snapshot</span></span><br><span class="line"><span class="attr">report.console.property_violation</span>=error,trace</span><br><span class="line"></span><br><span class="line"><span class="comment">; 对于 random.nextInt 枚举随机数</span></span><br><span class="line"><span class="attr">cg.enumerate_random</span>=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 和 MethodAnalyzer 一起使用</span></span><br><span class="line"><span class="attr">method.include</span>=*Robot*</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">; 测试的目标方法, 多个函数用逗号分隔</span></span><br><span class="line"><span class="comment">; 函数参数用 (sym) 表示, 多个参数用 ## 分隔</span></span><br><span class="line"><span class="comment">; 例如: triangle.Triangle.getType(sym#sym#sym)</span></span><br><span class="line"><span class="attr">symbolic.method</span>=TreeMapSimple.containsKey(sym),TreeMapSimple.put(sym),TreeMapSimple.remove(sym)</span><br><span class="line"></span><br><span class="line"><span class="comment">; specify the decision procedure to use</span></span><br><span class="line"><span class="comment">; z3, z3inc, z3bitvector, z3bitvectorinc</span></span><br><span class="line"><span class="comment">; cvc3, cvc3bitvec, choco, iasolver</span></span><br><span class="line"><span class="attr">symbolic.dp</span>=z3bitvector</span><br><span class="line"><span class="attr">symbolic.bvlength</span>=<span class="number">64</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 各种类型的范围</span></span><br><span class="line"><span class="attr">symbolic.min_int</span>=-<span class="number">100</span></span><br><span class="line"><span class="attr">symbolic.max_int</span>=<span class="number">100</span></span><br><span class="line"><span class="attr">symbolic.min_double</span>=-<span class="number">100.0</span></span><br><span class="line"><span class="attr">symbolic.max_double</span>=<span class="number">100.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; print some debug information</span></span><br><span class="line"><span class="attr">symbolic.debug</span>=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; handling symbolic arrays</span></span><br><span class="line"><span class="attr">symbolic.lazy</span>=<span class="literal">on</span></span><br><span class="line"><span class="attr">symbolic.arrays</span>=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; specify string analysis</span></span><br><span class="line"><span class="attr">symbolic.strings</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">symbolic.string_dp</span>=ABC  <span class="comment">; or z3str</span></span><br><span class="line"><span class="attr">symbolic.string_dp_timeout_ms</span>=<span class="number">3000</span></span><br></pre></td></tr></table></figure>
-<!-- ## `jpf` 源码分析 -->
-]]></content>
-      <categories>
-        <category>program-analysis</category>
-        <category>software-test</category>
-      </categories>
-      <tags>
-        <tag>jpf-symbc</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hexo 个人 blog 搭建记录</title>
-    <url>/2020/11/29/2020-11-29/</url>
-    <content><![CDATA[<h2 id="hexo-基本操作"><a class="header-anchor-1" href="#hexo-基本操作">#</a>Hexo 基本操作</h2>
-<ul>
-<li>
-<p>安装</p>
-<p><code>npm install -g hexo-cli</code></p>
-</li>
-<li>
-<p>初始化 hexo</p>
-<ul>
-<li>
-<p><code>hexo init</code></p>
-</li>
-<li>
-<p>当前目录必须是空的</p>
-</li>
-</ul>
-</li>
-<li>
-<p>新建文章</p>
-<ul>
-<li>
-<p><code>hexo new [layout] name</code></p>
-</li>
-<li>
-<p>layout 可以是 post, page, draft 之一</p>
-</li>
-<li>
-<p>分别保存至 source/_posts, source, source/_drafts 中</p>
-</li>
-<li>
-<p>新建文件名可以在 _config.yml 里面指定, <code>new_post_name</code>, 默认为 <code>name.md</code></p>
-</li>
-</ul>
-</li>
-<li>
-<p>临时开启 server</p>
-<ul>
-<li><code>hexo server</code></li>
-</ul>
-</li>
-</ul>
-<h2 id="react-入门"><a class="header-anchor-1" href="#react-入门">#</a>React 入门</h2>
-<h3 id="复习-javascript"><a class="header-anchor-1" href="#复习-javascript">#</a>复习 JavaScript</h3>
-<ul>
-<li><span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvZW4tVVMvZG9jcy9XZWIvSmF2YVNjcmlwdC9BX3JlLWludHJvZHVjdGlvbl90b19KYXZhU2NyaXB0">很好的文章<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h2 id="vue-和-react-路由模块的区别"><a class="header-anchor-1" href="#vue-和-react-路由模块的区别">#</a>Vue 和 React 路由模块的区别</h2>
-<h3 id="vue-路由"><a class="header-anchor-1" href="#vue-路由">#</a>Vue 路由</h3>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">Router</span>(&#123;</span><br><span class="line">  <span class="attr">mode</span>: <span class="string">&quot;history&quot;</span>,</span><br><span class="line">  <span class="attr">routes</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">path</span>: <span class="string">&quot;/inspect&quot;</span>,</span><br><span class="line">      <span class="attr">component</span>: <span class="title class_">Layout</span>,</span><br><span class="line">      <span class="attr">redirect</span>: <span class="string">&quot;/inspect/table1&quot;</span>,</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&quot;报表&quot;</span>,</span><br><span class="line">      <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&quot;报表&quot;</span>, <span class="attr">icon</span>: <span class="string">&quot;table&quot;</span> &#125;,</span><br><span class="line">      <span class="attr">children</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">path</span>: <span class="string">&quot;table1&quot;</span>,</span><br><span class="line">          <span class="attr">name</span>: <span class="string">&quot;Table&quot;</span>,</span><br><span class="line">          <span class="attr">component</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&quot;@/views/table/index&quot;</span>),</span><br><span class="line">          <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&quot;Table&quot;</span>, <span class="attr">icon</span>: <span class="string">&quot;table&quot;</span> &#125;,</span><br><span class="line">        &#125;,</span><br><span class="line">      ],</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h2 id="vue-深入-——-mvvm-框架"><a class="header-anchor-1" href="#vue-深入-——-mvvm-框架">#</a>Vue 深入 —— MVVM 框架</h2>
-<ul>
-<li>
-<p>Observer 数据劫持</p>
-</li>
-<li>
-<p>Dep/Watcher 发布订阅</p>
-</li>
-<li>
-<p>Compiler 解析 <code>&#123;&#123; &#125;&#125;</code>, 创建 watcher, 求解表达式</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>每日小结</title>
     <url>/2020/11/30/2020-11-30/</url>
     <content><![CDATA[<h1>Github Developer Settings</h1>
@@ -15635,8 +15571,82 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
         <category>2020</category>
       </categories>
       <tags>
-        <tag>Hexo</tag>
         <tag>Github</tag>
+        <tag>Hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hexo 个人 blog 搭建记录</title>
+    <url>/2020/11/29/2020-11-29/</url>
+    <content><![CDATA[<h2 id="hexo-基本操作"><a class="header-anchor-1" href="#hexo-基本操作">#</a>Hexo 基本操作</h2>
+<ul>
+<li>
+<p>安装</p>
+<p><code>npm install -g hexo-cli</code></p>
+</li>
+<li>
+<p>初始化 hexo</p>
+<ul>
+<li>
+<p><code>hexo init</code></p>
+</li>
+<li>
+<p>当前目录必须是空的</p>
+</li>
+</ul>
+</li>
+<li>
+<p>新建文章</p>
+<ul>
+<li>
+<p><code>hexo new [layout] name</code></p>
+</li>
+<li>
+<p>layout 可以是 post, page, draft 之一</p>
+</li>
+<li>
+<p>分别保存至 source/_posts, source, source/_drafts 中</p>
+</li>
+<li>
+<p>新建文件名可以在 _config.yml 里面指定, <code>new_post_name</code>, 默认为 <code>name.md</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p>临时开启 server</p>
+<ul>
+<li><code>hexo server</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="react-入门"><a class="header-anchor-1" href="#react-入门">#</a>React 入门</h2>
+<h3 id="复习-javascript"><a class="header-anchor-1" href="#复习-javascript">#</a>复习 JavaScript</h3>
+<ul>
+<li><span class="exturl" data-url="aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvZW4tVVMvZG9jcy9XZWIvSmF2YVNjcmlwdC9BX3JlLWludHJvZHVjdGlvbl90b19KYXZhU2NyaXB0">很好的文章<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h2 id="vue-和-react-路由模块的区别"><a class="header-anchor-1" href="#vue-和-react-路由模块的区别">#</a>Vue 和 React 路由模块的区别</h2>
+<h3 id="vue-路由"><a class="header-anchor-1" href="#vue-路由">#</a>Vue 路由</h3>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">Router</span>(&#123;</span><br><span class="line">  <span class="attr">mode</span>: <span class="string">&quot;history&quot;</span>,</span><br><span class="line">  <span class="attr">routes</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">path</span>: <span class="string">&quot;/inspect&quot;</span>,</span><br><span class="line">      <span class="attr">component</span>: <span class="title class_">Layout</span>,</span><br><span class="line">      <span class="attr">redirect</span>: <span class="string">&quot;/inspect/table1&quot;</span>,</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&quot;报表&quot;</span>,</span><br><span class="line">      <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&quot;报表&quot;</span>, <span class="attr">icon</span>: <span class="string">&quot;table&quot;</span> &#125;,</span><br><span class="line">      <span class="attr">children</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">path</span>: <span class="string">&quot;table1&quot;</span>,</span><br><span class="line">          <span class="attr">name</span>: <span class="string">&quot;Table&quot;</span>,</span><br><span class="line">          <span class="attr">component</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&quot;@/views/table/index&quot;</span>),</span><br><span class="line">          <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&quot;Table&quot;</span>, <span class="attr">icon</span>: <span class="string">&quot;table&quot;</span> &#125;,</span><br><span class="line">        &#125;,</span><br><span class="line">      ],</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="vue-深入-——-mvvm-框架"><a class="header-anchor-1" href="#vue-深入-——-mvvm-框架">#</a>Vue 深入 —— MVVM 框架</h2>
+<ul>
+<li>
+<p>Observer 数据劫持</p>
+</li>
+<li>
+<p>Dep/Watcher 发布订阅</p>
+</li>
+<li>
+<p>Compiler 解析 <code>&#123;&#123; &#125;&#125;</code>, 创建 watcher, 求解表达式</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
       </tags>
   </entry>
   <entry>
@@ -16490,21 +16500,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/06/2020-12-06/</url>
-    <content><![CDATA[<h1>学习Oracle使用</h1>
-<p><a href="../oracledb/index">OracleDB</a></p>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Oracle</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/07/2020-12-07/</url>
     <content><![CDATA[<h1>Visio 画图如何添加自定义连接点</h1>
 <p>在工具栏选中&quot;连接点&quot;</p>
@@ -16594,6 +16589,21 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/06/2020-12-06/</url>
+    <content><![CDATA[<h1>学习Oracle使用</h1>
+<p><a href="../oracledb/index">OracleDB</a></p>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Oracle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/10/2020-12-10/</url>
     <content><![CDATA[<h1>Java的ORM框架 vs Python的ORM框架</h1>
 <p>TODO: 待更新</p>
@@ -16612,6 +16622,29 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>Java</tag>
         <tag>ORM框架</tag>
         <tag>CORS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/13/2020-12-13/</url>
+    <content><![CDATA[<h2 id="c-stl-中-unique-的用法"><a class="header-anchor-1" href="#c-stl-中-unique-的用法">#</a>C++ STL 中 unique 的用法</h2>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>, <span class="keyword">class</span> <span class="title class_">BinaryPredicate</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last,</span></span></span><br><span class="line"><span class="params"><span class="function">                           BinaryPredicate pred )</span></span>;</span><br></pre></td></tr></table></figure>
+<p>将<code>[first, last)</code>之间, <strong>相邻</strong>的多个相同元素合并为一个, 返回指向不重复部分末尾的迭代器. 多和 sort 函数一起使用</p>
+<p>例: 使用 unique 实现<span class="exturl" data-url="aHR0cHM6Ly9vaS13aWtpLm9yZy9taXNjL2Rpc2NyZXRlLw==">离散化<i class="fa fa-external-link-alt"></i></span>:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// vector&lt;int&gt; array;</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">auto</span> disc = array;</span><br><span class="line"><span class="built_in">sort</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>());</span><br><span class="line">disc.<span class="built_in">erase</span>(<span class="built_in">unique</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>()), disc.<span class="built_in">end</span>())</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; disc.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">  disc[i] = <span class="built_in">lower_bound</span>(array.<span class="built_in">begin</span>(), array.<span class="built_in">end</span>(), disc[i]) - array.<span class="built_in">begin</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 那么disc就可以作为离散化之后的索引</span></span><br><span class="line"><span class="comment">// disc[i] = array中第i种元素的最小下标</span></span><br></pre></td></tr></table></figure>
+<h2 id="ccfcsp"><a class="header-anchor-1" href="#ccfcsp">#</a>CCFCSP</h2>
+<p>今天考了 CCF CSP.</p>
+<h2 id="区间树-interval-tree-和线段树-segment-tree"><a class="header-anchor-1" href="#区间树-interval-tree-和线段树-segment-tree">#</a>区间树(Interval Tree)和线段树(Segment Tree)</h2>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>STL</tag>
+        <tag>CCFCSP</tag>
       </tags>
   </entry>
   <entry>
@@ -16646,29 +16679,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>信息安全</tag>
         <tag>GCC</tag>
         <tag>NCRE</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/13/2020-12-13/</url>
-    <content><![CDATA[<h2 id="c-stl-中-unique-的用法"><a class="header-anchor-1" href="#c-stl-中-unique-的用法">#</a>C++ STL 中 unique 的用法</h2>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>, <span class="keyword">class</span> <span class="title class_">BinaryPredicate</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last,</span></span></span><br><span class="line"><span class="params"><span class="function">                           BinaryPredicate pred )</span></span>;</span><br></pre></td></tr></table></figure>
-<p>将<code>[first, last)</code>之间, <strong>相邻</strong>的多个相同元素合并为一个, 返回指向不重复部分末尾的迭代器. 多和 sort 函数一起使用</p>
-<p>例: 使用 unique 实现<span class="exturl" data-url="aHR0cHM6Ly9vaS13aWtpLm9yZy9taXNjL2Rpc2NyZXRlLw==">离散化<i class="fa fa-external-link-alt"></i></span>:</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// vector&lt;int&gt; array;</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">auto</span> disc = array;</span><br><span class="line"><span class="built_in">sort</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>());</span><br><span class="line">disc.<span class="built_in">erase</span>(<span class="built_in">unique</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>()), disc.<span class="built_in">end</span>())</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; disc.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">  disc[i] = <span class="built_in">lower_bound</span>(array.<span class="built_in">begin</span>(), array.<span class="built_in">end</span>(), disc[i]) - array.<span class="built_in">begin</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 那么disc就可以作为离散化之后的索引</span></span><br><span class="line"><span class="comment">// disc[i] = array中第i种元素的最小下标</span></span><br></pre></td></tr></table></figure>
-<h2 id="ccfcsp"><a class="header-anchor-1" href="#ccfcsp">#</a>CCFCSP</h2>
-<p>今天考了 CCF CSP.</p>
-<h2 id="区间树-interval-tree-和线段树-segment-tree"><a class="header-anchor-1" href="#区间树-interval-tree-和线段树-segment-tree">#</a>区间树(Interval Tree)和线段树(Segment Tree)</h2>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-        <tag>STL</tag>
-        <tag>CCFCSP</tag>
       </tags>
   </entry>
   <entry>
@@ -16927,6 +16937,48 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/27/2020-12-27/</url>
+    <content><![CDATA[<h1>配环境心得</h1>
+<p>放平心态</p>
+<h1>Linux之图形化界面</h1>
+<h2 id="x-vs-wayland"><a class="header-anchor-1" href="#x-vs-wayland">#</a>X vs. Wayland</h2>
+<p>X是最广泛使用的linux显示服务器, 是底层的图形化界面显示标准</p>
+<h2 id="display-manager"><a class="header-anchor-1" href="#display-manager">#</a>Display Manager</h2>
+<p>显示管理器(或登录管理器)是一个在启动最后显示的图形界面. 负责管理用户登录, 启动X等等. 有些集成在桌面环境中.</p>
+<p>用户一般直接与显示管理器打交道.</p>
+<p>常见的显示管理器有:</p>
+<ul>
+<li>GDM(GNOME)</li>
+<li>LXDM(LXDE)</li>
+<li>lightDM(支持多种DE)
+等等</li>
+</ul>
+<h2 id="desktop-environment"><a class="header-anchor-1" href="#desktop-environment">#</a>Desktop Environment</h2>
+<p>桌面环境通过汇集使用相同组件库的程序, 为用户提供了完全的图形用户界面.</p>
+<p>常见的桌面环境有:</p>
+<ul>
+<li>GNOME</li>
+<li>KDE</li>
+<li>Xfce
+等等</li>
+</ul>
+<h2 id="远程桌面"><a class="header-anchor-1" href="#远程桌面">#</a>远程桌面</h2>
+<ul>
+<li>xdmcp</li>
+<li>vnc</li>
+</ul>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/30/2020-12-30/</url>
     <content><![CDATA[<h1>计网答辩顺利</h1>
 <p>开心!</p>
@@ -16993,48 +17045,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       <tags>
         <tag>计算机网络</tag>
         <tag>答辩</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/27/2020-12-27/</url>
-    <content><![CDATA[<h1>配环境心得</h1>
-<p>放平心态</p>
-<h1>Linux之图形化界面</h1>
-<h2 id="x-vs-wayland"><a class="header-anchor-1" href="#x-vs-wayland">#</a>X vs. Wayland</h2>
-<p>X是最广泛使用的linux显示服务器, 是底层的图形化界面显示标准</p>
-<h2 id="display-manager"><a class="header-anchor-1" href="#display-manager">#</a>Display Manager</h2>
-<p>显示管理器(或登录管理器)是一个在启动最后显示的图形界面. 负责管理用户登录, 启动X等等. 有些集成在桌面环境中.</p>
-<p>用户一般直接与显示管理器打交道.</p>
-<p>常见的显示管理器有:</p>
-<ul>
-<li>GDM(GNOME)</li>
-<li>LXDM(LXDE)</li>
-<li>lightDM(支持多种DE)
-等等</li>
-</ul>
-<h2 id="desktop-environment"><a class="header-anchor-1" href="#desktop-environment">#</a>Desktop Environment</h2>
-<p>桌面环境通过汇集使用相同组件库的程序, 为用户提供了完全的图形用户界面.</p>
-<p>常见的桌面环境有:</p>
-<ul>
-<li>GNOME</li>
-<li>KDE</li>
-<li>Xfce
-等等</li>
-</ul>
-<h2 id="远程桌面"><a class="header-anchor-1" href="#远程桌面">#</a>远程桌面</h2>
-<ul>
-<li>xdmcp</li>
-<li>vnc</li>
-</ul>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
