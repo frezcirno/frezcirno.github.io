@@ -2834,23 +2834,107 @@ SNMP: 161/162</p>
   <entry>
     <title>KAIST CS492: Design and Analysis of Concurrent Programs</title>
     <url>/2025/07/06/concurrent-program/</url>
-    <content><![CDATA[<h2 id="什么是-make-progress"><a class="header-anchor-1" href="#什么是-make-progress">#</a>什么是 Make Progress</h2>
+    <content><![CDATA[<h2 id="基本概念"><a class="header-anchor-1" href="#基本概念">#</a>基本概念</h2>
+<h3 id="progress"><a class="header-anchor-1" href="#progress">#</a>Progress</h3>
+<p>| A program is making progress if, when the program threads are run for a sufficiently long time, at least one of the threads makes progress (for some sensible definition of progress).</p>
+<h3 id="make-progress"><a class="header-anchor-1" href="#make-progress">#</a>Make Progress</h3>
 <p>在多线程编程中，Make Progress 是指线程在全局时间上取得有用的进展。CAS 操作不算进展。</p>
 <p>使用锁的问题是可能存在一段时间，程序所有线程都没有 Make Progress。例如，当一个线程拿到锁，然后被调度器切换到其他线程，此时，整个程序就没有任何 Progress。</p>
-<h2 id="什么是-lock-free"><a class="header-anchor-1" href="#什么是-lock-free">#</a>什么是 Lock-free</h2>
+<h3 id="lock-free"><a class="header-anchor-1" href="#lock-free">#</a>Lock-free</h3>
 <p>| An algorithm is lock-free if, when the program threads are run for a sufficiently long time, at least one of the threads makes progress (for some sensible definition of progress).</p>
 <p>Lock-free 表示程序在任意时间内，<strong>至少有一个</strong>线程能够 Make Progress。</p>
-<h2 id="什么是-wait-free"><a class="header-anchor-1" href="#什么是-wait-free">#</a>什么是 Wait-free</h2>
+<h3 id="wait-free"><a class="header-anchor-1" href="#wait-free">#</a>Wait-free</h3>
 <p>| An algorithm is wait-free if every operation has a bound on the number of steps the algorithm will take before the operation completes.</p>
 <p>Wait-free 表示程序在任意时间内，<strong>所有线程</strong>都能够 Make Progress。</p>
 <p>关系: Wait-free ⊆ lock-free ⊆ obstruction-free ⊆ “nonblocking”</p>
-<h2 id="spinlock"><a class="header-anchor-1" href="#spinlock">#</a>Spinlock</h2>
+<h2 id="spinlocks"><a class="header-anchor-1" href="#spinlocks">#</a>Spinlocks</h2>
+<h3 id="naive-spinlock"><a class="header-anchor-1" href="#naive-spinlock">#</a>Naive Spinlock</h3>
 <figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// A spin lock.</span></span><br><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">SpinLock</span> &#123;</span><br><span class="line">    inner: AtomicBool,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span> <span class="title class_">RawLock</span> <span class="keyword">for</span> <span class="title class_">SpinLock</span> &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Token</span> = ();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">lock</span>(&amp;<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">backoff</span> = Backoff::<span class="title function_ invoke__">new</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">self</span></span><br><span class="line">            .inner</span><br><span class="line">            .<span class="title function_ invoke__">compare_exchange</span>(<span class="literal">false</span>, <span class="literal">true</span>, Acquire, Relaxed)</span><br><span class="line">            .<span class="title function_ invoke__">is_err</span>()</span><br><span class="line">        &#123;</span><br><span class="line">            backoff.<span class="title function_ invoke__">snooze</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsafe</span> <span class="keyword">fn</span> <span class="title function_">unlock</span>(&amp;<span class="keyword">self</span>, _token: ()) &#123;</span><br><span class="line">        <span class="keyword">self</span>.inner.<span class="title function_ invoke__">store</span>(<span class="literal">false</span>, Release);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span> <span class="title class_">RawTryLock</span> <span class="keyword">for</span> <span class="title class_">SpinLock</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">try_lock</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;(), ()&gt; &#123;</span><br><span class="line">        <span class="keyword">self</span>.inner</span><br><span class="line">            .<span class="title function_ invoke__">compare_exchange</span>(<span class="literal">false</span>, <span class="literal">true</span>, Acquire, Relaxed)</span><br><span class="line">            .<span class="title function_ invoke__">map</span>(|_| ())</span><br><span class="line">            .<span class="title function_ invoke__">map_err</span>(|_| ())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="ticket-lock"><a class="header-anchor-1" href="#ticket-lock">#</a>Ticket Lock</h2>
-<h2 id="clh-lock"><a class="header-anchor-1" href="#clh-lock">#</a>CLH Lock</h2>
-<h2 id="mcs-lock"><a class="header-anchor-1" href="#mcs-lock">#</a>MCS Lock</h2>
-<h2 id="mcs-parking-lock"><a class="header-anchor-1" href="#mcs-parking-lock">#</a>MCS Parking Lock</h2>
-<h2 id="treiber-stack"><a class="header-anchor-1" href="#treiber-stack">#</a>Treiber Stack</h2>
+<h3 id="ticket-lock"><a class="header-anchor-1" href="#ticket-lock">#</a>Ticket Lock</h3>
+<p>Ticket Lock 是一种自旋锁，它使用一个全局的计数器来实现锁。每个线程在进入临界区之前，需要先获取一个自增的 ticket，然后 spin 等待另一个计数器达到自己的 ticket 值。</p>
+<p>加锁操作:</p>
+<ol>
+<li>线程获取一个自增的 ticket 值。</li>
+<li>线程等待另一个计数器达到自己的 ticket 值。</li>
+<li>线程进入临界区。</li>
+</ol>
+<p>解锁操作:</p>
+<ol>
+<li>线程将另一个计数器加 1。</li>
+<li>线程退出临界区。</li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">TicketLock</span> &#123;</span><br><span class="line">    next_ticket: AtomicUsize,</span><br><span class="line">    now_serving: AtomicUsize,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">TicketLock</span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">new</span>() <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">Self</span> &#123;</span><br><span class="line">            next_ticket: AtomicUsize::<span class="title function_ invoke__">new</span>(<span class="number">0</span>),</span><br><span class="line">            now_serving: AtomicUsize::<span class="title function_ invoke__">new</span>(<span class="number">0</span>),</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">lock</span>(&amp;<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">ticket</span> = <span class="keyword">self</span>.next_ticket.<span class="title function_ invoke__">fetch_add</span>(<span class="number">1</span>, Relaxed);</span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">self</span>.now_serving.<span class="title function_ invoke__">load</span>(Relaxed) != ticket &#123;</span><br><span class="line">            std::hint::<span class="title function_ invoke__">spin_loop</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">unlock</span>(&amp;<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">next</span> = <span class="keyword">self</span>.now_serving.<span class="title function_ invoke__">load</span>(Relaxed);</span><br><span class="line">        <span class="keyword">self</span>.now_serving.<span class="title function_ invoke__">store</span>(next + <span class="number">1</span>, Release);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="mcs-lock"><a class="header-anchor-1" href="#mcs-lock">#</a>MCS Lock</h3>
+<p>Ticket Lock 有一个问题，就是多个CPU同时争抢一把锁时，会导致严重的总线竞争，导致性能下降。</p>
+<p>MCS Lock (Mellor-Crummey and Scott locks)<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> 通过使用一个链表来实现锁，每个线程在进入临界区之前，需要先获取一个自增的 ticket，然后 spin 等待另一个线程的锁。</p>
+<p>数据结构:</p>
+<ul>
+<li>MCS 锁实例​​: 一条单向链表的指针，初始化为指向一个未拥有的节点。</li>
+<li>锁节点​​: 每次加锁时创建一个节点，包含 next 指针和 locked 状态。
+<ul>
+<li>next 指针指向下一个正在等待锁的节点。</li>
+<li>locked: volitile bool 状态表示当前线程是否正在持有锁。</li>
+</ul>
+</li>
+</ul>
+<p>加锁操作:</p>
+<ol>
+<li>当前线程创建锁节点，next 设为 nullptr。</li>
+<li>通过lock.getAndSet()将自己加入队列尾部，并获取前驱节点pred。</li>
+<li>如果pred为空，则说明没有线程在排队，直接结束。</li>
+<li>将当前锁节点的locked设为true。</li>
+<li>将pred-&gt;next指针指向当前节点。</li>
+<li>自旋等待locked变成false。</li>
+</ol>
+<p>解锁操作:</p>
+<ol>
+<li>获取当前线程的锁节点I。</li>
+<li>如果I-&gt;next为空，则说明没有线程在排队。
+<ol>
+<li>通过lock.cas(I, nullptr)将队列清空</li>
+<li>如果成功，则直接结束；否则，说明有后继节点过来了</li>
+<li>Spin等待后继线程把I-&gt;next设置好</li>
+</ol>
+</li>
+<li>将I-&gt;next-&gt;locked设为false。</li>
+</ol>
+<figure class="highlight pascal"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> qnode = <span class="keyword">record</span></span><br><span class="line">    next : ^qnode       <span class="comment">// 指向下一个正在等待锁的节点</span></span><br><span class="line">    locked : Boolean    <span class="comment">// 当前线程是否正在持有锁</span></span><br><span class="line"><span class="keyword">type</span> lock = ^qnode      <span class="comment">// initialized to nil</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// parameter I, below, points to a qnode record allocated</span></span><br><span class="line"><span class="comment">// (in an enclosing scope) in shared memory locally-accessible</span></span><br><span class="line"><span class="comment">// to the invoking processor</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">acquire_lock</span> <span class="params">(L : ^lock, I : ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span>-&gt;<span class="title">next</span> :</span>= <span class="keyword">nil</span></span><br><span class="line">    pred : ^qnode := fetch_and_store (L, I)  <span class="comment">// 节点入队</span></span><br><span class="line">    <span class="keyword">if</span> pred != <span class="keyword">nil</span>          <span class="comment">// 如果之前有线程正在持有锁，说明需要等待</span></span><br><span class="line">        I-&gt;locked := true</span><br><span class="line">        pred-&gt;next := I     <span class="comment">// 将当前节点加入到前驱节点的next指针</span></span><br><span class="line">        <span class="keyword">repeat</span> <span class="keyword">while</span> I-&gt;locked              <span class="comment">// 自旋等待前驱节点释放锁</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">release_lock</span> <span class="params">(L : ^lock, I: ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">if</span> <span class="title">I</span>-&gt;<span class="title">next</span> = <span class="title">nil</span>        <span class="comment">// 没有后继节点在排队</span></span></span><br><span class="line"><span class="function">        <span class="title">if</span> <span class="title">compare_and_store</span> <span class="params">(L, I, <span class="keyword">nil</span>)</span>    <span class="comment">// 确实没有后继节点在排队，则结束</span></span></span><br><span class="line"><span class="function">            <span class="title">return</span></span></span><br><span class="line"><span class="function">        <span class="title">repeat</span> <span class="title">while</span> <span class="title">I</span>-&gt;<span class="title">next</span> = <span class="title">nil</span>          <span class="comment">// 等待后继节点设置好next指针</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span>-&gt;<span class="title">next</span>-&gt;<span class="title">locked</span> :</span>= false  <span class="comment">// 后继节点可以获得锁了</span></span><br></pre></td></tr></table></figure>
+<h3 id="clh-lock"><a class="header-anchor-1" href="#clh-lock">#</a>CLH Lock</h3>
+<p>CLH Lock (Craig, Landin, and Hagersten locks)<sup class="footnote-ref"><a href="#fn1" id="fnref1:1">[1:1]</a></sup> 是一种基于​​单向链表实现的可扩展、高性能、公平的自旋锁，它使用一个链表来实现锁。加锁过程相当于将当前线程加入到队列尾部，并等待前驱节点释放锁。解锁过程相当于将当前节点从队列中移除。</p>
+<p>数据结构:</p>
+<ul>
+<li>CLH 锁实例​​: 一条单向链表的指针，初始化为指向一个未拥有的节点。</li>
+<li>锁节点​​: 每次加锁时创建一个节点，包含 prev 指针和 succ_must_wait 状态。
+<ul>
+<li>prev 指针指向前一个线程的锁节点。</li>
+<li>succ_must_wait: volitile bool 状态表示当前线程是否正在持有锁。</li>
+</ul>
+</li>
+</ul>
+<p>加锁操作:</p>
+<ol>
+<li>当前线程创建锁节点，succ_must_wait 设为 true。</li>
+<li>通过lock.getAndSet()将自己加入队列尾部，并获取前驱节点。</li>
+<li>在前驱节点的succ_must_wait上自旋，直到其变为false。</li>
+</ol>
+<p>解锁操作:</p>
+<ol>
+<li>获取前驱节点。</li>
+<li>将当前锁节点的succ_must_wait设为false。</li>
+<li>返回前一个锁节点，用于下一次加锁使用（前一个锁节点一定不再被使用，这里复用前一个锁节点以避免内存分配和释放）。</li>
+</ol>
+<figure class="highlight pascal"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> qnode = <span class="keyword">record</span></span><br><span class="line">    prev : ^qnode             <span class="comment">// 前一个正在等待锁/持有锁的节点</span></span><br><span class="line">    succ_must_wait : Boolean  <span class="comment">// 当前线程是否正在持有锁</span></span><br><span class="line"><span class="keyword">type</span> lock = ^qnode  <span class="comment">// initialized to point to an unowned qnode</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">acquire_lock</span> <span class="params">(L : ^lock, I : ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span>-&gt;<span class="title">succ_must_wait</span> :</span>= true</span><br><span class="line">    pred : ^qnode := I-&gt;prev := fetch_and_store (L, I)  <span class="comment">// 节点入队</span></span><br><span class="line">    <span class="keyword">repeat</span> <span class="keyword">while</span> pred-&gt;succ_must_wait</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">release_lock</span> <span class="params">(ref I : ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">pred</span> :</span> ^qnode := I-&gt;prev</span><br><span class="line">    I-&gt;succ_must_wait := false</span><br><span class="line">    I := pred       <span class="comment">// 返回前一个锁节点，用于下一次加锁使用。</span></span><br></pre></td></tr></table></figure>
+<p>CLH 锁的优缺点:</p>
+<ul>
+<li>空间复杂度低，N个线程，L个锁，每个线程获取一个锁，则存储空间为<code>O(N+L)</code></li>
+<li>NUMA架构的CPU上，性能差。每个CPU都有自己的内存，如果前驱节点不在同一个CPU内存上，由于内存位置比较远，在自旋判断前驱节点的locked属性时，性能很差。不过在SMP架构的CPU上，不存在这个问题，性能依旧很高。</li>
+</ul>
+<h3 id="mcs-parking-lock"><a class="header-anchor-1" href="#mcs-parking-lock">#</a>MCS Parking Lock</h3>
+<h3 id="总结"><a class="header-anchor-1" href="#总结">#</a>总结</h3>
+<p>各种Scalable Spinlock的总结伪代码: <span class="exturl" data-url="aHR0cHM6Ly93d3cuY3Mucm9jaGVzdGVyLmVkdS9yZXNlYXJjaC9zeW5jaHJvbml6YXRpb24vcHNldWRvY29kZS9zcy5odG1s">https://www.cs.rochester.edu/research/synchronization/pseudocode/ss.html<i class="fa fa-external-link-alt"></i></span></p>
+<h2 id="lock-free-data-structures"><a class="header-anchor-1" href="#lock-free-data-structures">#</a>Lock-free Data Structures</h2>
+<h3 id="treiber-stack"><a class="header-anchor-1" href="#treiber-stack">#</a>Treiber Stack</h3>
+<p>Treiber Stack 是一种无锁栈实现，它通过使用一个链表来实现栈。</p>
 <p>Push 操作:</p>
 <ol>
 <li>创建一个新的节点 n，并将其数据初始化。</li>
@@ -2868,7 +2952,25 @@ SNMP: 161/162</p>
 <li>如果 CAS 成功，则返回top，否则回到第 2 步重试。</li>
 </ol>
 <figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">impl</span>&lt;T&gt; Stack&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">/// Pushes a value on top of the stack.</span></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">push</span>(&amp;<span class="keyword">self</span>, t: T) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">node</span> = Owned::<span class="title function_ invoke__">new</span>(Node &#123;</span><br><span class="line">            data: MaybeUninit::<span class="title function_ invoke__">new</span>(t),</span><br><span class="line">            next: ptr::<span class="title function_ invoke__">null</span>(),</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// SAFETY: We don&#x27;t dereference any pointers obtained from this guard.</span></span><br><span class="line">        <span class="keyword">let</span> <span class="variable">guard</span> = <span class="keyword">unsafe</span> &#123; crossbeam_epoch::<span class="title function_ invoke__">unprotected</span>() &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">head</span> = <span class="keyword">self</span>.head.<span class="title function_ invoke__">load</span>(Relaxed, guard);</span><br><span class="line">        <span class="keyword">loop</span> &#123;</span><br><span class="line">            node.next = head.<span class="title function_ invoke__">as_raw</span>();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">match</span> <span class="keyword">self</span></span><br><span class="line">                .head</span><br><span class="line">                .<span class="title function_ invoke__">compare_exchange</span>(head, node, Release, Relaxed, guard)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="title function_ invoke__">Ok</span>(_) =&gt; <span class="keyword">break</span>,</span><br><span class="line">                <span class="title function_ invoke__">Err</span>(e) =&gt; &#123;</span><br><span class="line">                    head = e.current;</span><br><span class="line">                    node = e.new;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// Attempts to pop the top element from the stack.</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">/// Returns `None` if the stack is empty.</span></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">pop</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;T&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = crossbeam_epoch::<span class="title function_ invoke__">pin</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">loop</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">head</span> = <span class="keyword">self</span>.head.<span class="title function_ invoke__">load</span>(Acquire, &amp;guard);</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">h</span> = <span class="keyword">unsafe</span> &#123; head.<span class="title function_ invoke__">as_ref</span>() &#125;?;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">next</span> = Shared::<span class="title function_ invoke__">from</span>(h.next);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">self</span></span><br><span class="line">                .head</span><br><span class="line">                .<span class="title function_ invoke__">compare_exchange</span>(head, next, Relaxed, Relaxed, &amp;guard)</span><br><span class="line">                .<span class="title function_ invoke__">is_ok</span>()</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// Since the above `compare_exchange()` succeeded, `head` is detached from</span></span><br><span class="line">                <span class="comment">// `self` so is unreachable from other threads.</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">// SAFETY: We are returning ownership of `data` in `head` by making a copy of it via</span></span><br><span class="line">                <span class="comment">// `assume_init_read()`. This is safe as no other thread has access to `data` after</span></span><br><span class="line">                <span class="comment">// `head` is unreachable, so the ownership of `data` in `head` will never be used</span></span><br><span class="line">                <span class="comment">// again.</span></span><br><span class="line">                <span class="keyword">let</span> <span class="variable">result</span> = <span class="keyword">unsafe</span> &#123; h.data.<span class="title function_ invoke__">assume_init_read</span>() &#125;;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// SAFETY: `head` is unreachable, and we no longer access `head`.</span></span><br><span class="line">                <span class="keyword">unsafe</span> &#123; guard.<span class="title function_ invoke__">defer_destroy</span>(head) &#125;;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> <span class="title function_ invoke__">Some</span>(result);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Repin to ensure the global epoch can make progress.</span></span><br><span class="line">            guard.<span class="title function_ invoke__">repin</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="harris-list"><a class="header-anchor-1" href="#harris-list">#</a>Harris List</h2>
+<h3 id="michael-scott’s-queue"><a class="header-anchor-1" href="#michael-scott’s-queue">#</a>Michael-Scott’s queue</h3>
+<p>Michael-Scott’s queue 是一种无锁队列实现，它通过使用一个链表来实现队列。</p>
+<p>Enqueue 操作:</p>
+<ol>
+<li>创建一个新的节点 n，并将其数据初始化。</li>
+<li>tail = load(tail)</li>
+<li>n-&gt;next = tail</li>
+<li>CAS(tail, tail, n)</li>
+<li>如果失败，则回到第 2 步重试。</li>
+</ol>
+<p>Dequeue 操作：和 Treiber Stack 的 Pop 操作一样</p>
+<h3 id="harris-list"><a class="header-anchor-1" href="#harris-list">#</a>Harris List</h3>
+<hr class="footnotes-sep" />
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>Mellor-Crummey, M. and Scott, M.L. 1981. Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors. ACM TOCS, February 1991. <a href="#fnref1" class="footnote-backref">↩︎</a> <a href="#fnref1:1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 ]]></content>
       <categories>
         <category>concurrent</category>
@@ -2911,48 +3013,6 @@ SNMP: 161/162</p>
       </tags>
   </entry>
   <entry>
-    <title>支持元素更新的D元最小堆模版</title>
-    <url>/2024/04/21/cpp-d-ary-heap-structure/</url>
-    <content><![CDATA[<p>做 CMU 15-445 的时候需要实现一个支持元素更新的堆。</p>
-<p>STL 中的堆是不支持元素更新的，但是我们可以利用元素上浮和元素下沉的操作实现元素更新。具体做法也很简单，根据元素是增大还是减小，调用对应操作保证符合堆的性质即可。</p>
-<p>不幸的是 STL 又没有暴露元素上浮和元素下沉的接口，于是只能自己写一个了。</p>
-<p>为了能够更新元素的值，给每个元素都附带了一个<code>key</code>标签，凭<code>key</code>去更新元素值，所以最终整个数据结构演变成了类似哈希表的结构。</p>
-<p>实现时顺便实现了<span class="exturl" data-url="aHR0cHM6Ly93d3cud2lraXdhbmQuY29tL2VuL0QtYXJ5X2hlYXA=">D 元堆<i class="fa fa-external-link-alt"></i></span>，元数作为模版参数。</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * KeyedMinHeap is a min-heap that supports the following operations:</span></span><br><span class="line"><span class="comment"> * - Insert: Insert a key with a score into the heap</span></span><br><span class="line"><span class="comment"> * - Update: Update the score of a key in the heap</span></span><br><span class="line"><span class="comment"> * - TopKey: Get the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - TopScore: Get the minimum score</span></span><br><span class="line"><span class="comment"> * - Pop: Remove the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - Erase: Remove a key from the heap</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, std::<span class="type">size_t</span> ARITY = <span class="number">4</span>&gt;</span><br><span class="line"><span class="keyword">class</span> KeyedMinHeap &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">using</span> <span class="type">heap_index_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line">  <span class="keyword">using</span> <span class="type">score_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">KeyedMinHeap</span>() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Insert</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> score)</span> </span>&#123;</span><br><span class="line">    keys_map_[key] = heap_.<span class="built_in">size</span>();</span><br><span class="line">    heap_.<span class="built_in">emplace_back</span>(key, score);</span><br><span class="line">    <span class="built_in">BubbleUp</span>(heap_.<span class="built_in">size</span>() - <span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Increment</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second++;</span><br><span class="line">    <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Update</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> new_score)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    <span class="type">score_t</span> old_score = heap_[h_index].second;</span><br><span class="line">    <span class="keyword">if</span> (old_score == new_score) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second = new_score;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (new_score &lt; old_score) &#123;</span><br><span class="line">      <span class="built_in">BubbleUp</span>(h_index);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopKey</span><span class="params">()</span> <span class="type">const</span> -&gt; Key </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().first;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopScore</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">score_t</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().second;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Pop</span><span class="params">()</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> top_key = heap_.<span class="built_in">front</span>().first;</span><br><span class="line">    <span class="keyword">auto</span> last_key = heap_.<span class="built_in">back</span>().first;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(top_key);</span><br><span class="line">    keys_map_[last_key] = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_.<span class="built_in">front</span>(), heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleDown</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Erase</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> entry = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(entry != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">heap_index_t</span> index = entry-&gt;second;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(entry);</span><br><span class="line">    keys_map_[heap_.<span class="built_in">back</span>().first] = index;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_[index], heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleUp</span>(index);</span><br><span class="line">    <span class="built_in">BubbleDown</span>(index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Size</span><span class="params">()</span> <span class="type">const</span> -&gt; std::<span class="type">size_t</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">size</span>(); &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Empty</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">bool</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">empty</span>(); &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ParentIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123; <span class="keyword">return</span> (h_index - <span class="number">1</span>) / ARITY; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Returns the index of the child_number-th child of the node at index</span></span><br><span class="line">  <span class="comment">// The children are numbered from 1 to ARITY</span></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ChildIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index, std::<span class="type">size_t</span> child_number)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ARITY * h_index + child_number;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleUp</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (h_index != <span class="number">0</span>) &#123;</span><br><span class="line">      std::<span class="type">size_t</span> parent = <span class="built_in">ParentIndex</span>(h_index);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">auto</span> &amp;parent_entry = heap_[parent];</span><br><span class="line">      <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (entry.second &lt; parent_entry.second) &#123;</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[parent_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(entry, parent_entry);</span><br><span class="line">        h_index = parent;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleDown</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">      <span class="type">heap_index_t</span> smallest = h_index;</span><br><span class="line">      <span class="keyword">for</span> (std::<span class="type">size_t</span> i = <span class="number">1</span>; i &lt;= ARITY; ++i) &#123;</span><br><span class="line">        <span class="type">heap_index_t</span> child = <span class="built_in">ChildIndex</span>(h_index, i);</span><br><span class="line">        <span class="keyword">if</span> (child &lt; heap_.<span class="built_in">size</span>() &amp;&amp; heap_[child].second &lt; heap_[smallest].second) &#123;</span><br><span class="line">          smallest = child;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (smallest != h_index) &#123;</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;smallest_entry = heap_[smallest];</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[smallest_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(heap_[h_index], heap_[smallest]);</span><br><span class="line">        h_index = smallest;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  std::unordered_map&lt;Key, <span class="type">heap_index_t</span>&gt; keys_map_;</span><br><span class="line">  std::vector&lt;std::pair&lt;Key, <span class="type">score_t</span>&gt;&gt; heap_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>cpp</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-        <tag>数据结构</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>C++ 古怪类型与容器的交互</title>
-    <url>/2024/04/21/cpp-opaque-type-vs-container/</url>
-    <content><![CDATA[<p>C++允许定义禁止复制和移动的类型，例如：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">OpaqueData</span> &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">OpaqueData</span>() = <span class="keyword">default</span>;</span><br><span class="line">  ~<span class="built_in">OpaqueData</span>() = <span class="keyword">default</span>;</span><br><span class="line">  <span class="comment">// Disable copy</span></span><br><span class="line">  <span class="built_in">OpaqueData</span>(<span class="type">const</span> OpaqueData &amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="keyword">auto</span> <span class="keyword">operator</span>=(<span class="type">const</span> OpaqueData &amp;) -&gt; OpaqueData &amp; = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="comment">// Disable move</span></span><br><span class="line">  <span class="built_in">OpaqueData</span>(OpaqueData &amp;&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="keyword">auto</span> <span class="keyword">operator</span>=(OpaqueData &amp;&amp;) -&gt; OpaqueData &amp; = <span class="keyword">delete</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>对于这种类型，容器的很多需要元素移动的操作都是不合法的。因此需要使用 emplace 来在容器内就地构造元素。</p>
-<p>这对于<code>std::list</code>是没问题的，但是对于<code>map</code>/<code>unordered_map</code>是不足够的：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;list&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">main</span><span class="params">()</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">  std::list&lt;OpaqueData&gt; list;</span><br><span class="line">  list.<span class="built_in">emplace_back</span>();  <span class="comment">// ok</span></span><br><span class="line"></span><br><span class="line">  std::map&lt;<span class="type">int</span>, OpaqueData&gt; map;</span><br><span class="line">  map.<span class="built_in">emplace</span>(<span class="number">0</span>, &#123;&#125;);  <span class="comment">// Error</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>因为<code>map</code>/<code>unordered_map</code>需要在一次调用构造两个元素<code>key</code>和<code>value</code>，因此没办法区分哪些参数用于构造<code>key</code>，哪些用于构造<code>value</code>。</p>
-<p>为了解决这个问题，需要使用 <code>std::piecewise_construct</code> 和 <code>std::forward_as_tuple</code> 明确哪些参数构造<code>key</code>/<code>value</code>，将上述代码修改成下面的样子，即可通过编译：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">main</span><span class="params">()</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    map.<span class="built_in">emplace</span>(std::piecewise_construct, std::forward_as_tuple(<span class="number">0</span>), std::forward_as_tuple());  <span class="comment">// Ok</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>那么这两个东西是什么呢？查看标准库中<code>emplace</code>的代码会发现，这些参数会不断地被<code>forward</code>，最终会原封不动地被用来构造底层元素，而底层元素实际上是<code>std::pair</code>。</p>
-<p>也就是说，这些奇奇怪怪的参数其实是<code>std::pair</code>的一种构造方式，查看<code>std::pair</code>的构造函数证明了这一点：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="comment">/// Tag type for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">piecewise_construct_t</span> &#123; <span class="function"><span class="keyword">explicit</span> <span class="title">piecewise_construct_t</span><span class="params">()</span> </span>= <span class="keyword">default</span>; &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// Tag for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">piecewise_construct_t</span> piecewise_construct = <span class="built_in">piecewise_construct_t</span>();</span><br></pre></td></tr></table></figure>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In tuple */</span></span><br><span class="line"><span class="comment">/// Create a tuple of lvalue or rvalue references to the arguments</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Elements&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> tuple&lt;_Elements&amp;&amp;...&gt; <span class="title">forward_as_tuple</span><span class="params">(_Elements&amp;&amp;... __args)</span> <span class="keyword">noexcept</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">tuple</span>&lt;_Elements&amp;&amp;...&gt;(std::forward&lt;_Elements&gt;(__args)...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">_T1</span>, <span class="keyword">class</span> <span class="title class_">_T2</span>&gt;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Args1, <span class="keyword">typename</span>... _Args2&gt;</span><br><span class="line">_GLIBCXX20_CONSTEXPR</span><br><span class="line"><span class="keyword">inline</span></span><br><span class="line">pair&lt;_T1, _T2&gt;::<span class="built_in">pair</span>(<span class="type">piecewise_construct_t</span>, tuple&lt;_Args<span class="number">1.</span>..&gt; __first, tuple&lt;_Args<span class="number">2.</span>..&gt; __second) : <span class="built_in">pair</span>(__first, __second,</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args1)&gt;::__type(),</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args2)&gt;::__type())</span><br><span class="line">&#123; &#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>cpp</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>C++ `constexpr` 的限制</title>
     <url>/2024/04/21/cpp-constexpr-usage/</url>
     <content><![CDATA[<ol>
@@ -2987,6 +3047,48 @@ SNMP: 161/162</p>
 <p><code>constexpr</code>函数和变量的定义必须在声明之前，且必须具有相同的类型和值。</p>
 </li>
 </ol>
+]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>支持元素更新的D元最小堆模版</title>
+    <url>/2024/04/21/cpp-d-ary-heap-structure/</url>
+    <content><![CDATA[<p>做 CMU 15-445 的时候需要实现一个支持元素更新的堆。</p>
+<p>STL 中的堆是不支持元素更新的，但是我们可以利用元素上浮和元素下沉的操作实现元素更新。具体做法也很简单，根据元素是增大还是减小，调用对应操作保证符合堆的性质即可。</p>
+<p>不幸的是 STL 又没有暴露元素上浮和元素下沉的接口，于是只能自己写一个了。</p>
+<p>为了能够更新元素的值，给每个元素都附带了一个<code>key</code>标签，凭<code>key</code>去更新元素值，所以最终整个数据结构演变成了类似哈希表的结构。</p>
+<p>实现时顺便实现了<span class="exturl" data-url="aHR0cHM6Ly93d3cud2lraXdhbmQuY29tL2VuL0QtYXJ5X2hlYXA=">D 元堆<i class="fa fa-external-link-alt"></i></span>，元数作为模版参数。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * KeyedMinHeap is a min-heap that supports the following operations:</span></span><br><span class="line"><span class="comment"> * - Insert: Insert a key with a score into the heap</span></span><br><span class="line"><span class="comment"> * - Update: Update the score of a key in the heap</span></span><br><span class="line"><span class="comment"> * - TopKey: Get the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - TopScore: Get the minimum score</span></span><br><span class="line"><span class="comment"> * - Pop: Remove the key with the minimum score</span></span><br><span class="line"><span class="comment"> * - Erase: Remove a key from the heap</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Key, std::<span class="type">size_t</span> ARITY = <span class="number">4</span>&gt;</span><br><span class="line"><span class="keyword">class</span> KeyedMinHeap &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">using</span> <span class="type">heap_index_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line">  <span class="keyword">using</span> <span class="type">score_t</span> = std::<span class="type">size_t</span>;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">KeyedMinHeap</span>() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Insert</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> score)</span> </span>&#123;</span><br><span class="line">    keys_map_[key] = heap_.<span class="built_in">size</span>();</span><br><span class="line">    heap_.<span class="built_in">emplace_back</span>(key, score);</span><br><span class="line">    <span class="built_in">BubbleUp</span>(heap_.<span class="built_in">size</span>() - <span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Increment</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second++;</span><br><span class="line">    <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Update</span><span class="params">(<span class="type">const</span> Key &amp;key, <span class="type">score_t</span> new_score)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> index_iter = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(index_iter != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line">    <span class="type">heap_index_t</span> h_index = index_iter-&gt;second;</span><br><span class="line"></span><br><span class="line">    <span class="type">score_t</span> old_score = heap_[h_index].second;</span><br><span class="line">    <span class="keyword">if</span> (old_score == new_score) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    heap_[h_index].second = new_score;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (new_score &lt; old_score) &#123;</span><br><span class="line">      <span class="built_in">BubbleUp</span>(h_index);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">BubbleDown</span>(h_index);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopKey</span><span class="params">()</span> <span class="type">const</span> -&gt; Key </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().first;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">TopScore</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">score_t</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> heap_.<span class="built_in">front</span>().second;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Pop</span><span class="params">()</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="built_in">assert</span>(!heap_.<span class="built_in">empty</span>() &amp;&amp; <span class="string">&quot;Heap is empty&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> top_key = heap_.<span class="built_in">front</span>().first;</span><br><span class="line">    <span class="keyword">auto</span> last_key = heap_.<span class="built_in">back</span>().first;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(top_key);</span><br><span class="line">    keys_map_[last_key] = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_.<span class="built_in">front</span>(), heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleDown</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Erase</span><span class="params">(<span class="type">const</span> Key &amp;key)</span> -&gt; <span class="type">void</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> entry = keys_map_.<span class="built_in">find</span>(key);</span><br><span class="line">    <span class="built_in">assert</span>(entry != keys_map_.<span class="built_in">end</span>() &amp;&amp; <span class="string">&quot;Key not found&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">heap_index_t</span> index = entry-&gt;second;</span><br><span class="line"></span><br><span class="line">    keys_map_.<span class="built_in">erase</span>(entry);</span><br><span class="line">    keys_map_[heap_.<span class="built_in">back</span>().first] = index;</span><br><span class="line"></span><br><span class="line">    std::<span class="built_in">swap</span>(heap_[index], heap_.<span class="built_in">back</span>());</span><br><span class="line">    heap_.<span class="built_in">pop_back</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BubbleUp</span>(index);</span><br><span class="line">    <span class="built_in">BubbleDown</span>(index);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Size</span><span class="params">()</span> <span class="type">const</span> -&gt; std::<span class="type">size_t</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">size</span>(); &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">Empty</span><span class="params">()</span> <span class="type">const</span> -&gt; <span class="type">bool</span> </span>&#123; <span class="keyword">return</span> heap_.<span class="built_in">empty</span>(); &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ParentIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123; <span class="keyword">return</span> (h_index - <span class="number">1</span>) / ARITY; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Returns the index of the child_number-th child of the node at index</span></span><br><span class="line">  <span class="comment">// The children are numbered from 1 to ARITY</span></span><br><span class="line">  <span class="function"><span class="keyword">auto</span> <span class="title">ChildIndex</span><span class="params">(<span class="type">heap_index_t</span> h_index, std::<span class="type">size_t</span> child_number)</span> <span class="type">const</span> -&gt; <span class="type">heap_index_t</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ARITY * h_index + child_number;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleUp</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (h_index != <span class="number">0</span>) &#123;</span><br><span class="line">      std::<span class="type">size_t</span> parent = <span class="built_in">ParentIndex</span>(h_index);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">auto</span> &amp;parent_entry = heap_[parent];</span><br><span class="line">      <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (entry.second &lt; parent_entry.second) &#123;</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[parent_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(entry, parent_entry);</span><br><span class="line">        h_index = parent;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">BubbleDown</span><span class="params">(<span class="type">heap_index_t</span> h_index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">      <span class="type">heap_index_t</span> smallest = h_index;</span><br><span class="line">      <span class="keyword">for</span> (std::<span class="type">size_t</span> i = <span class="number">1</span>; i &lt;= ARITY; ++i) &#123;</span><br><span class="line">        <span class="type">heap_index_t</span> child = <span class="built_in">ChildIndex</span>(h_index, i);</span><br><span class="line">        <span class="keyword">if</span> (child &lt; heap_.<span class="built_in">size</span>() &amp;&amp; heap_[child].second &lt; heap_[smallest].second) &#123;</span><br><span class="line">          smallest = child;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (smallest != h_index) &#123;</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;entry = heap_[h_index];</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span> &amp;smallest_entry = heap_[smallest];</span><br><span class="line">        std::<span class="built_in">swap</span>(keys_map_[entry.first], keys_map_[smallest_entry.first]);</span><br><span class="line">        std::<span class="built_in">swap</span>(heap_[h_index], heap_[smallest]);</span><br><span class="line">        h_index = smallest;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  std::unordered_map&lt;Key, <span class="type">heap_index_t</span>&gt; keys_map_;</span><br><span class="line">  std::vector&lt;std::pair&lt;Key, <span class="type">score_t</span>&gt;&gt; heap_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>数据结构</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++ 古怪类型与容器的交互</title>
+    <url>/2024/04/21/cpp-opaque-type-vs-container/</url>
+    <content><![CDATA[<p>C++允许定义禁止复制和移动的类型，例如：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">OpaqueData</span> &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">OpaqueData</span>() = <span class="keyword">default</span>;</span><br><span class="line">  ~<span class="built_in">OpaqueData</span>() = <span class="keyword">default</span>;</span><br><span class="line">  <span class="comment">// Disable copy</span></span><br><span class="line">  <span class="built_in">OpaqueData</span>(<span class="type">const</span> OpaqueData &amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="keyword">auto</span> <span class="keyword">operator</span>=(<span class="type">const</span> OpaqueData &amp;) -&gt; OpaqueData &amp; = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="comment">// Disable move</span></span><br><span class="line">  <span class="built_in">OpaqueData</span>(OpaqueData &amp;&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  <span class="keyword">auto</span> <span class="keyword">operator</span>=(OpaqueData &amp;&amp;) -&gt; OpaqueData &amp; = <span class="keyword">delete</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>对于这种类型，容器的很多需要元素移动的操作都是不合法的。因此需要使用 emplace 来在容器内就地构造元素。</p>
+<p>这对于<code>std::list</code>是没问题的，但是对于<code>map</code>/<code>unordered_map</code>是不足够的：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;list&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">main</span><span class="params">()</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">  std::list&lt;OpaqueData&gt; list;</span><br><span class="line">  list.<span class="built_in">emplace_back</span>();  <span class="comment">// ok</span></span><br><span class="line"></span><br><span class="line">  std::map&lt;<span class="type">int</span>, OpaqueData&gt; map;</span><br><span class="line">  map.<span class="built_in">emplace</span>(<span class="number">0</span>, &#123;&#125;);  <span class="comment">// Error</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为<code>map</code>/<code>unordered_map</code>需要在一次调用构造两个元素<code>key</code>和<code>value</code>，因此没办法区分哪些参数用于构造<code>key</code>，哪些用于构造<code>value</code>。</p>
+<p>为了解决这个问题，需要使用 <code>std::piecewise_construct</code> 和 <code>std::forward_as_tuple</code> 明确哪些参数构造<code>key</code>/<code>value</code>，将上述代码修改成下面的样子，即可通过编译：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">main</span><span class="params">()</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    map.<span class="built_in">emplace</span>(std::piecewise_construct, std::forward_as_tuple(<span class="number">0</span>), std::forward_as_tuple());  <span class="comment">// Ok</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么这两个东西是什么呢？查看标准库中<code>emplace</code>的代码会发现，这些参数会不断地被<code>forward</code>，最终会原封不动地被用来构造底层元素，而底层元素实际上是<code>std::pair</code>。</p>
+<p>也就是说，这些奇奇怪怪的参数其实是<code>std::pair</code>的一种构造方式，查看<code>std::pair</code>的构造函数证明了这一点：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="comment">/// Tag type for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">piecewise_construct_t</span> &#123; <span class="function"><span class="keyword">explicit</span> <span class="title">piecewise_construct_t</span><span class="params">()</span> </span>= <span class="keyword">default</span>; &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// Tag for piecewise construction of std::pair objects.</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">piecewise_construct_t</span> piecewise_construct = <span class="built_in">piecewise_construct_t</span>();</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In tuple */</span></span><br><span class="line"><span class="comment">/// Create a tuple of lvalue or rvalue references to the arguments</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Elements&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> tuple&lt;_Elements&amp;&amp;...&gt; <span class="title">forward_as_tuple</span><span class="params">(_Elements&amp;&amp;... __args)</span> <span class="keyword">noexcept</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">tuple</span>&lt;_Elements&amp;&amp;...&gt;(std::forward&lt;_Elements&gt;(__args)...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* In stl_pair.h */</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">_T1</span>, <span class="keyword">class</span> <span class="title class_">_T2</span>&gt;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... _Args1, <span class="keyword">typename</span>... _Args2&gt;</span><br><span class="line">_GLIBCXX20_CONSTEXPR</span><br><span class="line"><span class="keyword">inline</span></span><br><span class="line">pair&lt;_T1, _T2&gt;::<span class="built_in">pair</span>(<span class="type">piecewise_construct_t</span>, tuple&lt;_Args<span class="number">1.</span>..&gt; __first, tuple&lt;_Args<span class="number">2.</span>..&gt; __second) : <span class="built_in">pair</span>(__first, __second,</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args1)&gt;::__type(),</span><br><span class="line"> <span class="keyword">typename</span> _Build_index_tuple&lt;<span class="keyword">sizeof</span>...(_Args2)&gt;::__type())</span><br><span class="line">&#123; &#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>cpp</category>
@@ -5763,6 +5865,23 @@ top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
       </tags>
   </entry>
   <entry>
+    <title>Linux Kernel 网络子系统</title>
+    <url>/2024/04/16/linux-kernel-network-subsystem/</url>
+    <content><![CDATA[<h2 id="napi"><a class="header-anchor-1" href="#napi">#</a>NAPI</h2>
+<p>NAPI 机制采用中断和轮询结合的方式收包</p>
+<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的 backlog</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>softnet_data</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>计算机网络</tag>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Bash shell 脚本编程</title>
     <url>/2021/01/29/shell-basic/</url>
     <content><![CDATA[<h2 id="注释"><a class="header-anchor-1" href="#注释">#</a>注释</h2>
@@ -5874,23 +5993,6 @@ top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
       </tags>
   </entry>
   <entry>
-    <title>Linux Kernel 网络子系统</title>
-    <url>/2024/04/16/linux-kernel-network-subsystem/</url>
-    <content><![CDATA[<h2 id="napi"><a class="header-anchor-1" href="#napi">#</a>NAPI</h2>
-<p>NAPI 机制采用中断和轮询结合的方式收包</p>
-<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的 backlog</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>softnet_data</p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>计算机网络</tag>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>&quot;su user&quot; 和 &quot;su - user&quot; 的区别
 </title>
     <url>/2020/12/28/su-wo-slash/</url>
@@ -5908,23 +6010,6 @@ top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
       </categories>
       <tags>
         <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>word2vec</title>
-    <url>/2023/10/28/word2vec/</url>
-    <content><![CDATA[<h2 id="what’s-it"><a class="header-anchor-1" href="#what’s-it">#</a>What’s it</h2>
-<p>2013 年，Google 开源的，用于词向量计算的工具</p>
-<h2 id="架构"><a class="header-anchor-1" href="#架构">#</a>架构</h2>
-<p>X – Dense – Dense – Softmax – Y</p>
-<p>CBoW: 利用上下文预测当前词</p>
-<p>Skip-gram: 利用当前词预测上下文</p>
-]]></content>
-      <categories>
-        <category>machine-learning</category>
-      </categories>
-      <tags>
-        <tag>NLP</tag>
       </tags>
   </entry>
   <entry>
@@ -6162,6 +6247,23 @@ top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
       <tags>
         <tag>算法</tag>
         <tag>机器学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>word2vec</title>
+    <url>/2023/10/28/word2vec/</url>
+    <content><![CDATA[<h2 id="what’s-it"><a class="header-anchor-1" href="#what’s-it">#</a>What’s it</h2>
+<p>2013 年，Google 开源的，用于词向量计算的工具</p>
+<h2 id="架构"><a class="header-anchor-1" href="#架构">#</a>架构</h2>
+<p>X – Dense – Dense – Softmax – Y</p>
+<p>CBoW: 利用上下文预测当前词</p>
+<p>Skip-gram: 利用当前词预测上下文</p>
+]]></content>
+      <categories>
+        <category>machine-learning</category>
+      </categories>
+      <tags>
+        <tag>NLP</tag>
       </tags>
   </entry>
   <entry>
@@ -10530,7 +10632,7 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title>dlmalloc 内存分配器</title>
-    <url>/2025/07/18/dlmalloc/</url>
+    <url>/2025/07/19/dlmalloc/</url>
     <content><![CDATA[<p>dlmalloc 是一个 C 语言实现的流行的内存分配器实现，由纽约州立大学 Oswego 分校计算机系教授 Doug Lea 在 1980 年代编写，许多人称之为 Doug Lea 的 malloc，或者简称 dlmalloc。</p>
 <div class="tip">
 <p>关于 Doug Lea</p>
@@ -10610,7 +10712,7 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title></title>
-    <url>/2025/07/18/jemalloc/</url>
+    <url>/2025/07/19/jemalloc/</url>
     <content><![CDATA[]]></content>
       <categories>
         <category>database-system</category>
@@ -10619,7 +10721,7 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title></title>
-    <url>/2025/07/18/mimalloc/</url>
+    <url>/2025/07/19/mimalloc/</url>
     <content><![CDATA[]]></content>
       <categories>
         <category>database-system</category>
@@ -10628,7 +10730,7 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title></title>
-    <url>/2025/07/18/ptmalloc/</url>
+    <url>/2025/07/19/ptmalloc/</url>
     <content><![CDATA[]]></content>
       <categories>
         <category>database-system</category>
@@ -10637,7 +10739,7 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
   </entry>
   <entry>
     <title></title>
-    <url>/2025/07/18/tcmalloc/</url>
+    <url>/2025/07/19/tcmalloc/</url>
     <content><![CDATA[]]></content>
       <categories>
         <category>database-system</category>
@@ -10655,6 +10757,254 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       <tags>
         <tag>Tair</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>2020年度总结</title>
+    <url>/2021/01/05/2020-summary/</url>
+    <content><![CDATA[<h2 id="进步"><a class="header-anchor-1" href="#进步">#</a>进步</h2>
+<h3 id="装备升级"><a class="header-anchor-1" href="#装备升级">#</a>装备升级</h3>
+<ul>
+<li>
+<p>新增显示器</p>
+</li>
+<li>
+<p>新增一个 Pad</p>
+</li>
+</ul>
+<h3 id="技术进步"><a class="header-anchor-1" href="#技术进步">#</a>技术进步</h3>
+<ul>
+<li>
+<p>新开了 Blog!</p>
+</li>
+<li>
+<p>开始刷算法题, 并已经刷了一些</p>
+</li>
+<li>
+<p>前端技术更加熟练了</p>
+<ul>
+<li>
+<p>Vue/React 双线操作</p>
+</li>
+<li>
+<p>简单页面能够快速开发</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Python 更加熟练了</p>
+<ul>
+<li>
+<p>爬虫技术</p>
+</li>
+<li>
+<p>数据处理技术</p>
+</li>
+<li>
+<p>AI/DL</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Java 语言入门</p>
+<ul>
+<li>Spring 框架</li>
+</ul>
+</li>
+<li>
+<p>iOS 应用开发入门</p>
+<ul>
+<li>
+<p>Swift 语言入门</p>
+</li>
+<li>
+<p>SpriteKit 游戏 * 1</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="综合能力"><a class="header-anchor-1" href="#综合能力">#</a>综合能力</h3>
+<ul>
+<li>
+<p>表达能力略微提升</p>
+</li>
+<li>
+<p>管理能力略微提升</p>
+</li>
+</ul>
+<h3 id="人际关系"><a class="header-anchor-1" href="#人际关系">#</a>人际关系</h3>
+<ul>
+<li>认识了很多新朋友!</li>
+</ul>
+<h2 id="不足"><a class="header-anchor-1" href="#不足">#</a>不足</h2>
+<h3 id="任务调度"><a class="header-anchor-1" href="#任务调度">#</a>任务调度</h3>
+<ul>
+<li>时间利用率不高, 为完成项目曾多次通宵</li>
+</ul>
+<h3 id="管理-组织能力"><a class="header-anchor-1" href="#管理-组织能力">#</a>管理, 组织能力</h3>
+<ul>
+<li>小组合作时, 作为组长, 任务分配还有待优化</li>
+</ul>
+<h3 id="心态"><a class="header-anchor-1" href="#心态">#</a>心态</h3>
+<ul>
+<li>有时候会比较焦虑</li>
+</ul>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>2021目标计划</title>
+    <url>/2021/01/05/2021-wishes/</url>
+    <content><![CDATA[<h2 id="2021-年目标"><a class="header-anchor-1" href="#2021-年目标">#</a>2021 年目标</h2>
+<h3 id="学习上"><a class="header-anchor-1" href="#学习上">#</a>学习上</h3>
+<ul>
+<li>先把期末考试完美解决</li>
+</ul>
+<h3 id="技术上"><a class="header-anchor-1" href="#技术上">#</a>技术上</h3>
+<ul>
+<li>
+<p>想深入学习一下 C++!</p>
+</li>
+<li>
+<p>多刷算法题目!</p>
+</li>
+<li>
+<p>多写 Blog!</p>
+</li>
+<li>
+<p>学习 Android 开发</p>
+</li>
+<li>
+<p>实现大的后端架构</p>
+</li>
+<li>
+<p>学习新语言: Go/Julia/Ruby/…</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>2023 年终总结</title>
+    <url>/2024/01/01/2023-summary/</url>
+    <content><![CDATA[<h2 id="2023-回顾"><a class="header-anchor-1" href="#2023-回顾">#</a>2023 回顾</h2>
+<ul>
+<li>1 月: 开源投毒</li>
+<li>1-3 月: Rust 教材</li>
+<li>4-5 月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
+<li>3,5-10 月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
+<li>7-11 月: 参加 GLCC 开源活动，参与进了一直以来都很崇拜的 Kata Containers 项目</li>
+<li>8-12 月: 搞浦发银行的项目</li>
+</ul>
+<h2 id="近况"><a class="header-anchor-1" href="#近况">#</a>近况</h2>
+<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
+<p>实验室: 宁波实验室人丁兴旺, hw 稀稀拉拉, 反倒宁波更好一些</p>
+<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会</h2>
+<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
+<p>甚至不知道 2023 年都做了些什么(笑), 只能看周报回忆</p>
+<h2 id="2024-希望"><a class="header-anchor-1" href="#2024-希望">#</a>2024 希望</h2>
+<ul>
+<li>多读书</li>
+<li>多运动</li>
+<li>找到好工作</li>
+<li>学习唱歌</li>
+</ul>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2024/05/12/2024-05-13/</url>
+    <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
+<p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
+<h2 id="conda-root-less-apt"><a class="header-anchor-1" href="#conda-root-less-apt">#</a>Conda = Root-less apt</h2>
+<p>升级<code>gcc</code>依赖库：<code>conda install libgcc libgcc-ng</code></p>
+<p>升级<code>libstdc++</code>：<code>conda install -c conda-forge libstdcxx-ng</code></p>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2024 年终总结 -- 记学生时代的终结</title>
+    <url>/2025/03/15/2024-summary/</url>
+    <content><![CDATA[<p>不知不觉 2025 年已经过去了两个多月，感觉再不写这篇总结就要忘记了。</p>
+<p>那么事不宜迟，现在让我们回顾一下 2024 年。</p>
+<h2 id="2024-回顾"><a class="header-anchor-1" href="#2024-回顾">#</a>2024 回顾</h2>
+<ul>
+<li>1 月: 似乎没什么事情</li>
+<li>2 月:
+<ul>
+<li><span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvcXR3M2hwYlBVdTFVS0xlTEJiLXBNUQ==">Kata Containers<i class="fa fa-external-link-alt"></i></span> 的项目收尾，Good Job！</li>
+<li>和妈妈在杭州旅游，然后回老家过年，开心</li>
+</ul>
+</li>
+<li>2,6-8,11 月: 科研工作论文
+<ul>
+<li>2 月: 过年在家编 Rebuttal</li>
+<li>6-8 月: Rebuttal 见效，给了个 Major Revision，终于拨云见日…断断续续改了 好几个月</li>
+<li>11 月: 二轮终于接收，如释重负 😭</li>
+</ul>
+</li>
+<li>5 月: 实验室 kg 拿到了 ICSE Distinguished Paper，Good Job！</li>
+<li>3-5 月：暑期实习疯狂投简历
+<ul>
+<li>被字节简历挂了 😡，原因不明，只能解释为投太晚了</li>
+<li>靠 Rust 和安全方面的经验拿到了隐私计算的 Offer，但感觉和自己的方向不太符合，最终放弃了</li>
+<li>由于换 HR，最后的 Offer 拖了 1.5 个月才拿到，人快麻了</li>
+</ul>
+</li>
+<li>3-8 月: 辅助实验室学长的漏洞课题</li>
+<li>5-9 月: 去某公有云大厂开始暑期实习，做 Redis &amp; Tair Persistent Memory &amp; PDB 相关 😄</li>
+<li>8-11 月: 准备秋招
+<ul>
+<li>9 月暑期实习转正顺利</li>
+<li>投+Offer 了 8 家大厂，拉扯了 3 个月，整体过程是一波三折，好在最终的结果还算满意</li>
+</ul>
+</li>
+<li>11-12 月: 参加 <span class="exturl" data-url="aHR0cHM6Ly9vcGVuY2FtcC5jbi9hdG9tZ2l0L2NhbXAvcnVzdA==">Rust 数据结构与算法学习赛<i class="fa fa-external-link-alt"></i></span>，赢到了一个 iPad，意外之喜 😲</li>
+<li>4,10-12 月: 写研究生的毕业论文</li>
+</ul>
+<h2 id="关于实习"><a class="header-anchor-1" href="#关于实习">#</a>关于实习</h2>
+<p>实习对云计算产业有了很多新的认识。</p>
+<p>对公有云的认识：本质上还是 toC 的业务（因此对于客户服务要求极高），只不过卖的产品是云资源。</p>
+<p>对工区的感受：“大概是把演唱会的观众席变成办公桌，观众变成程序员的感觉”</p>
+<p>实习同学还有 cvpr oral 二作哥，厉害。</p>
+<p>遇到了很多 nb 的师兄，不管是人际关系方面还是技术方面都有一些收获。</p>
+<h2 id="关于实验室"><a class="header-anchor-1" href="#关于实验室">#</a>关于实验室</h2>
+<p>hw 实验室从 z3 三楼搬到四楼（23.12.20），然后又搬到了 z9（25.1.2），真够折腾的。</p>
+<p>宁波和 hw 实验室都来了很多新朋友，不过作为老人社交方面有点摆烂了。</p>
+<p>(25.1) kg 考完雅思就去了 SG，拜到了 SE 的大师 🙏。</p>
+<h2 id="关于-ai"><a class="header-anchor-1" href="#关于-ai">#</a>关于 AI</h2>
+<p>难以置信，24 年看来还是不可能实现的任务，过了一年就有了新的突破。</p>
+<h2 id="读的书"><a class="header-anchor-1" href="#读的书">#</a>读的书</h2>
+<ul>
+<li>房思琪的初恋乐园</li>
+<li>雪国</li>
+</ul>
+<p>培养了使用微信读书的习惯。</p>
+<h2 id="有趣的事情"><a class="header-anchor-1" href="#有趣的事情">#</a>有趣的事情</h2>
+<p>和实验室友友们 Cooking 了好多次，好好吃 😋</p>
+<p>自学硬件，画了很多板子，焊接了很多电路，感谢嘉立创 🙏</p>
+<h2 id="未来的祝福"><a class="header-anchor-1" href="#未来的祝福">#</a>未来的祝福</h2>
+<p>工作顺利！</p>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+      </categories>
   </entry>
   <entry>
     <title>分布式系统基础</title>
@@ -13773,254 +14123,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       <tags>
         <tag>面试</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>2020年度总结</title>
-    <url>/2021/01/05/2020-summary/</url>
-    <content><![CDATA[<h2 id="进步"><a class="header-anchor-1" href="#进步">#</a>进步</h2>
-<h3 id="装备升级"><a class="header-anchor-1" href="#装备升级">#</a>装备升级</h3>
-<ul>
-<li>
-<p>新增显示器</p>
-</li>
-<li>
-<p>新增一个 Pad</p>
-</li>
-</ul>
-<h3 id="技术进步"><a class="header-anchor-1" href="#技术进步">#</a>技术进步</h3>
-<ul>
-<li>
-<p>新开了 Blog!</p>
-</li>
-<li>
-<p>开始刷算法题, 并已经刷了一些</p>
-</li>
-<li>
-<p>前端技术更加熟练了</p>
-<ul>
-<li>
-<p>Vue/React 双线操作</p>
-</li>
-<li>
-<p>简单页面能够快速开发</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Python 更加熟练了</p>
-<ul>
-<li>
-<p>爬虫技术</p>
-</li>
-<li>
-<p>数据处理技术</p>
-</li>
-<li>
-<p>AI/DL</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Java 语言入门</p>
-<ul>
-<li>Spring 框架</li>
-</ul>
-</li>
-<li>
-<p>iOS 应用开发入门</p>
-<ul>
-<li>
-<p>Swift 语言入门</p>
-</li>
-<li>
-<p>SpriteKit 游戏 * 1</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="综合能力"><a class="header-anchor-1" href="#综合能力">#</a>综合能力</h3>
-<ul>
-<li>
-<p>表达能力略微提升</p>
-</li>
-<li>
-<p>管理能力略微提升</p>
-</li>
-</ul>
-<h3 id="人际关系"><a class="header-anchor-1" href="#人际关系">#</a>人际关系</h3>
-<ul>
-<li>认识了很多新朋友!</li>
-</ul>
-<h2 id="不足"><a class="header-anchor-1" href="#不足">#</a>不足</h2>
-<h3 id="任务调度"><a class="header-anchor-1" href="#任务调度">#</a>任务调度</h3>
-<ul>
-<li>时间利用率不高, 为完成项目曾多次通宵</li>
-</ul>
-<h3 id="管理-组织能力"><a class="header-anchor-1" href="#管理-组织能力">#</a>管理, 组织能力</h3>
-<ul>
-<li>小组合作时, 作为组长, 任务分配还有待优化</li>
-</ul>
-<h3 id="心态"><a class="header-anchor-1" href="#心态">#</a>心态</h3>
-<ul>
-<li>有时候会比较焦虑</li>
-</ul>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>2021目标计划</title>
-    <url>/2021/01/05/2021-wishes/</url>
-    <content><![CDATA[<h2 id="2021-年目标"><a class="header-anchor-1" href="#2021-年目标">#</a>2021 年目标</h2>
-<h3 id="学习上"><a class="header-anchor-1" href="#学习上">#</a>学习上</h3>
-<ul>
-<li>先把期末考试完美解决</li>
-</ul>
-<h3 id="技术上"><a class="header-anchor-1" href="#技术上">#</a>技术上</h3>
-<ul>
-<li>
-<p>想深入学习一下 C++!</p>
-</li>
-<li>
-<p>多刷算法题目!</p>
-</li>
-<li>
-<p>多写 Blog!</p>
-</li>
-<li>
-<p>学习 Android 开发</p>
-</li>
-<li>
-<p>实现大的后端架构</p>
-</li>
-<li>
-<p>学习新语言: Go/Julia/Ruby/…</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>2023 年终总结</title>
-    <url>/2024/01/01/2023-summary/</url>
-    <content><![CDATA[<h2 id="2023-回顾"><a class="header-anchor-1" href="#2023-回顾">#</a>2023 回顾</h2>
-<ul>
-<li>1 月: 开源投毒</li>
-<li>1-3 月: Rust 教材</li>
-<li>4-5 月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
-<li>3,5-10 月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
-<li>7-11 月: 参加 GLCC 开源活动，参与进了一直以来都很崇拜的 Kata Containers 项目</li>
-<li>8-12 月: 搞浦发银行的项目</li>
-</ul>
-<h2 id="近况"><a class="header-anchor-1" href="#近况">#</a>近况</h2>
-<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
-<p>实验室: 宁波实验室人丁兴旺, hw 稀稀拉拉, 反倒宁波更好一些</p>
-<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会</h2>
-<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
-<p>甚至不知道 2023 年都做了些什么(笑), 只能看周报回忆</p>
-<h2 id="2024-希望"><a class="header-anchor-1" href="#2024-希望">#</a>2024 希望</h2>
-<ul>
-<li>多读书</li>
-<li>多运动</li>
-<li>找到好工作</li>
-<li>学习唱歌</li>
-</ul>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2024/05/12/2024-05-13/</url>
-    <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
-<p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
-<h2 id="conda-root-less-apt"><a class="header-anchor-1" href="#conda-root-less-apt">#</a>Conda = Root-less apt</h2>
-<p>升级<code>gcc</code>依赖库：<code>conda install libgcc libgcc-ng</code></p>
-<p>升级<code>libstdc++</code>：<code>conda install -c conda-forge libstdcxx-ng</code></p>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>2024 年终总结 -- 记学生时代的终结</title>
-    <url>/2025/03/15/2024-summary/</url>
-    <content><![CDATA[<p>不知不觉 2025 年已经过去了两个多月，感觉再不写这篇总结就要忘记了。</p>
-<p>那么事不宜迟，现在让我们回顾一下 2024 年。</p>
-<h2 id="2024-回顾"><a class="header-anchor-1" href="#2024-回顾">#</a>2024 回顾</h2>
-<ul>
-<li>1 月: 似乎没什么事情</li>
-<li>2 月:
-<ul>
-<li><span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvcXR3M2hwYlBVdTFVS0xlTEJiLXBNUQ==">Kata Containers<i class="fa fa-external-link-alt"></i></span> 的项目收尾，Good Job！</li>
-<li>和妈妈在杭州旅游，然后回老家过年，开心</li>
-</ul>
-</li>
-<li>2,6-8,11 月: 科研工作论文
-<ul>
-<li>2 月: 过年在家编 Rebuttal</li>
-<li>6-8 月: Rebuttal 见效，给了个 Major Revision，终于拨云见日…断断续续改了 好几个月</li>
-<li>11 月: 二轮终于接收，如释重负 😭</li>
-</ul>
-</li>
-<li>5 月: 实验室 kg 拿到了 ICSE Distinguished Paper，Good Job！</li>
-<li>3-5 月：暑期实习疯狂投简历
-<ul>
-<li>被字节简历挂了 😡，原因不明，只能解释为投太晚了</li>
-<li>靠 Rust 和安全方面的经验拿到了隐私计算的 Offer，但感觉和自己的方向不太符合，最终放弃了</li>
-<li>由于换 HR，最后的 Offer 拖了 1.5 个月才拿到，人快麻了</li>
-</ul>
-</li>
-<li>3-8 月: 辅助实验室学长的漏洞课题</li>
-<li>5-9 月: 去某公有云大厂开始暑期实习，做 Redis &amp; Tair Persistent Memory &amp; PDB 相关 😄</li>
-<li>8-11 月: 准备秋招
-<ul>
-<li>9 月暑期实习转正顺利</li>
-<li>投+Offer 了 8 家大厂，拉扯了 3 个月，整体过程是一波三折，好在最终的结果还算满意</li>
-</ul>
-</li>
-<li>11-12 月: 参加 <span class="exturl" data-url="aHR0cHM6Ly9vcGVuY2FtcC5jbi9hdG9tZ2l0L2NhbXAvcnVzdA==">Rust 数据结构与算法学习赛<i class="fa fa-external-link-alt"></i></span>，赢到了一个 iPad，意外之喜 😲</li>
-<li>4,10-12 月: 写研究生的毕业论文</li>
-</ul>
-<h2 id="关于实习"><a class="header-anchor-1" href="#关于实习">#</a>关于实习</h2>
-<p>实习对云计算产业有了很多新的认识。</p>
-<p>对公有云的认识：本质上还是 toC 的业务（因此对于客户服务要求极高），只不过卖的产品是云资源。</p>
-<p>对工区的感受：“大概是把演唱会的观众席变成办公桌，观众变成程序员的感觉”</p>
-<p>实习同学还有 cvpr oral 二作哥，厉害。</p>
-<p>遇到了很多 nb 的师兄，不管是人际关系方面还是技术方面都有一些收获。</p>
-<h2 id="关于实验室"><a class="header-anchor-1" href="#关于实验室">#</a>关于实验室</h2>
-<p>hw 实验室从 z3 三楼搬到四楼（23.12.20），然后又搬到了 z9（25.1.2），真够折腾的。</p>
-<p>宁波和 hw 实验室都来了很多新朋友，不过作为老人社交方面有点摆烂了。</p>
-<p>(25.1) kg 考完雅思就去了 SG，拜到了 SE 的大师 🙏。</p>
-<h2 id="关于-ai"><a class="header-anchor-1" href="#关于-ai">#</a>关于 AI</h2>
-<p>难以置信，24 年看来还是不可能实现的任务，过了一年就有了新的突破。</p>
-<h2 id="读的书"><a class="header-anchor-1" href="#读的书">#</a>读的书</h2>
-<ul>
-<li>房思琪的初恋乐园</li>
-<li>雪国</li>
-</ul>
-<p>培养了使用微信读书的习惯。</p>
-<h2 id="有趣的事情"><a class="header-anchor-1" href="#有趣的事情">#</a>有趣的事情</h2>
-<p>和实验室友友们 Cooking 了好多次，好好吃 😋</p>
-<p>自学硬件，画了很多板子，焊接了很多电路，感谢嘉立创 🙏</p>
-<h2 id="未来的祝福"><a class="header-anchor-1" href="#未来的祝福">#</a>未来的祝福</h2>
-<p>工作顺利！</p>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-      </categories>
   </entry>
   <entry>
     <title>日本语1</title>
@@ -17193,6 +17295,40 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/11/2020-12-11/</url>
+    <content><![CDATA[<h2 id="linux-内核提权"><a class="header-anchor-1" href="#linux-内核提权">#</a>Linux 内核提权</h2>
+<ul>
+<li>获取内核版本</li>
+</ul>
+<p><code>uname -a</code></p>
+<p><code>lsb_release -a</code></p>
+<ul>
+<li>查询可用的 exploit</li>
+</ul>
+<p>在 Kali 中 <code>searchsploit Linux x.x.xx priv</code></p>
+<p>人工筛选</p>
+<ul>
+<li>传到目标机器上碰运气</li>
+</ul>
+<h2 id="gcc-编译参数"><a class="header-anchor-1" href="#gcc-编译参数">#</a>GCC 编译参数</h2>
+<p>目标机器上的 header/lib 可能不能正常使用, 此时可以下载一套 header/lib 放在用户目录, 用下面的方式指定</p>
+<p>指定 include 目录: <code>-I&lt;path&gt;</code></p>
+<p>指定连接库目录: <code>-L&lt;path&gt; -l&lt;libname&gt;</code></p>
+<h2 id="忘了报名-ncre-悲"><a class="header-anchor-1" href="#忘了报名-ncre-悲">#</a>忘了报名 NCRE, 悲</h2>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>信息安全</tag>
+        <tag>GCC</tag>
+        <tag>NCRE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/13/2020-12-13/</url>
     <content><![CDATA[<h2 id="c-stl-中-unique-的用法"><a class="header-anchor-1" href="#c-stl-中-unique-的用法">#</a>C++ STL 中 unique 的用法</h2>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>, <span class="keyword">class</span> <span class="title class_">BinaryPredicate</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last,</span></span></span><br><span class="line"><span class="params"><span class="function">                           BinaryPredicate pred )</span></span>;</span><br></pre></td></tr></table></figure>
@@ -17242,40 +17378,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>SEO</tag>
         <tag>Sitemap</tag>
         <tag>MongoDB</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/11/2020-12-11/</url>
-    <content><![CDATA[<h2 id="linux-内核提权"><a class="header-anchor-1" href="#linux-内核提权">#</a>Linux 内核提权</h2>
-<ul>
-<li>获取内核版本</li>
-</ul>
-<p><code>uname -a</code></p>
-<p><code>lsb_release -a</code></p>
-<ul>
-<li>查询可用的 exploit</li>
-</ul>
-<p>在 Kali 中 <code>searchsploit Linux x.x.xx priv</code></p>
-<p>人工筛选</p>
-<ul>
-<li>传到目标机器上碰运气</li>
-</ul>
-<h2 id="gcc-编译参数"><a class="header-anchor-1" href="#gcc-编译参数">#</a>GCC 编译参数</h2>
-<p>目标机器上的 header/lib 可能不能正常使用, 此时可以下载一套 header/lib 放在用户目录, 用下面的方式指定</p>
-<p>指定 include 目录: <code>-I&lt;path&gt;</code></p>
-<p>指定连接库目录: <code>-L&lt;path&gt; -l&lt;libname&gt;</code></p>
-<h2 id="忘了报名-ncre-悲"><a class="header-anchor-1" href="#忘了报名-ncre-悲">#</a>忘了报名 NCRE, 悲</h2>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>信息安全</tag>
-        <tag>GCC</tag>
-        <tag>NCRE</tag>
       </tags>
   </entry>
   <entry>
