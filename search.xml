@@ -4987,95 +4987,6 @@ Google Analytics 总结这些信息，然后提供给网站所有者。</p>
       </tags>
   </entry>
   <entry>
-    <title>MIT 6.824/6.5840 分布式系统 Lab 3 - Raft 论文阅读</title>
-    <url>/2025/02/20/mit-6.824-distributed-system-lab3-1/</url>
-    <content><![CDATA[<p>Raft 是一种经典的分布式共识算法（Consensus algorithm）。</p>
-<h2 id="复制状态机"><a class="header-anchor-1" href="#复制状态机">#</a>复制状态机</h2>
-<p>复制状态机是一组服务器上，计算相同的状态，而且可以容忍部分机器下线的状态机。复制状态机是解决分布式系统中一系列容错问题的基础，例如选主。通常通过 Replicated Log 实现，共识算法的职责就是维护 Replicated Log 的一致性。</p>
-<p>实际应用中，对于共识算法的要求：</p>
-<ul>
-<li><strong>正确性</strong>：在非拜占庭条件下，永远不会返回错误的结果；</li>
-<li><strong>可用性</strong>：只要多数机器正常工作，就可以正常工作；</li>
-<li>一致性不依赖于操作的时序，最坏情况下，只会导致可用性的问题；</li>
-<li><strong>快速</strong>：一般情况下，一旦大多数机器响应了一轮 RPC，命令即可完成；</li>
-</ul>
-<h2 id="paxos-的问题"><a class="header-anchor-1" href="#paxos-的问题">#</a>Paxos 的问题</h2>
-<ul>
-<li>难以理解</li>
-</ul>
-<h2 id="raft-共识算法"><a class="header-anchor-1" href="#raft-共识算法">#</a>Raft 共识算法</h2>
-<p>Raft 将共识问题分解成三个子问题：（1）选主、（2）日志复制、（3）安全性；</p>
-<h3 id="raft-基本定义"><a class="header-anchor-1" href="#raft-基本定义">#</a>Raft 基本定义</h3>
-<p>Raft 规定的节点状态：</p>
-<ul>
-<li><strong>Follower</strong>：被动响应 C 和 L 的请求；</li>
-<li><strong>Leader</strong>：处理所有客户端的请求；</li>
-<li><strong>Candidate</strong>：选主过程中使用；</li>
-</ul>
-<p>Raft 将时间划分为任意长度的任期（Term），任期用连续整数编号，起到逻辑时钟的功能。每个任期开始时先进行选举，选举出来的 Leader 会在这个任期内进行服务；否则继续下一个任期和选举。</p>
-<h3 id="选主"><a class="header-anchor-1" href="#选主">#</a>选主</h3>
-<p>Raft 利用心跳机制触发选主，Leader 会周期性地给所有 Follower 发送心跳宣布权威性。如果 Follower 一段时间没有收到心跳，则会开始尝试发起选主。</p>
-<p>选主过程中，Follower 会将 Term++，然后请求所有 Peer 投票（自己当然会给自己投票）。结果可能有几种：</p>
-<ol>
-<li><strong>收到的选票数量超过半数</strong>：自己成为 Leader；</li>
-<li><strong>收到了 Term 更大的 Candidate 或者 Leader 的任意 RPC</strong>：自己被强制降级为 Follower，发起的选举失效；</li>
-<li><strong>收到的选票数量不到半数</strong>：没有 Leader，继续下一轮选举；</li>
-</ol>
-<p>节点投票时遵循简单的规则：</p>
-<ul>
-<li>每个 Term 最多投给一个人</li>
-<li>先来后到</li>
-</ul>
-<p>Raft 采用随机选举超时，保证多个节点不会在同一时间启动选举。</p>
-<h3 id="日志复制"><a class="header-anchor-1" href="#日志复制">#</a>日志复制</h3>
-<p>当一个 Leader 被选出来之后，就开始负责这些事情：</p>
-<ul>
-<li><strong>给每个 Follower 发送日志</strong>：同步 Log；</li>
-<li><strong>决定什么时候可以提交 Log</strong>：当 Leader 确信一条日志已经被同步到多数机器上，则认为可以提交它，Raft 机制保证了剩余机器<strong>最终</strong>将会提交相同的日志，即所谓<strong>最终一致性</strong>。</li>
-</ul>
-<p>Raft 的<strong>Log Matching Property</strong>：</p>
-<ul>
-<li>两个不同 Log 中的条目，如果 term 和 index 相同，则存储的 command 相同；</li>
-<li>两个不同 Log 中的条目，如果 term 和 index 相同，则之前的所有 log 相同；</li>
-</ul>
-<p>在 Raft 执行过程中，由于机器崩溃重启，Follower 可能会缺失部分 Log，可能会有多的未提交的 Log，也可能两者兼有；这种情况下，Leader 会<strong>覆盖</strong>Follower 上不一致的 Log：首先两者会找到第一条不一致的 Log，然后 Leader 发送后续的 Log 给 Follower。<code>nextIndex</code>就是 Leader 用于记录每一个 Follower 同步位置的变量，初始值为 Leader 的 nextLogIndex。然后会根据<code>AppendEntries</code>的结果减小<code>nextIndex</code>。</p>
-<p>一个可能的优化点是：Follower 反馈更加精确的冲突日志数量。作者怀疑这种策略在现实情况中的必要性。</p>
-<p>Raft 的<strong>Leader Append-Only Property</strong>：Raft Leader 从来不需要更改或者删除自己的日志；</p>
-<h3 id="安全性"><a class="header-anchor-1" href="#安全性">#</a>安全性</h3>
-<p>上面描述的 Raft 不足以保证命令的顺序性，原因是多个日志冲突的 Follower 可能会交替成为 Leader，导致已经提交的 Log 被覆盖。为此还需要增加一个新的限制：</p>
-<ul>
-<li><strong>Leader Completeness Property</strong>：Candidate 必须拥有前一个 Term 中所有<strong>已经提交的</strong>Log，才能被选为 Leader；</li>
-</ul>
-<h4 id="选主限制"><a class="header-anchor-1" href="#选主限制">#</a>选主限制</h4>
-<p>Raft 利用选主过程保证<strong>Leader Completeness Property</strong>，<code>RequestVote</code> RPC 请求中会包含 Candidate 的 Log 信息，如果 Log 不够新，则在投篇时会被多数节点拒绝。</p>
-<p>Raft 定义的“新（Up-to-date）”：</p>
-<ul>
-<li>如果最后一条 Log 的 Term 不同，Term 大的更新</li>
-<li>否则，Log 长的更新</li>
-</ul>
-<h4 id="提交前一个-term-的-log"><a class="header-anchor-1" href="#提交前一个-term-的-log">#</a>提交前一个 Term 的 Log</h4>
-<p>只是 Log 被同步到多数节点，仍然不足以能够提交这个 Log。</p>
-<p>Raft 要求：只有当前 Term 的 Log 才通过多数原则确认提交，非当前 Term 的不会这样。</p>
-<h4 id="安全证明"><a class="header-anchor-1" href="#安全证明">#</a>安全证明</h4>
-<p>略</p>
-<h4 id="follower-和-candidate-崩溃重启"><a class="header-anchor-1" href="#follower-和-candidate-崩溃重启">#</a>Follower 和 Candidate 崩溃重启</h4>
-<p>略</p>
-<h4 id="时序和可用性"><a class="header-anchor-1" href="#时序和可用性">#</a>时序和可用性</h4>
-<p>略</p>
-<h3 id="集群成员变更-联合共识"><a class="header-anchor-1" href="#集群成员变更-联合共识">#</a>集群成员变更 &amp; 联合共识</h3>
-<p>集群变更配置的场景是很常见的。</p>
-<p>TODO</p>
-<h3 id="日志压缩"><a class="header-anchor-1" href="#日志压缩">#</a>日志压缩</h3>
-]]></content>
-      <categories>
-        <category>distributed-system</category>
-      </categories>
-      <tags>
-        <tag>分布式系统</tag>
-        <tag>Raft</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>MIT 6.824/6.5840 分布式系统 Lab 3: Raft 实现</title>
     <url>/2025/02/20/mit-6.824-distributed-system-lab3-2/</url>
     <content><![CDATA[<h2 id="基本框架"><a class="header-anchor-1" href="#基本框架">#</a>基本框架</h2>
@@ -5180,6 +5091,95 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
 <h3 id="installsnapshot-响应处理"><a class="header-anchor-1" href="#installsnapshot-响应处理">#</a>InstallSnapshot 响应处理</h3>
 <p>和 AppendEntries 的处理类似：</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rf *Raft)</span></span> replicateByIS(i <span class="type">int</span>, args *InstallSnapshotArgs) &#123;</span><br><span class="line">    reply := &amp;InstallSnapshotReply&#123;&#125;</span><br><span class="line">    <span class="keyword">if</span> !rf.sendInstallSnapshot(i, args, reply) &#123;</span><br><span class="line">        <span class="comment">// net failure</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    rf.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> rf.mu.Unlock()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// we are still the leader</span></span><br><span class="line">    <span class="keyword">if</span> rf.currentTerm != args.Term || !rf.leader &#123;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// we are outdated</span></span><br><span class="line">    <span class="keyword">if</span> reply.Term &gt; rf.currentTerm &#123;</span><br><span class="line">        rf.beFollower(reply.Term)</span><br><span class="line">        rf.persist()</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> args.LastIncludedIndex &gt; rf.matchIndex[i] &#123;</span><br><span class="line">        rf.matchIndex[i] = args.LastIncludedIndex</span><br><span class="line">        rf.updateCommitIndex()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// increase nextIndex by 1 or more</span></span><br><span class="line">    nextIndex := Max(rf.nextIndex[i], args.LastIncludedIndex) + <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span> nextIndex &lt;= rf.nextLogIndex() &#123;</span><br><span class="line">        rf.nextIndex[i] = nextIndex</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>distributed-system</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+        <tag>Raft</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MIT 6.824/6.5840 分布式系统 Lab 3 - Raft 论文阅读</title>
+    <url>/2025/02/20/mit-6.824-distributed-system-lab3-1/</url>
+    <content><![CDATA[<p>Raft 是一种经典的分布式共识算法（Consensus algorithm）。</p>
+<h2 id="复制状态机"><a class="header-anchor-1" href="#复制状态机">#</a>复制状态机</h2>
+<p>复制状态机是一组服务器上，计算相同的状态，而且可以容忍部分机器下线的状态机。复制状态机是解决分布式系统中一系列容错问题的基础，例如选主。通常通过 Replicated Log 实现，共识算法的职责就是维护 Replicated Log 的一致性。</p>
+<p>实际应用中，对于共识算法的要求：</p>
+<ul>
+<li><strong>正确性</strong>：在非拜占庭条件下，永远不会返回错误的结果；</li>
+<li><strong>可用性</strong>：只要多数机器正常工作，就可以正常工作；</li>
+<li>一致性不依赖于操作的时序，最坏情况下，只会导致可用性的问题；</li>
+<li><strong>快速</strong>：一般情况下，一旦大多数机器响应了一轮 RPC，命令即可完成；</li>
+</ul>
+<h2 id="paxos-的问题"><a class="header-anchor-1" href="#paxos-的问题">#</a>Paxos 的问题</h2>
+<ul>
+<li>难以理解</li>
+</ul>
+<h2 id="raft-共识算法"><a class="header-anchor-1" href="#raft-共识算法">#</a>Raft 共识算法</h2>
+<p>Raft 将共识问题分解成三个子问题：（1）选主、（2）日志复制、（3）安全性；</p>
+<h3 id="raft-基本定义"><a class="header-anchor-1" href="#raft-基本定义">#</a>Raft 基本定义</h3>
+<p>Raft 规定的节点状态：</p>
+<ul>
+<li><strong>Follower</strong>：被动响应 C 和 L 的请求；</li>
+<li><strong>Leader</strong>：处理所有客户端的请求；</li>
+<li><strong>Candidate</strong>：选主过程中使用；</li>
+</ul>
+<p>Raft 将时间划分为任意长度的任期（Term），任期用连续整数编号，起到逻辑时钟的功能。每个任期开始时先进行选举，选举出来的 Leader 会在这个任期内进行服务；否则继续下一个任期和选举。</p>
+<h3 id="选主"><a class="header-anchor-1" href="#选主">#</a>选主</h3>
+<p>Raft 利用心跳机制触发选主，Leader 会周期性地给所有 Follower 发送心跳宣布权威性。如果 Follower 一段时间没有收到心跳，则会开始尝试发起选主。</p>
+<p>选主过程中，Follower 会将 Term++，然后请求所有 Peer 投票（自己当然会给自己投票）。结果可能有几种：</p>
+<ol>
+<li><strong>收到的选票数量超过半数</strong>：自己成为 Leader；</li>
+<li><strong>收到了 Term 更大的 Candidate 或者 Leader 的任意 RPC</strong>：自己被强制降级为 Follower，发起的选举失效；</li>
+<li><strong>收到的选票数量不到半数</strong>：没有 Leader，继续下一轮选举；</li>
+</ol>
+<p>节点投票时遵循简单的规则：</p>
+<ul>
+<li>每个 Term 最多投给一个人</li>
+<li>先来后到</li>
+</ul>
+<p>Raft 采用随机选举超时，保证多个节点不会在同一时间启动选举。</p>
+<h3 id="日志复制"><a class="header-anchor-1" href="#日志复制">#</a>日志复制</h3>
+<p>当一个 Leader 被选出来之后，就开始负责这些事情：</p>
+<ul>
+<li><strong>给每个 Follower 发送日志</strong>：同步 Log；</li>
+<li><strong>决定什么时候可以提交 Log</strong>：当 Leader 确信一条日志已经被同步到多数机器上，则认为可以提交它，Raft 机制保证了剩余机器<strong>最终</strong>将会提交相同的日志，即所谓<strong>最终一致性</strong>。</li>
+</ul>
+<p>Raft 的<strong>Log Matching Property</strong>：</p>
+<ul>
+<li>两个不同 Log 中的条目，如果 term 和 index 相同，则存储的 command 相同；</li>
+<li>两个不同 Log 中的条目，如果 term 和 index 相同，则之前的所有 log 相同；</li>
+</ul>
+<p>在 Raft 执行过程中，由于机器崩溃重启，Follower 可能会缺失部分 Log，可能会有多的未提交的 Log，也可能两者兼有；这种情况下，Leader 会<strong>覆盖</strong>Follower 上不一致的 Log：首先两者会找到第一条不一致的 Log，然后 Leader 发送后续的 Log 给 Follower。<code>nextIndex</code>就是 Leader 用于记录每一个 Follower 同步位置的变量，初始值为 Leader 的 nextLogIndex。然后会根据<code>AppendEntries</code>的结果减小<code>nextIndex</code>。</p>
+<p>一个可能的优化点是：Follower 反馈更加精确的冲突日志数量。作者怀疑这种策略在现实情况中的必要性。</p>
+<p>Raft 的<strong>Leader Append-Only Property</strong>：Raft Leader 从来不需要更改或者删除自己的日志；</p>
+<h3 id="安全性"><a class="header-anchor-1" href="#安全性">#</a>安全性</h3>
+<p>上面描述的 Raft 不足以保证命令的顺序性，原因是多个日志冲突的 Follower 可能会交替成为 Leader，导致已经提交的 Log 被覆盖。为此还需要增加一个新的限制：</p>
+<ul>
+<li><strong>Leader Completeness Property</strong>：Candidate 必须拥有前一个 Term 中所有<strong>已经提交的</strong>Log，才能被选为 Leader；</li>
+</ul>
+<h4 id="选主限制"><a class="header-anchor-1" href="#选主限制">#</a>选主限制</h4>
+<p>Raft 利用选主过程保证<strong>Leader Completeness Property</strong>，<code>RequestVote</code> RPC 请求中会包含 Candidate 的 Log 信息，如果 Log 不够新，则在投篇时会被多数节点拒绝。</p>
+<p>Raft 定义的“新（Up-to-date）”：</p>
+<ul>
+<li>如果最后一条 Log 的 Term 不同，Term 大的更新</li>
+<li>否则，Log 长的更新</li>
+</ul>
+<h4 id="提交前一个-term-的-log"><a class="header-anchor-1" href="#提交前一个-term-的-log">#</a>提交前一个 Term 的 Log</h4>
+<p>只是 Log 被同步到多数节点，仍然不足以能够提交这个 Log。</p>
+<p>Raft 要求：只有当前 Term 的 Log 才通过多数原则确认提交，非当前 Term 的不会这样。</p>
+<h4 id="安全证明"><a class="header-anchor-1" href="#安全证明">#</a>安全证明</h4>
+<p>略</p>
+<h4 id="follower-和-candidate-崩溃重启"><a class="header-anchor-1" href="#follower-和-candidate-崩溃重启">#</a>Follower 和 Candidate 崩溃重启</h4>
+<p>略</p>
+<h4 id="时序和可用性"><a class="header-anchor-1" href="#时序和可用性">#</a>时序和可用性</h4>
+<p>略</p>
+<h3 id="集群成员变更-联合共识"><a class="header-anchor-1" href="#集群成员变更-联合共识">#</a>集群成员变更 &amp; 联合共识</h3>
+<p>集群变更配置的场景是很常见的。</p>
+<p>TODO</p>
+<h3 id="日志压缩"><a class="header-anchor-1" href="#日志压缩">#</a>日志压缩</h3>
 ]]></content>
       <categories>
         <category>distributed-system</category>
@@ -5949,23 +5949,6 @@ top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
       </tags>
   </entry>
   <entry>
-    <title>Linux Kernel 网络子系统</title>
-    <url>/2024/04/16/linux-kernel-network-subsystem/</url>
-    <content><![CDATA[<h2 id="napi"><a class="header-anchor-1" href="#napi">#</a>NAPI</h2>
-<p>NAPI 机制采用中断和轮询结合的方式收包</p>
-<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的 backlog</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>softnet_data</p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>计算机网络</tag>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Bash shell 脚本编程</title>
     <url>/2021/01/29/shell-basic/</url>
     <content><![CDATA[<h2 id="注释"><a class="header-anchor-1" href="#注释">#</a>注释</h2>
@@ -6074,6 +6057,23 @@ top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
       </categories>
       <tags>
         <tag>shell</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux Kernel 网络子系统</title>
+    <url>/2024/04/16/linux-kernel-network-subsystem/</url>
+    <content><![CDATA[<h2 id="napi"><a class="header-anchor-1" href="#napi">#</a>NAPI</h2>
+<p>NAPI 机制采用中断和轮询结合的方式收包</p>
+<p><code>softnet_data</code> per-cpu 全局变量，保存网络收包的 backlog</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">softnet_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> *<span class="title">output_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Qdisc</span> **<span class="title">output_queue_tailp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">poll_list</span>;</span> <span class="comment">//设备轮询列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">completion_queue</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">process_queue</span>;</span></span><br><span class="line">    <span class="comment">/* 统计数据 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> processed;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> time_squeeze;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cpu_collision;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> received_rps;</span><br><span class="line">    <span class="type">unsigned</span> dropped; <span class="comment">//被丢弃的包的数量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff_head</span> <span class="title">input_pkt_queue</span>;</span> <span class="comment">//收包队列</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">napi_struct</span> <span class="title">backlog</span>;</span> <span class="comment">//处理积压队列的napi结构</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>softnet_data</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>计算机网络</tag>
+        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -10182,6 +10182,17 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       </categories>
   </entry>
   <entry>
+    <title>1099. Build A Binary Search Tree</title>
+    <url>/2020/12/16/1099/</url>
+    <content><![CDATA[<p>给出二叉树结构和节点的值列表, 将值填入二叉树中, 输出层次序遍历的结果</p>
+<p>考点: 二叉树的直接后继</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt; <span class="function"><span class="type">void</span> <span class="title">ERR</span><span class="params">(T x, string name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(x) ERR(x, #    x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">node</span> &#123;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    <span class="type">int</span> left, right, parent;</span><br><span class="line">&#125; N[<span class="number">100</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="type">int</span> first = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    N[<span class="number">0</span>].parent = <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> l, r;</span><br><span class="line">        cin &gt;&gt; l &gt;&gt; r;</span><br><span class="line">        N[i].left = l;</span><br><span class="line">        N[l].parent = i;</span><br><span class="line">        N[i].right = r;</span><br><span class="line">        N[r].parent = i;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; vals;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> val;</span><br><span class="line">        cin &gt;&gt; val;</span><br><span class="line">        vals.<span class="built_in">push_back</span>(val);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">sort</span>(vals.<span class="built_in">begin</span>(), vals.<span class="built_in">end</span>());</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> p = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (N[p].left != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (N[p].left != <span class="number">-1</span>)</span><br><span class="line">            p = N[p].left;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (p != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="built_in">debug</span>(p);</span><br><span class="line">        N[p].val = vals.<span class="built_in">front</span>();</span><br><span class="line">        vals.<span class="built_in">erase</span>(vals.<span class="built_in">begin</span>());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (N[p].right != <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// right down</span></span><br><span class="line">            p = N[p].right;</span><br><span class="line">            <span class="keyword">while</span> (N[p].left != <span class="number">-1</span>) &#123;</span><br><span class="line">                p = N[p].left;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (N[p].parent != <span class="number">-1</span> &amp;&amp; N[N[p].parent].left == p) &#123;</span><br><span class="line">            <span class="comment">// right up</span></span><br><span class="line">            p = N[p].parent;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (N[p].parent != <span class="number">-1</span> &amp;&amp; N[N[p].parent].right == p) &#123;</span><br><span class="line">                p = N[p].parent;</span><br><span class="line">            &#125;</span><br><span class="line">            p = N[p].parent;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    queue&lt;<span class="type">int</span>&gt; Q;</span><br><span class="line">    Q.<span class="built_in">push</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">while</span> (Q.<span class="built_in">size</span>()) &#123;</span><br><span class="line">        <span class="type">int</span> top = Q.<span class="built_in">front</span>();</span><br><span class="line">        Q.<span class="built_in">pop</span>();</span><br><span class="line">        <span class="keyword">if</span> (!first)</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            first = <span class="number">0</span>;</span><br><span class="line">        cout &lt;&lt; N[top].val;</span><br><span class="line">        <span class="keyword">if</span> (N[top].left != <span class="number">-1</span>)</span><br><span class="line">            Q.<span class="built_in">push</span>(N[top].left);</span><br><span class="line">        <span class="keyword">if</span> (N[top].right != <span class="number">-1</span>)</span><br><span class="line">            Q.<span class="built_in">push</span>(N[top].right);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
     <title>1098. Insertion or Heap Sort</title>
     <url>/2020/12/19/1098/</url>
     <content><![CDATA[<p>根据排序的中间结果判断使用的插入排序还是堆排序, 并给出下一轮迭代的中间结果</p>
@@ -10191,17 +10202,6 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
 <p>进行1次插排: sort
 进行1次堆排: pop_heap</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">solve</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a[<span class="number">100</span>], b[<span class="number">100</span>];</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        cin &gt;&gt; a[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        cin &gt;&gt; b[i];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> p = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (p &lt; n &amp;&amp; b[p - <span class="number">1</span>] &lt;= b[p])</span><br><span class="line">        p++;</span><br><span class="line">    <span class="type">int</span> index = p;</span><br><span class="line">    <span class="keyword">while</span> (p &lt; n &amp;&amp; a[p] == b[p])</span><br><span class="line">        p++;</span><br><span class="line">    <span class="keyword">if</span> (p == n) &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Insertion Sort&quot;</span> &lt;&lt; endl;</span><br><span class="line">        <span class="built_in">sort</span>(b, b + index + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (i != <span class="number">0</span>)</span><br><span class="line">                cout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">            cout &lt;&lt; b[i];</span><br><span class="line">        &#125;</span><br><span class="line">        cout &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Heap Sort&quot;</span> &lt;&lt; endl;</span><br><span class="line">        <span class="type">int</span> p = n - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (p &gt; <span class="number">1</span> &amp;&amp; b[p] &gt;= b[<span class="number">1</span>])</span><br><span class="line">            p--;</span><br><span class="line">        <span class="built_in">pop_heap</span>(b, b + p + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (i != <span class="number">0</span>)</span><br><span class="line">                cout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">            cout &lt;&lt; b[i];</span><br><span class="line">        &#125;</span><br><span class="line">        cout &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">solve</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>PTA</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>1099. Build A Binary Search Tree</title>
-    <url>/2020/12/16/1099/</url>
-    <content><![CDATA[<p>给出二叉树结构和节点的值列表, 将值填入二叉树中, 输出层次序遍历的结果</p>
-<p>考点: 二叉树的直接后继</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt; <span class="function"><span class="type">void</span> <span class="title">ERR</span><span class="params">(T x, string name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(x) ERR(x, #    x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">node</span> &#123;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    <span class="type">int</span> left, right, parent;</span><br><span class="line">&#125; N[<span class="number">100</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="type">int</span> first = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    N[<span class="number">0</span>].parent = <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> l, r;</span><br><span class="line">        cin &gt;&gt; l &gt;&gt; r;</span><br><span class="line">        N[i].left = l;</span><br><span class="line">        N[l].parent = i;</span><br><span class="line">        N[i].right = r;</span><br><span class="line">        N[r].parent = i;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; vals;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> val;</span><br><span class="line">        cin &gt;&gt; val;</span><br><span class="line">        vals.<span class="built_in">push_back</span>(val);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">sort</span>(vals.<span class="built_in">begin</span>(), vals.<span class="built_in">end</span>());</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> p = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (N[p].left != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (N[p].left != <span class="number">-1</span>)</span><br><span class="line">            p = N[p].left;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (p != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="built_in">debug</span>(p);</span><br><span class="line">        N[p].val = vals.<span class="built_in">front</span>();</span><br><span class="line">        vals.<span class="built_in">erase</span>(vals.<span class="built_in">begin</span>());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (N[p].right != <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// right down</span></span><br><span class="line">            p = N[p].right;</span><br><span class="line">            <span class="keyword">while</span> (N[p].left != <span class="number">-1</span>) &#123;</span><br><span class="line">                p = N[p].left;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (N[p].parent != <span class="number">-1</span> &amp;&amp; N[N[p].parent].left == p) &#123;</span><br><span class="line">            <span class="comment">// right up</span></span><br><span class="line">            p = N[p].parent;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (N[p].parent != <span class="number">-1</span> &amp;&amp; N[N[p].parent].right == p) &#123;</span><br><span class="line">                p = N[p].parent;</span><br><span class="line">            &#125;</span><br><span class="line">            p = N[p].parent;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    queue&lt;<span class="type">int</span>&gt; Q;</span><br><span class="line">    Q.<span class="built_in">push</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">while</span> (Q.<span class="built_in">size</span>()) &#123;</span><br><span class="line">        <span class="type">int</span> top = Q.<span class="built_in">front</span>();</span><br><span class="line">        Q.<span class="built_in">pop</span>();</span><br><span class="line">        <span class="keyword">if</span> (!first)</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            first = <span class="number">0</span>;</span><br><span class="line">        cout &lt;&lt; N[top].val;</span><br><span class="line">        <span class="keyword">if</span> (N[top].left != <span class="number">-1</span>)</span><br><span class="line">            Q.<span class="built_in">push</span>(N[top].left);</span><br><span class="line">        <span class="keyword">if</span> (N[top].right != <span class="number">-1</span>)</span><br><span class="line">            Q.<span class="built_in">push</span>(N[top].right);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>PTA</category>
@@ -14209,117 +14209,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </tags>
   </entry>
   <entry>
-    <title>日本语1</title>
-    <url>/2021/02/15/1/</url>
-    <content><![CDATA[<h2 id="what-is-japanese"><a class="header-anchor-1" href="#what-is-japanese">#</a>What is Japanese</h2>
-<h3 id="japanese-sound-system"><a class="header-anchor-1" href="#japanese-sound-system">#</a>Japanese Sound System</h3>
-<p>23 consonant sounds + 5 vowel sounds, with pitch accent</p>
-<p>When spoken, the Japanese language is formed using either vowels or a consonant-vowel pair, except the “n” sound (single consonant sound)</p>
-<h3 id="japanese-writing-system"><a class="header-anchor-1" href="#japanese-writing-system">#</a>Japanese Writing System</h3>
-<p>Come around 1500 years age from China</p>
-<p>Currentlt has 3 types of writing: hiragana, katakana, kanji</p>
-<p>Kanji were imported from China, traditionally used for both meaning and sound.</p>
-<p>Hiragana: 46 characters with two diacritical marks that are used to denote the sounds</p>
-<p>Each hiragana symbolizes with a vowel or a consonant combined with a vowel.</p>
-<p>Hiraganas are in particular used for function words and inflectional endings, as well as in some content words.</p>
-<table>
-<thead>
-<tr>
-<th>Hiragana</th>
-<th>ん</th>
-<th>w</th>
-<th>r</th>
-<th>y</th>
-<th>m</th>
-<th>h</th>
-<th>n</th>
-<th>t</th>
-<th>s</th>
-<th>k</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>a</td>
-<td>ん</td>
-<td>わ</td>
-<td>ら</td>
-<td>や</td>
-<td>ま</td>
-<td>は</td>
-<td>な</td>
-<td>た</td>
-<td>さ</td>
-<td>か</td>
-<td>あ</td>
-</tr>
-<tr>
-<td>i</td>
-<td></td>
-<td></td>
-<td>り</td>
-<td></td>
-<td>み</td>
-<td>ひ</td>
-<td>に</td>
-<td>ち</td>
-<td>し</td>
-<td>き</td>
-<td>い</td>
-</tr>
-<tr>
-<td>u</td>
-<td></td>
-<td></td>
-<td>る</td>
-<td>ゆ</td>
-<td>む</td>
-<td>ふ</td>
-<td>ぬ</td>
-<td>つ</td>
-<td>す</td>
-<td>く</td>
-<td>う</td>
-</tr>
-<tr>
-<td>e</td>
-<td></td>
-<td></td>
-<td>れ</td>
-<td></td>
-<td>め</td>
-<td>へ</td>
-<td>ね</td>
-<td>て</td>
-<td>せ</td>
-<td>け</td>
-<td>え</td>
-</tr>
-<tr>
-<td>o</td>
-<td></td>
-<td>を</td>
-<td>ろ</td>
-<td>よ</td>
-<td>も</td>
-<td>ほ</td>
-<td>の</td>
-<td>と</td>
-<td>そ</td>
-<td>こ</td>
-<td>お</td>
-</tr>
-</tbody>
-</table>
-<p>Katagana is also a syllabary, is used for loan words, onomatopoeic words and scientific words.</p>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>japanese</category>
-      </categories>
-  </entry>
-  <entry>
     <title>软考高级系统架构设计师笔记</title>
     <url>/2025/03/14/note/</url>
     <content><![CDATA[<h2 id="考试安排"><a class="header-anchor-1" href="#考试安排">#</a>考试安排</h2>
@@ -15308,6 +15197,117 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
       </tags>
   </entry>
   <entry>
+    <title>日本语1</title>
+    <url>/2021/02/15/1/</url>
+    <content><![CDATA[<h2 id="what-is-japanese"><a class="header-anchor-1" href="#what-is-japanese">#</a>What is Japanese</h2>
+<h3 id="japanese-sound-system"><a class="header-anchor-1" href="#japanese-sound-system">#</a>Japanese Sound System</h3>
+<p>23 consonant sounds + 5 vowel sounds, with pitch accent</p>
+<p>When spoken, the Japanese language is formed using either vowels or a consonant-vowel pair, except the “n” sound (single consonant sound)</p>
+<h3 id="japanese-writing-system"><a class="header-anchor-1" href="#japanese-writing-system">#</a>Japanese Writing System</h3>
+<p>Come around 1500 years age from China</p>
+<p>Currentlt has 3 types of writing: hiragana, katakana, kanji</p>
+<p>Kanji were imported from China, traditionally used for both meaning and sound.</p>
+<p>Hiragana: 46 characters with two diacritical marks that are used to denote the sounds</p>
+<p>Each hiragana symbolizes with a vowel or a consonant combined with a vowel.</p>
+<p>Hiraganas are in particular used for function words and inflectional endings, as well as in some content words.</p>
+<table>
+<thead>
+<tr>
+<th>Hiragana</th>
+<th>ん</th>
+<th>w</th>
+<th>r</th>
+<th>y</th>
+<th>m</th>
+<th>h</th>
+<th>n</th>
+<th>t</th>
+<th>s</th>
+<th>k</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a</td>
+<td>ん</td>
+<td>わ</td>
+<td>ら</td>
+<td>や</td>
+<td>ま</td>
+<td>は</td>
+<td>な</td>
+<td>た</td>
+<td>さ</td>
+<td>か</td>
+<td>あ</td>
+</tr>
+<tr>
+<td>i</td>
+<td></td>
+<td></td>
+<td>り</td>
+<td></td>
+<td>み</td>
+<td>ひ</td>
+<td>に</td>
+<td>ち</td>
+<td>し</td>
+<td>き</td>
+<td>い</td>
+</tr>
+<tr>
+<td>u</td>
+<td></td>
+<td></td>
+<td>る</td>
+<td>ゆ</td>
+<td>む</td>
+<td>ふ</td>
+<td>ぬ</td>
+<td>つ</td>
+<td>す</td>
+<td>く</td>
+<td>う</td>
+</tr>
+<tr>
+<td>e</td>
+<td></td>
+<td></td>
+<td>れ</td>
+<td></td>
+<td>め</td>
+<td>へ</td>
+<td>ね</td>
+<td>て</td>
+<td>せ</td>
+<td>け</td>
+<td>え</td>
+</tr>
+<tr>
+<td>o</td>
+<td></td>
+<td>を</td>
+<td>ろ</td>
+<td>よ</td>
+<td>も</td>
+<td>ほ</td>
+<td>の</td>
+<td>と</td>
+<td>そ</td>
+<td>こ</td>
+<td>お</td>
+</tr>
+</tbody>
+</table>
+<p>Katagana is also a syllabary, is used for loan words, onomatopoeic words and scientific words.</p>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>japanese</category>
+      </categories>
+  </entry>
+  <entry>
     <title>电子电路基础</title>
     <url>/2024/09/12/basic/</url>
     <content><![CDATA[<h2 id="基本概念"><a class="header-anchor-1" href="#基本概念">#</a>基本概念</h2>
@@ -16116,6 +16116,127 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
       </tags>
   </entry>
   <entry>
+    <title>KLEE 符号执行</title>
+    <url>/2023/12/19/klee/</url>
+    <content><![CDATA[<h2 id="基本使用"><a class="header-anchor-1" href="#基本使用">#</a>基本使用</h2>
+<ol>
+<li>修改程序源码，在合适的地方插入符号值</li>
+</ol>
+<figure class="highlight diff"><table><tr><td class="code"><pre><span class="line">int main() &#123;</span><br><span class="line">  int a;</span><br><span class="line"><span class="addition">+  klee_make_symbolic(&amp;a, sizeof(a), &quot;a&quot;);</span></span><br><span class="line">  return get_sign(a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>编译成 LLVM bitcode</li>
+</ol>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">clang -I ../../include -emit-llvm -c -g -O0 -Xclang -disable-O0-optnone get_sign.c</span></span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>符号模拟执行 bitcode</li>
+</ol>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">klee get_sign.bc</span></span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>查看模拟得到的 test cases</li>
+</ol>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ktest-tool klee-last/test000001.ktest</span></span><br></pre></td></tr></table></figure>
+<h2 id="内部实现"><a class="header-anchor-1" href="#内部实现">#</a>内部实现</h2>
+<h3 id="directory-structure"><a class="header-anchor-1" href="#directory-structure">#</a>Directory Structure</h3>
+<ul>
+<li>lib - KLEE 核心源代码
+<ul>
+<li>Basic - 不依赖 LLVM 的工具代码, 一堆工具类</li>
+<li>Support - 依赖 LLVM 的工具代码, 一堆工具类
+<ul>
+<li>KTest.cpp</li>
+<li>Statistics.cpp</li>
+</ul>
+</li>
+<li>Module - klee facilities for working with LLVM modules, including the shadow module/instruction structures we use during execution.</li>
+<li>Expr - 表达式对象</li>
+<li>Solver - 求解器 binder</li>
+<li>Core - 核心符号虚拟机</li>
+</ul>
+</li>
+<li>tools - KLEE 的二进制
+<ul>
+<li>kleaver - 查询什么 log</li>
+<li>klee - 符号模拟执行一个 bitcode</li>
+<li>klee-replay - 复现 ktest</li>
+<li>klee-stats</li>
+<li>klee-zesti</li>
+<li>ktest-gen</li>
+<li>ktest-randgen</li>
+<li>ktest-tool</li>
+</ul>
+</li>
+<li>runtime - 符号模拟执行时依赖的库</li>
+</ul>
+<h3 id="utilities-klee-辅助类"><a class="header-anchor-1" href="#utilities-klee-辅助类">#</a>Utilities KLEE 辅助类</h3>
+<h4 id="引用计数-referencecounter-ref-t"><a class="header-anchor-1" href="#引用计数-referencecounter-ref-t">#</a>引用计数 <code>ReferenceCounter</code> <code>ref&lt;T&gt;</code></h4>
+<p>这两个类用于实现引用计数</p>
+<p><code>ReferenceCounter</code> 放在被计数的对象中</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Human</span> &#123;</span><br><span class="line">  ReferenceCounter _refCount;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>ref&lt;T&gt;</code> 是对象的引用, 重载了*和-&gt;运算符, 可以像指针一样使用</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">ref&lt;Human&gt; <span class="title">r</span><span class="params">(<span class="keyword">new</span> Human())</span></span>;</span><br><span class="line">r-&gt;<span class="built_in">hello</span>();</span><br></pre></td></tr></table></figure>
+<h3 id="tools-klee-klee-工具源码"><a class="header-anchor-1" href="#tools-klee-klee-工具源码">#</a>tools/klee KLEE 工具源码</h3>
+<h4 id="main-主函数"><a class="header-anchor-1" href="#main-主函数">#</a>main 主函数</h4>
+<ul>
+<li>
+<p><code>klee::loadFile</code> 加载输入文件，可以是单个 bitcode(.bc)或者 archive(.a), 得到一组<code>llvm::Module</code></p>
+</li>
+<li>
+<p><code>klee::linkModules</code> 把所有 <code>Module</code> 链接成一整个</p>
+</li>
+<li>
+<p>检查 triple</p>
+</li>
+<li>
+<p>配置 Libcxx, Libc</p>
+</li>
+<li>
+<p>配置程序运行环境: argc, argv, envp</p>
+</li>
+<li>
+<p>创建 <code>Handler</code>, <code>Executor</code> <em>impl</em> <code>Interpreter</code></p>
+</li>
+<li>
+<p><code>externalsAndGlobalsCheck</code> 做检查</p>
+</li>
+<li>
+<p>Replay or 模拟执行</p>
+</li>
+<li>
+<p><code>interpreter</code>-&gt;<code>runFunctionAsMain</code> 开始模拟执行</p>
+</li>
+</ul>
+<h4 id="executor-run-开始"><a class="header-anchor-1" href="#executor-run-开始">#</a><code>Executor::run</code> 开始</h4>
+<ul>
+<li>
+<p><code>usingSeeds</code> 判断</p>
+</li>
+<li>
+<p>主循环</p>
+</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// main interpreter loop</span></span><br><span class="line"><span class="keyword">while</span> (!states.<span class="built_in">empty</span>() &amp;&amp; !haltExecution) &#123;</span><br><span class="line">  ExecutionState &amp;state = searcher-&gt;<span class="built_in">selectState</span>();  <span class="comment">// 选择一个 State</span></span><br><span class="line">  KInstruction *ki = state.pc;  <span class="comment">// 取指令</span></span><br><span class="line">  <span class="built_in">stepInstruction</span>(state);  <span class="comment">// 更新 PC</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">executeInstruction</span>(state, ki);  <span class="comment">// 执行指令</span></span><br><span class="line">  timers.<span class="built_in">invoke</span>();</span><br><span class="line">  <span class="keyword">if</span> (::dumpStates) <span class="built_in">dumpStates</span>();</span><br><span class="line">  <span class="keyword">if</span> (::dumpPTree) <span class="built_in">dumpPTree</span>();</span><br><span class="line"></span><br><span class="line">  <span class="built_in">updateStates</span>(&amp;state);  <span class="comment">// 更新 State</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">checkMemoryUsage</span>()) &#123;</span><br><span class="line">    <span class="comment">// update searchers when states were terminated early due to memory pressure</span></span><br><span class="line">    <span class="built_in">updateStates</span>(<span class="literal">nullptr</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很清晰的代码, 每次循环选择一个程序 <code>ExecutionState</code>, 执行下条 <code>KInstruction</code>, 更新状态, 然后重复.</p>
+<p>其中 <code>Searcher</code> 实现了探索的策略, <code>klee</code> 中有多种实现, 如 <code>BFS</code>/<code>DFS</code>/<code>Random</code> 等</p>
+<h4 id="程序状态-executionstate-stackframe"><a class="header-anchor-1" href="#程序状态-executionstate-stackframe">#</a>程序状态 <code>ExecutionState</code>, <code>StackFrame</code></h4>
+<p>执行状态, 包括栈帧</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ExecutionState</span> &#123;</span><br><span class="line">  <span class="comment">/// @brief Pointer to instruction to be executed after the current</span></span><br><span class="line">  <span class="comment">/// instruction</span></span><br><span class="line">  KInstIterator pc;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// @brief Stack representing the current instruction stream</span></span><br><span class="line">  std::vector&lt;StackFrame&gt; stack;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>栈帧里面包含 <code>locals</code>, 是一堆预分配的 <code>Cell</code>, 数量等于函数参数+指令总数</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">StackFrame</span> &#123;</span><br><span class="line">  KInstIterator caller;</span><br><span class="line">  KFunction *kf;</span><br><span class="line">  CallPathNode *callPathNode;</span><br><span class="line"></span><br><span class="line">  std::vector&lt;<span class="type">const</span> MemoryObject *&gt; allocas;</span><br><span class="line">  Cell *locals;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>Cell</code> 即对 <code>Expr</code> 的引用</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">namespace</span> klee &#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">Cell</span> &#123;</span><br><span class="line">    ref&lt;Expr&gt; value;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="executor-executeinstruction-开始"><a class="header-anchor-1" href="#executor-executeinstruction-开始">#</a><code>Executor::executeInstruction</code> 开始</h4>
+<p>根据指令 opcode 对应处理</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">case</span> Instruction::Ret:</span><br><span class="line">      <span class="comment">// 求解return返回的值</span></span><br><span class="line">      result = <span class="built_in">eval</span>(ki, <span class="number">0</span>, state).value;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 考虑是否需要进行 coercion</span></span><br><span class="line"></span><br><span class="line">      <span class="comment">// bindLocal caller指令 的 dest cell 的 value</span></span><br><span class="line">      <span class="built_in">bindLocal</span>(kcaller, state, result);</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> Instruction::Br:</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> Instruction::IndirectBr:</span><br><span class="line"><span class="keyword">case</span> Instruction::Switch:</span><br><span class="line"><span class="keyword">case</span> Instruction::Unreachable:</span><br><span class="line"><span class="keyword">case</span> Instruction::Invoke:</span><br><span class="line"><span class="keyword">case</span> Instruction::Call:</span><br><span class="line"><span class="keyword">case</span> Instruction::PHI:</span><br><span class="line"><span class="keyword">case</span> Instruction::Select:</span><br><span class="line"><span class="keyword">case</span> Instruction::VAArg:</span><br><span class="line"><span class="keyword">case</span> Instruction::Add:</span><br><span class="line"><span class="keyword">case</span> Instruction::Sub:</span><br><span class="line"><span class="keyword">case</span> Instruction::Mul:</span><br><span class="line"><span class="keyword">case</span> Instruction::UDiv:</span><br><span class="line"><span class="keyword">case</span> Instruction::SDiv:</span><br><span class="line"><span class="keyword">case</span> Instruction::URem:</span><br><span class="line"><span class="keyword">case</span> Instruction::SRem:</span><br><span class="line"><span class="keyword">case</span> Instruction::And:</span><br><span class="line"><span class="keyword">case</span> Instruction::Or:</span><br><span class="line"><span class="keyword">case</span> Instruction::Xor:</span><br><span class="line"><span class="keyword">case</span> Instruction::Shl:</span><br><span class="line"><span class="keyword">case</span> Instruction::LShr:</span><br><span class="line"><span class="keyword">case</span> Instruction::AShr:</span><br><span class="line"><span class="keyword">case</span> Instruction::ICmp:</span><br><span class="line"><span class="keyword">case</span> Instruction::Alloca:</span><br><span class="line"><span class="keyword">case</span> Instruction::Load:</span><br><span class="line"><span class="keyword">case</span> Instruction::Store:</span><br><span class="line"><span class="keyword">case</span> Instruction::GetElementPtr:</span><br><span class="line"><span class="keyword">case</span> Instruction::Trunc:</span><br><span class="line"><span class="keyword">case</span> Instruction::ZExt:</span><br><span class="line"><span class="keyword">case</span> Instruction::SExt:</span><br><span class="line"><span class="keyword">case</span> Instruction::IntToPtr:</span><br><span class="line"><span class="keyword">case</span> Instruction::PtrToInt:</span><br><span class="line"><span class="keyword">case</span> Instruction::BitCast:</span><br><span class="line"><span class="keyword">case</span> Instruction::FNeg:</span><br><span class="line"><span class="keyword">case</span> Instruction::FAdd:</span><br><span class="line"><span class="keyword">case</span> Instruction::FSub:</span><br><span class="line"><span class="keyword">case</span> Instruction::FMul:</span><br><span class="line"><span class="keyword">case</span> Instruction::FDiv:</span><br><span class="line"><span class="keyword">case</span> Instruction::FRem:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPTrunc:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPExt:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPToUI:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPToSI:</span><br><span class="line"><span class="keyword">case</span> Instruction::UIToFP:</span><br><span class="line"><span class="keyword">case</span> Instruction::SIToFP:</span><br><span class="line"><span class="keyword">case</span> Instruction::FCmp:</span><br><span class="line"><span class="keyword">case</span> Instruction::InsertValue:</span><br><span class="line"><span class="keyword">case</span> Instruction::ExtractValue:</span><br><span class="line"><span class="keyword">case</span> Instruction::Fence:</span><br><span class="line"><span class="keyword">case</span> Instruction::InsertElement:</span><br><span class="line"><span class="keyword">case</span> Instruction::ExtractElement:</span><br><span class="line"><span class="keyword">case</span> Instruction::ShuffleVector:</span><br><span class="line"><span class="keyword">case</span> Instruction::Resume:</span><br><span class="line"><span class="keyword">case</span> Instruction::LandingPad:</span><br><span class="line"><span class="keyword">case</span> Instruction::AtomicRMW:</span><br><span class="line"><span class="keyword">case</span> Instruction::AtomicCmpXchg:</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>program-analysis</category>
+        <category>software-test</category>
+      </categories>
+      <tags>
+        <tag>Program Analysis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Hexo 个人 blog 搭建记录</title>
     <url>/2020/11/29/2020-11-29/</url>
     <content><![CDATA[<h2 id="hexo-基本操作"><a class="header-anchor-1" href="#hexo-基本操作">#</a>Hexo 基本操作</h2>
@@ -16279,127 +16400,6 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
       <tags>
         <tag>Hexo</tag>
         <tag>Github</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>KLEE 符号执行</title>
-    <url>/2023/12/19/klee/</url>
-    <content><![CDATA[<h2 id="基本使用"><a class="header-anchor-1" href="#基本使用">#</a>基本使用</h2>
-<ol>
-<li>修改程序源码，在合适的地方插入符号值</li>
-</ol>
-<figure class="highlight diff"><table><tr><td class="code"><pre><span class="line">int main() &#123;</span><br><span class="line">  int a;</span><br><span class="line"><span class="addition">+  klee_make_symbolic(&amp;a, sizeof(a), &quot;a&quot;);</span></span><br><span class="line">  return get_sign(a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ol start="2">
-<li>编译成 LLVM bitcode</li>
-</ol>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">clang -I ../../include -emit-llvm -c -g -O0 -Xclang -disable-O0-optnone get_sign.c</span></span><br></pre></td></tr></table></figure>
-<ol start="3">
-<li>符号模拟执行 bitcode</li>
-</ol>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">klee get_sign.bc</span></span><br></pre></td></tr></table></figure>
-<ol start="4">
-<li>查看模拟得到的 test cases</li>
-</ol>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ktest-tool klee-last/test000001.ktest</span></span><br></pre></td></tr></table></figure>
-<h2 id="内部实现"><a class="header-anchor-1" href="#内部实现">#</a>内部实现</h2>
-<h3 id="directory-structure"><a class="header-anchor-1" href="#directory-structure">#</a>Directory Structure</h3>
-<ul>
-<li>lib - KLEE 核心源代码
-<ul>
-<li>Basic - 不依赖 LLVM 的工具代码, 一堆工具类</li>
-<li>Support - 依赖 LLVM 的工具代码, 一堆工具类
-<ul>
-<li>KTest.cpp</li>
-<li>Statistics.cpp</li>
-</ul>
-</li>
-<li>Module - klee facilities for working with LLVM modules, including the shadow module/instruction structures we use during execution.</li>
-<li>Expr - 表达式对象</li>
-<li>Solver - 求解器 binder</li>
-<li>Core - 核心符号虚拟机</li>
-</ul>
-</li>
-<li>tools - KLEE 的二进制
-<ul>
-<li>kleaver - 查询什么 log</li>
-<li>klee - 符号模拟执行一个 bitcode</li>
-<li>klee-replay - 复现 ktest</li>
-<li>klee-stats</li>
-<li>klee-zesti</li>
-<li>ktest-gen</li>
-<li>ktest-randgen</li>
-<li>ktest-tool</li>
-</ul>
-</li>
-<li>runtime - 符号模拟执行时依赖的库</li>
-</ul>
-<h3 id="utilities-klee-辅助类"><a class="header-anchor-1" href="#utilities-klee-辅助类">#</a>Utilities KLEE 辅助类</h3>
-<h4 id="引用计数-referencecounter-ref-t"><a class="header-anchor-1" href="#引用计数-referencecounter-ref-t">#</a>引用计数 <code>ReferenceCounter</code> <code>ref&lt;T&gt;</code></h4>
-<p>这两个类用于实现引用计数</p>
-<p><code>ReferenceCounter</code> 放在被计数的对象中</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Human</span> &#123;</span><br><span class="line">  ReferenceCounter _refCount;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p><code>ref&lt;T&gt;</code> 是对象的引用, 重载了*和-&gt;运算符, 可以像指针一样使用</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">ref&lt;Human&gt; <span class="title">r</span><span class="params">(<span class="keyword">new</span> Human())</span></span>;</span><br><span class="line">r-&gt;<span class="built_in">hello</span>();</span><br></pre></td></tr></table></figure>
-<h3 id="tools-klee-klee-工具源码"><a class="header-anchor-1" href="#tools-klee-klee-工具源码">#</a>tools/klee KLEE 工具源码</h3>
-<h4 id="main-主函数"><a class="header-anchor-1" href="#main-主函数">#</a>main 主函数</h4>
-<ul>
-<li>
-<p><code>klee::loadFile</code> 加载输入文件，可以是单个 bitcode(.bc)或者 archive(.a), 得到一组<code>llvm::Module</code></p>
-</li>
-<li>
-<p><code>klee::linkModules</code> 把所有 <code>Module</code> 链接成一整个</p>
-</li>
-<li>
-<p>检查 triple</p>
-</li>
-<li>
-<p>配置 Libcxx, Libc</p>
-</li>
-<li>
-<p>配置程序运行环境: argc, argv, envp</p>
-</li>
-<li>
-<p>创建 <code>Handler</code>, <code>Executor</code> <em>impl</em> <code>Interpreter</code></p>
-</li>
-<li>
-<p><code>externalsAndGlobalsCheck</code> 做检查</p>
-</li>
-<li>
-<p>Replay or 模拟执行</p>
-</li>
-<li>
-<p><code>interpreter</code>-&gt;<code>runFunctionAsMain</code> 开始模拟执行</p>
-</li>
-</ul>
-<h4 id="executor-run-开始"><a class="header-anchor-1" href="#executor-run-开始">#</a><code>Executor::run</code> 开始</h4>
-<ul>
-<li>
-<p><code>usingSeeds</code> 判断</p>
-</li>
-<li>
-<p>主循环</p>
-</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// main interpreter loop</span></span><br><span class="line"><span class="keyword">while</span> (!states.<span class="built_in">empty</span>() &amp;&amp; !haltExecution) &#123;</span><br><span class="line">  ExecutionState &amp;state = searcher-&gt;<span class="built_in">selectState</span>();  <span class="comment">// 选择一个 State</span></span><br><span class="line">  KInstruction *ki = state.pc;  <span class="comment">// 取指令</span></span><br><span class="line">  <span class="built_in">stepInstruction</span>(state);  <span class="comment">// 更新 PC</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">executeInstruction</span>(state, ki);  <span class="comment">// 执行指令</span></span><br><span class="line">  timers.<span class="built_in">invoke</span>();</span><br><span class="line">  <span class="keyword">if</span> (::dumpStates) <span class="built_in">dumpStates</span>();</span><br><span class="line">  <span class="keyword">if</span> (::dumpPTree) <span class="built_in">dumpPTree</span>();</span><br><span class="line"></span><br><span class="line">  <span class="built_in">updateStates</span>(&amp;state);  <span class="comment">// 更新 State</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">checkMemoryUsage</span>()) &#123;</span><br><span class="line">    <span class="comment">// update searchers when states were terminated early due to memory pressure</span></span><br><span class="line">    <span class="built_in">updateStates</span>(<span class="literal">nullptr</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>很清晰的代码, 每次循环选择一个程序 <code>ExecutionState</code>, 执行下条 <code>KInstruction</code>, 更新状态, 然后重复.</p>
-<p>其中 <code>Searcher</code> 实现了探索的策略, <code>klee</code> 中有多种实现, 如 <code>BFS</code>/<code>DFS</code>/<code>Random</code> 等</p>
-<h4 id="程序状态-executionstate-stackframe"><a class="header-anchor-1" href="#程序状态-executionstate-stackframe">#</a>程序状态 <code>ExecutionState</code>, <code>StackFrame</code></h4>
-<p>执行状态, 包括栈帧</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ExecutionState</span> &#123;</span><br><span class="line">  <span class="comment">/// @brief Pointer to instruction to be executed after the current</span></span><br><span class="line">  <span class="comment">/// instruction</span></span><br><span class="line">  KInstIterator pc;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// @brief Stack representing the current instruction stream</span></span><br><span class="line">  std::vector&lt;StackFrame&gt; stack;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>栈帧里面包含 <code>locals</code>, 是一堆预分配的 <code>Cell</code>, 数量等于函数参数+指令总数</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">StackFrame</span> &#123;</span><br><span class="line">  KInstIterator caller;</span><br><span class="line">  KFunction *kf;</span><br><span class="line">  CallPathNode *callPathNode;</span><br><span class="line"></span><br><span class="line">  std::vector&lt;<span class="type">const</span> MemoryObject *&gt; allocas;</span><br><span class="line">  Cell *locals;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p><code>Cell</code> 即对 <code>Expr</code> 的引用</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">namespace</span> klee &#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">Cell</span> &#123;</span><br><span class="line">    ref&lt;Expr&gt; value;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="executor-executeinstruction-开始"><a class="header-anchor-1" href="#executor-executeinstruction-开始">#</a><code>Executor::executeInstruction</code> 开始</h4>
-<p>根据指令 opcode 对应处理</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">case</span> Instruction::Ret:</span><br><span class="line">      <span class="comment">// 求解return返回的值</span></span><br><span class="line">      result = <span class="built_in">eval</span>(ki, <span class="number">0</span>, state).value;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 考虑是否需要进行 coercion</span></span><br><span class="line"></span><br><span class="line">      <span class="comment">// bindLocal caller指令 的 dest cell 的 value</span></span><br><span class="line">      <span class="built_in">bindLocal</span>(kcaller, state, result);</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> Instruction::Br:</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> Instruction::IndirectBr:</span><br><span class="line"><span class="keyword">case</span> Instruction::Switch:</span><br><span class="line"><span class="keyword">case</span> Instruction::Unreachable:</span><br><span class="line"><span class="keyword">case</span> Instruction::Invoke:</span><br><span class="line"><span class="keyword">case</span> Instruction::Call:</span><br><span class="line"><span class="keyword">case</span> Instruction::PHI:</span><br><span class="line"><span class="keyword">case</span> Instruction::Select:</span><br><span class="line"><span class="keyword">case</span> Instruction::VAArg:</span><br><span class="line"><span class="keyword">case</span> Instruction::Add:</span><br><span class="line"><span class="keyword">case</span> Instruction::Sub:</span><br><span class="line"><span class="keyword">case</span> Instruction::Mul:</span><br><span class="line"><span class="keyword">case</span> Instruction::UDiv:</span><br><span class="line"><span class="keyword">case</span> Instruction::SDiv:</span><br><span class="line"><span class="keyword">case</span> Instruction::URem:</span><br><span class="line"><span class="keyword">case</span> Instruction::SRem:</span><br><span class="line"><span class="keyword">case</span> Instruction::And:</span><br><span class="line"><span class="keyword">case</span> Instruction::Or:</span><br><span class="line"><span class="keyword">case</span> Instruction::Xor:</span><br><span class="line"><span class="keyword">case</span> Instruction::Shl:</span><br><span class="line"><span class="keyword">case</span> Instruction::LShr:</span><br><span class="line"><span class="keyword">case</span> Instruction::AShr:</span><br><span class="line"><span class="keyword">case</span> Instruction::ICmp:</span><br><span class="line"><span class="keyword">case</span> Instruction::Alloca:</span><br><span class="line"><span class="keyword">case</span> Instruction::Load:</span><br><span class="line"><span class="keyword">case</span> Instruction::Store:</span><br><span class="line"><span class="keyword">case</span> Instruction::GetElementPtr:</span><br><span class="line"><span class="keyword">case</span> Instruction::Trunc:</span><br><span class="line"><span class="keyword">case</span> Instruction::ZExt:</span><br><span class="line"><span class="keyword">case</span> Instruction::SExt:</span><br><span class="line"><span class="keyword">case</span> Instruction::IntToPtr:</span><br><span class="line"><span class="keyword">case</span> Instruction::PtrToInt:</span><br><span class="line"><span class="keyword">case</span> Instruction::BitCast:</span><br><span class="line"><span class="keyword">case</span> Instruction::FNeg:</span><br><span class="line"><span class="keyword">case</span> Instruction::FAdd:</span><br><span class="line"><span class="keyword">case</span> Instruction::FSub:</span><br><span class="line"><span class="keyword">case</span> Instruction::FMul:</span><br><span class="line"><span class="keyword">case</span> Instruction::FDiv:</span><br><span class="line"><span class="keyword">case</span> Instruction::FRem:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPTrunc:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPExt:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPToUI:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPToSI:</span><br><span class="line"><span class="keyword">case</span> Instruction::UIToFP:</span><br><span class="line"><span class="keyword">case</span> Instruction::SIToFP:</span><br><span class="line"><span class="keyword">case</span> Instruction::FCmp:</span><br><span class="line"><span class="keyword">case</span> Instruction::InsertValue:</span><br><span class="line"><span class="keyword">case</span> Instruction::ExtractValue:</span><br><span class="line"><span class="keyword">case</span> Instruction::Fence:</span><br><span class="line"><span class="keyword">case</span> Instruction::InsertElement:</span><br><span class="line"><span class="keyword">case</span> Instruction::ExtractElement:</span><br><span class="line"><span class="keyword">case</span> Instruction::ShuffleVector:</span><br><span class="line"><span class="keyword">case</span> Instruction::Resume:</span><br><span class="line"><span class="keyword">case</span> Instruction::LandingPad:</span><br><span class="line"><span class="keyword">case</span> Instruction::AtomicRMW:</span><br><span class="line"><span class="keyword">case</span> Instruction::AtomicCmpXchg:</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>program-analysis</category>
-        <category>software-test</category>
-      </categories>
-      <tags>
-        <tag>Program Analysis</tag>
       </tags>
   </entry>
   <entry>
