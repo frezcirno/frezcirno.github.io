@@ -3008,10 +3008,39 @@ SNMP: 161/162</p>
 <p>Harris’s Sorted Linked List<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> 是一种无锁、有序单链表实现。</p>
 <p>数据结构:</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Node</span>&lt;KeyType&gt; &#123;</span><br><span class="line">    KeyType key;</span><br><span class="line">    Node *next;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">Node</span> (KeyType key) &#123;</span><br><span class="line">        <span class="keyword">this</span>.key = key;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">List</span>&lt;KeyType&gt; &#123;</span><br><span class="line">    Node&lt;KeyType&gt; *head;</span><br><span class="line">    Node&lt;KeyType&gt; *tail;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">List</span>() &#123;</span><br><span class="line">        head = <span class="keyword">new</span> <span class="built_in">Node</span>&lt;KeyType&gt; ();</span><br><span class="line">        tail = <span class="keyword">new</span> <span class="built_in">Node</span>&lt;KeyType&gt; ();</span><br><span class="line">        head.next = tail;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用逻辑删除来实现删除操作，即不真正删除节点，而是将节点标记为已删除。</p>
+<p>完整回收实现需要结合 Hazard Pointers 等内存回收算法使用。</p>
 <h2 id="memory-reclamation-algorithms-in-lock-free-data-structures"><a class="header-anchor-1" href="#memory-reclamation-algorithms-in-lock-free-data-structures">#</a>Memory Reclamation Algorithms In Lock-free Data Structures</h2>
+<h3 id="reference-counting"><a class="header-anchor-1" href="#reference-counting">#</a>Reference Counting</h3>
+<p>Reference Counting 是最容易想到的一种方案，但是仔细想想，需要同时原子地更新指针和引用计数，需要特殊的硬件指令支持，因此在实际中很少使用。</p>
 <h3 id="read-copy-update-rcu"><a class="header-anchor-1" href="#read-copy-update-rcu">#</a>Read-Copy-Update (RCU)</h3>
+<p>RCU 的思想是，在不会存在并发执行的、合适的时间点（例如，无中断的情况下）统一执行删除操作。</p>
 <h3 id="hazard-pointers"><a class="header-anchor-1" href="#hazard-pointers">#</a>Hazard Pointers</h3>
-<p>Hazard Pointers<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup> 是一种在 Lock-free Data Structures 中使用的内存回收算法，主要用于解决无锁数据结构中的内存何时回收的问题。</p>
+<p>Hazard Pointers<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup> 是一种在 Lock-free Data Structures 中使用的内存回收算法，主要用于解决无锁数据结构中，插入和删除操作可以并发执行的情况下，删除的内存何时回收的问题。</p>
+<p>Hazard Pointers 数据结构:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">class</span> <span class="title">alignas</span><span class="params">(hardware_destructive_interference_size)</span> hazptr_rec </span>&#123;</span><br><span class="line">  std::atomic&lt;<span class="type">const</span> <span class="type">void</span>*&gt; hazptr_&#123;<span class="literal">nullptr</span>&#125;; <span class="comment">// the hazard pointer</span></span><br><span class="line">  hazptr_rec* next_; <span class="comment">// Next in the main hazard pointer list. Immutable.</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">thread_local</span> std::vector&lt;hazptr_rec&gt; retired_list; <span class="comment">// 线程本地回收列表</span></span><br></pre></td></tr></table></figure>
+<p>Hazard Pointers 读操作:</p>
+<ol>
+<li>从 hprec 列表中获取一个空闲的 hprec。</li>
+<li>令 hprec 的 hazptr 字段指向要保护的对象。
+<ol>
+<li>读取被保护的对象。</li>
+</ol>
+</li>
+<li>读取完成后，令 hprec 的 hazptr=nullptr。</li>
+</ol>
+<p>Hazard Pointers 写操作:</p>
+<ol>
+<li>创建一个新的 hprec，hazptr 字段指向新版本的对象节点。</li>
+<li>将新的 hprec 通过 CAS 插入到链表中。</li>
+<li>如果不成功，则回到第 1 步重试。</li>
+<li>将 CAS 得到的旧版本 hprec 添加到 thread-local 的 retired_list 中。</li>
+</ol>
+<p>Hazard Pointers 回收算法:</p>
+<ol>
+<li>扫描 thread-local 的 retired_list，获取所有数据非空的 hprec。</li>
+<li>将 retired_list 中的对象节点回收。</li>
+</ol>
 <h3 id="epoch-based-reclamation"><a class="header-anchor-1" href="#epoch-based-reclamation">#</a>Epoch-Based Reclamation</h3>
 <hr class="footnotes-sep" />
 <section class="footnotes">
@@ -14291,459 +14320,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>电子电路基础</title>
-    <url>/2024/09/12/basic/</url>
-    <content><![CDATA[<h2 id="基本概念"><a class="header-anchor-1" href="#基本概念">#</a>基本概念</h2>
-<ul>
-<li>电荷 Q 单位库伦 C</li>
-<li>电场</li>
-<li>电流
-<ul>
-<li>1A = 1C/s</li>
-<li>电流方向
-<ul>
-<li>直流电流 DC</li>
-<li>交流电流 AC</li>
-<li>混合电流: 直流分量=平均值, 交流分量=偏离值</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>基尔霍夫电流定律 KCL</li>
-<li>电压定律</li>
-<li>电动势 单位伏特 V
-<ul>
-<li>描述其他能量形式转化为电能的能力</li>
-</ul>
-</li>
-<li>电源 提供电动势
-<ul>
-<li>恒压源</li>
-<li>恒流源</li>
-<li>信号源</li>
-</ul>
-</li>
-<li>电压 单位伏特 V
-<ul>
-<li>描述两点之间的电位差</li>
-<li>描述电能转化为其他能量形式的能力</li>
-<li>1V = 1J/C</li>
-<li>电位=对地电压
-<ul>
-<li>参考地 G 电位为 0</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>功率 P
-<ul>
-<li>电路释放能量的速率</li>
-<li>1W = 1J/s = 1V*A</li>
-<li>P&lt;0 表示电路从外界吸收能量 释放电压和电流
-<ul>
-<li>例如 电容 电感</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>信号
-<ul>
-<li>带有信号的随时间空间变化的电压或电流</li>
-<li>确定性信号</li>
-<li>随机信号</li>
-<li>伪随机信号</li>
-</ul>
-</li>
-</ul>
-<h2 id="电容"><a class="header-anchor-1" href="#电容">#</a>电容</h2>
-<ul>
-<li>单位
-<ul>
-<li>法拉 F</li>
-<li>1F = 1C/V</li>
-<li>物理意义: 电容器两极板上的电荷量与电压之比</li>
-</ul>
-</li>
-<li>时间常数
-<ul>
-<li>电容器充放电时间常数 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi><mo>=</mo><mi>R</mi><mo>∗</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">\tau = R*C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span></span></span></span></li>
-<li>物理意义: 电容器充电到额定电压的 63.2% 所需时间</li>
-<li>一般取 5<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi></mrow><annotation encoding="application/x-tex">\tau</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span></span></span> 为充放电时间</li>
-</ul>
-</li>
-<li>注意事项
-<ul>
-<li>高耐压电容充满电后 不能上手触摸 有触电危险</li>
-<li>泄放电阻(bleeder resistor): 并联在电容器上的大电阻 用于释放电容器上的电荷</li>
-<li>使用前应先放电</li>
-</ul>
-</li>
-</ul>
-<h2 id="半导体"><a class="header-anchor-1" href="#半导体">#</a>半导体</h2>
-<ul>
-<li>本征半导体</li>
-<li>掺杂半导体
-<ul>
-<li>N 型半导体</li>
-<li>P 型半导体</li>
-</ul>
-</li>
-</ul>
-<h2 id="二极管"><a class="header-anchor-1" href="#二极管">#</a>二极管</h2>
-<ul>
-<li>特性
-<ul>
-<li>正向低电压：不导通，死区</li>
-<li>正向高电压：导通</li>
-<li>反向低电压：不导通</li>
-<li>反向高电压：击穿</li>
-</ul>
-</li>
-<li>主要参数
-<ul>
-<li>阈值电压: 硅 0.5V 锗 0.1V</li>
-<li>正向电压降 Vf: 硅 0.7V 锗 0.2V</li>
-<li>最大整流电流 Ir: 可稳定工作的最大正向电流</li>
-<li>反向击穿电压 Vr</li>
-<li>反向峰值电压 VRM: 可稳定工作的最大反向电压，一般为 Vr 的 1/2</li>
-<li>反向峰值电流 IR: 反向峰值电压时的电流</li>
-</ul>
-</li>
-<li>理想二极管模型
-<ul>
-<li>正向导通 电压降为 0</li>
-<li>反向不导通 电流为 0</li>
-</ul>
-</li>
-<li>温度特性</li>
-<li>应用
-<ul>
-<li>限幅</li>
-<li>钳位电路: 结合电容</li>
-</ul>
-</li>
-<li>稳压二极管
-<ul>
-<li>特点: 反向击穿后, 不管反向电流怎么增加, 电压基本不变</li>
-<li>用法: 反向并联在负载上</li>
-<li>作用: 保护电路不受过高电压的影响</li>
-<li>主要参数
-<ul>
-<li>稳定电压 Vz</li>
-<li>稳定电流 Iz</li>
-<li>动态电阻 rz</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="三极管-bjt"><a class="header-anchor-1" href="#三极管-bjt">#</a>三极管 BJT</h2>
-<ul>
-<li>结构
-<ul>
-<li>集电极 Collector</li>
-<li>发射极 Emitter</li>
-<li>基极 Base</li>
-</ul>
-</li>
-<li>类型
-<ul>
-<li>NPN</li>
-<li>PNP</li>
-</ul>
-</li>
-<li>特性
-<ul>
-<li>输入特性
-<ul>
-<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>i</mi><mi>B</mi></msub><mo>=</mo><mi>f</mi><mo stretchy="false">(</mo><msub><mi>v</mi><mrow><mi>B</mi><mi>E</mi></mrow></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">i_B = f(v_{BE})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8095em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">BE</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></li>
-</ul>
-</li>
-<li>输出特性</li>
-</ul>
-</li>
-<li>应用
-<ul>
-<li>作为开关</li>
-<li>作为放大器</li>
-</ul>
-</li>
-</ul>
-<h2 id="电路系统"><a class="header-anchor-1" href="#电路系统">#</a>电路系统</h2>
-<ul>
-<li>系统属性
-<ul>
-<li>线性/非线性: 线性系统满足叠加性和均匀性
-<ul>
-<li>叠加性 f(x1+x2) = f(x1) + f(x2)</li>
-<li>均匀性 f(ax) = af(x)</li>
-</ul>
-</li>
-<li>时变/时不变: 时变系统的输出取决于输入信号的时间
-<ul>
-<li>f(x(t)) = y(t) != f(x(t-t0)) = y(t-t0)</li>
-</ul>
-</li>
-<li>记忆/无记忆: 记忆系统的输出取决于输入信号的历史
-<ul>
-<li>记忆: 电容</li>
-<li>无记忆: 电阻</li>
-</ul>
-</li>
-<li>线性时不变(Linear Time-Invariant, LTI)系统</li>
-</ul>
-</li>
-<li>黑箱、端口与网络
-<ul>
-<li>端点: 从电路网络中引出的一个点 用于测量或者构建更大的网络</li>
-<li>端口: 电流始终相反的一对端点 (其中的部分当成一个黑箱)</li>
-<li>端口条件: 一个电路系统只有能够定义出端口，才能够套用电路模型分析; 否则只能用电磁场方程求解</li>
-<li>多端口网络: 一个网络中有多个端口
-<ul>
-<li>一般有一个接地端点</li>
-</ul>
-</li>
-<li>电路功能一般是通过端口电量关系方程描述的
-<ul>
-<li>流控网络: 电压随电流按固定规律变化 因此通过改变电流控制电路</li>
-<li>压控网络: 电流随电压按固定规律变化 因此通过改变电压控制电路</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>端口连接
-<ul>
-<li>串联: 电流相同 电压相加</li>
-<li>并联: 电压相同 电流相加</li>
-<li>对接: 电压电流都相同</li>
-</ul>
-</li>
-<li>有源(active)网络: 能够自端口向外提供电能量
-<ul>
-<li>太阳能二极管</li>
-<li>初始 v&gt;0 的电容</li>
-<li>初始 i&gt;0 的电感</li>
-<li>否则是 无源(passive)网络</li>
-</ul>
-</li>
-<li>理想电源
-<ul>
-<li>理想电压源: 电压不随电流变化 v(t) = V</li>
-<li>理想电流源: 电流不随电压变化 i(t) = I</li>
-<li>理想电阻 i(t) = v(t)/R</li>
-<li>电导 G = 1/R</li>
-</ul>
-</li>
-<li>线性内阻电源 真实电源的简化模型
-<ul>
-<li>元件约束条件 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><msub><mi>I</mi><mrow><mi>S</mi><mn>0</mn></mrow></msub></mfrac><mo>+</mo><mfrac><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><msub><mi>V</mi><mrow><mi>S</mi><mn>0</mn></mrow></msub></mfrac><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\frac{i(t)}{I_{S0}} + \frac{v(t)}{V_{S0}} = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.4553em;vertical-align:-0.4453em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4453em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.4553em;vertical-align:-0.4453em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4453em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span></li>
-<li>正弦波电源 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><msub><mi>I</mi><mrow><mi>S</mi><mi>p</mi></mrow></msub></mfrac><mo>+</mo><mfrac><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><msub><mi>V</mi><mrow><mi>S</mi><mi>p</mi></mrow></msub></mfrac><mo>=</mo><mi>c</mi><mi>o</mi><mi>s</mi><mo stretchy="false">(</mo><mi>ω</mi><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\frac{i(t)}{I_{Sp}} + \frac{v(t)}{V_{Sp}} = cos(\omega t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.5525em;vertical-align:-0.5425em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">Sp</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2822em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5425em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.5525em;vertical-align:-0.5425em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">Sp</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2822em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5425em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">cos</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></li>
-<li>电压源(戴维南形式) <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>V</mi><mrow><mi>S</mi><mn>0</mn></mrow></msub><mo>+</mo><mi>R</mi><mo>∗</mo><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">v(t) = V_{S0} + R*i(t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></li>
-<li>电流源(诺顿形式) <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>I</mi><mrow><mi>S</mi><mn>0</mn></mrow></msub><mo>−</mo><mfrac><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mi>R</mi></mfrac></mrow><annotation encoding="application/x-tex">i(t) = I_{S0} - \frac{v(t)}{R}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.355em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.00773em;">R</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></li>
-<li>等效电路</li>
-</ul>
-</li>
-<li>等效电阻
-<ul>
-<li>短路 v(t)=0</li>
-<li>开路 i(t)=0</li>
-<li>开关 关闭时相当于短路，开启时相当于开路</li>
-<li>受控开关 有两个端口 端口 1 控制端口 2 的导通
-<ul>
-<li>逆变器 直流电源转交流电源</li>
-<li>整流器 交流电源转直流电源</li>
-</ul>
-</li>
-<li>二极管
-<ul>
-<li>正向 i 随 v 接近指数增长</li>
-<li>简化模型相当于受控开关 或者两段折线</li>
-<li>分析方法 图解法</li>
-</ul>
-</li>
-<li>负阻二极管
-<ul>
-<li>隧道二极管</li>
-<li>肖克利二极管</li>
-</ul>
-</li>
-<li>晶体管
-<ul>
-<li>非线性三端元件: 栅极 Gate 漏级 Drain 源级 Source</li>
-<li>压控电阻特性 G 段电压控制 D-S 电阻</li>
-<li>反相电路</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>电源
-<ul>
-<li>发电机 恒压源</li>
-<li>直流电池 近似恒压源</li>
-<li>太阳能电池 恒流源</li>
-<li>光电二极管 信号源</li>
-<li>接收天线 信号源</li>
-<li>信号发生器</li>
-<li>噪声源
-<ul>
-<li>电阻热噪声</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="电路基本定律和定理"><a class="header-anchor-1" href="#电路基本定律和定理">#</a>电路基本定律和定理</h2>
-<ul>
-<li>基尔霍夫定律
-<ul>
-<li>电流 节点流入=流出 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msub><mi>i</mi><mi>k</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\sum_{k=1}^{n}i_k = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.104em;vertical-align:-0.2997em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8043em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></li>
-<li>电压 环路电压总和=0 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msub><mi>v</mi><mi>k</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\sum_{k=1}^{n}v_k = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.104em;vertical-align:-0.2997em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8043em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></li>
-</ul>
-</li>
-<li>戴维南定理 包含独立电源的单端口线性电路 等效于 一个恒压源串联一个电阻</li>
-<li>诺顿定理 包含独立电源的单端口线性电路 等效于 一个恒流源并联一个电阻</li>
-</ul>
-<h2 id="电路元件"><a class="header-anchor-1" href="#电路元件">#</a>电路元件</h2>
-<ul>
-<li>电阻
-<ul>
-<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>R</mi><mo>∗</mo><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">u(t) = R*i(t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">u</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></li>
-</ul>
-</li>
-<li>二极管
-<ul>
-<li>PN 结 阳极 阴极</li>
-<li>正向 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>I</mi><mi>s</mi></msub><mo stretchy="false">(</mo><msup><mi>e</mi><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><msub><mi>V</mi><mi>T</mi></msub></mrow></msup><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">i(t) = I_s(e^{v(t)/V_T}-1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.138em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">s</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span><span class="mord mtight">/</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span></span></span></span>
-<ul>
-<li>电压超过门槛值时导通 导通后电流随电压指数增长</li>
-</ul>
-</li>
-<li>反向几乎不导通 超出反向击穿电压后导通
-<ul>
-<li>作为稳压二极管</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>电容
-<ul>
-<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>C</mi><mo>∗</mo><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">q(t) = C*v(t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></li>
-</ul>
-</li>
-</ul>
-<h2 id="模拟电路"><a class="header-anchor-1" href="#模拟电路">#</a>模拟电路</h2>
-<ul>
-<li>按照关系
-<ul>
-<li>线性电路</li>
-<li>非线性电路</li>
-</ul>
-</li>
-<li>按照功能
-<ul>
-<li>放大</li>
-<li>滤波</li>
-<li>比较</li>
-<li>混频</li>
-<li>电源管理</li>
-<li>信号处理</li>
-</ul>
-</li>
-</ul>
-<h2 id="放大电路"><a class="header-anchor-1" href="#放大电路">#</a>放大电路</h2>
-<ul>
-<li>功能: 放大输入信号的幅度以便后续处理</li>
-<li>应用: 构成滤波、振荡、稳压等功能电路的基本单元电路</li>
-<li>分类
-<ul>
-<li>线性/非线性放大电路</li>
-<li>电压/电流/…放大电路</li>
-</ul>
-</li>
-<li>电路图标识: 三角符号
-<ul>
-<li>信号输入</li>
-<li>信号输出</li>
-<li>工作电源</li>
-</ul>
-</li>
-<li>基本模型
-<ul>
-<li>电压放大</li>
-<li>电流放大</li>
-<li>互阻放大</li>
-<li>互导放大</li>
-</ul>
-</li>
-<li>分析方法
-<ul>
-<li>戴维南模型</li>
-<li>诺顿模型</li>
-</ul>
-</li>
-<li>性能指标
-<ul>
-<li>输入电阻</li>
-<li>输出电阻</li>
-<li>增益 电压增益 电流增益 单位分贝</li>
-<li>频率响应
-<ul>
-<li>幅频响应 相频响应</li>
-<li>通频带</li>
-<li>线性失真: 幅度失真 相位失真</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>多级放大电路
-<ul>
-<li>电路分析</li>
-</ul>
-</li>
-<li>集成运放: 高增益 低输入输出阻抗
-<ul>
-<li>电压传输特性</li>
-<li>负反馈电路: 降低增益 提高稳定性
-<ul>
-<li>输出处理后反馈到输入端</li>
-<li>负反馈: 实现振荡器</li>
-</ul>
-</li>
-<li>内部结构
-<ul>
-<li>差分放大电路</li>
-<li>共模抑制: 抑制共模信号(一般是噪声或者零点漂移)</li>
-<li>功率放大电路</li>
-<li>静态分析</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>理想运放</li>
-<li>应用
-<ul>
-<li>比例放大</li>
-<li>加减运算</li>
-<li>积分微分</li>
-<li>电压比较器</li>
-<li>波形发生器</li>
-</ul>
-</li>
-</ul>
-<h2 id="振荡电路"><a class="header-anchor-1" href="#振荡电路">#</a>振荡电路</h2>
-<ul>
-<li>多谐振荡器: 用来产生在两种状态间变化的系统</li>
-</ul>
-]]></content>
-      <categories>
-        <category>misc</category>
-        <category>electronic</category>
-      </categories>
-      <tags>
-        <tag>电子电路</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>软考高级系统架构设计师笔记</title>
     <url>/2025/03/14/note/</url>
     <content><![CDATA[<h2 id="考试安排"><a class="header-anchor-1" href="#考试安排">#</a>考试安排</h2>
@@ -15732,6 +15308,459 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
       </tags>
   </entry>
   <entry>
+    <title>电子电路基础</title>
+    <url>/2024/09/12/basic/</url>
+    <content><![CDATA[<h2 id="基本概念"><a class="header-anchor-1" href="#基本概念">#</a>基本概念</h2>
+<ul>
+<li>电荷 Q 单位库伦 C</li>
+<li>电场</li>
+<li>电流
+<ul>
+<li>1A = 1C/s</li>
+<li>电流方向
+<ul>
+<li>直流电流 DC</li>
+<li>交流电流 AC</li>
+<li>混合电流: 直流分量=平均值, 交流分量=偏离值</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>基尔霍夫电流定律 KCL</li>
+<li>电压定律</li>
+<li>电动势 单位伏特 V
+<ul>
+<li>描述其他能量形式转化为电能的能力</li>
+</ul>
+</li>
+<li>电源 提供电动势
+<ul>
+<li>恒压源</li>
+<li>恒流源</li>
+<li>信号源</li>
+</ul>
+</li>
+<li>电压 单位伏特 V
+<ul>
+<li>描述两点之间的电位差</li>
+<li>描述电能转化为其他能量形式的能力</li>
+<li>1V = 1J/C</li>
+<li>电位=对地电压
+<ul>
+<li>参考地 G 电位为 0</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>功率 P
+<ul>
+<li>电路释放能量的速率</li>
+<li>1W = 1J/s = 1V*A</li>
+<li>P&lt;0 表示电路从外界吸收能量 释放电压和电流
+<ul>
+<li>例如 电容 电感</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>信号
+<ul>
+<li>带有信号的随时间空间变化的电压或电流</li>
+<li>确定性信号</li>
+<li>随机信号</li>
+<li>伪随机信号</li>
+</ul>
+</li>
+</ul>
+<h2 id="电容"><a class="header-anchor-1" href="#电容">#</a>电容</h2>
+<ul>
+<li>单位
+<ul>
+<li>法拉 F</li>
+<li>1F = 1C/V</li>
+<li>物理意义: 电容器两极板上的电荷量与电压之比</li>
+</ul>
+</li>
+<li>时间常数
+<ul>
+<li>电容器充放电时间常数 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi><mo>=</mo><mi>R</mi><mo>∗</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">\tau = R*C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span></span></span></span></li>
+<li>物理意义: 电容器充电到额定电压的 63.2% 所需时间</li>
+<li>一般取 5<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi></mrow><annotation encoding="application/x-tex">\tau</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span></span></span> 为充放电时间</li>
+</ul>
+</li>
+<li>注意事项
+<ul>
+<li>高耐压电容充满电后 不能上手触摸 有触电危险</li>
+<li>泄放电阻(bleeder resistor): 并联在电容器上的大电阻 用于释放电容器上的电荷</li>
+<li>使用前应先放电</li>
+</ul>
+</li>
+</ul>
+<h2 id="半导体"><a class="header-anchor-1" href="#半导体">#</a>半导体</h2>
+<ul>
+<li>本征半导体</li>
+<li>掺杂半导体
+<ul>
+<li>N 型半导体</li>
+<li>P 型半导体</li>
+</ul>
+</li>
+</ul>
+<h2 id="二极管"><a class="header-anchor-1" href="#二极管">#</a>二极管</h2>
+<ul>
+<li>特性
+<ul>
+<li>正向低电压：不导通，死区</li>
+<li>正向高电压：导通</li>
+<li>反向低电压：不导通</li>
+<li>反向高电压：击穿</li>
+</ul>
+</li>
+<li>主要参数
+<ul>
+<li>阈值电压: 硅 0.5V 锗 0.1V</li>
+<li>正向电压降 Vf: 硅 0.7V 锗 0.2V</li>
+<li>最大整流电流 Ir: 可稳定工作的最大正向电流</li>
+<li>反向击穿电压 Vr</li>
+<li>反向峰值电压 VRM: 可稳定工作的最大反向电压，一般为 Vr 的 1/2</li>
+<li>反向峰值电流 IR: 反向峰值电压时的电流</li>
+</ul>
+</li>
+<li>理想二极管模型
+<ul>
+<li>正向导通 电压降为 0</li>
+<li>反向不导通 电流为 0</li>
+</ul>
+</li>
+<li>温度特性</li>
+<li>应用
+<ul>
+<li>限幅</li>
+<li>钳位电路: 结合电容</li>
+</ul>
+</li>
+<li>稳压二极管
+<ul>
+<li>特点: 反向击穿后, 不管反向电流怎么增加, 电压基本不变</li>
+<li>用法: 反向并联在负载上</li>
+<li>作用: 保护电路不受过高电压的影响</li>
+<li>主要参数
+<ul>
+<li>稳定电压 Vz</li>
+<li>稳定电流 Iz</li>
+<li>动态电阻 rz</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="三极管-bjt"><a class="header-anchor-1" href="#三极管-bjt">#</a>三极管 BJT</h2>
+<ul>
+<li>结构
+<ul>
+<li>集电极 Collector</li>
+<li>发射极 Emitter</li>
+<li>基极 Base</li>
+</ul>
+</li>
+<li>类型
+<ul>
+<li>NPN</li>
+<li>PNP</li>
+</ul>
+</li>
+<li>特性
+<ul>
+<li>输入特性
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>i</mi><mi>B</mi></msub><mo>=</mo><mi>f</mi><mo stretchy="false">(</mo><msub><mi>v</mi><mrow><mi>B</mi><mi>E</mi></mrow></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">i_B = f(v_{BE})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8095em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">BE</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></li>
+</ul>
+</li>
+<li>输出特性</li>
+</ul>
+</li>
+<li>应用
+<ul>
+<li>作为开关</li>
+<li>作为放大器</li>
+</ul>
+</li>
+</ul>
+<h2 id="电路系统"><a class="header-anchor-1" href="#电路系统">#</a>电路系统</h2>
+<ul>
+<li>系统属性
+<ul>
+<li>线性/非线性: 线性系统满足叠加性和均匀性
+<ul>
+<li>叠加性 f(x1+x2) = f(x1) + f(x2)</li>
+<li>均匀性 f(ax) = af(x)</li>
+</ul>
+</li>
+<li>时变/时不变: 时变系统的输出取决于输入信号的时间
+<ul>
+<li>f(x(t)) = y(t) != f(x(t-t0)) = y(t-t0)</li>
+</ul>
+</li>
+<li>记忆/无记忆: 记忆系统的输出取决于输入信号的历史
+<ul>
+<li>记忆: 电容</li>
+<li>无记忆: 电阻</li>
+</ul>
+</li>
+<li>线性时不变(Linear Time-Invariant, LTI)系统</li>
+</ul>
+</li>
+<li>黑箱、端口与网络
+<ul>
+<li>端点: 从电路网络中引出的一个点 用于测量或者构建更大的网络</li>
+<li>端口: 电流始终相反的一对端点 (其中的部分当成一个黑箱)</li>
+<li>端口条件: 一个电路系统只有能够定义出端口，才能够套用电路模型分析; 否则只能用电磁场方程求解</li>
+<li>多端口网络: 一个网络中有多个端口
+<ul>
+<li>一般有一个接地端点</li>
+</ul>
+</li>
+<li>电路功能一般是通过端口电量关系方程描述的
+<ul>
+<li>流控网络: 电压随电流按固定规律变化 因此通过改变电流控制电路</li>
+<li>压控网络: 电流随电压按固定规律变化 因此通过改变电压控制电路</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>端口连接
+<ul>
+<li>串联: 电流相同 电压相加</li>
+<li>并联: 电压相同 电流相加</li>
+<li>对接: 电压电流都相同</li>
+</ul>
+</li>
+<li>有源(active)网络: 能够自端口向外提供电能量
+<ul>
+<li>太阳能二极管</li>
+<li>初始 v&gt;0 的电容</li>
+<li>初始 i&gt;0 的电感</li>
+<li>否则是 无源(passive)网络</li>
+</ul>
+</li>
+<li>理想电源
+<ul>
+<li>理想电压源: 电压不随电流变化 v(t) = V</li>
+<li>理想电流源: 电流不随电压变化 i(t) = I</li>
+<li>理想电阻 i(t) = v(t)/R</li>
+<li>电导 G = 1/R</li>
+</ul>
+</li>
+<li>线性内阻电源 真实电源的简化模型
+<ul>
+<li>元件约束条件 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><msub><mi>I</mi><mrow><mi>S</mi><mn>0</mn></mrow></msub></mfrac><mo>+</mo><mfrac><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><msub><mi>V</mi><mrow><mi>S</mi><mn>0</mn></mrow></msub></mfrac><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\frac{i(t)}{I_{S0}} + \frac{v(t)}{V_{S0}} = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.4553em;vertical-align:-0.4453em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4453em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.4553em;vertical-align:-0.4453em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4453em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span></li>
+<li>正弦波电源 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><msub><mi>I</mi><mrow><mi>S</mi><mi>p</mi></mrow></msub></mfrac><mo>+</mo><mfrac><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><msub><mi>V</mi><mrow><mi>S</mi><mi>p</mi></mrow></msub></mfrac><mo>=</mo><mi>c</mi><mi>o</mi><mi>s</mi><mo stretchy="false">(</mo><mi>ω</mi><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\frac{i(t)}{I_{Sp}} + \frac{v(t)}{V_{Sp}} = cos(\omega t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.5525em;vertical-align:-0.5425em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">Sp</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2822em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5425em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.5525em;vertical-align:-0.5425em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">Sp</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2822em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5425em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">cos</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></li>
+<li>电压源(戴维南形式) <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>V</mi><mrow><mi>S</mi><mn>0</mn></mrow></msub><mo>+</mo><mi>R</mi><mo>∗</mo><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">v(t) = V_{S0} + R*i(t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></li>
+<li>电流源(诺顿形式) <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>I</mi><mrow><mi>S</mi><mn>0</mn></mrow></msub><mo>−</mo><mfrac><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mi>R</mi></mfrac></mrow><annotation encoding="application/x-tex">i(t) = I_{S0} - \frac{v(t)}{R}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.355em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.00773em;">R</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></li>
+<li>等效电路</li>
+</ul>
+</li>
+<li>等效电阻
+<ul>
+<li>短路 v(t)=0</li>
+<li>开路 i(t)=0</li>
+<li>开关 关闭时相当于短路，开启时相当于开路</li>
+<li>受控开关 有两个端口 端口 1 控制端口 2 的导通
+<ul>
+<li>逆变器 直流电源转交流电源</li>
+<li>整流器 交流电源转直流电源</li>
+</ul>
+</li>
+<li>二极管
+<ul>
+<li>正向 i 随 v 接近指数增长</li>
+<li>简化模型相当于受控开关 或者两段折线</li>
+<li>分析方法 图解法</li>
+</ul>
+</li>
+<li>负阻二极管
+<ul>
+<li>隧道二极管</li>
+<li>肖克利二极管</li>
+</ul>
+</li>
+<li>晶体管
+<ul>
+<li>非线性三端元件: 栅极 Gate 漏级 Drain 源级 Source</li>
+<li>压控电阻特性 G 段电压控制 D-S 电阻</li>
+<li>反相电路</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>电源
+<ul>
+<li>发电机 恒压源</li>
+<li>直流电池 近似恒压源</li>
+<li>太阳能电池 恒流源</li>
+<li>光电二极管 信号源</li>
+<li>接收天线 信号源</li>
+<li>信号发生器</li>
+<li>噪声源
+<ul>
+<li>电阻热噪声</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="电路基本定律和定理"><a class="header-anchor-1" href="#电路基本定律和定理">#</a>电路基本定律和定理</h2>
+<ul>
+<li>基尔霍夫定律
+<ul>
+<li>电流 节点流入=流出 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msub><mi>i</mi><mi>k</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\sum_{k=1}^{n}i_k = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.104em;vertical-align:-0.2997em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8043em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></li>
+<li>电压 环路电压总和=0 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msub><mi>v</mi><mi>k</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\sum_{k=1}^{n}v_k = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.104em;vertical-align:-0.2997em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8043em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></li>
+</ul>
+</li>
+<li>戴维南定理 包含独立电源的单端口线性电路 等效于 一个恒压源串联一个电阻</li>
+<li>诺顿定理 包含独立电源的单端口线性电路 等效于 一个恒流源并联一个电阻</li>
+</ul>
+<h2 id="电路元件"><a class="header-anchor-1" href="#电路元件">#</a>电路元件</h2>
+<ul>
+<li>电阻
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>R</mi><mo>∗</mo><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">u(t) = R*i(t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">u</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></li>
+</ul>
+</li>
+<li>二极管
+<ul>
+<li>PN 结 阳极 阴极</li>
+<li>正向 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>I</mi><mi>s</mi></msub><mo stretchy="false">(</mo><msup><mi>e</mi><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><msub><mi>V</mi><mi>T</mi></msub></mrow></msup><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">i(t) = I_s(e^{v(t)/V_T}-1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.138em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">s</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span><span class="mord mtight">/</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span></span></span></span>
+<ul>
+<li>电压超过门槛值时导通 导通后电流随电压指数增长</li>
+</ul>
+</li>
+<li>反向几乎不导通 超出反向击穿电压后导通
+<ul>
+<li>作为稳压二极管</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>电容
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>C</mi><mo>∗</mo><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">q(t) = C*v(t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span></li>
+</ul>
+</li>
+</ul>
+<h2 id="模拟电路"><a class="header-anchor-1" href="#模拟电路">#</a>模拟电路</h2>
+<ul>
+<li>按照关系
+<ul>
+<li>线性电路</li>
+<li>非线性电路</li>
+</ul>
+</li>
+<li>按照功能
+<ul>
+<li>放大</li>
+<li>滤波</li>
+<li>比较</li>
+<li>混频</li>
+<li>电源管理</li>
+<li>信号处理</li>
+</ul>
+</li>
+</ul>
+<h2 id="放大电路"><a class="header-anchor-1" href="#放大电路">#</a>放大电路</h2>
+<ul>
+<li>功能: 放大输入信号的幅度以便后续处理</li>
+<li>应用: 构成滤波、振荡、稳压等功能电路的基本单元电路</li>
+<li>分类
+<ul>
+<li>线性/非线性放大电路</li>
+<li>电压/电流/…放大电路</li>
+</ul>
+</li>
+<li>电路图标识: 三角符号
+<ul>
+<li>信号输入</li>
+<li>信号输出</li>
+<li>工作电源</li>
+</ul>
+</li>
+<li>基本模型
+<ul>
+<li>电压放大</li>
+<li>电流放大</li>
+<li>互阻放大</li>
+<li>互导放大</li>
+</ul>
+</li>
+<li>分析方法
+<ul>
+<li>戴维南模型</li>
+<li>诺顿模型</li>
+</ul>
+</li>
+<li>性能指标
+<ul>
+<li>输入电阻</li>
+<li>输出电阻</li>
+<li>增益 电压增益 电流增益 单位分贝</li>
+<li>频率响应
+<ul>
+<li>幅频响应 相频响应</li>
+<li>通频带</li>
+<li>线性失真: 幅度失真 相位失真</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>多级放大电路
+<ul>
+<li>电路分析</li>
+</ul>
+</li>
+<li>集成运放: 高增益 低输入输出阻抗
+<ul>
+<li>电压传输特性</li>
+<li>负反馈电路: 降低增益 提高稳定性
+<ul>
+<li>输出处理后反馈到输入端</li>
+<li>负反馈: 实现振荡器</li>
+</ul>
+</li>
+<li>内部结构
+<ul>
+<li>差分放大电路</li>
+<li>共模抑制: 抑制共模信号(一般是噪声或者零点漂移)</li>
+<li>功率放大电路</li>
+<li>静态分析</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>理想运放</li>
+<li>应用
+<ul>
+<li>比例放大</li>
+<li>加减运算</li>
+<li>积分微分</li>
+<li>电压比较器</li>
+<li>波形发生器</li>
+</ul>
+</li>
+</ul>
+<h2 id="振荡电路"><a class="header-anchor-1" href="#振荡电路">#</a>振荡电路</h2>
+<ul>
+<li>多谐振荡器: 用来产生在两种状态间变化的系统</li>
+</ul>
+]]></content>
+      <categories>
+        <category>misc</category>
+        <category>electronic</category>
+      </categories>
+      <tags>
+        <tag>电子电路</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>插头插座相关中国国家标准整理</title>
     <url>/2024/12/09/socket/</url>
     <content><![CDATA[<p>现行插座国家标准一共 9 本，分别为：</p>
@@ -16087,127 +16116,6 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
       </tags>
   </entry>
   <entry>
-    <title>KLEE 符号执行</title>
-    <url>/2023/12/19/klee/</url>
-    <content><![CDATA[<h2 id="基本使用"><a class="header-anchor-1" href="#基本使用">#</a>基本使用</h2>
-<ol>
-<li>修改程序源码，在合适的地方插入符号值</li>
-</ol>
-<figure class="highlight diff"><table><tr><td class="code"><pre><span class="line">int main() &#123;</span><br><span class="line">  int a;</span><br><span class="line"><span class="addition">+  klee_make_symbolic(&amp;a, sizeof(a), &quot;a&quot;);</span></span><br><span class="line">  return get_sign(a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ol start="2">
-<li>编译成 LLVM bitcode</li>
-</ol>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">clang -I ../../include -emit-llvm -c -g -O0 -Xclang -disable-O0-optnone get_sign.c</span></span><br></pre></td></tr></table></figure>
-<ol start="3">
-<li>符号模拟执行 bitcode</li>
-</ol>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">klee get_sign.bc</span></span><br></pre></td></tr></table></figure>
-<ol start="4">
-<li>查看模拟得到的 test cases</li>
-</ol>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ktest-tool klee-last/test000001.ktest</span></span><br></pre></td></tr></table></figure>
-<h2 id="内部实现"><a class="header-anchor-1" href="#内部实现">#</a>内部实现</h2>
-<h3 id="directory-structure"><a class="header-anchor-1" href="#directory-structure">#</a>Directory Structure</h3>
-<ul>
-<li>lib - KLEE 核心源代码
-<ul>
-<li>Basic - 不依赖 LLVM 的工具代码, 一堆工具类</li>
-<li>Support - 依赖 LLVM 的工具代码, 一堆工具类
-<ul>
-<li>KTest.cpp</li>
-<li>Statistics.cpp</li>
-</ul>
-</li>
-<li>Module - klee facilities for working with LLVM modules, including the shadow module/instruction structures we use during execution.</li>
-<li>Expr - 表达式对象</li>
-<li>Solver - 求解器 binder</li>
-<li>Core - 核心符号虚拟机</li>
-</ul>
-</li>
-<li>tools - KLEE 的二进制
-<ul>
-<li>kleaver - 查询什么 log</li>
-<li>klee - 符号模拟执行一个 bitcode</li>
-<li>klee-replay - 复现 ktest</li>
-<li>klee-stats</li>
-<li>klee-zesti</li>
-<li>ktest-gen</li>
-<li>ktest-randgen</li>
-<li>ktest-tool</li>
-</ul>
-</li>
-<li>runtime - 符号模拟执行时依赖的库</li>
-</ul>
-<h3 id="utilities-klee-辅助类"><a class="header-anchor-1" href="#utilities-klee-辅助类">#</a>Utilities KLEE 辅助类</h3>
-<h4 id="引用计数-referencecounter-ref-t"><a class="header-anchor-1" href="#引用计数-referencecounter-ref-t">#</a>引用计数 <code>ReferenceCounter</code> <code>ref&lt;T&gt;</code></h4>
-<p>这两个类用于实现引用计数</p>
-<p><code>ReferenceCounter</code> 放在被计数的对象中</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Human</span> &#123;</span><br><span class="line">  ReferenceCounter _refCount;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p><code>ref&lt;T&gt;</code> 是对象的引用, 重载了*和-&gt;运算符, 可以像指针一样使用</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">ref&lt;Human&gt; <span class="title">r</span><span class="params">(<span class="keyword">new</span> Human())</span></span>;</span><br><span class="line">r-&gt;<span class="built_in">hello</span>();</span><br></pre></td></tr></table></figure>
-<h3 id="tools-klee-klee-工具源码"><a class="header-anchor-1" href="#tools-klee-klee-工具源码">#</a>tools/klee KLEE 工具源码</h3>
-<h4 id="main-主函数"><a class="header-anchor-1" href="#main-主函数">#</a>main 主函数</h4>
-<ul>
-<li>
-<p><code>klee::loadFile</code> 加载输入文件，可以是单个 bitcode(.bc)或者 archive(.a), 得到一组<code>llvm::Module</code></p>
-</li>
-<li>
-<p><code>klee::linkModules</code> 把所有 <code>Module</code> 链接成一整个</p>
-</li>
-<li>
-<p>检查 triple</p>
-</li>
-<li>
-<p>配置 Libcxx, Libc</p>
-</li>
-<li>
-<p>配置程序运行环境: argc, argv, envp</p>
-</li>
-<li>
-<p>创建 <code>Handler</code>, <code>Executor</code> <em>impl</em> <code>Interpreter</code></p>
-</li>
-<li>
-<p><code>externalsAndGlobalsCheck</code> 做检查</p>
-</li>
-<li>
-<p>Replay or 模拟执行</p>
-</li>
-<li>
-<p><code>interpreter</code>-&gt;<code>runFunctionAsMain</code> 开始模拟执行</p>
-</li>
-</ul>
-<h4 id="executor-run-开始"><a class="header-anchor-1" href="#executor-run-开始">#</a><code>Executor::run</code> 开始</h4>
-<ul>
-<li>
-<p><code>usingSeeds</code> 判断</p>
-</li>
-<li>
-<p>主循环</p>
-</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// main interpreter loop</span></span><br><span class="line"><span class="keyword">while</span> (!states.<span class="built_in">empty</span>() &amp;&amp; !haltExecution) &#123;</span><br><span class="line">  ExecutionState &amp;state = searcher-&gt;<span class="built_in">selectState</span>();  <span class="comment">// 选择一个 State</span></span><br><span class="line">  KInstruction *ki = state.pc;  <span class="comment">// 取指令</span></span><br><span class="line">  <span class="built_in">stepInstruction</span>(state);  <span class="comment">// 更新 PC</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">executeInstruction</span>(state, ki);  <span class="comment">// 执行指令</span></span><br><span class="line">  timers.<span class="built_in">invoke</span>();</span><br><span class="line">  <span class="keyword">if</span> (::dumpStates) <span class="built_in">dumpStates</span>();</span><br><span class="line">  <span class="keyword">if</span> (::dumpPTree) <span class="built_in">dumpPTree</span>();</span><br><span class="line"></span><br><span class="line">  <span class="built_in">updateStates</span>(&amp;state);  <span class="comment">// 更新 State</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">checkMemoryUsage</span>()) &#123;</span><br><span class="line">    <span class="comment">// update searchers when states were terminated early due to memory pressure</span></span><br><span class="line">    <span class="built_in">updateStates</span>(<span class="literal">nullptr</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>很清晰的代码, 每次循环选择一个程序 <code>ExecutionState</code>, 执行下条 <code>KInstruction</code>, 更新状态, 然后重复.</p>
-<p>其中 <code>Searcher</code> 实现了探索的策略, <code>klee</code> 中有多种实现, 如 <code>BFS</code>/<code>DFS</code>/<code>Random</code> 等</p>
-<h4 id="程序状态-executionstate-stackframe"><a class="header-anchor-1" href="#程序状态-executionstate-stackframe">#</a>程序状态 <code>ExecutionState</code>, <code>StackFrame</code></h4>
-<p>执行状态, 包括栈帧</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ExecutionState</span> &#123;</span><br><span class="line">  <span class="comment">/// @brief Pointer to instruction to be executed after the current</span></span><br><span class="line">  <span class="comment">/// instruction</span></span><br><span class="line">  KInstIterator pc;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// @brief Stack representing the current instruction stream</span></span><br><span class="line">  std::vector&lt;StackFrame&gt; stack;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>栈帧里面包含 <code>locals</code>, 是一堆预分配的 <code>Cell</code>, 数量等于函数参数+指令总数</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">StackFrame</span> &#123;</span><br><span class="line">  KInstIterator caller;</span><br><span class="line">  KFunction *kf;</span><br><span class="line">  CallPathNode *callPathNode;</span><br><span class="line"></span><br><span class="line">  std::vector&lt;<span class="type">const</span> MemoryObject *&gt; allocas;</span><br><span class="line">  Cell *locals;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p><code>Cell</code> 即对 <code>Expr</code> 的引用</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">namespace</span> klee &#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">Cell</span> &#123;</span><br><span class="line">    ref&lt;Expr&gt; value;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="executor-executeinstruction-开始"><a class="header-anchor-1" href="#executor-executeinstruction-开始">#</a><code>Executor::executeInstruction</code> 开始</h4>
-<p>根据指令 opcode 对应处理</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">case</span> Instruction::Ret:</span><br><span class="line">      <span class="comment">// 求解return返回的值</span></span><br><span class="line">      result = <span class="built_in">eval</span>(ki, <span class="number">0</span>, state).value;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 考虑是否需要进行 coercion</span></span><br><span class="line"></span><br><span class="line">      <span class="comment">// bindLocal caller指令 的 dest cell 的 value</span></span><br><span class="line">      <span class="built_in">bindLocal</span>(kcaller, state, result);</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> Instruction::Br:</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> Instruction::IndirectBr:</span><br><span class="line"><span class="keyword">case</span> Instruction::Switch:</span><br><span class="line"><span class="keyword">case</span> Instruction::Unreachable:</span><br><span class="line"><span class="keyword">case</span> Instruction::Invoke:</span><br><span class="line"><span class="keyword">case</span> Instruction::Call:</span><br><span class="line"><span class="keyword">case</span> Instruction::PHI:</span><br><span class="line"><span class="keyword">case</span> Instruction::Select:</span><br><span class="line"><span class="keyword">case</span> Instruction::VAArg:</span><br><span class="line"><span class="keyword">case</span> Instruction::Add:</span><br><span class="line"><span class="keyword">case</span> Instruction::Sub:</span><br><span class="line"><span class="keyword">case</span> Instruction::Mul:</span><br><span class="line"><span class="keyword">case</span> Instruction::UDiv:</span><br><span class="line"><span class="keyword">case</span> Instruction::SDiv:</span><br><span class="line"><span class="keyword">case</span> Instruction::URem:</span><br><span class="line"><span class="keyword">case</span> Instruction::SRem:</span><br><span class="line"><span class="keyword">case</span> Instruction::And:</span><br><span class="line"><span class="keyword">case</span> Instruction::Or:</span><br><span class="line"><span class="keyword">case</span> Instruction::Xor:</span><br><span class="line"><span class="keyword">case</span> Instruction::Shl:</span><br><span class="line"><span class="keyword">case</span> Instruction::LShr:</span><br><span class="line"><span class="keyword">case</span> Instruction::AShr:</span><br><span class="line"><span class="keyword">case</span> Instruction::ICmp:</span><br><span class="line"><span class="keyword">case</span> Instruction::Alloca:</span><br><span class="line"><span class="keyword">case</span> Instruction::Load:</span><br><span class="line"><span class="keyword">case</span> Instruction::Store:</span><br><span class="line"><span class="keyword">case</span> Instruction::GetElementPtr:</span><br><span class="line"><span class="keyword">case</span> Instruction::Trunc:</span><br><span class="line"><span class="keyword">case</span> Instruction::ZExt:</span><br><span class="line"><span class="keyword">case</span> Instruction::SExt:</span><br><span class="line"><span class="keyword">case</span> Instruction::IntToPtr:</span><br><span class="line"><span class="keyword">case</span> Instruction::PtrToInt:</span><br><span class="line"><span class="keyword">case</span> Instruction::BitCast:</span><br><span class="line"><span class="keyword">case</span> Instruction::FNeg:</span><br><span class="line"><span class="keyword">case</span> Instruction::FAdd:</span><br><span class="line"><span class="keyword">case</span> Instruction::FSub:</span><br><span class="line"><span class="keyword">case</span> Instruction::FMul:</span><br><span class="line"><span class="keyword">case</span> Instruction::FDiv:</span><br><span class="line"><span class="keyword">case</span> Instruction::FRem:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPTrunc:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPExt:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPToUI:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPToSI:</span><br><span class="line"><span class="keyword">case</span> Instruction::UIToFP:</span><br><span class="line"><span class="keyword">case</span> Instruction::SIToFP:</span><br><span class="line"><span class="keyword">case</span> Instruction::FCmp:</span><br><span class="line"><span class="keyword">case</span> Instruction::InsertValue:</span><br><span class="line"><span class="keyword">case</span> Instruction::ExtractValue:</span><br><span class="line"><span class="keyword">case</span> Instruction::Fence:</span><br><span class="line"><span class="keyword">case</span> Instruction::InsertElement:</span><br><span class="line"><span class="keyword">case</span> Instruction::ExtractElement:</span><br><span class="line"><span class="keyword">case</span> Instruction::ShuffleVector:</span><br><span class="line"><span class="keyword">case</span> Instruction::Resume:</span><br><span class="line"><span class="keyword">case</span> Instruction::LandingPad:</span><br><span class="line"><span class="keyword">case</span> Instruction::AtomicRMW:</span><br><span class="line"><span class="keyword">case</span> Instruction::AtomicCmpXchg:</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>program-analysis</category>
-        <category>software-test</category>
-      </categories>
-      <tags>
-        <tag>Program Analysis</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Hexo 个人 blog 搭建记录</title>
     <url>/2020/11/29/2020-11-29/</url>
     <content><![CDATA[<h2 id="hexo-基本操作"><a class="header-anchor-1" href="#hexo-基本操作">#</a>Hexo 基本操作</h2>
@@ -16371,6 +16279,127 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
       <tags>
         <tag>Hexo</tag>
         <tag>Github</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>KLEE 符号执行</title>
+    <url>/2023/12/19/klee/</url>
+    <content><![CDATA[<h2 id="基本使用"><a class="header-anchor-1" href="#基本使用">#</a>基本使用</h2>
+<ol>
+<li>修改程序源码，在合适的地方插入符号值</li>
+</ol>
+<figure class="highlight diff"><table><tr><td class="code"><pre><span class="line">int main() &#123;</span><br><span class="line">  int a;</span><br><span class="line"><span class="addition">+  klee_make_symbolic(&amp;a, sizeof(a), &quot;a&quot;);</span></span><br><span class="line">  return get_sign(a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>编译成 LLVM bitcode</li>
+</ol>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">clang -I ../../include -emit-llvm -c -g -O0 -Xclang -disable-O0-optnone get_sign.c</span></span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>符号模拟执行 bitcode</li>
+</ol>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">klee get_sign.bc</span></span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>查看模拟得到的 test cases</li>
+</ol>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ktest-tool klee-last/test000001.ktest</span></span><br></pre></td></tr></table></figure>
+<h2 id="内部实现"><a class="header-anchor-1" href="#内部实现">#</a>内部实现</h2>
+<h3 id="directory-structure"><a class="header-anchor-1" href="#directory-structure">#</a>Directory Structure</h3>
+<ul>
+<li>lib - KLEE 核心源代码
+<ul>
+<li>Basic - 不依赖 LLVM 的工具代码, 一堆工具类</li>
+<li>Support - 依赖 LLVM 的工具代码, 一堆工具类
+<ul>
+<li>KTest.cpp</li>
+<li>Statistics.cpp</li>
+</ul>
+</li>
+<li>Module - klee facilities for working with LLVM modules, including the shadow module/instruction structures we use during execution.</li>
+<li>Expr - 表达式对象</li>
+<li>Solver - 求解器 binder</li>
+<li>Core - 核心符号虚拟机</li>
+</ul>
+</li>
+<li>tools - KLEE 的二进制
+<ul>
+<li>kleaver - 查询什么 log</li>
+<li>klee - 符号模拟执行一个 bitcode</li>
+<li>klee-replay - 复现 ktest</li>
+<li>klee-stats</li>
+<li>klee-zesti</li>
+<li>ktest-gen</li>
+<li>ktest-randgen</li>
+<li>ktest-tool</li>
+</ul>
+</li>
+<li>runtime - 符号模拟执行时依赖的库</li>
+</ul>
+<h3 id="utilities-klee-辅助类"><a class="header-anchor-1" href="#utilities-klee-辅助类">#</a>Utilities KLEE 辅助类</h3>
+<h4 id="引用计数-referencecounter-ref-t"><a class="header-anchor-1" href="#引用计数-referencecounter-ref-t">#</a>引用计数 <code>ReferenceCounter</code> <code>ref&lt;T&gt;</code></h4>
+<p>这两个类用于实现引用计数</p>
+<p><code>ReferenceCounter</code> 放在被计数的对象中</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Human</span> &#123;</span><br><span class="line">  ReferenceCounter _refCount;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>ref&lt;T&gt;</code> 是对象的引用, 重载了*和-&gt;运算符, 可以像指针一样使用</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">ref&lt;Human&gt; <span class="title">r</span><span class="params">(<span class="keyword">new</span> Human())</span></span>;</span><br><span class="line">r-&gt;<span class="built_in">hello</span>();</span><br></pre></td></tr></table></figure>
+<h3 id="tools-klee-klee-工具源码"><a class="header-anchor-1" href="#tools-klee-klee-工具源码">#</a>tools/klee KLEE 工具源码</h3>
+<h4 id="main-主函数"><a class="header-anchor-1" href="#main-主函数">#</a>main 主函数</h4>
+<ul>
+<li>
+<p><code>klee::loadFile</code> 加载输入文件，可以是单个 bitcode(.bc)或者 archive(.a), 得到一组<code>llvm::Module</code></p>
+</li>
+<li>
+<p><code>klee::linkModules</code> 把所有 <code>Module</code> 链接成一整个</p>
+</li>
+<li>
+<p>检查 triple</p>
+</li>
+<li>
+<p>配置 Libcxx, Libc</p>
+</li>
+<li>
+<p>配置程序运行环境: argc, argv, envp</p>
+</li>
+<li>
+<p>创建 <code>Handler</code>, <code>Executor</code> <em>impl</em> <code>Interpreter</code></p>
+</li>
+<li>
+<p><code>externalsAndGlobalsCheck</code> 做检查</p>
+</li>
+<li>
+<p>Replay or 模拟执行</p>
+</li>
+<li>
+<p><code>interpreter</code>-&gt;<code>runFunctionAsMain</code> 开始模拟执行</p>
+</li>
+</ul>
+<h4 id="executor-run-开始"><a class="header-anchor-1" href="#executor-run-开始">#</a><code>Executor::run</code> 开始</h4>
+<ul>
+<li>
+<p><code>usingSeeds</code> 判断</p>
+</li>
+<li>
+<p>主循环</p>
+</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// main interpreter loop</span></span><br><span class="line"><span class="keyword">while</span> (!states.<span class="built_in">empty</span>() &amp;&amp; !haltExecution) &#123;</span><br><span class="line">  ExecutionState &amp;state = searcher-&gt;<span class="built_in">selectState</span>();  <span class="comment">// 选择一个 State</span></span><br><span class="line">  KInstruction *ki = state.pc;  <span class="comment">// 取指令</span></span><br><span class="line">  <span class="built_in">stepInstruction</span>(state);  <span class="comment">// 更新 PC</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">executeInstruction</span>(state, ki);  <span class="comment">// 执行指令</span></span><br><span class="line">  timers.<span class="built_in">invoke</span>();</span><br><span class="line">  <span class="keyword">if</span> (::dumpStates) <span class="built_in">dumpStates</span>();</span><br><span class="line">  <span class="keyword">if</span> (::dumpPTree) <span class="built_in">dumpPTree</span>();</span><br><span class="line"></span><br><span class="line">  <span class="built_in">updateStates</span>(&amp;state);  <span class="comment">// 更新 State</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">checkMemoryUsage</span>()) &#123;</span><br><span class="line">    <span class="comment">// update searchers when states were terminated early due to memory pressure</span></span><br><span class="line">    <span class="built_in">updateStates</span>(<span class="literal">nullptr</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很清晰的代码, 每次循环选择一个程序 <code>ExecutionState</code>, 执行下条 <code>KInstruction</code>, 更新状态, 然后重复.</p>
+<p>其中 <code>Searcher</code> 实现了探索的策略, <code>klee</code> 中有多种实现, 如 <code>BFS</code>/<code>DFS</code>/<code>Random</code> 等</p>
+<h4 id="程序状态-executionstate-stackframe"><a class="header-anchor-1" href="#程序状态-executionstate-stackframe">#</a>程序状态 <code>ExecutionState</code>, <code>StackFrame</code></h4>
+<p>执行状态, 包括栈帧</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ExecutionState</span> &#123;</span><br><span class="line">  <span class="comment">/// @brief Pointer to instruction to be executed after the current</span></span><br><span class="line">  <span class="comment">/// instruction</span></span><br><span class="line">  KInstIterator pc;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/// @brief Stack representing the current instruction stream</span></span><br><span class="line">  std::vector&lt;StackFrame&gt; stack;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>栈帧里面包含 <code>locals</code>, 是一堆预分配的 <code>Cell</code>, 数量等于函数参数+指令总数</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">StackFrame</span> &#123;</span><br><span class="line">  KInstIterator caller;</span><br><span class="line">  KFunction *kf;</span><br><span class="line">  CallPathNode *callPathNode;</span><br><span class="line"></span><br><span class="line">  std::vector&lt;<span class="type">const</span> MemoryObject *&gt; allocas;</span><br><span class="line">  Cell *locals;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>Cell</code> 即对 <code>Expr</code> 的引用</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">namespace</span> klee &#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">Cell</span> &#123;</span><br><span class="line">    ref&lt;Expr&gt; value;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="executor-executeinstruction-开始"><a class="header-anchor-1" href="#executor-executeinstruction-开始">#</a><code>Executor::executeInstruction</code> 开始</h4>
+<p>根据指令 opcode 对应处理</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">case</span> Instruction::Ret:</span><br><span class="line">      <span class="comment">// 求解return返回的值</span></span><br><span class="line">      result = <span class="built_in">eval</span>(ki, <span class="number">0</span>, state).value;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 考虑是否需要进行 coercion</span></span><br><span class="line"></span><br><span class="line">      <span class="comment">// bindLocal caller指令 的 dest cell 的 value</span></span><br><span class="line">      <span class="built_in">bindLocal</span>(kcaller, state, result);</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> Instruction::Br:</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> Instruction::IndirectBr:</span><br><span class="line"><span class="keyword">case</span> Instruction::Switch:</span><br><span class="line"><span class="keyword">case</span> Instruction::Unreachable:</span><br><span class="line"><span class="keyword">case</span> Instruction::Invoke:</span><br><span class="line"><span class="keyword">case</span> Instruction::Call:</span><br><span class="line"><span class="keyword">case</span> Instruction::PHI:</span><br><span class="line"><span class="keyword">case</span> Instruction::Select:</span><br><span class="line"><span class="keyword">case</span> Instruction::VAArg:</span><br><span class="line"><span class="keyword">case</span> Instruction::Add:</span><br><span class="line"><span class="keyword">case</span> Instruction::Sub:</span><br><span class="line"><span class="keyword">case</span> Instruction::Mul:</span><br><span class="line"><span class="keyword">case</span> Instruction::UDiv:</span><br><span class="line"><span class="keyword">case</span> Instruction::SDiv:</span><br><span class="line"><span class="keyword">case</span> Instruction::URem:</span><br><span class="line"><span class="keyword">case</span> Instruction::SRem:</span><br><span class="line"><span class="keyword">case</span> Instruction::And:</span><br><span class="line"><span class="keyword">case</span> Instruction::Or:</span><br><span class="line"><span class="keyword">case</span> Instruction::Xor:</span><br><span class="line"><span class="keyword">case</span> Instruction::Shl:</span><br><span class="line"><span class="keyword">case</span> Instruction::LShr:</span><br><span class="line"><span class="keyword">case</span> Instruction::AShr:</span><br><span class="line"><span class="keyword">case</span> Instruction::ICmp:</span><br><span class="line"><span class="keyword">case</span> Instruction::Alloca:</span><br><span class="line"><span class="keyword">case</span> Instruction::Load:</span><br><span class="line"><span class="keyword">case</span> Instruction::Store:</span><br><span class="line"><span class="keyword">case</span> Instruction::GetElementPtr:</span><br><span class="line"><span class="keyword">case</span> Instruction::Trunc:</span><br><span class="line"><span class="keyword">case</span> Instruction::ZExt:</span><br><span class="line"><span class="keyword">case</span> Instruction::SExt:</span><br><span class="line"><span class="keyword">case</span> Instruction::IntToPtr:</span><br><span class="line"><span class="keyword">case</span> Instruction::PtrToInt:</span><br><span class="line"><span class="keyword">case</span> Instruction::BitCast:</span><br><span class="line"><span class="keyword">case</span> Instruction::FNeg:</span><br><span class="line"><span class="keyword">case</span> Instruction::FAdd:</span><br><span class="line"><span class="keyword">case</span> Instruction::FSub:</span><br><span class="line"><span class="keyword">case</span> Instruction::FMul:</span><br><span class="line"><span class="keyword">case</span> Instruction::FDiv:</span><br><span class="line"><span class="keyword">case</span> Instruction::FRem:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPTrunc:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPExt:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPToUI:</span><br><span class="line"><span class="keyword">case</span> Instruction::FPToSI:</span><br><span class="line"><span class="keyword">case</span> Instruction::UIToFP:</span><br><span class="line"><span class="keyword">case</span> Instruction::SIToFP:</span><br><span class="line"><span class="keyword">case</span> Instruction::FCmp:</span><br><span class="line"><span class="keyword">case</span> Instruction::InsertValue:</span><br><span class="line"><span class="keyword">case</span> Instruction::ExtractValue:</span><br><span class="line"><span class="keyword">case</span> Instruction::Fence:</span><br><span class="line"><span class="keyword">case</span> Instruction::InsertElement:</span><br><span class="line"><span class="keyword">case</span> Instruction::ExtractElement:</span><br><span class="line"><span class="keyword">case</span> Instruction::ShuffleVector:</span><br><span class="line"><span class="keyword">case</span> Instruction::Resume:</span><br><span class="line"><span class="keyword">case</span> Instruction::LandingPad:</span><br><span class="line"><span class="keyword">case</span> Instruction::AtomicRMW:</span><br><span class="line"><span class="keyword">case</span> Instruction::AtomicCmpXchg:</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>program-analysis</category>
+        <category>software-test</category>
+      </categories>
+      <tags>
+        <tag>Program Analysis</tag>
       </tags>
   </entry>
   <entry>
