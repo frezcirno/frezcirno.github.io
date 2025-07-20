@@ -1310,298 +1310,6 @@ I=\{
       </categories>
   </entry>
   <entry>
-    <title>编译原理课程笔记 - Chapter 4 目标代码生成</title>
-    <url>/2020/12/17/note4-codegen/</url>
-    <content><![CDATA[<h2 id="目标代码生成"><a class="header-anchor-1" href="#目标代码生成">#</a>目标代码生成</h2>
-<h3 id="任务"><a class="header-anchor-1" href="#任务">#</a>任务</h3>
-<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">中间代码 --&gt; 代码生成器 --&gt; 目标程序</span><br><span class="line">                ^</span><br><span class="line">                |</span><br><span class="line">              符号表</span><br></pre></td></tr></table></figure>
-<h3 id="目标代码的三种形式"><a class="header-anchor-1" href="#目标代码的三种形式">#</a>目标代码的三种形式</h3>
-<ol>
-<li>能立即执行的机器码(所有地址已经定位)</li>
-<li>待装配的机器语言模块(连接装入后即可执行)</li>
-<li>汇编语言代码(经汇编程序汇编后即可执行)</li>
-</ol>
-<p>此处选择汇编语言</p>
-<h3 id="目标机器模型"><a class="header-anchor-1" href="#目标机器模型">#</a>目标机器模型</h3>
-<p>此处假设目标计算机:</p>
-<ol>
-<li>具有多个通用寄存器, 可以用来运算, 也可以用来取地址</li>
-<li>支持四种指令形式
-<ol>
-<li>直接地址型 <code>OP R, M</code> - <code>R OP M =&gt; R</code></li>
-<li>寄存器型 <code>OP Ri, Rj</code> - <code>Ri OP Rj =&gt; Ri</code></li>
-<li>变址型 <code>OP Ri, c(Rj)</code> - <code>Ri OP (Rj+c) =&gt; Ri</code></li>
-<li>间接型
-<ol>
-<li><code>OP Ri, (M)</code> - <code>R OP (M) =&gt; R</code></li>
-<li><code>OP Ri, (Rj)</code> - <code>Ri OP (Rj) =&gt; Ri</code></li>
-<li><code>OP Ri, (c(Rj))</code> - <code>Ri OP ((Rj+c)) =&gt; Ri</code></li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-<p>OP 可以是 ADD,SUB,MUL,DIV 等</p>
-<h3 id="简单代码生成器"><a class="header-anchor-1" href="#简单代码生成器">#</a>简单代码生成器</h3>
-<p>思路: 代码生成器在生成每一条指令时, 必须要知道每个寄存器中存储的是什么, 以及每个变量存储到什么位置</p>
-<p>方法:</p>
-<ol>
-<li>引入<strong>待用信息</strong></li>
-<li>寄存器描述数组</li>
-<li>变量地址描述数组</li>
-</ol>
-<h3 id="待用信息"><a class="header-anchor-1" href="#待用信息">#</a>待用信息</h3>
-<p>待用信息</p>
-<ul>
-<li>在基本块中, 四元式 i 对 A 定值, 四元式 j 对 A 取值, 且 i,j 之间无再对 A 定值, 则称 j 是 i 的变量 A 的待用信息</li>
-</ul>
-<p>活跃信息</p>
-<ul>
-<li>基本块中的一个名字在某个给定点之后仍被引用, 则称该名字在给定点是活跃的</li>
-</ul>
-<p>修改符号表</p>
-<ul>
-<li>记录待用信息和活跃信息</li>
-<li>表示: (<code>待用信息[i/^]</code>,<code>活跃信息[y/^]</code>)</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>变量名</th>
-<th>待用/活跃信息栏</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>A</td>
-<td>(…, …)</td>
-</tr>
-<tr>
-<td>B</td>
-<td>(…, …)</td>
-</tr>
-<tr>
-<td>…</td>
-<td>(…, …)</td>
-</tr>
-</tbody>
-</table>
-<p>计算待用和活跃信息</p>
-<ol>
-<li>开始时, 所有变量均为<code>非待用</code>, 根据基本块之后是否活跃填写<code>活跃</code>或<code>非活跃</code></li>
-<li>逆序遍历每个四元式<code>i</code>
-<ol>
-<li>把<code>A</code>的引用信息附加到四元式<code>i</code>左值上</li>
-<li><code>A</code>的引用信息附加<code>(^,^)</code></li>
-<li>把<code>B</code>,<code>C</code>的引用信息附加到四元式<code>i</code>上</li>
-<li><code>B</code>,<code>C</code>的引用信息附加<code>(^,^)</code></li>
-</ol>
-</li>
-</ol>
-<p>例:</p>
-<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">T1:=B-C</span><br><span class="line">T2:=A*T1</span><br><span class="line">T3:=D+1</span><br><span class="line">T4:=E-F</span><br><span class="line">T5:=T3*T4</span><br><span class="line">W:=T2/T5</span><br></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th>序号</th>
-<th>四元式</th>
-<th>左值</th>
-<th>左操作数</th>
-<th>右操作数</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>(6)</td>
-<td>W:=T2/T5</td>
-<td>(^,y)</td>
-<td>(<sup>,</sup>)</td>
-<td>(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>(5)</td>
-<td>T5:=T3*T4</td>
-<td>(6,y)</td>
-<td>(<sup>,</sup>)</td>
-<td>(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>(4)</td>
-<td>T4:=E-F</td>
-<td>(3,y)</td>
-<td>(<sup>,</sup>)</td>
-<td>(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>(3)</td>
-<td>T3:=D+1</td>
-<td>(3,y)</td>
-<td>(<sup>,</sup>)</td>
-<td>(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>(2)</td>
-<td>T2:=A*T1</td>
-<td>(6,y)</td>
-<td>(<sup>,</sup>)</td>
-<td>(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>(1)</td>
-<td>T1:=B-C</td>
-<td>(2,y)</td>
-<td>(<sup>,</sup>)</td>
-<td>(<sup>,</sup>)</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th>变量名</th>
-<th>待用/活跃信息栏</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>T5</td>
-<td>(<sup>,</sup>)-&gt;(6,y)-&gt;(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>T4</td>
-<td>(<sup>,</sup>)-&gt;(3,y)-&gt;(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>T3</td>
-<td>(<sup>,</sup>)-&gt;(3,y)-&gt;(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>T2</td>
-<td>(<sup>,</sup>)-&gt;(6,y)-&gt;(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>T1</td>
-<td>(<sup>,</sup>)-&gt;(2,y)-&gt;(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>W</td>
-<td>(<sup>,y)-&gt;(</sup>,^)</td>
-</tr>
-<tr>
-<td>F</td>
-<td>(<sup>,</sup>)-&gt;(4,y)</td>
-</tr>
-<tr>
-<td>E</td>
-<td>(<sup>,</sup>)-&gt;(4,y)</td>
-</tr>
-<tr>
-<td>D</td>
-<td>(<sup>,</sup>)-&gt;(3,y)</td>
-</tr>
-<tr>
-<td>C</td>
-<td>(<sup>,</sup>)-&gt;(1,y)</td>
-</tr>
-<tr>
-<td>B</td>
-<td>(<sup>,</sup>)-&gt;(1,y)</td>
-</tr>
-<tr>
-<td>A</td>
-<td>(<sup>,</sup>)-&gt;(2,y)</td>
-</tr>
-</tbody>
-</table>
-<h3 id="寄存器分配算法"><a class="header-anchor-1" href="#寄存器分配算法">#</a>寄存器分配算法</h3>
-<p>寄存器描述和地址描述</p>
-<ul>
-<li>寄存器描述数组<code>RVALUE</code>
-<ul>
-<li>记录寄存器内存储的变量, 可以是多个</li>
-<li><code>RVALUE[R1]=&#123;A,B&#125;</code></li>
-</ul>
-</li>
-<li>变量地址描述数组<code>AVALUE</code>
-<ul>
-<li>记录变量存储的位置(寄存器/内存)</li>
-<li><code>AVALUE[A]=&#123;R1,R2,A&#125;</code></li>
-</ul>
-</li>
-</ul>
-<p>代码生成算法</p>
-<ul>
-<li>对于四元式<code>A:=B op C</code>, 依次执行</li>
-</ul>
-<ol>
-<li>调用<code>GETREG(i: A:=B op C)</code>获取一个寄存器<code>R</code></li>
-<li>查询<code>AVALUE[B]</code>和<code>AVALUE[C]</code>, 如果在寄存器中, 假设是<code>B'</code>和<code>C'</code></li>
-<li>如果<code>B'≠R</code>, 先把<code>B</code>加载到<code>R</code>中, 生成代码: <code>LD R,B'</code></li>
-<li>进行运算, 生成代码: <code>op R,C'</code></li>
-<li>更新描述信息
-<ol>
-<li>如果<code>B'</code>或<code>C'</code>是<code>R</code>, 就要把<code>AVALUE</code>中的记录删除</li>
-<li>设置<code>AVALUE[A]=&#123;R&#125;, RVALUE[R]=&#123;A&#125;</code></li>
-</ol>
-</li>
-<li>如果<code>B</code>或<code>C</code>仍存储在某个寄存器中, 但后续不再被引用且不再活跃, 就从<code>AVALUE</code>和<code>RVALUE</code>中删除<code>B</code>和<code>C</code>的记录</li>
-</ol>
-<p>寄存器分配原则</p>
-<ul>
-<li>尽可能用 B 独占的寄存器</li>
-<li>尽可能用空闲的寄存器</li>
-<li>抢占用非空闲寄存器
-<ul>
-<li><code>Ri</code>的值也存储在内存中</li>
-<li><code>Ri</code>最远才会用到</li>
-</ul>
-</li>
-</ul>
-<p>寄存器分配算法<code>GETREG(i: A:=B op C)</code></p>
-<ol>
-<li>
-<p>如果 B 独占某个寄存器</p>
-<ul>
-<li>如果<code>AB</code>是同一个标识符(即修改 B 的指令<code>B:=B op C</code>)
-<ul>
-<li>返回<code>B</code>所在的寄存器</li>
-</ul>
-</li>
-<li>如果<code>B</code>在后面不会再引用(非待用, 非活跃)
-<ul>
-<li>返回<code>B</code>所在的寄存器</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p>如果有空闲寄存器, 返回空闲寄存器</p>
-</li>
-<li>
-<p>抢占一个寄存器<code>Ri</code>,</p>
-<ul>
-<li>对于<code>Ri</code>中存储的每一个变量<code>M</code>, 如果存储的不是<code>A</code>, 或者存储的是<code>A == C != B</code>且<code>Ri</code>中不存储<code>B</code>.(<code>M==A &amp;&amp; M==C &amp;&amp; M!=B &amp;&amp; B not in RVALUE[Ri]</code>)
-<ol>
-<li>如果<code>M</code>仅存储在<code>Ri</code>, 则要存到内存中: <code>ST Ri, M</code></li>
-<li>如果<code>M == B</code>, 或者<code>M == C &amp;&amp; B in RVALUE[Ri]</code>中, 则令<code>AVALUE[M]=&#123;M,R&#125;</code>, 否则令<code>AVALUE[M]=&#123;M&#125;</code></li>
-<li>删除<code>M</code>在<code>Ri</code>中的记录, <code>RVALUE[Ri].reLD e(M)</code></li>
-<li>返回<code>R</code></li>
-</ol>
-</li>
-</ul>
-</li>
-</ol>
-<p>例:</p>
-<p>寄存器: R0，R1；基本块出口活跃变量: W</p>
-<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">T1:=B-C</span><br><span class="line">T2:=A*T1</span><br><span class="line">T3:=D+1</span><br><span class="line">T4:=E-F</span><br><span class="line">T5:=T3*T4</span><br><span class="line">W:=T2/T5</span><br></pre></td></tr></table></figure>
-<p>答案:</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">【解答】该基本块的目标代码如下(指令后面为相应的注释)：</span><br><span class="line">LD  R0, B  <span class="comment">/* 取第一个空闲寄存器 R0 */</span></span><br><span class="line">SUB R0, C  <span class="comment">/* 运算结束后R0中为T1结果，内存中无该结果 */</span></span><br><span class="line">LD  R1, A  <span class="comment">/* 取一个空闲寄存器R1 */</span></span><br><span class="line">MUL R1, R0 <span class="comment">/* 运算结束后R1中为T2结果，内存中无该结果 */</span></span><br><span class="line">LD  R0,D  <span class="comment">/* 此时R0中结果T1已经没有引用点，且临时单元T1是非活跃的，所以，寄存器R0可作为空闲寄存器使用 */</span></span><br><span class="line">ADD R0, <span class="number">1</span> <span class="comment">/* 运算结束后R0中为T3结果，内存中无该结果 */</span></span><br><span class="line">ST  R1, T2  <span class="comment">/*翻译四元式T4=E-F时，所有寄存器已经分配完毕，寄存器R0中存的T3和寄存器R1中存的T2都是有用的。由于T2的下一个引用点较T3的下一个引用点更远，所以暂时可将寄存器R1中的结果存回到内存的变量T2中，从而将寄存器R1空闲以备使用*/</span></span><br><span class="line">LD  R1, E</span><br><span class="line">SUB R1, F  <span class="comment">/*运算结束后R1中为T4结果，内存中无该结果*/</span></span><br><span class="line">MUL R0, R1 <span class="comment">/*运算结束后R0中为T5结果，内存中无该结果。注意，该指令将寄存器R0中原来的结果T3冲掉了。可以这么做的原因是，T3在该指令后不再有引用点，且是非活跃变量*/</span></span><br><span class="line">LD  R1, T2 <span class="comment">/*此时R1中结果T4已经没有引用点，且临时单元T4是非活跃的，因此寄存器R1可作为空闲寄存器使用*/</span></span><br><span class="line">DIV R1, R0</span><br><span class="line"><span class="comment">/*运算结束后R1中为W结果，内存中无该结果。此时所有指令部分已经翻译完毕*/</span></span><br><span class="line">ST  R1, W</span><br><span class="line"><span class="comment">/*指令翻译完毕时，寄存器中存有最新的计算结果，必须将它们存回到内存相应的单元中去，否则，在翻译下一个基本块时，所有的寄存器被当成空闲的寄存器使用，从而造成计算结果的丢失。考虑到寄存器R0中的T5和寄存器R1中的W，临时单元T5是非活跃的，因此只要将结果W存回对应单元即可*/</span></span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>compiler-principle</category>
-      </categories>
-  </entry>
-  <entry>
     <title>编译原理课程笔记 - Chapter 3 语义分析和中间代码生成</title>
     <url>/2020/12/17/note3-ir/</url>
     <content><![CDATA[<h2 id="提纲"><a class="header-anchor-1" href="#提纲">#</a>提纲</h2>
@@ -1897,6 +1605,298 @@ I=\{
 <h4 id="case-语句的翻译"><a class="header-anchor-1" href="#case-语句的翻译">#</a>case 语句的翻译</h4>
 <h3 id="过程调用的翻译"><a class="header-anchor-1" href="#过程调用的翻译">#</a>过程调用的翻译</h3>
 <p>不考, 略</p>
+]]></content>
+      <categories>
+        <category>compiler-principle</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>编译原理课程笔记 - Chapter 4 目标代码生成</title>
+    <url>/2020/12/17/note4-codegen/</url>
+    <content><![CDATA[<h2 id="目标代码生成"><a class="header-anchor-1" href="#目标代码生成">#</a>目标代码生成</h2>
+<h3 id="任务"><a class="header-anchor-1" href="#任务">#</a>任务</h3>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">中间代码 --&gt; 代码生成器 --&gt; 目标程序</span><br><span class="line">                ^</span><br><span class="line">                |</span><br><span class="line">              符号表</span><br></pre></td></tr></table></figure>
+<h3 id="目标代码的三种形式"><a class="header-anchor-1" href="#目标代码的三种形式">#</a>目标代码的三种形式</h3>
+<ol>
+<li>能立即执行的机器码(所有地址已经定位)</li>
+<li>待装配的机器语言模块(连接装入后即可执行)</li>
+<li>汇编语言代码(经汇编程序汇编后即可执行)</li>
+</ol>
+<p>此处选择汇编语言</p>
+<h3 id="目标机器模型"><a class="header-anchor-1" href="#目标机器模型">#</a>目标机器模型</h3>
+<p>此处假设目标计算机:</p>
+<ol>
+<li>具有多个通用寄存器, 可以用来运算, 也可以用来取地址</li>
+<li>支持四种指令形式
+<ol>
+<li>直接地址型 <code>OP R, M</code> - <code>R OP M =&gt; R</code></li>
+<li>寄存器型 <code>OP Ri, Rj</code> - <code>Ri OP Rj =&gt; Ri</code></li>
+<li>变址型 <code>OP Ri, c(Rj)</code> - <code>Ri OP (Rj+c) =&gt; Ri</code></li>
+<li>间接型
+<ol>
+<li><code>OP Ri, (M)</code> - <code>R OP (M) =&gt; R</code></li>
+<li><code>OP Ri, (Rj)</code> - <code>Ri OP (Rj) =&gt; Ri</code></li>
+<li><code>OP Ri, (c(Rj))</code> - <code>Ri OP ((Rj+c)) =&gt; Ri</code></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>OP 可以是 ADD,SUB,MUL,DIV 等</p>
+<h3 id="简单代码生成器"><a class="header-anchor-1" href="#简单代码生成器">#</a>简单代码生成器</h3>
+<p>思路: 代码生成器在生成每一条指令时, 必须要知道每个寄存器中存储的是什么, 以及每个变量存储到什么位置</p>
+<p>方法:</p>
+<ol>
+<li>引入<strong>待用信息</strong></li>
+<li>寄存器描述数组</li>
+<li>变量地址描述数组</li>
+</ol>
+<h3 id="待用信息"><a class="header-anchor-1" href="#待用信息">#</a>待用信息</h3>
+<p>待用信息</p>
+<ul>
+<li>在基本块中, 四元式 i 对 A 定值, 四元式 j 对 A 取值, 且 i,j 之间无再对 A 定值, 则称 j 是 i 的变量 A 的待用信息</li>
+</ul>
+<p>活跃信息</p>
+<ul>
+<li>基本块中的一个名字在某个给定点之后仍被引用, 则称该名字在给定点是活跃的</li>
+</ul>
+<p>修改符号表</p>
+<ul>
+<li>记录待用信息和活跃信息</li>
+<li>表示: (<code>待用信息[i/^]</code>,<code>活跃信息[y/^]</code>)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>待用/活跃信息栏</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>(…, …)</td>
+</tr>
+<tr>
+<td>B</td>
+<td>(…, …)</td>
+</tr>
+<tr>
+<td>…</td>
+<td>(…, …)</td>
+</tr>
+</tbody>
+</table>
+<p>计算待用和活跃信息</p>
+<ol>
+<li>开始时, 所有变量均为<code>非待用</code>, 根据基本块之后是否活跃填写<code>活跃</code>或<code>非活跃</code></li>
+<li>逆序遍历每个四元式<code>i</code>
+<ol>
+<li>把<code>A</code>的引用信息附加到四元式<code>i</code>左值上</li>
+<li><code>A</code>的引用信息附加<code>(^,^)</code></li>
+<li>把<code>B</code>,<code>C</code>的引用信息附加到四元式<code>i</code>上</li>
+<li><code>B</code>,<code>C</code>的引用信息附加<code>(^,^)</code></li>
+</ol>
+</li>
+</ol>
+<p>例:</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">T1:=B-C</span><br><span class="line">T2:=A*T1</span><br><span class="line">T3:=D+1</span><br><span class="line">T4:=E-F</span><br><span class="line">T5:=T3*T4</span><br><span class="line">W:=T2/T5</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>四元式</th>
+<th>左值</th>
+<th>左操作数</th>
+<th>右操作数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(6)</td>
+<td>W:=T2/T5</td>
+<td>(^,y)</td>
+<td>(<sup>,</sup>)</td>
+<td>(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>(5)</td>
+<td>T5:=T3*T4</td>
+<td>(6,y)</td>
+<td>(<sup>,</sup>)</td>
+<td>(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>(4)</td>
+<td>T4:=E-F</td>
+<td>(3,y)</td>
+<td>(<sup>,</sup>)</td>
+<td>(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>(3)</td>
+<td>T3:=D+1</td>
+<td>(3,y)</td>
+<td>(<sup>,</sup>)</td>
+<td>(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>(2)</td>
+<td>T2:=A*T1</td>
+<td>(6,y)</td>
+<td>(<sup>,</sup>)</td>
+<td>(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>(1)</td>
+<td>T1:=B-C</td>
+<td>(2,y)</td>
+<td>(<sup>,</sup>)</td>
+<td>(<sup>,</sup>)</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>待用/活跃信息栏</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T5</td>
+<td>(<sup>,</sup>)-&gt;(6,y)-&gt;(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>T4</td>
+<td>(<sup>,</sup>)-&gt;(3,y)-&gt;(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>(<sup>,</sup>)-&gt;(3,y)-&gt;(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>(<sup>,</sup>)-&gt;(6,y)-&gt;(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>T1</td>
+<td>(<sup>,</sup>)-&gt;(2,y)-&gt;(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>W</td>
+<td>(<sup>,y)-&gt;(</sup>,^)</td>
+</tr>
+<tr>
+<td>F</td>
+<td>(<sup>,</sup>)-&gt;(4,y)</td>
+</tr>
+<tr>
+<td>E</td>
+<td>(<sup>,</sup>)-&gt;(4,y)</td>
+</tr>
+<tr>
+<td>D</td>
+<td>(<sup>,</sup>)-&gt;(3,y)</td>
+</tr>
+<tr>
+<td>C</td>
+<td>(<sup>,</sup>)-&gt;(1,y)</td>
+</tr>
+<tr>
+<td>B</td>
+<td>(<sup>,</sup>)-&gt;(1,y)</td>
+</tr>
+<tr>
+<td>A</td>
+<td>(<sup>,</sup>)-&gt;(2,y)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="寄存器分配算法"><a class="header-anchor-1" href="#寄存器分配算法">#</a>寄存器分配算法</h3>
+<p>寄存器描述和地址描述</p>
+<ul>
+<li>寄存器描述数组<code>RVALUE</code>
+<ul>
+<li>记录寄存器内存储的变量, 可以是多个</li>
+<li><code>RVALUE[R1]=&#123;A,B&#125;</code></li>
+</ul>
+</li>
+<li>变量地址描述数组<code>AVALUE</code>
+<ul>
+<li>记录变量存储的位置(寄存器/内存)</li>
+<li><code>AVALUE[A]=&#123;R1,R2,A&#125;</code></li>
+</ul>
+</li>
+</ul>
+<p>代码生成算法</p>
+<ul>
+<li>对于四元式<code>A:=B op C</code>, 依次执行</li>
+</ul>
+<ol>
+<li>调用<code>GETREG(i: A:=B op C)</code>获取一个寄存器<code>R</code></li>
+<li>查询<code>AVALUE[B]</code>和<code>AVALUE[C]</code>, 如果在寄存器中, 假设是<code>B'</code>和<code>C'</code></li>
+<li>如果<code>B'≠R</code>, 先把<code>B</code>加载到<code>R</code>中, 生成代码: <code>LD R,B'</code></li>
+<li>进行运算, 生成代码: <code>op R,C'</code></li>
+<li>更新描述信息
+<ol>
+<li>如果<code>B'</code>或<code>C'</code>是<code>R</code>, 就要把<code>AVALUE</code>中的记录删除</li>
+<li>设置<code>AVALUE[A]=&#123;R&#125;, RVALUE[R]=&#123;A&#125;</code></li>
+</ol>
+</li>
+<li>如果<code>B</code>或<code>C</code>仍存储在某个寄存器中, 但后续不再被引用且不再活跃, 就从<code>AVALUE</code>和<code>RVALUE</code>中删除<code>B</code>和<code>C</code>的记录</li>
+</ol>
+<p>寄存器分配原则</p>
+<ul>
+<li>尽可能用 B 独占的寄存器</li>
+<li>尽可能用空闲的寄存器</li>
+<li>抢占用非空闲寄存器
+<ul>
+<li><code>Ri</code>的值也存储在内存中</li>
+<li><code>Ri</code>最远才会用到</li>
+</ul>
+</li>
+</ul>
+<p>寄存器分配算法<code>GETREG(i: A:=B op C)</code></p>
+<ol>
+<li>
+<p>如果 B 独占某个寄存器</p>
+<ul>
+<li>如果<code>AB</code>是同一个标识符(即修改 B 的指令<code>B:=B op C</code>)
+<ul>
+<li>返回<code>B</code>所在的寄存器</li>
+</ul>
+</li>
+<li>如果<code>B</code>在后面不会再引用(非待用, 非活跃)
+<ul>
+<li>返回<code>B</code>所在的寄存器</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>如果有空闲寄存器, 返回空闲寄存器</p>
+</li>
+<li>
+<p>抢占一个寄存器<code>Ri</code>,</p>
+<ul>
+<li>对于<code>Ri</code>中存储的每一个变量<code>M</code>, 如果存储的不是<code>A</code>, 或者存储的是<code>A == C != B</code>且<code>Ri</code>中不存储<code>B</code>.(<code>M==A &amp;&amp; M==C &amp;&amp; M!=B &amp;&amp; B not in RVALUE[Ri]</code>)
+<ol>
+<li>如果<code>M</code>仅存储在<code>Ri</code>, 则要存到内存中: <code>ST Ri, M</code></li>
+<li>如果<code>M == B</code>, 或者<code>M == C &amp;&amp; B in RVALUE[Ri]</code>中, 则令<code>AVALUE[M]=&#123;M,R&#125;</code>, 否则令<code>AVALUE[M]=&#123;M&#125;</code></li>
+<li>删除<code>M</code>在<code>Ri</code>中的记录, <code>RVALUE[Ri].reLD e(M)</code></li>
+<li>返回<code>R</code></li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<p>例:</p>
+<p>寄存器: R0，R1；基本块出口活跃变量: W</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">T1:=B-C</span><br><span class="line">T2:=A*T1</span><br><span class="line">T3:=D+1</span><br><span class="line">T4:=E-F</span><br><span class="line">T5:=T3*T4</span><br><span class="line">W:=T2/T5</span><br></pre></td></tr></table></figure>
+<p>答案:</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">【解答】该基本块的目标代码如下(指令后面为相应的注释)：</span><br><span class="line">LD  R0, B  <span class="comment">/* 取第一个空闲寄存器 R0 */</span></span><br><span class="line">SUB R0, C  <span class="comment">/* 运算结束后R0中为T1结果，内存中无该结果 */</span></span><br><span class="line">LD  R1, A  <span class="comment">/* 取一个空闲寄存器R1 */</span></span><br><span class="line">MUL R1, R0 <span class="comment">/* 运算结束后R1中为T2结果，内存中无该结果 */</span></span><br><span class="line">LD  R0,D  <span class="comment">/* 此时R0中结果T1已经没有引用点，且临时单元T1是非活跃的，所以，寄存器R0可作为空闲寄存器使用 */</span></span><br><span class="line">ADD R0, <span class="number">1</span> <span class="comment">/* 运算结束后R0中为T3结果，内存中无该结果 */</span></span><br><span class="line">ST  R1, T2  <span class="comment">/*翻译四元式T4=E-F时，所有寄存器已经分配完毕，寄存器R0中存的T3和寄存器R1中存的T2都是有用的。由于T2的下一个引用点较T3的下一个引用点更远，所以暂时可将寄存器R1中的结果存回到内存的变量T2中，从而将寄存器R1空闲以备使用*/</span></span><br><span class="line">LD  R1, E</span><br><span class="line">SUB R1, F  <span class="comment">/*运算结束后R1中为T4结果，内存中无该结果*/</span></span><br><span class="line">MUL R0, R1 <span class="comment">/*运算结束后R0中为T5结果，内存中无该结果。注意，该指令将寄存器R0中原来的结果T3冲掉了。可以这么做的原因是，T3在该指令后不再有引用点，且是非活跃变量*/</span></span><br><span class="line">LD  R1, T2 <span class="comment">/*此时R1中结果T4已经没有引用点，且临时单元T4是非活跃的，因此寄存器R1可作为空闲寄存器使用*/</span></span><br><span class="line">DIV R1, R0</span><br><span class="line"><span class="comment">/*运算结束后R1中为W结果，内存中无该结果。此时所有指令部分已经翻译完毕*/</span></span><br><span class="line">ST  R1, W</span><br><span class="line"><span class="comment">/*指令翻译完毕时，寄存器中存有最新的计算结果，必须将它们存回到内存相应的单元中去，否则，在翻译下一个基本块时，所有的寄存器被当成空闲的寄存器使用，从而造成计算结果的丢失。考虑到寄存器R0中的T5和寄存器R1中的W，临时单元T5是非活跃的，因此只要将结果W存回对应单元即可*/</span></span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>compiler-principle</category>
@@ -2865,12 +2865,12 @@ SNMP: 161/162</p>
 </ol>
 <figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">TicketLock</span> &#123;</span><br><span class="line">    next_ticket: AtomicUsize,</span><br><span class="line">    now_serving: AtomicUsize,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">TicketLock</span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">new</span>() <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">Self</span> &#123;</span><br><span class="line">            next_ticket: AtomicUsize::<span class="title function_ invoke__">new</span>(<span class="number">0</span>),</span><br><span class="line">            now_serving: AtomicUsize::<span class="title function_ invoke__">new</span>(<span class="number">0</span>),</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">lock</span>(&amp;<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">ticket</span> = <span class="keyword">self</span>.next_ticket.<span class="title function_ invoke__">fetch_add</span>(<span class="number">1</span>, Relaxed);</span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">self</span>.now_serving.<span class="title function_ invoke__">load</span>(Relaxed) != ticket &#123;</span><br><span class="line">            std::hint::<span class="title function_ invoke__">spin_loop</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">unlock</span>(&amp;<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">next</span> = <span class="keyword">self</span>.now_serving.<span class="title function_ invoke__">load</span>(Relaxed);</span><br><span class="line">        <span class="keyword">self</span>.now_serving.<span class="title function_ invoke__">store</span>(next + <span class="number">1</span>, Release);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="mcs-lock"><a class="header-anchor-1" href="#mcs-lock">#</a>MCS Lock</h3>
-<p>Ticket Lock 有一个问题，就是多个CPU同时争抢一把锁时，会导致严重的总线竞争，导致性能下降。</p>
+<p>Ticket Lock 有一个问题，就是多个 CPU 同时争抢一把锁时，会导致严重的总线竞争，导致性能下降。</p>
 <p>MCS Lock (Mellor-Crummey and Scott locks)<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> 通过使用一个链表来实现锁，每个线程在进入临界区之前，需要先获取一个自增的 ticket，然后 spin 等待另一个线程的锁。</p>
 <p>数据结构:</p>
 <ul>
-<li>MCS 锁实例​​: 一条单向链表的指针，初始化为指向一个未拥有的节点。</li>
-<li>锁节点​​: 每次加锁时创建一个节点，包含 next 指针和 locked 状态。
+<li>MCS 锁实例 ​​: 一条单向链表的指针，初始化为指向一个未拥有的节点。</li>
+<li>锁节点 ​​: 每次加锁时创建一个节点，包含 next 指针和 locked 状态。
 <ul>
 <li>next 指针指向下一个正在等待锁的节点。</li>
 <li>locked: volitile bool 状态表示当前线程是否正在持有锁。</li>
@@ -2880,31 +2880,31 @@ SNMP: 161/162</p>
 <p>加锁操作:</p>
 <ol>
 <li>当前线程创建锁节点，next 设为 nullptr。</li>
-<li>通过lock.getAndSet()将自己加入队列尾部，并获取前驱节点pred。</li>
-<li>如果pred为空，则说明没有线程在排队，直接结束。</li>
-<li>将当前锁节点的locked设为true。</li>
-<li>将pred-&gt;next指针指向当前节点。</li>
-<li>自旋等待locked变成false。</li>
+<li>通过 lock.getAndSet()将自己加入队列尾部，并获取前驱节点 pred。</li>
+<li>如果 pred 为空，则说明没有线程在排队，直接结束。</li>
+<li>将当前锁节点的 locked 设为 true。</li>
+<li>将 pred-&gt;next 指针指向当前节点。</li>
+<li>自旋等待 locked 变成 false。</li>
 </ol>
 <p>解锁操作:</p>
 <ol>
-<li>获取当前线程的锁节点I。</li>
-<li>如果I-&gt;next为空，则说明没有线程在排队。
+<li>获取当前线程的锁节点 I。</li>
+<li>如果 I-&gt;next 为空，则说明没有线程在排队。
 <ol>
-<li>通过lock.cas(I, nullptr)将队列清空</li>
+<li>通过 lock.cas(I, nullptr)将队列清空</li>
 <li>如果成功，则直接结束；否则，说明有后继节点过来了</li>
-<li>Spin等待后继线程把I-&gt;next设置好</li>
+<li>Spin 等待后继线程把 I-&gt;next 设置好</li>
 </ol>
 </li>
-<li>将I-&gt;next-&gt;locked设为false。</li>
+<li>将 I-&gt;next-&gt;locked 设为 false。</li>
 </ol>
 <figure class="highlight pascal"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> qnode = <span class="keyword">record</span></span><br><span class="line">    next : ^qnode       <span class="comment">// 指向下一个正在等待锁的节点</span></span><br><span class="line">    locked : Boolean    <span class="comment">// 当前线程是否正在持有锁</span></span><br><span class="line"><span class="keyword">type</span> lock = ^qnode      <span class="comment">// initialized to nil</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// parameter I, below, points to a qnode record allocated</span></span><br><span class="line"><span class="comment">// (in an enclosing scope) in shared memory locally-accessible</span></span><br><span class="line"><span class="comment">// to the invoking processor</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">acquire_lock</span> <span class="params">(L : ^lock, I : ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span>-&gt;<span class="title">next</span> :</span>= <span class="keyword">nil</span></span><br><span class="line">    pred : ^qnode := fetch_and_store (L, I)  <span class="comment">// 节点入队</span></span><br><span class="line">    <span class="keyword">if</span> pred != <span class="keyword">nil</span>          <span class="comment">// 如果之前有线程正在持有锁，说明需要等待</span></span><br><span class="line">        I-&gt;locked := true</span><br><span class="line">        pred-&gt;next := I     <span class="comment">// 将当前节点加入到前驱节点的next指针</span></span><br><span class="line">        <span class="keyword">repeat</span> <span class="keyword">while</span> I-&gt;locked              <span class="comment">// 自旋等待前驱节点释放锁</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">release_lock</span> <span class="params">(L : ^lock, I: ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">if</span> <span class="title">I</span>-&gt;<span class="title">next</span> = <span class="title">nil</span>        <span class="comment">// 没有后继节点在排队</span></span></span><br><span class="line"><span class="function">        <span class="title">if</span> <span class="title">compare_and_store</span> <span class="params">(L, I, <span class="keyword">nil</span>)</span>    <span class="comment">// 确实没有后继节点在排队，则结束</span></span></span><br><span class="line"><span class="function">            <span class="title">return</span></span></span><br><span class="line"><span class="function">        <span class="title">repeat</span> <span class="title">while</span> <span class="title">I</span>-&gt;<span class="title">next</span> = <span class="title">nil</span>          <span class="comment">// 等待后继节点设置好next指针</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span>-&gt;<span class="title">next</span>-&gt;<span class="title">locked</span> :</span>= false  <span class="comment">// 后继节点可以获得锁了</span></span><br></pre></td></tr></table></figure>
 <h3 id="clh-lock"><a class="header-anchor-1" href="#clh-lock">#</a>CLH Lock</h3>
-<p>CLH Lock (Craig, Landin, and Hagersten locks)<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> 是一种基于​​单向链表实现的可扩展、高性能、公平的自旋锁，它使用一个链表来实现锁。加锁过程相当于将当前线程加入到队列尾部，并等待前驱节点释放锁。解锁过程相当于将当前节点从队列中移除。</p>
+<p>CLH Lock (Craig, Landin, and Hagersten locks)<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> 是一种基于 ​​ 单向链表实现的可扩展、高性能、公平的自旋锁，它使用一个链表来实现锁。加锁过程相当于将当前线程加入到队列尾部，并等待前驱节点释放锁。解锁过程相当于将当前节点从队列中移除。</p>
 <p>数据结构:</p>
 <ul>
-<li>CLH 锁实例​​: 一条单向链表的指针，初始化为指向一个未拥有的节点。</li>
-<li>锁节点​​: 每次加锁时创建一个节点，包含 prev 指针和 succ_must_wait 状态。
+<li>CLH 锁实例 ​​: 一条单向链表的指针，初始化为指向一个未拥有的节点。</li>
+<li>锁节点 ​​: 每次加锁时创建一个节点，包含 prev 指针和 succ_must_wait 状态。
 <ul>
 <li>prev 指针指向前一个线程的锁节点。</li>
 <li>succ_must_wait: volitile bool 状态表示当前线程是否正在持有锁。</li>
@@ -2914,21 +2914,22 @@ SNMP: 161/162</p>
 <p>加锁操作:</p>
 <ol>
 <li>当前线程创建锁节点，succ_must_wait 设为 true。</li>
-<li>通过lock.getAndSet()将自己加入队列尾部，并获取前驱节点。</li>
-<li>在前驱节点的succ_must_wait上自旋，直到其变为false。</li>
+<li>通过 lock.getAndSet()将自己加入队列尾部，并获取前驱节点。</li>
+<li>在前驱节点的 succ_must_wait 上自旋，直到其变为 false。</li>
 </ol>
 <p>解锁操作:</p>
 <ol>
 <li>获取前驱节点。</li>
-<li>将当前锁节点的succ_must_wait设为false。</li>
-<li>返回前一个锁节点，用于下一次加锁使用（前一个锁节点一定不再被使用，这里复用前一个锁节点以避免内存分配和释放）。</li>
+<li>将当前锁节点的 succ_must_wait 设为 false。</li>
+<li>返回前一个锁节点，用于下一次加锁使用 (前一个锁节点一定不再被使用，这里复用前一个锁节点以避免内存分配和释放)。</li>
 </ol>
 <figure class="highlight pascal"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> qnode = <span class="keyword">record</span></span><br><span class="line">    prev : ^qnode             <span class="comment">// 前一个正在等待锁/持有锁的节点</span></span><br><span class="line">    succ_must_wait : Boolean  <span class="comment">// 当前线程是否正在持有锁</span></span><br><span class="line"><span class="keyword">type</span> lock = ^qnode  <span class="comment">// initialized to point to an unowned qnode</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">acquire_lock</span> <span class="params">(L : ^lock, I : ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span>-&gt;<span class="title">succ_must_wait</span> :</span>= true</span><br><span class="line">    pred : ^qnode := I-&gt;prev := fetch_and_store (L, I)  <span class="comment">// 节点入队</span></span><br><span class="line">    <span class="keyword">repeat</span> <span class="keyword">while</span> pred-&gt;succ_must_wait</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">release_lock</span> <span class="params">(ref I : ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">pred</span> :</span> ^qnode := I-&gt;prev</span><br><span class="line">    I-&gt;succ_must_wait := false</span><br><span class="line">    I := pred       <span class="comment">// 返回前一个锁节点，用于下一次加锁使用。</span></span><br></pre></td></tr></table></figure>
 <p>CLH 锁的优缺点:</p>
 <ul>
-<li>空间复杂度低，N个线程，L个锁，每个线程获取一个锁，则存储空间为<code>O(N+L)</code></li>
-<li>NUMA架构的CPU上，性能差。每个CPU都有自己的内存，如果前驱节点不在同一个CPU内存上，由于内存位置比较远，在自旋判断前驱节点的locked属性时，性能很差。不过在SMP架构的CPU上，不存在这个问题，性能依旧很高。</li>
+<li>空间复杂度低，N 个线程，L 个锁，每个线程获取一个锁，则存储空间为<code>O(N+L)</code></li>
+<li>NUMA 架构的 CPU 上，性能差。每个 CPU 都有自己的内存，如果前驱节点不在同一个 CPU 内存上，由于内存位置比较远，在自旋判断前驱节点的 locked 属性时，性能很差。不过在 SMP 架构的 CPU 上，不存在这个问题，性能依旧很高。</li>
 </ul>
+<p>Java 的 AbstractQueuedSynchronizer(简称为 AQS)就是基于 CLH Lock 思想实现的。</p>
 <h3 id="k42-lock"><a class="header-anchor-1" href="#k42-lock">#</a>K42 Lock</h3>
 <p>K42 Lock 是一种 MCS Lock 的变种，由 IBM K42 Group 提出，避免了加锁时需要多传一个参数的问题。</p>
 <figure class="highlight pascal"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Locks and queue nodes use the same data structure:</span></span><br><span class="line"><span class="keyword">type</span> lnode = <span class="keyword">record</span></span><br><span class="line">    next : ^lnode</span><br><span class="line">    union</span><br><span class="line">        locked : Boolean    <span class="comment">// for queue nodes</span></span><br><span class="line">        tail : ^lnode       <span class="comment">// for locks</span></span><br><span class="line"><span class="keyword">type</span> lock = lnode</span><br><span class="line"></span><br><span class="line"><span class="comment">// If threads are waiting for a held lock, next points to the queue node</span></span><br><span class="line"><span class="comment">// of the first of them, and tail to the queue node of the last.</span></span><br><span class="line"><span class="comment">// A held lock with no waiting threads has value &lt;&amp;head, nil&gt;.</span></span><br><span class="line"><span class="comment">// A free lock with no waiting threads has value &lt;nil, nil&gt;.</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">acquire_lock</span> <span class="params">(L : ^lnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span> :</span> lnode</span><br><span class="line">    loop</span><br><span class="line">        predecessor : ^lnode := L-&gt;tail</span><br><span class="line">        <span class="keyword">if</span> predecessor = <span class="keyword">nil</span></span><br><span class="line">            <span class="comment">// lock appears not to be held</span></span><br><span class="line">            <span class="keyword">if</span> compare_and_store (&amp;L-&gt;tail, <span class="keyword">nil</span>, &amp;L-&gt;next)</span><br><span class="line">                <span class="comment">// I have the lock</span></span><br><span class="line">                return</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="comment">// lock appears to be held</span></span><br><span class="line">            I.next := <span class="keyword">nil</span></span><br><span class="line">            <span class="keyword">if</span> compare_and_store (&amp;L-&gt;tail, predecessor, &amp;I)</span><br><span class="line">                <span class="comment">// I&#x27;m in line</span></span><br><span class="line">                I.locked := true</span><br><span class="line">                predecessor-&gt;next := &amp;I</span><br><span class="line">                <span class="keyword">repeat</span> <span class="keyword">while</span> I.locked             <span class="comment">// wait for lock</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">// I now have the lock</span></span><br><span class="line">                successor : ^lnode := I.next</span><br><span class="line">                <span class="keyword">if</span> successor = <span class="keyword">nil</span></span><br><span class="line">                    L-&gt;next := <span class="keyword">nil</span></span><br><span class="line">                    <span class="keyword">if</span> ! compare_and_store (&amp;L-&gt;tail, &amp;I, &amp;L-&gt;next)</span><br><span class="line">                        <span class="comment">// somebody got into the timing window</span></span><br><span class="line">                        <span class="keyword">repeat</span></span><br><span class="line">                            successor := I.next</span><br><span class="line">                        <span class="keyword">while</span> successor = <span class="keyword">nil</span>     <span class="comment">// wait for successor</span></span><br><span class="line">                        L-&gt;next := successor</span><br><span class="line">                    return</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                    L-&gt;next := successor</span><br><span class="line">                    return</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">release_lock</span> <span class="params">(L : ^lnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">successor</span> :</span> ^lnode := L-&gt;next</span><br><span class="line">    <span class="keyword">if</span> successor = <span class="keyword">nil</span>        <span class="comment">// no known successor</span></span><br><span class="line">        <span class="keyword">if</span> compare_and_store (&amp;L-&gt;tail, &amp;L-&gt;next, <span class="keyword">nil</span>)</span><br><span class="line">            return</span><br><span class="line">        <span class="keyword">repeat</span></span><br><span class="line">            successor := L-&gt;next</span><br><span class="line">        <span class="keyword">while</span> successor = <span class="keyword">nil</span>             <span class="comment">// wait for successor</span></span><br><span class="line">    successor-&gt;locked := false</span><br></pre></td></tr></table></figure>
@@ -2938,7 +2939,7 @@ SNMP: 161/162</p>
 <h3 id="总结"><a class="header-anchor-1" href="#总结">#</a>总结</h3>
 <ul>
 <li>Non-scalable locks are dangerous.</li>
-<li>各种Scalable Spinlock的总结伪代码: <span class="exturl" data-url="aHR0cHM6Ly93d3cuY3Mucm9jaGVzdGVyLmVkdS9yZXNlYXJjaC9zeW5jaHJvbml6YXRpb24vcHNldWRvY29kZS9zcy5odG1s">https://www.cs.rochester.edu/research/synchronization/pseudocode/ss.html<i class="fa fa-external-link-alt"></i></span></li>
+<li>各种 Scalable Spinlock 的总结伪代码: <span class="exturl" data-url="aHR0cHM6Ly93d3cuY3Mucm9jaGVzdGVyLmVkdS9yZXNlYXJjaC9zeW5jaHJvbml6YXRpb24vcHNldWRvY29kZS9zcy5odG1s">https://www.cs.rochester.edu/research/synchronization/pseudocode/ss.html<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 <h2 id="lock-based-concurrency"><a class="header-anchor-1" href="#lock-based-concurrency">#</a>Lock-based Concurrency</h2>
 <h3 id="sequence-lock"><a class="header-anchor-1" href="#sequence-lock">#</a>Sequence Lock</h3>
@@ -2959,7 +2960,7 @@ SNMP: 161/162</p>
 <li>top = load(top)</li>
 <li>next = top-&gt;next</li>
 <li>CAS(top, top, next)</li>
-<li>如果 CAS 成功，则返回top，否则回到第 2 步重试。</li>
+<li>如果 CAS 成功，则返回 top，否则回到第 2 步重试。</li>
 </ol>
 <figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">impl</span>&lt;T&gt; Stack&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">/// Pushes a value on top of the stack.</span></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">push</span>(&amp;<span class="keyword">self</span>, t: T) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">node</span> = Owned::<span class="title function_ invoke__">new</span>(Node &#123;</span><br><span class="line">            data: MaybeUninit::<span class="title function_ invoke__">new</span>(t),</span><br><span class="line">            next: ptr::<span class="title function_ invoke__">null</span>(),</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// SAFETY: We don&#x27;t dereference any pointers obtained from this guard.</span></span><br><span class="line">        <span class="keyword">let</span> <span class="variable">guard</span> = <span class="keyword">unsafe</span> &#123; crossbeam_epoch::<span class="title function_ invoke__">unprotected</span>() &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">head</span> = <span class="keyword">self</span>.head.<span class="title function_ invoke__">load</span>(Relaxed, guard);</span><br><span class="line">        <span class="keyword">loop</span> &#123;</span><br><span class="line">            node.next = head.<span class="title function_ invoke__">as_raw</span>();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">match</span> <span class="keyword">self</span></span><br><span class="line">                .head</span><br><span class="line">                .<span class="title function_ invoke__">compare_exchange</span>(head, node, Release, Relaxed, guard)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="title function_ invoke__">Ok</span>(_) =&gt; <span class="keyword">break</span>,</span><br><span class="line">                <span class="title function_ invoke__">Err</span>(e) =&gt; &#123;</span><br><span class="line">                    head = e.current;</span><br><span class="line">                    node = e.new;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// Attempts to pop the top element from the stack.</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">/// Returns `None` if the stack is empty.</span></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">pop</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;T&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = crossbeam_epoch::<span class="title function_ invoke__">pin</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">loop</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">head</span> = <span class="keyword">self</span>.head.<span class="title function_ invoke__">load</span>(Acquire, &amp;guard);</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">h</span> = <span class="keyword">unsafe</span> &#123; head.<span class="title function_ invoke__">as_ref</span>() &#125;?;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">next</span> = Shared::<span class="title function_ invoke__">from</span>(h.next);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">self</span></span><br><span class="line">                .head</span><br><span class="line">                .<span class="title function_ invoke__">compare_exchange</span>(head, next, Relaxed, Relaxed, &amp;guard)</span><br><span class="line">                .<span class="title function_ invoke__">is_ok</span>()</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// Since the above `compare_exchange()` succeeded, `head` is detached from</span></span><br><span class="line">                <span class="comment">// `self` so is unreachable from other threads.</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">// SAFETY: We are returning ownership of `data` in `head` by making a copy of it via</span></span><br><span class="line">                <span class="comment">// `assume_init_read()`. This is safe as no other thread has access to `data` after</span></span><br><span class="line">                <span class="comment">// `head` is unreachable, so the ownership of `data` in `head` will never be used</span></span><br><span class="line">                <span class="comment">// again.</span></span><br><span class="line">                <span class="keyword">let</span> <span class="variable">result</span> = <span class="keyword">unsafe</span> &#123; h.data.<span class="title function_ invoke__">assume_init_read</span>() &#125;;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// SAFETY: `head` is unreachable, and we no longer access `head`.</span></span><br><span class="line">                <span class="keyword">unsafe</span> &#123; guard.<span class="title function_ invoke__">defer_destroy</span>(head) &#125;;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> <span class="title function_ invoke__">Some</span>(result);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Repin to ensure the global epoch can make progress.</span></span><br><span class="line">            guard.<span class="title function_ invoke__">repin</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="michael-scott’s-queue"><a class="header-anchor-1" href="#michael-scott’s-queue">#</a>Michael-Scott’s Queue</h3>
@@ -9234,39 +9235,6 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
       </categories>
   </entry>
   <entry>
-    <title>网站内容优化</title>
-    <url>/2024/04/25/website-optimization/</url>
-    <content><![CDATA[<p>今天用 <span class="exturl" data-url="aHR0cHM6Ly93ZWIuZGV2L21lYXN1cmUv">lighthouse<i class="fa fa-external-link-alt"></i></span> 分析博客的性能，发现几个之前不了解的问题，记录一下。</p>
-<h2 id="避免在主线程跑复杂-js"><a class="header-anchor-1" href="#避免在主线程跑复杂-js">#</a>避免在主线程跑复杂 JS</h2>
-<p>live2d.js 很耗时</p>
-<h2 id="内嵌关键-js-css，延迟非关键-js-css"><a class="header-anchor-1" href="#内嵌关键-js-css，延迟非关键-js-css">#</a>内嵌关键 JS/CSS，延迟非关键 JS/CSS</h2>
-<h2 id="使用-webp-格式的图片"><a class="header-anchor-1" href="#使用-webp-格式的图片">#</a>使用 WebP 格式的图片</h2>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">cwebp -q 50 images/flower1.jpg -o images/flower1.webp</span></span><br></pre></td></tr></table></figure>
-<p>50 表示质量，0 是最差，100 是最佳。</p>
-<p>兼容方案：向新版浏览器提供 WebP 内容，同时保留对旧版浏览器的支持。</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">picture</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">source</span> <span class="attr">type</span>=<span class="string">&quot;image/webp&quot;</span> <span class="attr">srcset</span>=<span class="string">&quot;images/flower1.webp&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">source</span> <span class="attr">type</span>=<span class="string">&quot;image/jpeg&quot;</span> <span class="attr">srcset</span>=<span class="string">&quot;images/flower1.jpg&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;images/flower1.jpg&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">picture</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h2 id="字体设置"><a class="header-anchor-1" href="#字体设置">#</a>字体设置</h2>
-<p>有些浏览器在字体文件加载完成之前会隐藏文本。</p>
-<p>字体 css 的<code>font-display</code>属性设置此行为：</p>
-<ul>
-<li>auto: 字体显示策略由用户代理定义。</li>
-<li>block: 为字体提供一个短暂的阻塞周期和无限的交换周期。</li>
-<li>swap: 为字体提供一个非常小的阻塞周期和无限的交换周期。</li>
-<li>fallback: 为字体提供一个非常小的阻塞周期和短暂的交换周期。</li>
-<li>optional: 为字体提供一个非常小的阻塞周期，并且没有交换周期。</li>
-</ul>
-<p>讲人话就是，后三个选项明确指示浏览器使用 fallback 字体。</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@font-face</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: <span class="string">&quot;Pacifico&quot;</span>;</span><br><span class="line">  <span class="attribute">font-style</span>: normal;</span><br><span class="line">  <span class="attribute">font-weight</span>: <span class="number">400</span>;</span><br><span class="line">  <span class="attribute">src</span>: <span class="built_in">local</span>(<span class="string">&quot;Pacifico Regular&quot;</span>), <span class="built_in">local</span>(<span class="string">&quot;Pacifico-Regular&quot;</span>),</span><br><span class="line">    <span class="built_in">url</span>(<span class="string">https://fonts.gstatic.com/s/pacifico/v12/FwZY7-Qmy14u9lezJ-6H6MmBp0u-.woff2</span>)</span><br><span class="line">      <span class="built_in">format</span>(<span class="string">&quot;woff2&quot;</span>);</span><br><span class="line">  <span class="attribute">font-display</span>: swap;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>misc</category>
-      </categories>
-      <tags>
-        <tag>SEO</tag>
-        <tag>前端</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>VirtIO 规范</title>
     <url>/2024/04/16/virtio-note/</url>
     <content><![CDATA[<p>VirtIO 是一种通用的半虚拟化的解决方案，它定义了一组规范：只要 Guest 和 Host 按照此规范进行数据操作，就可以使虚拟机绕过内核空间而直接和用户空间的进程间通信，以此达到提高 IO 性能的目的。</p>
@@ -9316,6 +9284,39 @@ VirtIO 规范中定义了多种实现方式，最常见的是 VirtIO over PCI，
       </categories>
       <tags>
         <tag>虚拟化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>网站内容优化</title>
+    <url>/2024/04/25/website-optimization/</url>
+    <content><![CDATA[<p>今天用 <span class="exturl" data-url="aHR0cHM6Ly93ZWIuZGV2L21lYXN1cmUv">lighthouse<i class="fa fa-external-link-alt"></i></span> 分析博客的性能，发现几个之前不了解的问题，记录一下。</p>
+<h2 id="避免在主线程跑复杂-js"><a class="header-anchor-1" href="#避免在主线程跑复杂-js">#</a>避免在主线程跑复杂 JS</h2>
+<p>live2d.js 很耗时</p>
+<h2 id="内嵌关键-js-css，延迟非关键-js-css"><a class="header-anchor-1" href="#内嵌关键-js-css，延迟非关键-js-css">#</a>内嵌关键 JS/CSS，延迟非关键 JS/CSS</h2>
+<h2 id="使用-webp-格式的图片"><a class="header-anchor-1" href="#使用-webp-格式的图片">#</a>使用 WebP 格式的图片</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">cwebp -q 50 images/flower1.jpg -o images/flower1.webp</span></span><br></pre></td></tr></table></figure>
+<p>50 表示质量，0 是最差，100 是最佳。</p>
+<p>兼容方案：向新版浏览器提供 WebP 内容，同时保留对旧版浏览器的支持。</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">picture</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">source</span> <span class="attr">type</span>=<span class="string">&quot;image/webp&quot;</span> <span class="attr">srcset</span>=<span class="string">&quot;images/flower1.webp&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">source</span> <span class="attr">type</span>=<span class="string">&quot;image/jpeg&quot;</span> <span class="attr">srcset</span>=<span class="string">&quot;images/flower1.jpg&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;images/flower1.jpg&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">picture</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="字体设置"><a class="header-anchor-1" href="#字体设置">#</a>字体设置</h2>
+<p>有些浏览器在字体文件加载完成之前会隐藏文本。</p>
+<p>字体 css 的<code>font-display</code>属性设置此行为：</p>
+<ul>
+<li>auto: 字体显示策略由用户代理定义。</li>
+<li>block: 为字体提供一个短暂的阻塞周期和无限的交换周期。</li>
+<li>swap: 为字体提供一个非常小的阻塞周期和无限的交换周期。</li>
+<li>fallback: 为字体提供一个非常小的阻塞周期和短暂的交换周期。</li>
+<li>optional: 为字体提供一个非常小的阻塞周期，并且没有交换周期。</li>
+</ul>
+<p>讲人话就是，后三个选项明确指示浏览器使用 fallback 字体。</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@font-face</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: <span class="string">&quot;Pacifico&quot;</span>;</span><br><span class="line">  <span class="attribute">font-style</span>: normal;</span><br><span class="line">  <span class="attribute">font-weight</span>: <span class="number">400</span>;</span><br><span class="line">  <span class="attribute">src</span>: <span class="built_in">local</span>(<span class="string">&quot;Pacifico Regular&quot;</span>), <span class="built_in">local</span>(<span class="string">&quot;Pacifico-Regular&quot;</span>),</span><br><span class="line">    <span class="built_in">url</span>(<span class="string">https://fonts.gstatic.com/s/pacifico/v12/FwZY7-Qmy14u9lezJ-6H6MmBp0u-.woff2</span>)</span><br><span class="line">      <span class="built_in">format</span>(<span class="string">&quot;woff2&quot;</span>);</span><br><span class="line">  <span class="attribute">font-display</span>: swap;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
+      <tags>
+        <tag>SEO</tag>
+        <tag>前端</tag>
       </tags>
   </entry>
   <entry>
@@ -10294,6 +10295,16 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </tags>
   </entry>
   <entry>
+    <title>1018. 可被 5 整除的二进制前缀</title>
+    <url>/2021/01/14/1018/</url>
+    <content><![CDATA[<p>找规律题</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">vector&lt;<span class="type">bool</span>&gt; <span class="title">prefixesDivBy5</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; A)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="type">bool</span>&gt; ret;</span><br><span class="line">        <span class="type">int</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp;&amp;a:A)&#123;</span><br><span class="line">            res = res * <span class="number">2</span> + a;</span><br><span class="line">            res %= <span class="number">10</span>;</span><br><span class="line">            <span class="keyword">if</span>(res % <span class="number">5</span> == <span class="number">0</span>)&#123;</span><br><span class="line">                ret.<span class="built_in">push_back</span>(<span class="literal">true</span>);</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                ret.<span class="built_in">push_back</span>(<span class="literal">false</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
     <title>1202. 交换字符串中的元素</title>
     <url>/2021/01/11/1202/</url>
     <content><![CDATA[<h2 id="题意"><a class="header-anchor-1" href="#题意">#</a>题意</h2>
@@ -10321,16 +10332,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>1018. 可被 5 整除的二进制前缀</title>
-    <url>/2021/01/14/1018/</url>
-    <content><![CDATA[<p>找规律题</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">vector&lt;<span class="type">bool</span>&gt; <span class="title">prefixesDivBy5</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; A)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="type">bool</span>&gt; ret;</span><br><span class="line">        <span class="type">int</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span>&amp;&amp;a:A)&#123;</span><br><span class="line">            res = res * <span class="number">2</span> + a;</span><br><span class="line">            res %= <span class="number">10</span>;</span><br><span class="line">            <span class="keyword">if</span>(res % <span class="number">5</span> == <span class="number">0</span>)&#123;</span><br><span class="line">                ret.<span class="built_in">push_back</span>(<span class="literal">true</span>);</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                ret.<span class="built_in">push_back</span>(<span class="literal">false</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
     <title>1203. 项目管理</title>
     <url>/2021/01/12/1203/</url>
     <content><![CDATA[<p>双重拓扑排序: 组内 &amp; 组间</p>
@@ -10347,15 +10348,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </tags>
   </entry>
   <entry>
-    <title>1395. 统计作战单位数</title>
-    <url>/2021/07/02/1395/</url>
-    <content><![CDATA[<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number[]</span>&#125; <span class="variable">rating</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="type">number</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> numTeams = <span class="keyword">function</span> (<span class="params">rating</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; rating.<span class="property">length</span> - <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">let</span> ri = rating[i];</span><br><span class="line">        <span class="keyword">let</span> countx1 = <span class="number">0</span>, countx2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">let</span> county1 = <span class="number">0</span>, county2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = <span class="number">0</span>; x &lt; i; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) countx1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) countx2++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = i + <span class="number">1</span>; x &lt; rating.<span class="property">length</span>; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) county1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) county2++;</span><br><span class="line">        &#125;</span><br><span class="line">        count += countx1 * county2 + countx2 * county1;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>leetcode</category>
-      </categories>
-  </entry>
-  <entry>
     <title>123. 买卖股票的最佳时机 III</title>
     <url>/2021/01/09/123/</url>
     <content><![CDATA[<p>最多可以交易两次</p>
@@ -10363,6 +10355,15 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
 <p>动态规划, 用四个状态变量</p>
 <p><span class="exturl" data-url="aHR0cHM6Ly9sZWV0Y29kZS1jbi5jb20vcHJvYmxlbXMvYmVzdC10aW1lLXRvLWJ1eS1hbmQtc2VsbC1zdG9jay1paWkvc29sdXRpb24vbWFpLW1haS1ndS1waWFvLWRlLXp1aS1qaWEtc2hpLWppLWlpaS1ieS13cm50Lw==">官方题解<i class="fa fa-external-link-alt"></i></span></p>
 ]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>leetcode</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>1395. 统计作战单位数</title>
+    <url>/2021/07/02/1395/</url>
+    <content><![CDATA[<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">number[]</span>&#125; <span class="variable">rating</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="type">number</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">var</span> numTeams = <span class="keyword">function</span> (<span class="params">rating</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; rating.<span class="property">length</span> - <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">let</span> ri = rating[i];</span><br><span class="line">        <span class="keyword">let</span> countx1 = <span class="number">0</span>, countx2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">let</span> county1 = <span class="number">0</span>, county2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = <span class="number">0</span>; x &lt; i; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) countx1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) countx2++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> x = i + <span class="number">1</span>; x &lt; rating.<span class="property">length</span>; x++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &lt; ri) county1++;</span><br><span class="line">            <span class="keyword">if</span> (rating[x] &gt; ri) county2++;</span><br><span class="line">        &#125;</span><br><span class="line">        count += countx1 * county2 + countx2 * county1;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -10541,20 +10542,20 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>455. 分发饼干</title>
-    <url>/2020/12/25/455/</url>
-    <content><![CDATA[<p>排序</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">findContentChildren</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; g, vector&lt;<span class="type">int</span>&gt;&amp; s)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">sort</span>(g.<span class="built_in">begin</span>(),g.<span class="built_in">end</span>()); <span class="comment">// 1 2 3</span></span><br><span class="line">        <span class="built_in">sort</span>(s.<span class="built_in">begin</span>(),s.<span class="built_in">end</span>()); <span class="comment">// 1 1</span></span><br><span class="line">        <span class="type">int</span> count=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=s.<span class="built_in">size</span>()<span class="number">-1</span>, gg=g.<span class="built_in">size</span>()<span class="number">-1</span>;i&gt;=<span class="number">0</span>&amp;&amp;gg&gt;=<span class="number">0</span>;i--,gg--,count++)&#123;</span><br><span class="line">            <span class="type">int</span> ss=s[i];</span><br><span class="line">            <span class="keyword">while</span>(gg&gt;=<span class="number">0</span>&amp;&amp;g[gg]&gt;ss)&#123;</span><br><span class="line">                gg--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(gg&lt;<span class="number">0</span>) count--;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>4. 寻找两个正序数组的中位数</title>
+    <url>/2020/12/13/4/</url>
+    <content><![CDATA[<p>思路: 先归并排序, 再寻找中间位置</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums1, vector&lt;<span class="type">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> i=<span class="number">0</span>,j=<span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> len1=nums<span class="number">1.</span><span class="built_in">size</span>(),len2=nums<span class="number">2.</span><span class="built_in">size</span>(),len=len1+len2;</span><br><span class="line">        <span class="type">int</span> t, lastt;</span><br><span class="line">        <span class="keyword">while</span>(i+j&lt;=len/<span class="number">2</span>)&#123;</span><br><span class="line">            lastt=t;</span><br><span class="line">            <span class="keyword">if</span>(i&lt;len1 &amp;&amp; j&lt; len2)&#123;</span><br><span class="line">                <span class="type">int</span> n1=nums1[i];</span><br><span class="line">                <span class="type">int</span> n2=nums2[j];</span><br><span class="line">                <span class="keyword">if</span>(n1&lt;n2)&#123;</span><br><span class="line">                    t=n1;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    t=n2;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(i&lt;len1)&#123;</span><br><span class="line">                t=nums1[i++];</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                t=nums2[j++];</span><br><span class="line">            &#125;</span><br><span class="line">            cout&lt;&lt;i+j&lt;&lt;<span class="string">&quot;:&quot;</span>&lt;&lt;t&lt;&lt;endl;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (len%<span class="number">2</span>?t:(t+lastt)/<span class="number">2.0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
       </categories>
   </entry>
   <entry>
-    <title>4. 寻找两个正序数组的中位数</title>
-    <url>/2020/12/13/4/</url>
-    <content><![CDATA[<p>思路: 先归并排序, 再寻找中间位置</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums1, vector&lt;<span class="type">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> i=<span class="number">0</span>,j=<span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> len1=nums<span class="number">1.</span><span class="built_in">size</span>(),len2=nums<span class="number">2.</span><span class="built_in">size</span>(),len=len1+len2;</span><br><span class="line">        <span class="type">int</span> t, lastt;</span><br><span class="line">        <span class="keyword">while</span>(i+j&lt;=len/<span class="number">2</span>)&#123;</span><br><span class="line">            lastt=t;</span><br><span class="line">            <span class="keyword">if</span>(i&lt;len1 &amp;&amp; j&lt; len2)&#123;</span><br><span class="line">                <span class="type">int</span> n1=nums1[i];</span><br><span class="line">                <span class="type">int</span> n2=nums2[j];</span><br><span class="line">                <span class="keyword">if</span>(n1&lt;n2)&#123;</span><br><span class="line">                    t=n1;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    t=n2;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(i&lt;len1)&#123;</span><br><span class="line">                t=nums1[i++];</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                t=nums2[j++];</span><br><span class="line">            &#125;</span><br><span class="line">            cout&lt;&lt;i+j&lt;&lt;<span class="string">&quot;:&quot;</span>&lt;&lt;t&lt;&lt;endl;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (len%<span class="number">2</span>?t:(t+lastt)/<span class="number">2.0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>455. 分发饼干</title>
+    <url>/2020/12/25/455/</url>
+    <content><![CDATA[<p>排序</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">findContentChildren</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; g, vector&lt;<span class="type">int</span>&gt;&amp; s)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">sort</span>(g.<span class="built_in">begin</span>(),g.<span class="built_in">end</span>()); <span class="comment">// 1 2 3</span></span><br><span class="line">        <span class="built_in">sort</span>(s.<span class="built_in">begin</span>(),s.<span class="built_in">end</span>()); <span class="comment">// 1 1</span></span><br><span class="line">        <span class="type">int</span> count=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=s.<span class="built_in">size</span>()<span class="number">-1</span>, gg=g.<span class="built_in">size</span>()<span class="number">-1</span>;i&gt;=<span class="number">0</span>&amp;&amp;gg&gt;=<span class="number">0</span>;i--,gg--,count++)&#123;</span><br><span class="line">            <span class="type">int</span> ss=s[i];</span><br><span class="line">            <span class="keyword">while</span>(gg&gt;=<span class="number">0</span>&amp;&amp;g[gg]&gt;ss)&#123;</span><br><span class="line">                gg--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(gg&lt;<span class="number">0</span>) count--;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
