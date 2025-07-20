@@ -4987,6 +4987,95 @@ Google Analytics 总结这些信息，然后提供给网站所有者。</p>
       </tags>
   </entry>
   <entry>
+    <title>MIT 6.824/6.5840 分布式系统 Lab 3 - Raft 论文阅读</title>
+    <url>/2025/02/20/mit-6.824-distributed-system-lab3-1/</url>
+    <content><![CDATA[<p>Raft 是一种经典的分布式共识算法（Consensus algorithm）。</p>
+<h2 id="复制状态机"><a class="header-anchor-1" href="#复制状态机">#</a>复制状态机</h2>
+<p>复制状态机是一组服务器上，计算相同的状态，而且可以容忍部分机器下线的状态机。复制状态机是解决分布式系统中一系列容错问题的基础，例如选主。通常通过 Replicated Log 实现，共识算法的职责就是维护 Replicated Log 的一致性。</p>
+<p>实际应用中，对于共识算法的要求：</p>
+<ul>
+<li><strong>正确性</strong>：在非拜占庭条件下，永远不会返回错误的结果；</li>
+<li><strong>可用性</strong>：只要多数机器正常工作，就可以正常工作；</li>
+<li>一致性不依赖于操作的时序，最坏情况下，只会导致可用性的问题；</li>
+<li><strong>快速</strong>：一般情况下，一旦大多数机器响应了一轮 RPC，命令即可完成；</li>
+</ul>
+<h2 id="paxos-的问题"><a class="header-anchor-1" href="#paxos-的问题">#</a>Paxos 的问题</h2>
+<ul>
+<li>难以理解</li>
+</ul>
+<h2 id="raft-共识算法"><a class="header-anchor-1" href="#raft-共识算法">#</a>Raft 共识算法</h2>
+<p>Raft 将共识问题分解成三个子问题：（1）选主、（2）日志复制、（3）安全性；</p>
+<h3 id="raft-基本定义"><a class="header-anchor-1" href="#raft-基本定义">#</a>Raft 基本定义</h3>
+<p>Raft 规定的节点状态：</p>
+<ul>
+<li><strong>Follower</strong>：被动响应 C 和 L 的请求；</li>
+<li><strong>Leader</strong>：处理所有客户端的请求；</li>
+<li><strong>Candidate</strong>：选主过程中使用；</li>
+</ul>
+<p>Raft 将时间划分为任意长度的任期（Term），任期用连续整数编号，起到逻辑时钟的功能。每个任期开始时先进行选举，选举出来的 Leader 会在这个任期内进行服务；否则继续下一个任期和选举。</p>
+<h3 id="选主"><a class="header-anchor-1" href="#选主">#</a>选主</h3>
+<p>Raft 利用心跳机制触发选主，Leader 会周期性地给所有 Follower 发送心跳宣布权威性。如果 Follower 一段时间没有收到心跳，则会开始尝试发起选主。</p>
+<p>选主过程中，Follower 会将 Term++，然后请求所有 Peer 投票（自己当然会给自己投票）。结果可能有几种：</p>
+<ol>
+<li><strong>收到的选票数量超过半数</strong>：自己成为 Leader；</li>
+<li><strong>收到了 Term 更大的 Candidate 或者 Leader 的任意 RPC</strong>：自己被强制降级为 Follower，发起的选举失效；</li>
+<li><strong>收到的选票数量不到半数</strong>：没有 Leader，继续下一轮选举；</li>
+</ol>
+<p>节点投票时遵循简单的规则：</p>
+<ul>
+<li>每个 Term 最多投给一个人</li>
+<li>先来后到</li>
+</ul>
+<p>Raft 采用随机选举超时，保证多个节点不会在同一时间启动选举。</p>
+<h3 id="日志复制"><a class="header-anchor-1" href="#日志复制">#</a>日志复制</h3>
+<p>当一个 Leader 被选出来之后，就开始负责这些事情：</p>
+<ul>
+<li><strong>给每个 Follower 发送日志</strong>：同步 Log；</li>
+<li><strong>决定什么时候可以提交 Log</strong>：当 Leader 确信一条日志已经被同步到多数机器上，则认为可以提交它，Raft 机制保证了剩余机器<strong>最终</strong>将会提交相同的日志，即所谓<strong>最终一致性</strong>。</li>
+</ul>
+<p>Raft 的<strong>Log Matching Property</strong>：</p>
+<ul>
+<li>两个不同 Log 中的条目，如果 term 和 index 相同，则存储的 command 相同；</li>
+<li>两个不同 Log 中的条目，如果 term 和 index 相同，则之前的所有 log 相同；</li>
+</ul>
+<p>在 Raft 执行过程中，由于机器崩溃重启，Follower 可能会缺失部分 Log，可能会有多的未提交的 Log，也可能两者兼有；这种情况下，Leader 会<strong>覆盖</strong>Follower 上不一致的 Log：首先两者会找到第一条不一致的 Log，然后 Leader 发送后续的 Log 给 Follower。<code>nextIndex</code>就是 Leader 用于记录每一个 Follower 同步位置的变量，初始值为 Leader 的 nextLogIndex。然后会根据<code>AppendEntries</code>的结果减小<code>nextIndex</code>。</p>
+<p>一个可能的优化点是：Follower 反馈更加精确的冲突日志数量。作者怀疑这种策略在现实情况中的必要性。</p>
+<p>Raft 的<strong>Leader Append-Only Property</strong>：Raft Leader 从来不需要更改或者删除自己的日志；</p>
+<h3 id="安全性"><a class="header-anchor-1" href="#安全性">#</a>安全性</h3>
+<p>上面描述的 Raft 不足以保证命令的顺序性，原因是多个日志冲突的 Follower 可能会交替成为 Leader，导致已经提交的 Log 被覆盖。为此还需要增加一个新的限制：</p>
+<ul>
+<li><strong>Leader Completeness Property</strong>：Candidate 必须拥有前一个 Term 中所有<strong>已经提交的</strong>Log，才能被选为 Leader；</li>
+</ul>
+<h4 id="选主限制"><a class="header-anchor-1" href="#选主限制">#</a>选主限制</h4>
+<p>Raft 利用选主过程保证<strong>Leader Completeness Property</strong>，<code>RequestVote</code> RPC 请求中会包含 Candidate 的 Log 信息，如果 Log 不够新，则在投篇时会被多数节点拒绝。</p>
+<p>Raft 定义的“新（Up-to-date）”：</p>
+<ul>
+<li>如果最后一条 Log 的 Term 不同，Term 大的更新</li>
+<li>否则，Log 长的更新</li>
+</ul>
+<h4 id="提交前一个-term-的-log"><a class="header-anchor-1" href="#提交前一个-term-的-log">#</a>提交前一个 Term 的 Log</h4>
+<p>只是 Log 被同步到多数节点，仍然不足以能够提交这个 Log。</p>
+<p>Raft 要求：只有当前 Term 的 Log 才通过多数原则确认提交，非当前 Term 的不会这样。</p>
+<h4 id="安全证明"><a class="header-anchor-1" href="#安全证明">#</a>安全证明</h4>
+<p>略</p>
+<h4 id="follower-和-candidate-崩溃重启"><a class="header-anchor-1" href="#follower-和-candidate-崩溃重启">#</a>Follower 和 Candidate 崩溃重启</h4>
+<p>略</p>
+<h4 id="时序和可用性"><a class="header-anchor-1" href="#时序和可用性">#</a>时序和可用性</h4>
+<p>略</p>
+<h3 id="集群成员变更-联合共识"><a class="header-anchor-1" href="#集群成员变更-联合共识">#</a>集群成员变更 &amp; 联合共识</h3>
+<p>集群变更配置的场景是很常见的。</p>
+<p>TODO</p>
+<h3 id="日志压缩"><a class="header-anchor-1" href="#日志压缩">#</a>日志压缩</h3>
+]]></content>
+      <categories>
+        <category>distributed-system</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+        <tag>Raft</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>MIT 6.824/6.5840 分布式系统 Lab 3: Raft 实现</title>
     <url>/2025/02/20/mit-6.824-distributed-system-lab3-2/</url>
     <content><![CDATA[<h2 id="基本框架"><a class="header-anchor-1" href="#基本框架">#</a>基本框架</h2>
@@ -5091,95 +5180,6 @@ API 设计如下，Snapshot 的发起方是上层 Service，发起时需要携�
 <h3 id="installsnapshot-响应处理"><a class="header-anchor-1" href="#installsnapshot-响应处理">#</a>InstallSnapshot 响应处理</h3>
 <p>和 AppendEntries 的处理类似：</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rf *Raft)</span></span> replicateByIS(i <span class="type">int</span>, args *InstallSnapshotArgs) &#123;</span><br><span class="line">    reply := &amp;InstallSnapshotReply&#123;&#125;</span><br><span class="line">    <span class="keyword">if</span> !rf.sendInstallSnapshot(i, args, reply) &#123;</span><br><span class="line">        <span class="comment">// net failure</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    rf.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> rf.mu.Unlock()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// we are still the leader</span></span><br><span class="line">    <span class="keyword">if</span> rf.currentTerm != args.Term || !rf.leader &#123;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// we are outdated</span></span><br><span class="line">    <span class="keyword">if</span> reply.Term &gt; rf.currentTerm &#123;</span><br><span class="line">        rf.beFollower(reply.Term)</span><br><span class="line">        rf.persist()</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> args.LastIncludedIndex &gt; rf.matchIndex[i] &#123;</span><br><span class="line">        rf.matchIndex[i] = args.LastIncludedIndex</span><br><span class="line">        rf.updateCommitIndex()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// increase nextIndex by 1 or more</span></span><br><span class="line">    nextIndex := Max(rf.nextIndex[i], args.LastIncludedIndex) + <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span> nextIndex &lt;= rf.nextLogIndex() &#123;</span><br><span class="line">        rf.nextIndex[i] = nextIndex</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>distributed-system</category>
-      </categories>
-      <tags>
-        <tag>分布式系统</tag>
-        <tag>Raft</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MIT 6.824/6.5840 分布式系统 Lab 3 - Raft 论文阅读</title>
-    <url>/2025/02/20/mit-6.824-distributed-system-lab3-1/</url>
-    <content><![CDATA[<p>Raft 是一种经典的分布式共识算法（Consensus algorithm）。</p>
-<h2 id="复制状态机"><a class="header-anchor-1" href="#复制状态机">#</a>复制状态机</h2>
-<p>复制状态机是一组服务器上，计算相同的状态，而且可以容忍部分机器下线的状态机。复制状态机是解决分布式系统中一系列容错问题的基础，例如选主。通常通过 Replicated Log 实现，共识算法的职责就是维护 Replicated Log 的一致性。</p>
-<p>实际应用中，对于共识算法的要求：</p>
-<ul>
-<li><strong>正确性</strong>：在非拜占庭条件下，永远不会返回错误的结果；</li>
-<li><strong>可用性</strong>：只要多数机器正常工作，就可以正常工作；</li>
-<li>一致性不依赖于操作的时序，最坏情况下，只会导致可用性的问题；</li>
-<li><strong>快速</strong>：一般情况下，一旦大多数机器响应了一轮 RPC，命令即可完成；</li>
-</ul>
-<h2 id="paxos-的问题"><a class="header-anchor-1" href="#paxos-的问题">#</a>Paxos 的问题</h2>
-<ul>
-<li>难以理解</li>
-</ul>
-<h2 id="raft-共识算法"><a class="header-anchor-1" href="#raft-共识算法">#</a>Raft 共识算法</h2>
-<p>Raft 将共识问题分解成三个子问题：（1）选主、（2）日志复制、（3）安全性；</p>
-<h3 id="raft-基本定义"><a class="header-anchor-1" href="#raft-基本定义">#</a>Raft 基本定义</h3>
-<p>Raft 规定的节点状态：</p>
-<ul>
-<li><strong>Follower</strong>：被动响应 C 和 L 的请求；</li>
-<li><strong>Leader</strong>：处理所有客户端的请求；</li>
-<li><strong>Candidate</strong>：选主过程中使用；</li>
-</ul>
-<p>Raft 将时间划分为任意长度的任期（Term），任期用连续整数编号，起到逻辑时钟的功能。每个任期开始时先进行选举，选举出来的 Leader 会在这个任期内进行服务；否则继续下一个任期和选举。</p>
-<h3 id="选主"><a class="header-anchor-1" href="#选主">#</a>选主</h3>
-<p>Raft 利用心跳机制触发选主，Leader 会周期性地给所有 Follower 发送心跳宣布权威性。如果 Follower 一段时间没有收到心跳，则会开始尝试发起选主。</p>
-<p>选主过程中，Follower 会将 Term++，然后请求所有 Peer 投票（自己当然会给自己投票）。结果可能有几种：</p>
-<ol>
-<li><strong>收到的选票数量超过半数</strong>：自己成为 Leader；</li>
-<li><strong>收到了 Term 更大的 Candidate 或者 Leader 的任意 RPC</strong>：自己被强制降级为 Follower，发起的选举失效；</li>
-<li><strong>收到的选票数量不到半数</strong>：没有 Leader，继续下一轮选举；</li>
-</ol>
-<p>节点投票时遵循简单的规则：</p>
-<ul>
-<li>每个 Term 最多投给一个人</li>
-<li>先来后到</li>
-</ul>
-<p>Raft 采用随机选举超时，保证多个节点不会在同一时间启动选举。</p>
-<h3 id="日志复制"><a class="header-anchor-1" href="#日志复制">#</a>日志复制</h3>
-<p>当一个 Leader 被选出来之后，就开始负责这些事情：</p>
-<ul>
-<li><strong>给每个 Follower 发送日志</strong>：同步 Log；</li>
-<li><strong>决定什么时候可以提交 Log</strong>：当 Leader 确信一条日志已经被同步到多数机器上，则认为可以提交它，Raft 机制保证了剩余机器<strong>最终</strong>将会提交相同的日志，即所谓<strong>最终一致性</strong>。</li>
-</ul>
-<p>Raft 的<strong>Log Matching Property</strong>：</p>
-<ul>
-<li>两个不同 Log 中的条目，如果 term 和 index 相同，则存储的 command 相同；</li>
-<li>两个不同 Log 中的条目，如果 term 和 index 相同，则之前的所有 log 相同；</li>
-</ul>
-<p>在 Raft 执行过程中，由于机器崩溃重启，Follower 可能会缺失部分 Log，可能会有多的未提交的 Log，也可能两者兼有；这种情况下，Leader 会<strong>覆盖</strong>Follower 上不一致的 Log：首先两者会找到第一条不一致的 Log，然后 Leader 发送后续的 Log 给 Follower。<code>nextIndex</code>就是 Leader 用于记录每一个 Follower 同步位置的变量，初始值为 Leader 的 nextLogIndex。然后会根据<code>AppendEntries</code>的结果减小<code>nextIndex</code>。</p>
-<p>一个可能的优化点是：Follower 反馈更加精确的冲突日志数量。作者怀疑这种策略在现实情况中的必要性。</p>
-<p>Raft 的<strong>Leader Append-Only Property</strong>：Raft Leader 从来不需要更改或者删除自己的日志；</p>
-<h3 id="安全性"><a class="header-anchor-1" href="#安全性">#</a>安全性</h3>
-<p>上面描述的 Raft 不足以保证命令的顺序性，原因是多个日志冲突的 Follower 可能会交替成为 Leader，导致已经提交的 Log 被覆盖。为此还需要增加一个新的限制：</p>
-<ul>
-<li><strong>Leader Completeness Property</strong>：Candidate 必须拥有前一个 Term 中所有<strong>已经提交的</strong>Log，才能被选为 Leader；</li>
-</ul>
-<h4 id="选主限制"><a class="header-anchor-1" href="#选主限制">#</a>选主限制</h4>
-<p>Raft 利用选主过程保证<strong>Leader Completeness Property</strong>，<code>RequestVote</code> RPC 请求中会包含 Candidate 的 Log 信息，如果 Log 不够新，则在投篇时会被多数节点拒绝。</p>
-<p>Raft 定义的“新（Up-to-date）”：</p>
-<ul>
-<li>如果最后一条 Log 的 Term 不同，Term 大的更新</li>
-<li>否则，Log 长的更新</li>
-</ul>
-<h4 id="提交前一个-term-的-log"><a class="header-anchor-1" href="#提交前一个-term-的-log">#</a>提交前一个 Term 的 Log</h4>
-<p>只是 Log 被同步到多数节点，仍然不足以能够提交这个 Log。</p>
-<p>Raft 要求：只有当前 Term 的 Log 才通过多数原则确认提交，非当前 Term 的不会这样。</p>
-<h4 id="安全证明"><a class="header-anchor-1" href="#安全证明">#</a>安全证明</h4>
-<p>略</p>
-<h4 id="follower-和-candidate-崩溃重启"><a class="header-anchor-1" href="#follower-和-candidate-崩溃重启">#</a>Follower 和 Candidate 崩溃重启</h4>
-<p>略</p>
-<h4 id="时序和可用性"><a class="header-anchor-1" href="#时序和可用性">#</a>时序和可用性</h4>
-<p>略</p>
-<h3 id="集群成员变更-联合共识"><a class="header-anchor-1" href="#集群成员变更-联合共识">#</a>集群成员变更 &amp; 联合共识</h3>
-<p>集群变更配置的场景是很常见的。</p>
-<p>TODO</p>
-<h3 id="日志压缩"><a class="header-anchor-1" href="#日志压缩">#</a>日志压缩</h3>
 ]]></content>
       <categories>
         <category>distributed-system</category>
@@ -6351,6 +6351,28 @@ top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
       </tags>
   </entry>
   <entry>
+    <title>模运算的性质(程序设计版)</title>
+    <url>/2021/01/10/modulo-arithmetic/</url>
+    <content><![CDATA[<h2 id="模运算的性质-程序设计版"><a class="header-anchor-1" href="#模运算的性质-程序设计版">#</a>模运算的性质(程序设计版)</h2>
+<p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>+</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a + b)\bmod p = (a\bmod p + b\bmod p)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>−</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>−</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a - b)\bmod p = (a\bmod p - b\bmod p)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>×</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>×</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a \times b)\bmod p = (a\bmod p \times b\bmod p)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><msup><mi>a</mi><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><msup><mo stretchy="false">)</mo><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a^b)\bmod p = ((a\bmod p)^b)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">((</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+]]></content>
+      <categories>
+        <category>maths</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+        <tag>数学</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>线性代数 - 概念总结</title>
     <url>/2021/01/08/linear-algebra/</url>
     <content><![CDATA[<h2 id="1-行列式"><a class="header-anchor-1" href="#1-行列式">#</a>1. 行列式</h2>
@@ -7129,28 +7151,6 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </categories>
       <tags>
         <tag>数学基础</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>模运算的性质(程序设计版)</title>
-    <url>/2021/01/10/modulo-arithmetic/</url>
-    <content><![CDATA[<h2 id="模运算的性质-程序设计版"><a class="header-anchor-1" href="#模运算的性质-程序设计版">#</a>模运算的性质(程序设计版)</h2>
-<p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>+</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a + b)\bmod p = (a\bmod p + b\bmod p)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>−</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>−</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a - b)\bmod p = (a\bmod p - b\bmod p)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>×</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>×</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a \times b)\bmod p = (a\bmod p \times b\bmod p)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><msup><mi>a</mi><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><msup><mo stretchy="false">)</mo><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a^b)\bmod p = ((a\bmod p)^b)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">((</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-]]></content>
-      <categories>
-        <category>maths</category>
-      </categories>
-      <tags>
-        <tag>算法</tag>
-        <tag>数学</tag>
       </tags>
   </entry>
   <entry>
@@ -9639,6 +9639,36 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       </tags>
   </entry>
   <entry>
+    <title>EROFS 镜像布局分析</title>
+    <url>/2024/05/15/erofs-image-layout/</url>
+    <content><![CDATA[<p>以下参考 <span class="exturl" data-url="aHR0cHM6Ly9lcm9mcy5kb2NzLmtlcm5lbC5vcmcvZW4vbGF0ZXN0L2NvcmVfb25kaXNrLmh0bWw=">Core on-disk format<i class="fa fa-external-link-alt"></i></span></p>
+<p>EROFS 硬盘布局由<code>Super block</code> + <code>inode</code>区 + <code>data</code>区三部分组成。</p>
+<p>由于是只读文件系统，所有存储的文件大小都是已知的，因此相对于其他文件系统省去了<code>inode bitmap</code>和<code>data bitmap</code>的开销，节约空间。</p>
+<h2 id="super-block"><a class="header-anchor-1" href="#super-block">#</a>Super Block</h2>
+<p>Superblock 大小为 128 字节，位于分区开始的第 1024 字节处，兼容以前的 boot sector。Superblock 里面保存根目录的<code>inode_number</code>。</p>
+<h2 id="inode"><a class="header-anchor-1" href="#inode">#</a>Inode</h2>
+<p>Inode 按照固定位置紧密存放，一个<code>inode</code>的物理地址计算为 <code>inode_start + inode_number * 32</code>；</p>
+<p>Inode 有两种大小：</p>
+<ul>
+<li>Compact 版本 32 字节；</li>
+<li>Extended 版本 64 字节；</li>
+</ul>
+<p>Inode 有三种数据布局：</p>
+<ul>
+<li><code>FLAT_PLAIN</code>：内容全部保存在<code>i_u</code>所指向的 block 中；</li>
+<li><code>FLAT_INLINE</code>：整块的内容全部保存在<code>i_u</code>所指向的 block 中，剩余的部分保存在 inode metadata 后面；</li>
+<li><code>CHUNK_BASED</code>：数据被分成多个<code>chunks</code>，每个<code>chunk</code>按照<code>PLAIN</code>方式布局数据；</li>
+</ul>
+]]></content>
+      <categories>
+        <category>storage-system</category>
+      </categories>
+      <tags>
+        <tag>操作系统</tag>
+        <tag>文件系统</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Scaling Distributed Machine Learning with the Parameter Server 阅读笔记</title>
     <url>/2025/03/13/scaling-distributed-machine-learning/</url>
     <content><![CDATA[<p>沐神投稿在 OSDI '14 的论文，提出了第三代 Parameter Server 框架。</p>
@@ -9788,25 +9818,50 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       </tags>
   </entry>
   <entry>
-    <title>EROFS 镜像布局分析</title>
-    <url>/2024/05/15/erofs-image-layout/</url>
-    <content><![CDATA[<p>以下参考 <span class="exturl" data-url="aHR0cHM6Ly9lcm9mcy5kb2NzLmtlcm5lbC5vcmcvZW4vbGF0ZXN0L2NvcmVfb25kaXNrLmh0bWw=">Core on-disk format<i class="fa fa-external-link-alt"></i></span></p>
-<p>EROFS 硬盘布局由<code>Super block</code> + <code>inode</code>区 + <code>data</code>区三部分组成。</p>
-<p>由于是只读文件系统，所有存储的文件大小都是已知的，因此相对于其他文件系统省去了<code>inode bitmap</code>和<code>data bitmap</code>的开销，节约空间。</p>
-<h2 id="super-block"><a class="header-anchor-1" href="#super-block">#</a>Super Block</h2>
-<p>Superblock 大小为 128 字节，位于分区开始的第 1024 字节处，兼容以前的 boot sector。Superblock 里面保存根目录的<code>inode_number</code>。</p>
-<h2 id="inode"><a class="header-anchor-1" href="#inode">#</a>Inode</h2>
-<p>Inode 按照固定位置紧密存放，一个<code>inode</code>的物理地址计算为 <code>inode_start + inode_number * 32</code>；</p>
-<p>Inode 有两种大小：</p>
+    <title>EROFS 相关资料整理</title>
+    <url>/2024/05/14/erofs-resource/</url>
+    <content><![CDATA[<h2 id="代码仓库"><a class="header-anchor-1" href="#代码仓库">#</a>代码仓库</h2>
 <ul>
-<li>Compact 版本 32 字节；</li>
-<li>Extended 版本 64 字节；</li>
+<li>EROFS 内核驱动仓库: <span class="exturl" data-url="aHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQveGlhbmcvZXJvZnMuZ2l0">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git<i class="fa fa-external-link-alt"></i></span></li>
+<li>erofs-utils 仓库: <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2Vyb2ZzLXV0aWxz">https://github.com/erofs/erofs-utils<i class="fa fa-external-link-alt"></i></span></li>
+<li>其他相关项目: <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2Zz">https://github.com/erofs<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
-<p>Inode 有三种数据布局：</p>
+<h2 id="文档"><a class="header-anchor-1" href="#文档">#</a>文档</h2>
 <ul>
-<li><code>FLAT_PLAIN</code>：内容全部保存在<code>i_u</code>所指向的 block 中；</li>
-<li><code>FLAT_INLINE</code>：整块的内容全部保存在<code>i_u</code>所指向的 block 中，剩余的部分保存在 inode metadata 后面；</li>
-<li><code>CHUNK_BASED</code>：数据被分成多个<code>chunks</code>，每个<code>chunk</code>按照<code>PLAIN</code>方式布局数据；</li>
+<li>ATC '19 论文主页: <span class="exturl" data-url="aHR0cHM6Ly93d3cudXNlbml4Lm9yZy9jb25mZXJlbmNlL2F0YzE5L3ByZXNlbnRhdGlvbi9nYW8=">https://www.usenix.org/conference/atc19/presentation/gao<i class="fa fa-external-link-alt"></i></span></li>
+<li>内核 EROFS 文档: <span class="exturl" data-url="aHR0cHM6Ly9kb2NzLmtlcm5lbC5vcmcvZmlsZXN5c3RlbXMvZXJvZnMuaHRtbA==">https://docs.kernel.org/filesystems/erofs.html<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 项目主页: <span class="exturl" data-url="aHR0cHM6Ly9lcm9mcy5kb2NzLmtlcm5lbC5vcmcvZW4vbGF0ZXN0LyM=">https://erofs.docs.kernel.org/en/latest/#<i class="fa fa-external-link-alt"></i></span></li>
+<li>An introduction to EROFS (from LWN): <span class="exturl" data-url="aHR0cHM6Ly9sd24ubmV0L0FydGljbGVzLzkzNDA0Ny8=">https://lwn.net/Articles/934047/<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 项目 mannual: <span class="exturl" data-url="aHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQveGlhbmcvZXJvZnMtdXRpbHMuZ2l0L2Fib3V0Lw==">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/about/<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS Introducing Mail: <span class="exturl" data-url="aHR0cHM6Ly9tYXJjLmluZm8vP2w9bGludXgtZnNkZXZlbCZtPTE1Mjc3NjQ4MDQyNTYyNA==">https://marc.info/?l=linux-fsdevel&amp;m=152776480425624<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h2 id="slide"><a class="header-anchor-1" href="#slide">#</a>Slide</h2>
+<ul>
+<li>ATC '19 汇报 Slides: <span class="exturl" data-url="aHR0cHM6Ly93d3cudXNlbml4Lm9yZy9zaXRlcy9kZWZhdWx0L2ZpbGVzL2NvbmZlcmVuY2UvcHJvdGVjdGVkLWZpbGVzL2F0YzE5X3NsaWRlc19nYW8ucGRm">https://www.usenix.org/sites/default/files/conference/protected-files/atc19_slides_gao.pdf<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS Everywhere: An Image-Based Kernel Approach for Various Use Cases@KubeCon China '23: <span class="exturl" data-url="aHR0cHM6Ly9zdGF0aWMuc2NoZWQuY29tL2hvc3RlZF9maWxlcy9rY2NuY29zc2NobjIwMjMvMTMvT1NTLUNoaW5hLTIwMjMtRVJPRlMucGRm">https://static.sched.com/hosted_files/kccncosschn2023/13/OSS-China-2023-EROFS.pdf<i class="fa fa-external-link-alt"></i></span></li>
+<li>Image-based read-only filesystems (EROFS) 龙蜥社区: <span class="exturl" data-url="aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vcHJlc2VudGF0aW9uL2QvMTZMd0QtRjBJS3k4b2trQzhxQjk0djJZZ0RjV0JCRTI2cm1Nbl9zMU1xeGMvZWRpdA==">https://docs.google.com/presentation/d/16LwD-F0IKy8okkC8qB94v2YgDcWBBE26rmMn_s1Mqxc/edit<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h2 id="其他资源"><a class="header-anchor-1" href="#其他资源">#</a>其他资源</h2>
+<ul>
+<li>Linux-erofs Mail List: <span class="exturl" data-url="aHR0cHM6Ly9saXN0cy5vemxhYnMub3JnL2xpc3RpbmZvL2xpbnV4LWVyb2Zz">https://lists.ozlabs.org/listinfo/linux-erofs<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 文件系统这几年（一） —— 缘起: <span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvUlU5SmNwaklIYXJnQV8tb0Y5dFRjZw==">https://mp.weixin.qq.com/s/RU9JcpjIHargA_-oF9tTcg<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 文件系统生态进展（-2024 年 1 月）: <span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvM1FwYmFtdWpRU28zNzh2WHI3UGxBQQ==">https://mp.weixin.qq.com/s/3QpbamujQSo378vXr7PlAA<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h2 id="第三方"><a class="header-anchor-1" href="#第三方">#</a>第三方</h2>
+<ul>
+<li>论文阅读记录（by @SToPire 大佬）: <span class="exturl" data-url="aHR0cHM6Ly9zdG9waXJlLmdpdGh1Yi5pby8yMDIzLzA1LzA3L0VST0ZTLUEtQ29tcHJlc3Npb24tZnJpZW5kbHktUmVhZG9ubHktRmlsZS1TeXN0ZW0tZm9yLVJlc291cmNlLXNjYXJjZS1EZXZpY2VzLw==">https://stopire.github.io/2023/05/07/EROFS-A-Compression-friendly-Readonly-File-System-for-Resource-scarce-Devices/<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 压缩文件格式和读取流程分析（by @SToPire 大佬）: <span class="exturl" data-url="aHR0cHM6Ly9zdG9waXJlLmdpdGh1Yi5pby8yMDIzLzA3LzA1L0VST0ZTJUU1JThFJThCJUU3JUJDJUE5JUU2JTk2JTg3JUU0JUJCJUI2JUU2JUEwJUJDJUU1JUJDJThGJUU1JTkyJThDJUU4JUFGJUJCJUU1JThGJTk2JUU2JUI1JTgxJUU3JUE4JThCJUU1JTg4JTg2JUU2JTlFJTkwLw==">https://stopire.github.io/2023/07/05/EROFS压缩文件格式和读取流程分析/<i class="fa fa-external-link-alt"></i></span></li>
+<li>论文阅读（by @mwish）: <span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC82NjM3ODI1OTQ=">https://zhuanlan.zhihu.com/p/663782594<i class="fa fa-external-link-alt"></i></span></li>
+<li>论文阅读（by elecfans）: <span class="exturl" data-url="aHR0cHM6Ly9iYnMuZWxlY2ZhbnMuY29tL2ppc2h1XzIyOTY3MDBfMV8xLmh0bWw=">https://bbs.elecfans.com/jishu_2296700_1_1.html<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS on-disk compact index 生成分析: <span class="exturl" data-url="aHR0cHM6Ly90anRlY2gubWUvZXJvZnMtY29tcGFjdGVkLWluZGV4LWdlbmVyYXRpb24uaHRtbA==">https://tjtech.me/erofs-compacted-index-generation.html<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS ztailpacking 特性实现详解: <span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvWmdLVTY4SmJnc2s4YkFLNWVSUjhFUQ==">https://mp.weixin.qq.com/s/ZgKU68Jbgsk8bAK5eRR8EQ<i class="fa fa-external-link-alt"></i></span></li>
+<li>EROFS 源码阅读笔记: <span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L20wXzM3NjM3NTExL2FydGljbGUvZGV0YWlscy8xMjQzMzAxNTg=">https://blog.csdn.net/m0_37637511/article/details/124330158<i class="fa fa-external-link-alt"></i></span></li>
+<li>浅谈华为 EROFS 文件系统的两个主要技术: <span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NodWFuZ2d1bzEyMS9hcnRpY2xlL2RldGFpbHMvOTA5MDExMzE=">https://blog.csdn.net/shuangguo121/article/details/90901131<i class="fa fa-external-link-alt"></i></span></li>
+<li>用 EROFS 进行存储与备份: <span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC82NDYzMjIzNjQ=">https://zhuanlan.zhihu.com/p/646322364<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h2 id="links"><a class="header-anchor-1" href="#links">#</a>Links</h2>
+<ul>
+<li>我的论文阅读记录: <a href="/2024/05/09/erofs-paper-reading/" title="EROFS: A Compression-friendly ReadonlyFile System for Resource-scarce Devices">论文阅读</a></li>
 </ul>
 ]]></content>
       <categories>
@@ -9815,6 +9870,7 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       <tags>
         <tag>操作系统</tag>
         <tag>文件系统</tag>
+        <tag>EROFS</tag>
       </tags>
   </entry>
   <entry>
@@ -9918,64 +9974,8 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       <tags>
         <tag>操作系统</tag>
         <tag>文件系统</tag>
+        <tag>EROFS</tag>
         <tag>论文阅读</tag>
-        <tag>EROFS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>EROFS 相关资料整理</title>
-    <url>/2024/05/14/erofs-resource/</url>
-    <content><![CDATA[<h2 id="代码仓库"><a class="header-anchor-1" href="#代码仓库">#</a>代码仓库</h2>
-<ul>
-<li>EROFS 内核驱动仓库: <span class="exturl" data-url="aHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQveGlhbmcvZXJvZnMuZ2l0">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git<i class="fa fa-external-link-alt"></i></span></li>
-<li>erofs-utils 仓库: <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2ZzL2Vyb2ZzLXV0aWxz">https://github.com/erofs/erofs-utils<i class="fa fa-external-link-alt"></i></span></li>
-<li>其他相关项目: <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2Vyb2Zz">https://github.com/erofs<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h2 id="文档"><a class="header-anchor-1" href="#文档">#</a>文档</h2>
-<ul>
-<li>ATC '19 论文主页: <span class="exturl" data-url="aHR0cHM6Ly93d3cudXNlbml4Lm9yZy9jb25mZXJlbmNlL2F0YzE5L3ByZXNlbnRhdGlvbi9nYW8=">https://www.usenix.org/conference/atc19/presentation/gao<i class="fa fa-external-link-alt"></i></span></li>
-<li>内核 EROFS 文档: <span class="exturl" data-url="aHR0cHM6Ly9kb2NzLmtlcm5lbC5vcmcvZmlsZXN5c3RlbXMvZXJvZnMuaHRtbA==">https://docs.kernel.org/filesystems/erofs.html<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS 项目主页: <span class="exturl" data-url="aHR0cHM6Ly9lcm9mcy5kb2NzLmtlcm5lbC5vcmcvZW4vbGF0ZXN0LyM=">https://erofs.docs.kernel.org/en/latest/#<i class="fa fa-external-link-alt"></i></span></li>
-<li>An introduction to EROFS (from LWN): <span class="exturl" data-url="aHR0cHM6Ly9sd24ubmV0L0FydGljbGVzLzkzNDA0Ny8=">https://lwn.net/Articles/934047/<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS 项目 mannual: <span class="exturl" data-url="aHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQveGlhbmcvZXJvZnMtdXRpbHMuZ2l0L2Fib3V0Lw==">https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/about/<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS Introducing Mail: <span class="exturl" data-url="aHR0cHM6Ly9tYXJjLmluZm8vP2w9bGludXgtZnNkZXZlbCZtPTE1Mjc3NjQ4MDQyNTYyNA==">https://marc.info/?l=linux-fsdevel&amp;m=152776480425624<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h2 id="slide"><a class="header-anchor-1" href="#slide">#</a>Slide</h2>
-<ul>
-<li>ATC '19 汇报 Slides: <span class="exturl" data-url="aHR0cHM6Ly93d3cudXNlbml4Lm9yZy9zaXRlcy9kZWZhdWx0L2ZpbGVzL2NvbmZlcmVuY2UvcHJvdGVjdGVkLWZpbGVzL2F0YzE5X3NsaWRlc19nYW8ucGRm">https://www.usenix.org/sites/default/files/conference/protected-files/atc19_slides_gao.pdf<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS Everywhere: An Image-Based Kernel Approach for Various Use Cases@KubeCon China '23: <span class="exturl" data-url="aHR0cHM6Ly9zdGF0aWMuc2NoZWQuY29tL2hvc3RlZF9maWxlcy9rY2NuY29zc2NobjIwMjMvMTMvT1NTLUNoaW5hLTIwMjMtRVJPRlMucGRm">https://static.sched.com/hosted_files/kccncosschn2023/13/OSS-China-2023-EROFS.pdf<i class="fa fa-external-link-alt"></i></span></li>
-<li>Image-based read-only filesystems (EROFS) 龙蜥社区: <span class="exturl" data-url="aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vcHJlc2VudGF0aW9uL2QvMTZMd0QtRjBJS3k4b2trQzhxQjk0djJZZ0RjV0JCRTI2cm1Nbl9zMU1xeGMvZWRpdA==">https://docs.google.com/presentation/d/16LwD-F0IKy8okkC8qB94v2YgDcWBBE26rmMn_s1Mqxc/edit<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h2 id="其他资源"><a class="header-anchor-1" href="#其他资源">#</a>其他资源</h2>
-<ul>
-<li>Linux-erofs Mail List: <span class="exturl" data-url="aHR0cHM6Ly9saXN0cy5vemxhYnMub3JnL2xpc3RpbmZvL2xpbnV4LWVyb2Zz">https://lists.ozlabs.org/listinfo/linux-erofs<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS 文件系统这几年（一） —— 缘起: <span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvUlU5SmNwaklIYXJnQV8tb0Y5dFRjZw==">https://mp.weixin.qq.com/s/RU9JcpjIHargA_-oF9tTcg<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS 文件系统生态进展（-2024 年 1 月）: <span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvM1FwYmFtdWpRU28zNzh2WHI3UGxBQQ==">https://mp.weixin.qq.com/s/3QpbamujQSo378vXr7PlAA<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h2 id="第三方"><a class="header-anchor-1" href="#第三方">#</a>第三方</h2>
-<ul>
-<li>论文阅读记录（by @SToPire 大佬）: <span class="exturl" data-url="aHR0cHM6Ly9zdG9waXJlLmdpdGh1Yi5pby8yMDIzLzA1LzA3L0VST0ZTLUEtQ29tcHJlc3Npb24tZnJpZW5kbHktUmVhZG9ubHktRmlsZS1TeXN0ZW0tZm9yLVJlc291cmNlLXNjYXJjZS1EZXZpY2VzLw==">https://stopire.github.io/2023/05/07/EROFS-A-Compression-friendly-Readonly-File-System-for-Resource-scarce-Devices/<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS 压缩文件格式和读取流程分析（by @SToPire 大佬）: <span class="exturl" data-url="aHR0cHM6Ly9zdG9waXJlLmdpdGh1Yi5pby8yMDIzLzA3LzA1L0VST0ZTJUU1JThFJThCJUU3JUJDJUE5JUU2JTk2JTg3JUU0JUJCJUI2JUU2JUEwJUJDJUU1JUJDJThGJUU1JTkyJThDJUU4JUFGJUJCJUU1JThGJTk2JUU2JUI1JTgxJUU3JUE4JThCJUU1JTg4JTg2JUU2JTlFJTkwLw==">https://stopire.github.io/2023/07/05/EROFS压缩文件格式和读取流程分析/<i class="fa fa-external-link-alt"></i></span></li>
-<li>论文阅读（by @mwish）: <span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC82NjM3ODI1OTQ=">https://zhuanlan.zhihu.com/p/663782594<i class="fa fa-external-link-alt"></i></span></li>
-<li>论文阅读（by elecfans）: <span class="exturl" data-url="aHR0cHM6Ly9iYnMuZWxlY2ZhbnMuY29tL2ppc2h1XzIyOTY3MDBfMV8xLmh0bWw=">https://bbs.elecfans.com/jishu_2296700_1_1.html<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS on-disk compact index 生成分析: <span class="exturl" data-url="aHR0cHM6Ly90anRlY2gubWUvZXJvZnMtY29tcGFjdGVkLWluZGV4LWdlbmVyYXRpb24uaHRtbA==">https://tjtech.me/erofs-compacted-index-generation.html<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS ztailpacking 特性实现详解: <span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvWmdLVTY4SmJnc2s4YkFLNWVSUjhFUQ==">https://mp.weixin.qq.com/s/ZgKU68Jbgsk8bAK5eRR8EQ<i class="fa fa-external-link-alt"></i></span></li>
-<li>EROFS 源码阅读笔记: <span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L20wXzM3NjM3NTExL2FydGljbGUvZGV0YWlscy8xMjQzMzAxNTg=">https://blog.csdn.net/m0_37637511/article/details/124330158<i class="fa fa-external-link-alt"></i></span></li>
-<li>浅谈华为 EROFS 文件系统的两个主要技术: <span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NodWFuZ2d1bzEyMS9hcnRpY2xlL2RldGFpbHMvOTA5MDExMzE=">https://blog.csdn.net/shuangguo121/article/details/90901131<i class="fa fa-external-link-alt"></i></span></li>
-<li>用 EROFS 进行存储与备份: <span class="exturl" data-url="aHR0cHM6Ly96aHVhbmxhbi56aGlodS5jb20vcC82NDYzMjIzNjQ=">https://zhuanlan.zhihu.com/p/646322364<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h2 id="links"><a class="header-anchor-1" href="#links">#</a>Links</h2>
-<ul>
-<li>我的论文阅读记录: <a href="/2024/05/09/erofs-paper-reading/" title="EROFS: A Compression-friendly ReadonlyFile System for Resource-scarce Devices">论文阅读</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>storage-system</category>
-      </categories>
-      <tags>
-        <tag>操作系统</tag>
-        <tag>文件系统</tag>
-        <tag>EROFS</tag>
       </tags>
   </entry>
   <entry>
@@ -10046,6 +10046,49 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       <tags>
         <tag>SPDK</tag>
         <tag>Storage</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>io_uring 入门</title>
+    <url>/2025/07/19/io-uring/</url>
+    <content><![CDATA[<p>io_uring 是 Linux 内核 5.1 版本引入的异步 I/O 框架，</p>
+<h2 id="原理"><a class="header-anchor-1" href="#原理">#</a>原理</h2>
+<h3 id="代码组织"><a class="header-anchor-1" href="#代码组织">#</a>代码组织</h3>
+<p>完整的 io-uring 由内核 syscall、liburing 库、用户态程序三部分组成。</p>
+<ul>
+<li>内核提供了 <code>io_uring_register</code>, <code>io_uring_setup</code>, <code>io_uring_enter</code> 三个 syscall 接口。</li>
+<li>liburing 库提供了 <code>io_uring_queue_init</code>, <code>io_uring_get_sqe</code>, <code>io_uring_wait_cqe</code> 等函数。</li>
+<li>用户态程序通过 liburing 库调用内核 syscall 接口，实现 I/O 请求的提交和完成。</li>
+</ul>
+<h3 id="核心结构"><a class="header-anchor-1" href="#核心结构">#</a>核心结构</h3>
+<p>每个 io_uring 实例由一个 <code>struct io_uring</code> 结构体表示。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">io_uring</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">io_uring_sq</span> <span class="title">sq</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">io_uring_cq</span> <span class="title">cq</span>;</span></span><br><span class="line">    <span class="type">unsigned</span> flags;</span><br><span class="line">    <span class="type">int</span> ring_fd;</span><br><span class="line"></span><br><span class="line">    <span class="type">unsigned</span> features;</span><br><span class="line">    <span class="type">int</span> enter_ring_fd;</span><br><span class="line">    __u8 int_flags;</span><br><span class="line">    __u8 pad[<span class="number">3</span>];</span><br><span class="line">    <span class="type">unsigned</span> pad2;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>每个 io_uring 实例包含两个环形队列：</p>
+<ul>
+<li>submission queue (SQ)：提交队列，用于提交 I/O 请求。</li>
+<li>completion queue (CQ)：完成队列，用于接收 I/O 请求的完成结果。</li>
+</ul>
+<h3 id="使用方式"><a class="header-anchor-1" href="#使用方式">#</a>使用方式</h3>
+<p>应用层通过 <code>io_uring_queue_init</code> 初始化一个 io_uring 实例。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">io_uring</span> <span class="title">ring</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">io_uring_params</span> <span class="title">params</span>;</span></span><br><span class="line"><span class="built_in">memset</span>(&amp;params, <span class="number">0</span>, <span class="keyword">sizeof</span>(params));</span><br><span class="line">params.flags |= IORING_SETUP_SQPOLL; <span class="comment">// 开启 SQPOLL 模式</span></span><br><span class="line">params.sq_thread_idle = <span class="number">2000</span>; <span class="comment">// 2000ms 内没有 I/O 请求，内核线程会睡眠</span></span><br><span class="line">io_uring_queue_init(<span class="number">1024</span>, &amp;ring, &amp;params);</span><br></pre></td></tr></table></figure>
+<p>应用层通过 <code>io_uring_get_sqe</code> 创建 SQE(Submission Queue Entry) 结构体，并设置 I/O 请求的参数: 操作类型、文件描述符、缓冲区、偏移量等。可以创建多个 SQE 结构体，并设置不同的私有数据。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">io_uring_sqe</span> *<span class="title">sqe</span>;</span></span><br><span class="line">sqe = io_uring_get_sqe(&amp;ring);</span><br><span class="line">io_uring_prep_read(sqe, fd, buf, len, offset); <span class="comment">// 提交一个 read 请求</span></span><br><span class="line">io_uring_sqe_set_data(sqe, (<span class="type">void</span> *)<span class="number">1</span>); <span class="comment">// 设置 SQE 的私有数据</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">io_uring_sqe</span> *<span class="title">sqe2</span>;</span></span><br><span class="line">sqe2 = io_uring_get_sqe(&amp;ring);</span><br><span class="line">io_uring_prep_fsync(sqe2, <span class="number">1</span>, <span class="number">0</span>); <span class="comment">// 提交一个 fsync 请求</span></span><br><span class="line">io_uring_sqe_set_data(sqe2, (<span class="type">void</span> *)<span class="number">2</span>); <span class="comment">// 设置 SQE 的私有数据</span></span><br><span class="line"></span><br><span class="line">io_uring_submit(&amp;ring);</span><br></pre></td></tr></table></figure>
+<p>提交后，应用层通过 <code>io_uring_wait_cqe</code> 等待已完成的 I/O 请求，并获取完成结果。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">io_uring_cqe</span> *<span class="title">cqe</span>;</span></span><br><span class="line"><span class="type">int</span> ret = io_uring_wait_cqe(&amp;ring, &amp;cqe);</span><br><span class="line"><span class="keyword">if</span> (ret &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;io_uring_wait_cqe failed: %s\n&quot;</span>, strerror(-ret));</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">io_uring_cqe_get_data(cqe); <span class="comment">// 获取完成结果</span></span><br><span class="line">io_uring_cqe_seen(&amp;ring, cqe); <span class="comment">// 标记完成结果已处理</span></span><br></pre></td></tr></table></figure>
+<h3 id="工作模式"><a class="header-anchor-1" href="#工作模式">#</a>工作模式</h3>
+<ul>
+<li>中断模式 (默认): 在 <code>io_uring_enter</code> 时，采用中断模式，等待 CQ 中出现完成的 IO 请求。</li>
+<li><code>IORING_SETUP_IOPOLL</code> 在 <code>io_uring_enter</code> 时，采用 polling 而非中断模式，等待 CQ 中出现完成的 IO 请求。</li>
+<li><code>IORING_SETUP_SQPOLL</code> 创建一个专用的内核线程 polling SQ 并处理 IO。</li>
+<li><code>IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL</code> 睡眠等待 CQE 完成。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>storage-system</category>
+      </categories>
+      <tags>
+        <tag>Storage</tag>
+        <tag>io_uring</tag>
       </tags>
   </entry>
   <entry>
@@ -10182,17 +10225,6 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       </categories>
   </entry>
   <entry>
-    <title>1099. Build A Binary Search Tree</title>
-    <url>/2020/12/16/1099/</url>
-    <content><![CDATA[<p>给出二叉树结构和节点的值列表, 将值填入二叉树中, 输出层次序遍历的结果</p>
-<p>考点: 二叉树的直接后继</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt; <span class="function"><span class="type">void</span> <span class="title">ERR</span><span class="params">(T x, string name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(x) ERR(x, #    x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">node</span> &#123;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    <span class="type">int</span> left, right, parent;</span><br><span class="line">&#125; N[<span class="number">100</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="type">int</span> first = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    N[<span class="number">0</span>].parent = <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> l, r;</span><br><span class="line">        cin &gt;&gt; l &gt;&gt; r;</span><br><span class="line">        N[i].left = l;</span><br><span class="line">        N[l].parent = i;</span><br><span class="line">        N[i].right = r;</span><br><span class="line">        N[r].parent = i;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; vals;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> val;</span><br><span class="line">        cin &gt;&gt; val;</span><br><span class="line">        vals.<span class="built_in">push_back</span>(val);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">sort</span>(vals.<span class="built_in">begin</span>(), vals.<span class="built_in">end</span>());</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> p = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (N[p].left != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (N[p].left != <span class="number">-1</span>)</span><br><span class="line">            p = N[p].left;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (p != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="built_in">debug</span>(p);</span><br><span class="line">        N[p].val = vals.<span class="built_in">front</span>();</span><br><span class="line">        vals.<span class="built_in">erase</span>(vals.<span class="built_in">begin</span>());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (N[p].right != <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// right down</span></span><br><span class="line">            p = N[p].right;</span><br><span class="line">            <span class="keyword">while</span> (N[p].left != <span class="number">-1</span>) &#123;</span><br><span class="line">                p = N[p].left;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (N[p].parent != <span class="number">-1</span> &amp;&amp; N[N[p].parent].left == p) &#123;</span><br><span class="line">            <span class="comment">// right up</span></span><br><span class="line">            p = N[p].parent;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (N[p].parent != <span class="number">-1</span> &amp;&amp; N[N[p].parent].right == p) &#123;</span><br><span class="line">                p = N[p].parent;</span><br><span class="line">            &#125;</span><br><span class="line">            p = N[p].parent;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    queue&lt;<span class="type">int</span>&gt; Q;</span><br><span class="line">    Q.<span class="built_in">push</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">while</span> (Q.<span class="built_in">size</span>()) &#123;</span><br><span class="line">        <span class="type">int</span> top = Q.<span class="built_in">front</span>();</span><br><span class="line">        Q.<span class="built_in">pop</span>();</span><br><span class="line">        <span class="keyword">if</span> (!first)</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            first = <span class="number">0</span>;</span><br><span class="line">        cout &lt;&lt; N[top].val;</span><br><span class="line">        <span class="keyword">if</span> (N[top].left != <span class="number">-1</span>)</span><br><span class="line">            Q.<span class="built_in">push</span>(N[top].left);</span><br><span class="line">        <span class="keyword">if</span> (N[top].right != <span class="number">-1</span>)</span><br><span class="line">            Q.<span class="built_in">push</span>(N[top].right);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>PTA</category>
-      </categories>
-  </entry>
-  <entry>
     <title>1098. Insertion or Heap Sort</title>
     <url>/2020/12/19/1098/</url>
     <content><![CDATA[<p>根据排序的中间结果判断使用的插入排序还是堆排序, 并给出下一轮迭代的中间结果</p>
@@ -10202,6 +10234,17 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
 <p>进行1次插排: sort
 进行1次堆排: pop_heap</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">solve</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a[<span class="number">100</span>], b[<span class="number">100</span>];</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        cin &gt;&gt; a[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        cin &gt;&gt; b[i];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> p = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (p &lt; n &amp;&amp; b[p - <span class="number">1</span>] &lt;= b[p])</span><br><span class="line">        p++;</span><br><span class="line">    <span class="type">int</span> index = p;</span><br><span class="line">    <span class="keyword">while</span> (p &lt; n &amp;&amp; a[p] == b[p])</span><br><span class="line">        p++;</span><br><span class="line">    <span class="keyword">if</span> (p == n) &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Insertion Sort&quot;</span> &lt;&lt; endl;</span><br><span class="line">        <span class="built_in">sort</span>(b, b + index + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (i != <span class="number">0</span>)</span><br><span class="line">                cout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">            cout &lt;&lt; b[i];</span><br><span class="line">        &#125;</span><br><span class="line">        cout &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Heap Sort&quot;</span> &lt;&lt; endl;</span><br><span class="line">        <span class="type">int</span> p = n - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (p &gt; <span class="number">1</span> &amp;&amp; b[p] &gt;= b[<span class="number">1</span>])</span><br><span class="line">            p--;</span><br><span class="line">        <span class="built_in">pop_heap</span>(b, b + p + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (i != <span class="number">0</span>)</span><br><span class="line">                cout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">            cout &lt;&lt; b[i];</span><br><span class="line">        &#125;</span><br><span class="line">        cout &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">solve</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>1099. Build A Binary Search Tree</title>
+    <url>/2020/12/16/1099/</url>
+    <content><![CDATA[<p>给出二叉树结构和节点的值列表, 将值填入二叉树中, 输出层次序遍历的结果</p>
+<p>考点: 二叉树的直接后继</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt; <span class="function"><span class="type">void</span> <span class="title">ERR</span><span class="params">(T x, string name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(x) ERR(x, #    x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">node</span> &#123;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    <span class="type">int</span> left, right, parent;</span><br><span class="line">&#125; N[<span class="number">100</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="type">int</span> first = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    N[<span class="number">0</span>].parent = <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> l, r;</span><br><span class="line">        cin &gt;&gt; l &gt;&gt; r;</span><br><span class="line">        N[i].left = l;</span><br><span class="line">        N[l].parent = i;</span><br><span class="line">        N[i].right = r;</span><br><span class="line">        N[r].parent = i;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; vals;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> val;</span><br><span class="line">        cin &gt;&gt; val;</span><br><span class="line">        vals.<span class="built_in">push_back</span>(val);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">sort</span>(vals.<span class="built_in">begin</span>(), vals.<span class="built_in">end</span>());</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> p = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (N[p].left != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (N[p].left != <span class="number">-1</span>)</span><br><span class="line">            p = N[p].left;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (p != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="built_in">debug</span>(p);</span><br><span class="line">        N[p].val = vals.<span class="built_in">front</span>();</span><br><span class="line">        vals.<span class="built_in">erase</span>(vals.<span class="built_in">begin</span>());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (N[p].right != <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="comment">// right down</span></span><br><span class="line">            p = N[p].right;</span><br><span class="line">            <span class="keyword">while</span> (N[p].left != <span class="number">-1</span>) &#123;</span><br><span class="line">                p = N[p].left;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (N[p].parent != <span class="number">-1</span> &amp;&amp; N[N[p].parent].left == p) &#123;</span><br><span class="line">            <span class="comment">// right up</span></span><br><span class="line">            p = N[p].parent;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (N[p].parent != <span class="number">-1</span> &amp;&amp; N[N[p].parent].right == p) &#123;</span><br><span class="line">                p = N[p].parent;</span><br><span class="line">            &#125;</span><br><span class="line">            p = N[p].parent;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    queue&lt;<span class="type">int</span>&gt; Q;</span><br><span class="line">    Q.<span class="built_in">push</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">while</span> (Q.<span class="built_in">size</span>()) &#123;</span><br><span class="line">        <span class="type">int</span> top = Q.<span class="built_in">front</span>();</span><br><span class="line">        Q.<span class="built_in">pop</span>();</span><br><span class="line">        <span class="keyword">if</span> (!first)</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            first = <span class="number">0</span>;</span><br><span class="line">        cout &lt;&lt; N[top].val;</span><br><span class="line">        <span class="keyword">if</span> (N[top].left != <span class="number">-1</span>)</span><br><span class="line">            Q.<span class="built_in">push</span>(N[top].left);</span><br><span class="line">        <span class="keyword">if</span> (N[top].right != <span class="number">-1</span>)</span><br><span class="line">            Q.<span class="built_in">push</span>(N[top].right);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>PTA</category>
@@ -10841,254 +10884,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       <tags>
         <tag>Tair</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>2020年度总结</title>
-    <url>/2021/01/05/2020-summary/</url>
-    <content><![CDATA[<h2 id="进步"><a class="header-anchor-1" href="#进步">#</a>进步</h2>
-<h3 id="装备升级"><a class="header-anchor-1" href="#装备升级">#</a>装备升级</h3>
-<ul>
-<li>
-<p>新增显示器</p>
-</li>
-<li>
-<p>新增一个 Pad</p>
-</li>
-</ul>
-<h3 id="技术进步"><a class="header-anchor-1" href="#技术进步">#</a>技术进步</h3>
-<ul>
-<li>
-<p>新开了 Blog!</p>
-</li>
-<li>
-<p>开始刷算法题, 并已经刷了一些</p>
-</li>
-<li>
-<p>前端技术更加熟练了</p>
-<ul>
-<li>
-<p>Vue/React 双线操作</p>
-</li>
-<li>
-<p>简单页面能够快速开发</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Python 更加熟练了</p>
-<ul>
-<li>
-<p>爬虫技术</p>
-</li>
-<li>
-<p>数据处理技术</p>
-</li>
-<li>
-<p>AI/DL</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Java 语言入门</p>
-<ul>
-<li>Spring 框架</li>
-</ul>
-</li>
-<li>
-<p>iOS 应用开发入门</p>
-<ul>
-<li>
-<p>Swift 语言入门</p>
-</li>
-<li>
-<p>SpriteKit 游戏 * 1</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="综合能力"><a class="header-anchor-1" href="#综合能力">#</a>综合能力</h3>
-<ul>
-<li>
-<p>表达能力略微提升</p>
-</li>
-<li>
-<p>管理能力略微提升</p>
-</li>
-</ul>
-<h3 id="人际关系"><a class="header-anchor-1" href="#人际关系">#</a>人际关系</h3>
-<ul>
-<li>认识了很多新朋友!</li>
-</ul>
-<h2 id="不足"><a class="header-anchor-1" href="#不足">#</a>不足</h2>
-<h3 id="任务调度"><a class="header-anchor-1" href="#任务调度">#</a>任务调度</h3>
-<ul>
-<li>时间利用率不高, 为完成项目曾多次通宵</li>
-</ul>
-<h3 id="管理-组织能力"><a class="header-anchor-1" href="#管理-组织能力">#</a>管理, 组织能力</h3>
-<ul>
-<li>小组合作时, 作为组长, 任务分配还有待优化</li>
-</ul>
-<h3 id="心态"><a class="header-anchor-1" href="#心态">#</a>心态</h3>
-<ul>
-<li>有时候会比较焦虑</li>
-</ul>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>2021目标计划</title>
-    <url>/2021/01/05/2021-wishes/</url>
-    <content><![CDATA[<h2 id="2021-年目标"><a class="header-anchor-1" href="#2021-年目标">#</a>2021 年目标</h2>
-<h3 id="学习上"><a class="header-anchor-1" href="#学习上">#</a>学习上</h3>
-<ul>
-<li>先把期末考试完美解决</li>
-</ul>
-<h3 id="技术上"><a class="header-anchor-1" href="#技术上">#</a>技术上</h3>
-<ul>
-<li>
-<p>想深入学习一下 C++!</p>
-</li>
-<li>
-<p>多刷算法题目!</p>
-</li>
-<li>
-<p>多写 Blog!</p>
-</li>
-<li>
-<p>学习 Android 开发</p>
-</li>
-<li>
-<p>实现大的后端架构</p>
-</li>
-<li>
-<p>学习新语言: Go/Julia/Ruby/…</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>2023 年终总结</title>
-    <url>/2024/01/01/2023-summary/</url>
-    <content><![CDATA[<h2 id="2023-回顾"><a class="header-anchor-1" href="#2023-回顾">#</a>2023 回顾</h2>
-<ul>
-<li>1 月: 开源投毒</li>
-<li>1-3 月: Rust 教材</li>
-<li>4-5 月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
-<li>3,5-10 月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
-<li>7-11 月: 参加 GLCC 开源活动，参与进了一直以来都很崇拜的 Kata Containers 项目</li>
-<li>8-12 月: 搞浦发银行的项目</li>
-</ul>
-<h2 id="近况"><a class="header-anchor-1" href="#近况">#</a>近况</h2>
-<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
-<p>实验室: 宁波实验室人丁兴旺, hw 稀稀拉拉, 反倒宁波更好一些</p>
-<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会</h2>
-<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
-<p>甚至不知道 2023 年都做了些什么(笑), 只能看周报回忆</p>
-<h2 id="2024-希望"><a class="header-anchor-1" href="#2024-希望">#</a>2024 希望</h2>
-<ul>
-<li>多读书</li>
-<li>多运动</li>
-<li>找到好工作</li>
-<li>学习唱歌</li>
-</ul>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2024/05/12/2024-05-13/</url>
-    <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
-<p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
-<h2 id="conda-root-less-apt"><a class="header-anchor-1" href="#conda-root-less-apt">#</a>Conda = Root-less apt</h2>
-<p>升级<code>gcc</code>依赖库：<code>conda install libgcc libgcc-ng</code></p>
-<p>升级<code>libstdc++</code>：<code>conda install -c conda-forge libstdcxx-ng</code></p>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>2024 年终总结 -- 记学生时代的终结</title>
-    <url>/2025/03/15/2024-summary/</url>
-    <content><![CDATA[<p>不知不觉 2025 年已经过去了两个多月，感觉再不写这篇总结就要忘记了。</p>
-<p>那么事不宜迟，现在让我们回顾一下 2024 年。</p>
-<h2 id="2024-回顾"><a class="header-anchor-1" href="#2024-回顾">#</a>2024 回顾</h2>
-<ul>
-<li>1 月: 似乎没什么事情</li>
-<li>2 月:
-<ul>
-<li><span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvcXR3M2hwYlBVdTFVS0xlTEJiLXBNUQ==">Kata Containers<i class="fa fa-external-link-alt"></i></span> 的项目收尾，Good Job！</li>
-<li>和妈妈在杭州旅游，然后回老家过年，开心</li>
-</ul>
-</li>
-<li>2,6-8,11 月: 科研工作论文
-<ul>
-<li>2 月: 过年在家编 Rebuttal</li>
-<li>6-8 月: Rebuttal 见效，给了个 Major Revision，终于拨云见日…断断续续改了 好几个月</li>
-<li>11 月: 二轮终于接收，如释重负 😭</li>
-</ul>
-</li>
-<li>5 月: 实验室 kg 拿到了 ICSE Distinguished Paper，Good Job！</li>
-<li>3-5 月：暑期实习疯狂投简历
-<ul>
-<li>被字节简历挂了 😡，原因不明，只能解释为投太晚了</li>
-<li>靠 Rust 和安全方面的经验拿到了隐私计算的 Offer，但感觉和自己的方向不太符合，最终放弃了</li>
-<li>由于换 HR，最后的 Offer 拖了 1.5 个月才拿到，人快麻了</li>
-</ul>
-</li>
-<li>3-8 月: 辅助实验室学长的漏洞课题</li>
-<li>5-9 月: 去某公有云大厂开始暑期实习，做 Redis &amp; Tair Persistent Memory &amp; PDB 相关 😄</li>
-<li>8-11 月: 准备秋招
-<ul>
-<li>9 月暑期实习转正顺利</li>
-<li>投+Offer 了 8 家大厂，拉扯了 3 个月，整体过程是一波三折，好在最终的结果还算满意</li>
-</ul>
-</li>
-<li>11-12 月: 参加 <span class="exturl" data-url="aHR0cHM6Ly9vcGVuY2FtcC5jbi9hdG9tZ2l0L2NhbXAvcnVzdA==">Rust 数据结构与算法学习赛<i class="fa fa-external-link-alt"></i></span>，赢到了一个 iPad，意外之喜 😲</li>
-<li>4,10-12 月: 写研究生的毕业论文</li>
-</ul>
-<h2 id="关于实习"><a class="header-anchor-1" href="#关于实习">#</a>关于实习</h2>
-<p>实习对云计算产业有了很多新的认识。</p>
-<p>对公有云的认识：本质上还是 toC 的业务（因此对于客户服务要求极高），只不过卖的产品是云资源。</p>
-<p>对工区的感受：“大概是把演唱会的观众席变成办公桌，观众变成程序员的感觉”</p>
-<p>实习同学还有 cvpr oral 二作哥，厉害。</p>
-<p>遇到了很多 nb 的师兄，不管是人际关系方面还是技术方面都有一些收获。</p>
-<h2 id="关于实验室"><a class="header-anchor-1" href="#关于实验室">#</a>关于实验室</h2>
-<p>hw 实验室从 z3 三楼搬到四楼（23.12.20），然后又搬到了 z9（25.1.2），真够折腾的。</p>
-<p>宁波和 hw 实验室都来了很多新朋友，不过作为老人社交方面有点摆烂了。</p>
-<p>(25.1) kg 考完雅思就去了 SG，拜到了 SE 的大师 🙏。</p>
-<h2 id="关于-ai"><a class="header-anchor-1" href="#关于-ai">#</a>关于 AI</h2>
-<p>难以置信，24 年看来还是不可能实现的任务，过了一年就有了新的突破。</p>
-<h2 id="读的书"><a class="header-anchor-1" href="#读的书">#</a>读的书</h2>
-<ul>
-<li>房思琪的初恋乐园</li>
-<li>雪国</li>
-</ul>
-<p>培养了使用微信读书的习惯。</p>
-<h2 id="有趣的事情"><a class="header-anchor-1" href="#有趣的事情">#</a>有趣的事情</h2>
-<p>和实验室友友们 Cooking 了好多次，好好吃 😋</p>
-<p>自学硬件，画了很多板子，焊接了很多电路，感谢嘉立创 🙏</p>
-<h2 id="未来的祝福"><a class="header-anchor-1" href="#未来的祝福">#</a>未来的祝福</h2>
-<p>工作顺利！</p>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-      </categories>
   </entry>
   <entry>
     <title>分布式系统基础</title>
@@ -14209,6 +14004,365 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </tags>
   </entry>
   <entry>
+    <title>2020年度总结</title>
+    <url>/2021/01/05/2020-summary/</url>
+    <content><![CDATA[<h2 id="进步"><a class="header-anchor-1" href="#进步">#</a>进步</h2>
+<h3 id="装备升级"><a class="header-anchor-1" href="#装备升级">#</a>装备升级</h3>
+<ul>
+<li>
+<p>新增显示器</p>
+</li>
+<li>
+<p>新增一个 Pad</p>
+</li>
+</ul>
+<h3 id="技术进步"><a class="header-anchor-1" href="#技术进步">#</a>技术进步</h3>
+<ul>
+<li>
+<p>新开了 Blog!</p>
+</li>
+<li>
+<p>开始刷算法题, 并已经刷了一些</p>
+</li>
+<li>
+<p>前端技术更加熟练了</p>
+<ul>
+<li>
+<p>Vue/React 双线操作</p>
+</li>
+<li>
+<p>简单页面能够快速开发</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Python 更加熟练了</p>
+<ul>
+<li>
+<p>爬虫技术</p>
+</li>
+<li>
+<p>数据处理技术</p>
+</li>
+<li>
+<p>AI/DL</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Java 语言入门</p>
+<ul>
+<li>Spring 框架</li>
+</ul>
+</li>
+<li>
+<p>iOS 应用开发入门</p>
+<ul>
+<li>
+<p>Swift 语言入门</p>
+</li>
+<li>
+<p>SpriteKit 游戏 * 1</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="综合能力"><a class="header-anchor-1" href="#综合能力">#</a>综合能力</h3>
+<ul>
+<li>
+<p>表达能力略微提升</p>
+</li>
+<li>
+<p>管理能力略微提升</p>
+</li>
+</ul>
+<h3 id="人际关系"><a class="header-anchor-1" href="#人际关系">#</a>人际关系</h3>
+<ul>
+<li>认识了很多新朋友!</li>
+</ul>
+<h2 id="不足"><a class="header-anchor-1" href="#不足">#</a>不足</h2>
+<h3 id="任务调度"><a class="header-anchor-1" href="#任务调度">#</a>任务调度</h3>
+<ul>
+<li>时间利用率不高, 为完成项目曾多次通宵</li>
+</ul>
+<h3 id="管理-组织能力"><a class="header-anchor-1" href="#管理-组织能力">#</a>管理, 组织能力</h3>
+<ul>
+<li>小组合作时, 作为组长, 任务分配还有待优化</li>
+</ul>
+<h3 id="心态"><a class="header-anchor-1" href="#心态">#</a>心态</h3>
+<ul>
+<li>有时候会比较焦虑</li>
+</ul>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>2021目标计划</title>
+    <url>/2021/01/05/2021-wishes/</url>
+    <content><![CDATA[<h2 id="2021-年目标"><a class="header-anchor-1" href="#2021-年目标">#</a>2021 年目标</h2>
+<h3 id="学习上"><a class="header-anchor-1" href="#学习上">#</a>学习上</h3>
+<ul>
+<li>先把期末考试完美解决</li>
+</ul>
+<h3 id="技术上"><a class="header-anchor-1" href="#技术上">#</a>技术上</h3>
+<ul>
+<li>
+<p>想深入学习一下 C++!</p>
+</li>
+<li>
+<p>多刷算法题目!</p>
+</li>
+<li>
+<p>多写 Blog!</p>
+</li>
+<li>
+<p>学习 Android 开发</p>
+</li>
+<li>
+<p>实现大的后端架构</p>
+</li>
+<li>
+<p>学习新语言: Go/Julia/Ruby/…</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>2023 年终总结</title>
+    <url>/2024/01/01/2023-summary/</url>
+    <content><![CDATA[<h2 id="2023-回顾"><a class="header-anchor-1" href="#2023-回顾">#</a>2023 回顾</h2>
+<ul>
+<li>1 月: 开源投毒</li>
+<li>1-3 月: Rust 教材</li>
+<li>4-5 月: 加入误报消减团队, 投 ASE/ICSE 论文</li>
+<li>3,5-10 月: 相似代码片段但是有漏洞情况不同 自己搜索, 研究 PDG, Call Graph, LLVM Pass, 函数切片, 错过 FSE</li>
+<li>7-11 月: 参加 GLCC 开源活动，参与进了一直以来都很崇拜的 Kata Containers 项目</li>
+<li>8-12 月: 搞浦发银行的项目</li>
+</ul>
+<h2 id="近况"><a class="header-anchor-1" href="#近况">#</a>近况</h2>
+<p>个人: 研二在读, 人在杭州, 一篇一作论文在投, 每天搬砖, 没有确定的方向, 毕业有点迷茫</p>
+<p>实验室: 宁波实验室人丁兴旺, hw 稀稀拉拉, 反倒宁波更好一些</p>
+<h2 id="体会"><a class="header-anchor-1" href="#体会">#</a>体会</h2>
+<p>研究生比本科忙多了, 没有时间去做自己想做的事情</p>
+<p>甚至不知道 2023 年都做了些什么(笑), 只能看周报回忆</p>
+<h2 id="2024-希望"><a class="header-anchor-1" href="#2024-希望">#</a>2024 希望</h2>
+<ul>
+<li>多读书</li>
+<li>多运动</li>
+<li>找到好工作</li>
+<li>学习唱歌</li>
+</ul>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2024/05/12/2024-05-13/</url>
+    <content><![CDATA[<h2 id="软链接更新"><a class="header-anchor-1" href="#软链接更新">#</a>软链接更新</h2>
+<p><code>ln</code>有个<code>-f,--force</code>更新链接，再也不用<code>rm</code>再重建了。</p>
+<h2 id="conda-root-less-apt"><a class="header-anchor-1" href="#conda-root-less-apt">#</a>Conda = Root-less apt</h2>
+<p>升级<code>gcc</code>依赖库：<code>conda install libgcc libgcc-ng</code></p>
+<p>升级<code>libstdc++</code>：<code>conda install -c conda-forge libstdcxx-ng</code></p>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2024 年终总结 -- 记学生时代的终结</title>
+    <url>/2025/03/15/2024-summary/</url>
+    <content><![CDATA[<p>不知不觉 2025 年已经过去了两个多月，感觉再不写这篇总结就要忘记了。</p>
+<p>那么事不宜迟，现在让我们回顾一下 2024 年。</p>
+<h2 id="2024-回顾"><a class="header-anchor-1" href="#2024-回顾">#</a>2024 回顾</h2>
+<ul>
+<li>1 月: 似乎没什么事情</li>
+<li>2 月:
+<ul>
+<li><span class="exturl" data-url="aHR0cHM6Ly9tcC53ZWl4aW4ucXEuY29tL3MvcXR3M2hwYlBVdTFVS0xlTEJiLXBNUQ==">Kata Containers<i class="fa fa-external-link-alt"></i></span> 的项目收尾，Good Job！</li>
+<li>和妈妈在杭州旅游，然后回老家过年，开心</li>
+</ul>
+</li>
+<li>2,6-8,11 月: 科研工作论文
+<ul>
+<li>2 月: 过年在家编 Rebuttal</li>
+<li>6-8 月: Rebuttal 见效，给了个 Major Revision，终于拨云见日…断断续续改了 好几个月</li>
+<li>11 月: 二轮终于接收，如释重负 😭</li>
+</ul>
+</li>
+<li>5 月: 实验室 kg 拿到了 ICSE Distinguished Paper，Good Job！</li>
+<li>3-5 月：暑期实习疯狂投简历
+<ul>
+<li>被字节简历挂了 😡，原因不明，只能解释为投太晚了</li>
+<li>靠 Rust 和安全方面的经验拿到了隐私计算的 Offer，但感觉和自己的方向不太符合，最终放弃了</li>
+<li>由于换 HR，最后的 Offer 拖了 1.5 个月才拿到，人快麻了</li>
+</ul>
+</li>
+<li>3-8 月: 辅助实验室学长的漏洞课题</li>
+<li>5-9 月: 去某公有云大厂开始暑期实习，做 Redis &amp; Tair Persistent Memory &amp; PDB 相关 😄</li>
+<li>8-11 月: 准备秋招
+<ul>
+<li>9 月暑期实习转正顺利</li>
+<li>投+Offer 了 8 家大厂，拉扯了 3 个月，整体过程是一波三折，好在最终的结果还算满意</li>
+</ul>
+</li>
+<li>11-12 月: 参加 <span class="exturl" data-url="aHR0cHM6Ly9vcGVuY2FtcC5jbi9hdG9tZ2l0L2NhbXAvcnVzdA==">Rust 数据结构与算法学习赛<i class="fa fa-external-link-alt"></i></span>，赢到了一个 iPad，意外之喜 😲</li>
+<li>4,10-12 月: 写研究生的毕业论文</li>
+</ul>
+<h2 id="关于实习"><a class="header-anchor-1" href="#关于实习">#</a>关于实习</h2>
+<p>实习对云计算产业有了很多新的认识。</p>
+<p>对公有云的认识：本质上还是 toC 的业务（因此对于客户服务要求极高），只不过卖的产品是云资源。</p>
+<p>对工区的感受：“大概是把演唱会的观众席变成办公桌，观众变成程序员的感觉”</p>
+<p>实习同学还有 cvpr oral 二作哥，厉害。</p>
+<p>遇到了很多 nb 的师兄，不管是人际关系方面还是技术方面都有一些收获。</p>
+<h2 id="关于实验室"><a class="header-anchor-1" href="#关于实验室">#</a>关于实验室</h2>
+<p>hw 实验室从 z3 三楼搬到四楼（23.12.20），然后又搬到了 z9（25.1.2），真够折腾的。</p>
+<p>宁波和 hw 实验室都来了很多新朋友，不过作为老人社交方面有点摆烂了。</p>
+<p>(25.1) kg 考完雅思就去了 SG，拜到了 SE 的大师 🙏。</p>
+<h2 id="关于-ai"><a class="header-anchor-1" href="#关于-ai">#</a>关于 AI</h2>
+<p>难以置信，24 年看来还是不可能实现的任务，过了一年就有了新的突破。</p>
+<h2 id="读的书"><a class="header-anchor-1" href="#读的书">#</a>读的书</h2>
+<ul>
+<li>房思琪的初恋乐园</li>
+<li>雪国</li>
+</ul>
+<p>培养了使用微信读书的习惯。</p>
+<h2 id="有趣的事情"><a class="header-anchor-1" href="#有趣的事情">#</a>有趣的事情</h2>
+<p>和实验室友友们 Cooking 了好多次，好好吃 😋</p>
+<p>自学硬件，画了很多板子，焊接了很多电路，感谢嘉立创 🙏</p>
+<h2 id="未来的祝福"><a class="header-anchor-1" href="#未来的祝福">#</a>未来的祝福</h2>
+<p>工作顺利！</p>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>日本语1</title>
+    <url>/2021/02/15/1/</url>
+    <content><![CDATA[<h2 id="what-is-japanese"><a class="header-anchor-1" href="#what-is-japanese">#</a>What is Japanese</h2>
+<h3 id="japanese-sound-system"><a class="header-anchor-1" href="#japanese-sound-system">#</a>Japanese Sound System</h3>
+<p>23 consonant sounds + 5 vowel sounds, with pitch accent</p>
+<p>When spoken, the Japanese language is formed using either vowels or a consonant-vowel pair, except the “n” sound (single consonant sound)</p>
+<h3 id="japanese-writing-system"><a class="header-anchor-1" href="#japanese-writing-system">#</a>Japanese Writing System</h3>
+<p>Come around 1500 years age from China</p>
+<p>Currentlt has 3 types of writing: hiragana, katakana, kanji</p>
+<p>Kanji were imported from China, traditionally used for both meaning and sound.</p>
+<p>Hiragana: 46 characters with two diacritical marks that are used to denote the sounds</p>
+<p>Each hiragana symbolizes with a vowel or a consonant combined with a vowel.</p>
+<p>Hiraganas are in particular used for function words and inflectional endings, as well as in some content words.</p>
+<table>
+<thead>
+<tr>
+<th>Hiragana</th>
+<th>ん</th>
+<th>w</th>
+<th>r</th>
+<th>y</th>
+<th>m</th>
+<th>h</th>
+<th>n</th>
+<th>t</th>
+<th>s</th>
+<th>k</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a</td>
+<td>ん</td>
+<td>わ</td>
+<td>ら</td>
+<td>や</td>
+<td>ま</td>
+<td>は</td>
+<td>な</td>
+<td>た</td>
+<td>さ</td>
+<td>か</td>
+<td>あ</td>
+</tr>
+<tr>
+<td>i</td>
+<td></td>
+<td></td>
+<td>り</td>
+<td></td>
+<td>み</td>
+<td>ひ</td>
+<td>に</td>
+<td>ち</td>
+<td>し</td>
+<td>き</td>
+<td>い</td>
+</tr>
+<tr>
+<td>u</td>
+<td></td>
+<td></td>
+<td>る</td>
+<td>ゆ</td>
+<td>む</td>
+<td>ふ</td>
+<td>ぬ</td>
+<td>つ</td>
+<td>す</td>
+<td>く</td>
+<td>う</td>
+</tr>
+<tr>
+<td>e</td>
+<td></td>
+<td></td>
+<td>れ</td>
+<td></td>
+<td>め</td>
+<td>へ</td>
+<td>ね</td>
+<td>て</td>
+<td>せ</td>
+<td>け</td>
+<td>え</td>
+</tr>
+<tr>
+<td>o</td>
+<td></td>
+<td>を</td>
+<td>ろ</td>
+<td>よ</td>
+<td>も</td>
+<td>ほ</td>
+<td>の</td>
+<td>と</td>
+<td>そ</td>
+<td>こ</td>
+<td>お</td>
+</tr>
+</tbody>
+</table>
+<p>Katagana is also a syllabary, is used for loan words, onomatopoeic words and scientific words.</p>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>japanese</category>
+      </categories>
+  </entry>
+  <entry>
     <title>软考高级系统架构设计师笔记</title>
     <url>/2025/03/14/note/</url>
     <content><![CDATA[<h2 id="考试安排"><a class="header-anchor-1" href="#考试安排">#</a>考试安排</h2>
@@ -15195,117 +15349,6 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
       <tags>
         <tag>软考</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>日本语1</title>
-    <url>/2021/02/15/1/</url>
-    <content><![CDATA[<h2 id="what-is-japanese"><a class="header-anchor-1" href="#what-is-japanese">#</a>What is Japanese</h2>
-<h3 id="japanese-sound-system"><a class="header-anchor-1" href="#japanese-sound-system">#</a>Japanese Sound System</h3>
-<p>23 consonant sounds + 5 vowel sounds, with pitch accent</p>
-<p>When spoken, the Japanese language is formed using either vowels or a consonant-vowel pair, except the “n” sound (single consonant sound)</p>
-<h3 id="japanese-writing-system"><a class="header-anchor-1" href="#japanese-writing-system">#</a>Japanese Writing System</h3>
-<p>Come around 1500 years age from China</p>
-<p>Currentlt has 3 types of writing: hiragana, katakana, kanji</p>
-<p>Kanji were imported from China, traditionally used for both meaning and sound.</p>
-<p>Hiragana: 46 characters with two diacritical marks that are used to denote the sounds</p>
-<p>Each hiragana symbolizes with a vowel or a consonant combined with a vowel.</p>
-<p>Hiraganas are in particular used for function words and inflectional endings, as well as in some content words.</p>
-<table>
-<thead>
-<tr>
-<th>Hiragana</th>
-<th>ん</th>
-<th>w</th>
-<th>r</th>
-<th>y</th>
-<th>m</th>
-<th>h</th>
-<th>n</th>
-<th>t</th>
-<th>s</th>
-<th>k</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>a</td>
-<td>ん</td>
-<td>わ</td>
-<td>ら</td>
-<td>や</td>
-<td>ま</td>
-<td>は</td>
-<td>な</td>
-<td>た</td>
-<td>さ</td>
-<td>か</td>
-<td>あ</td>
-</tr>
-<tr>
-<td>i</td>
-<td></td>
-<td></td>
-<td>り</td>
-<td></td>
-<td>み</td>
-<td>ひ</td>
-<td>に</td>
-<td>ち</td>
-<td>し</td>
-<td>き</td>
-<td>い</td>
-</tr>
-<tr>
-<td>u</td>
-<td></td>
-<td></td>
-<td>る</td>
-<td>ゆ</td>
-<td>む</td>
-<td>ふ</td>
-<td>ぬ</td>
-<td>つ</td>
-<td>す</td>
-<td>く</td>
-<td>う</td>
-</tr>
-<tr>
-<td>e</td>
-<td></td>
-<td></td>
-<td>れ</td>
-<td></td>
-<td>め</td>
-<td>へ</td>
-<td>ね</td>
-<td>て</td>
-<td>せ</td>
-<td>け</td>
-<td>え</td>
-</tr>
-<tr>
-<td>o</td>
-<td></td>
-<td>を</td>
-<td>ろ</td>
-<td>よ</td>
-<td>も</td>
-<td>ほ</td>
-<td>の</td>
-<td>と</td>
-<td>そ</td>
-<td>こ</td>
-<td>お</td>
-</tr>
-</tbody>
-</table>
-<p>Katagana is also a syllabary, is used for loan words, onomatopoeic words and scientific words.</p>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>japanese</category>
-      </categories>
   </entry>
   <entry>
     <title>电子电路基础</title>
@@ -17539,18 +17582,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/18/2020-12-18/</url>
-    <content><![CDATA[<h2 id="oracle-apex-怎么调用-procedure"><a class="header-anchor-1" href="#oracle-apex-怎么调用-procedure">#</a>Oracle Apex 怎么调用 procedure</h2>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">begin</span></span><br><span class="line">  ANALYSIS(<span class="number">6</span>, <span class="number">1000</span>);</span><br><span class="line"><span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/19/2020-12-19/</url>
     <content><![CDATA[<h2 id="spring-中-filter-和-interceptor-的区别"><a class="header-anchor-1" href="#spring-中-filter-和-interceptor-的区别">#</a>Spring 中 Filter 和 Interceptor 的区别</h2>
 <p>Filter 和 Interceptor 都可以实现对请求的拦截</p>
@@ -17687,6 +17718,18 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>数据结构</tag>
         <tag>答辩</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/18/2020-12-18/</url>
+    <content><![CDATA[<h2 id="oracle-apex-怎么调用-procedure"><a class="header-anchor-1" href="#oracle-apex-怎么调用-procedure">#</a>Oracle Apex 怎么调用 procedure</h2>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">begin</span></span><br><span class="line">  ANALYSIS(<span class="number">6</span>, <span class="number">1000</span>);</span><br><span class="line"><span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
   </entry>
   <entry>
     <title>每日小结</title>
