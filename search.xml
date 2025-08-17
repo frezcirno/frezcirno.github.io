@@ -31,1027 +31,6 @@
       </tags>
   </entry>
   <entry>
-    <title>ARP协议</title>
-    <url>/2021/10/20/arp-protocol/</url>
-    <content><![CDATA[<h2 id="arp-协议"><a class="header-anchor-1" href="#arp-协议">#</a>ARP 协议</h2>
-<p>ARP 协议的全称是 Address Resolution Protocol(地址解析协议)，它是一个通过解析网络层地址来找寻数据链路层地址的网络传输协议，它在 IPv4 中<strong>极其重要</strong>。是 IPv4 能够正常工作的基础。</p>
-<p>ARP 协议与 IP 协议一样，位于网络层，ARP 报文在以太网帧结构中的帧类型字段为<code>0x0806</code></p>
-<p>在 IPv6 中邻居发现协议（NDP）用于代替地址解析协议（ARP）。</p>
-<h3 id="arp-报文格式"><a class="header-anchor-1" href="#arp-报文格式">#</a>ARP 报文格式</h3>
-<p>以太网首部：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ether_hdr</span> &#123;</span><br><span class="line">    <span class="type">uint8_t</span> target_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint8_t</span> sender_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint16_t</span> ptype; <span class="comment">/* equal to 0x0806 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>ARP 报文：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">arp_hdr</span> &#123;</span><br><span class="line">    <span class="type">uint16_t</span> htype;</span><br><span class="line">    <span class="type">uint16_t</span> ptype;</span><br><span class="line">    <span class="type">uint8_t</span> hlen;</span><br><span class="line">    <span class="type">uint8_t</span> plen;</span><br><span class="line">    <span class="type">uint16_t</span> opcode;</span><br><span class="line">    <span class="type">uint8_t</span> sender_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint8_t</span> sender_ip[<span class="number">4</span>];</span><br><span class="line">    <span class="type">uint8_t</span> target_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint8_t</span> target_ip[<span class="number">4</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h3 id="arp-表"><a class="header-anchor-1" href="#arp-表">#</a>ARP 表</h3>
-<p>在每台安装有 TCP/IP 协议的电脑或路由器里都有一个 ARP 缓存表，表里的 IP 地址与 MAC 地址是一对应的，表中的每一行表示在<strong>当前局域网</strong>中，拥有<code>IP地址</code>的设备的 MAC 地址是<code>MAC地址</code>，如下表所示。</p>
-<table>
-<thead>
-<tr>
-<th>主机名称</th>
-<th>IP 地址</th>
-<th>MAC 地址</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>A</td>
-<td>192.168.38.10</td>
-<td>00-AA-00-62-D2-02</td>
-</tr>
-<tr>
-<td>B</td>
-<td>192.168.38.11</td>
-<td>00-BB-00-62-C2-02</td>
-</tr>
-<tr>
-<td>C</td>
-<td>192.168.38.12</td>
-<td>00-CC-00-62-C2-02</td>
-</tr>
-<tr>
-<td>D</td>
-<td>192.168.38.13</td>
-<td>00-DD-00-62-C2-02</td>
-</tr>
-<tr>
-<td>E</td>
-<td>192.168.38.14</td>
-<td>00-EE-00-62-C2-02</td>
-</tr>
-<tr>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-</tr>
-</tbody>
-</table>
-<p>ARP 缓存表采用老化机制，在一段时间内如果表中的某一行没有使用，就会被删除，这样可减少缓存表的长度，加快查询速度。</p>
-<h3 id="arp-流程"><a class="header-anchor-1" href="#arp-流程">#</a>ARP 流程</h3>
-<ol>
-<li>
-<p>当发送数据时，主机 A 会在自己的 ARP 缓存表中寻找是否有目标 IP 地址。如果找到就知道目标 MAC 地址为（00-BB-00-62-C2-02），直接把目标 MAC 地址写入帧里面发送就可。</p>
-</li>
-<li>
-<p>如果在 ARP 缓存表中没有找到相对应的 IP 地址，主机 A 就会在网络上发送一个广播（ARP request），目标 MAC 地址是“FF.FF.FF.FF.FF.FF”，这表示向同一网段内的所有主机发出这样的询问：“192.168.38.11 的 MAC 地址是什么？”</p>
-</li>
-<li>
-<p>网络上其他主机并不响应 ARP 询问，只有主机 B 接收到这个帧时，才向主机 A 做出这样的回应（ARP response）：“192.168.38.11 的 MAC 地址是 00-BB-00-62-C2-02”，此回应以单播方式。这样，主机 A 就知道主机 B 的 MAC 地址，它就可以向主机 B 发送信息。同时它还更新自己的 ARP 高速缓存（ARP cache），下次再向主机 B 发送信息时，直接从 ARP 缓存表里查找就可。</p>
-</li>
-</ol>
-<h3 id="免费-arp"><a class="header-anchor-1" href="#免费-arp">#</a>免费 ARP</h3>
-<p>免费 ARP（gratuitous ARP）是指主机发送 ARP 查询（广播）自己的 IP 地址，当 ARP 功能被开启或者是端口初始配置完成，主机向网络发送免费 ARP 来查询自己的 IP 地址确认地址唯一可用。</p>
-<p>作用：</p>
-<ol>
-<li>
-<p>确定网络中是否有其他主机使用了 IP 地址，如果有应答则产生错误消息。</p>
-</li>
-<li>
-<p>免费 ARP 可以做更新 ARP 缓存用，网络中的其他主机收到该广播则在缓存中更新条目，收到该广播的主机无论是否存在与 IP 地址相关的条目都会强制更新，如果存在旧条目则会将 MAC 更新为广播包中的 MAC。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>computer-networking</category>
-      </categories>
-      <tags>
-        <tag>计算机网络</tag>
-        <tag>基础架构</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>计算机网络课程笔记</title>
-    <url>/2021/01/05/computer-networking-notes/</url>
-    <content><![CDATA[<h2 id="按章节"><a class="header-anchor-1" href="#按章节">#</a>按章节</h2>
-<h3 id="1-9-osi-七层模型"><a class="header-anchor-1" href="#1-9-osi-七层模型">#</a>1.9 OSI 七层模型</h3>
-<p>设计者: 国际标准化组织 ISO, 国际电信联盟 ITU</p>
-<p>OSI 七层模型: 物理层/数据链路层/网络层/传输层/会话层/表示层/应用层</p>
-<p>TCP/IP 位于: 传输层/网络层</p>
-<p>会话层和表示层几乎没有内容</p>
-<h3 id="3-4-cs-模型"><a class="header-anchor-1" href="#3-4-cs-模型">#</a>3.4 CS 模型</h3>
-<table>
-<thead>
-<tr>
-<th>服务端程序 S</th>
-<th>客户端程序 A</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>先启动</td>
-<td>后启动</td>
-</tr>
-<tr>
-<td>不知道 C</td>
-<td>必须知道 S 的位置</td>
-</tr>
-<tr>
-<td>积极等待 C 来连接</td>
-<td>需要通讯时初始化连接</td>
-</tr>
-<tr>
-<td>通过收发数据进行通讯</td>
-<td>通过收发数据进行通讯</td>
-</tr>
-<tr>
-<td>服务之后继续运行, 等待下一个 C 来连接</td>
-<td>可能结束</td>
-</tr>
-</tbody>
-</table>
-<p>Internet 只提供基本通讯, 实际上是由计算机上的程序来处理连接</p>
-<h3 id="3-5-c-s-程序的特点"><a class="header-anchor-1" href="#3-5-c-s-程序的特点">#</a>3.5 C/S 程序的特点</h3>
-<p>略</p>
-<h3 id="3-13-网络编程-socket-api"><a class="header-anchor-1" href="#3-13-网络编程-socket-api">#</a>3.13 网络编程 Socket API</h3>
-<p>事实标准: Socket API</p>
-<h3 id="4-6-url-和超链接"><a class="header-anchor-1" href="#4-6-url-和超链接">#</a>4.6 URL 和超链接</h3>
-<h3 id="4-7-http"><a class="header-anchor-1" href="#4-7-http">#</a>4.7 HTTP</h3>
-<h3 id="4-17-dns-和域名"><a class="header-anchor-1" href="#4-17-dns-和域名">#</a>4.17 DNS 和域名</h3>
-<h3 id="4-20-名字解析"><a class="header-anchor-1" href="#4-20-名字解析">#</a>4.20 名字解析</h3>
-<h3 id="5-5-与数据传输相关的话题"><a class="header-anchor-1" href="#5-5-与数据传输相关的话题">#</a>5.5 与数据传输相关的话题</h3>
-<ul>
-<li>信息源</li>
-<li>数据源编码/解码器</li>
-<li>加密/解密器</li>
-<li>通道编码/解码器</li>
-<li>复用/解复用器</li>
-<li>调制/解调器</li>
-<li>物理信道和传输</li>
-</ul>
-<h3 id="7-18-低地卫星-leo-和集群"><a class="header-anchor-1" href="#7-18-低地卫星-leo-和集群">#</a>7.18 低地卫星(LEO)和集群</h3>
-<p>LEO 卫星群协同工作以转发消息。集群成员必须知道当前在地球给定区域上的卫星，并将消息转发给适当的成员以传输到地面站。</p>
-<h3 id="8-6-奇偶校验码"><a class="header-anchor-1" href="#8-6-奇偶校验码">#</a>8.6 奇偶校验码</h3>
-<p>单奇偶校验（SPC）是信道编码的一种基本形式，其中发送方<strong>在每个字节上添加一个额外的位，以使 1 的个数为偶数（或奇数）</strong>，接收方验证输入的数据是否具有正确的 1 位数。</p>
-<h3 id="8-12-因特网使用的-16-位校验和"><a class="header-anchor-1" href="#8-12-因特网使用的-16-位校验和">#</a>8.12 因特网使用的 16 位校验和</h3>
-<p>源数据 M, 任意长度</p>
-<ol>
-<li>补零, 直至长度是 16 位的倍数</li>
-<li>将 M 按照 16 位分组并求和, 最多允许溢出到 32 位</li>
-<li>将结果对半相加(高 16 位加低 16 位), 只保留 16 位</li>
-<li>将结果取反</li>
-<li>如果是 0 则再取反</li>
-</ol>
-<p>取反的目的: 方便验证, 只要求完相加判断是否溢出剩 0 就行了</p>
-<h3 id="8-13-crc"><a class="header-anchor-1" href="#8-13-crc">#</a>8.13 CRC</h3>
-<p>例: data=<code>10010101010</code>, G=<code>10101</code>
-多项式表示: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><msup><mi>x</mi><mn>5</mn></msup><mo>+</mo><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">G=x^5+x^3+1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">G</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">5</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span></p>
-<ol>
-<li>补零</li>
-</ol>
-<p><code>mdata = data + '0' * (G.length - 1)</code></p>
-<p>得到<code>mdata = 100101010100000</code></p>
-<ol start="2">
-<li>模 2 除法</li>
-</ol>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">      ___101100101100_</span><br><span class="line"><span class="number">10101</span>/<span class="number">100101010100000</span></span><br><span class="line">    / <span class="number">10101</span> |   | | |</span><br><span class="line">     =  <span class="number">11110</span>   | | |</span><br><span class="line">        <span class="number">10101</span>   | | |</span><br><span class="line">       = <span class="number">10111</span>  | | |</span><br><span class="line">         <span class="number">10101</span>  | | |</span><br><span class="line">        =   <span class="number">10010</span> | |</span><br><span class="line">            <span class="number">10101</span> | |</span><br><span class="line">           =  <span class="number">11100</span> |</span><br><span class="line">              <span class="number">10101</span> |</span><br><span class="line">             = <span class="number">10010</span>|</span><br><span class="line">               <span class="number">10101</span>|</span><br><span class="line">              =  <span class="number">1110</span></span><br></pre></td></tr></table></figure>
-<p>得到 CRC=<code>1110</code></p>
-<ol start="3">
-<li>拼接</li>
-</ol>
-<p>发送的数据<code>send = data + CRC</code></p>
-<p><code>send = 1000101010 1110</code></p>
-<h3 id="9-12-单工-半双工-全双工传输"><a class="header-anchor-1" href="#9-12-单工-半双工-全双工传输">#</a>9.12 单工/半双工/全双工传输</h3>
-<p>信道的三种类型</p>
-<p>单工: 只能单向传输, 单根光纤就是单工, 类比收音机, 电视</p>
-<p>全双工: 可以同时双向传输, 有两个光纤就可以组成全双工, 类比电话</p>
-<p>半双工: 需要一个共享传输介质, 可以双向传输但是不能同时, 类比对讲机</p>
-<h3 id="10-3-模拟调制"><a class="header-anchor-1" href="#10-3-模拟调制">#</a>10.3 模拟调制</h3>
-<p>载波: 信息发送出去时以电波的形式, 负责承载信息的波就是载波</p>
-<p>调制: 根据要发送的信息, 对载波进行的调整</p>
-<pre><code>原始载波(输入1) --\
-                (调制器) ---&gt; 调制过的载波(输出)
-信息 (输入2)    --/
-</code></pre>
-<p>三种主要调制技术:</p>
-<ul>
-<li>振幅调制</li>
-<li>频率调制</li>
-<li>移相调制</li>
-</ul>
-<h3 id="10-12-modem"><a class="header-anchor-1" href="#10-12-modem">#</a>10.12 Modem</h3>
-<p>为了方便网络安装, 一般将调制和解调功能集成在一个叫做调制解调器的设备中</p>
-<h3 id="12-6-局部环路特性和适应"><a class="header-anchor-1" href="#12-6-局部环路特性和适应">#</a>12.6 局部环路特性和适应</h3>
-<p>接入技术: ISP 到用户的连接</p>
-<p>本地用户环路(local subscriber line)/本地环路(local loop): 电话公司交换局到用户之间的物理连接, 一般是使用双绞线 (其实就是电话线路?)</p>
-<p>DSL: 一种利用 local loop 提供网络的技术</p>
-<p>ADSL: 不对称 DSL, 利用频分复用将 local loop 的带宽分成三个区域</p>
-<table>
-<thead>
-<tr>
-<th>频率</th>
-<th>功能</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>0-4</td>
-<td>普通老式电话业务</td>
-</tr>
-<tr>
-<td>26-138</td>
-<td>上行频带</td>
-</tr>
-<tr>
-<td>138-1100</td>
-<td>下行频带</td>
-</tr>
-</tbody>
-</table>
-<p>因为本地环路的电气特性变化各异，ADSL 采用了自适应技术，即一对调制解调器先探测彼此之间连接线路上的许多频率，然后选择在此线路上能产生最优传输质量的频率和相应的调制技术。</p>
-<h3 id="12-7-adsl-的传输速率"><a class="header-anchor-1" href="#12-7-adsl-的传输速率">#</a>12.7 ADSL 的传输速率</h3>
-<p>上行: 32 - 640 Kbps, 去掉控制信道: 32 - 576 Kbps</p>
-<p>下行: 32 - 8448 Kbps</p>
-<h3 id="12-9-电缆调制解调器技术"><a class="header-anchor-1" href="#12-9-电缆调制解调器技术">#</a>12.9 电缆调制解调器技术</h3>
-<p>本地环路具有局限性: 双绞线不抗干扰,</p>
-<p>因此创造了基于 同轴电缆 + FDM + 统计复用 的电缆调制解调器技术, 每一组用户共享一个数据信道, 通过 Modem 判断数据是否属于该用户</p>
-<p>传输速率: 上行 512 Kbps, 下行 52 Mbps</p>
-<h3 id="13-4-本地和广域包交换网络"><a class="header-anchor-1" href="#13-4-本地和广域包交换网络">#</a>13.4 本地和广域包交换网络</h3>
-<table>
-<thead>
-<tr>
-<th>类型</th>
-<th>距离</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>LAN</td>
-<td>房间/建筑</td>
-</tr>
-<tr>
-<td>MAN</td>
-<td>大城市</td>
-</tr>
-<tr>
-<td>WAN</td>
-<td>多个城市</td>
-</tr>
-</tbody>
-</table>
-<h3 id="13-9-包识别-解复用-mac-地址"><a class="header-anchor-1" href="#13-9-包识别-解复用-mac-地址">#</a>13.9 包识别, 解复用, MAC 地址</h3>
-<p>地址: 在包交换系统中, 解复用时使用的标识符, 每个包都包含了目的地地址</p>
-<p>IEEE 地址(MAC 地址): 48 位地址, 每个 NIC 都不一样, 分为前 24 位 OUI, 24 位 NIC 地址</p>
-<h3 id="13-10-单播-广播-多播"><a class="header-anchor-1" href="#13-10-单播-广播-多播">#</a>13.10 单播, 广播, 多播</h3>
-<p>IEEE 保留了 MAC 地址中的一位(最高有效字节的最低位)来区分单播(0)和多播(1)</p>
-<p>广播视为一种特殊的多播, 广播地址所有位全 1</p>
-<table>
-<thead>
-<tr>
-<th>类型</th>
-<th>解释</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>单播</td>
-<td>唯一标识一台计算机，并规定只有被标识的那台计算机才能接收分组的副本</td>
-</tr>
-<tr>
-<td>广播</td>
-<td>对应所有的计算机，并规定网络上每台计算机都应该接收分组的副本</td>
-</tr>
-<tr>
-<td>组播</td>
-<td>标识指定网络上所有计算机的一个子集，并规定该子集中的每台计算机都应该接收分组的副本</td>
-</tr>
-</tbody>
-</table>
-<h3 id="13-11-广播-多播和多点传递"><a class="header-anchor-1" href="#13-11-广播-多播和多点传递">#</a>13.11 广播, 多播和多点传递</h3>
-<p>在 LAN 中, 广播和多播极大地提高了效率</p>
-<h3 id="14-6-随机接入协议"><a class="header-anchor-1" href="#14-6-随机接入协议">#</a>14.6 随机接入协议</h3>
-<p>接入技术: 多台相互独立的计算机如何进行协调接入一个<strong>共享介质</strong></p>
-<p>MAC 层: Media <strong>Access</strong> Control 介质接入控制</p>
-<p>方法: 采用复用技术的改进形式, 采用分布式算法</p>
-<p>多址接入协议</p>
-<ul>
-<li>受控接入协议
-<ul>
-<li>预约</li>
-<li>轮询</li>
-<li>令牌传递</li>
-</ul>
-</li>
-<li>随机接入协议
-<ul>
-<li>ALOHA</li>
-<li>CSMA/CD</li>
-<li>CSMA/CA</li>
-</ul>
-</li>
-<li>信道分配协议
-<ul>
-<li>FDMA</li>
-<li>TDMA</li>
-<li>CDMA</li>
-</ul>
-</li>
-</ul>
-<p>在 LAN 中, 用户接入共享介质的时机是随机的, 因此可能造成冲突, 需要用合适的方法解决</p>
-<table>
-<thead>
-<tr>
-<th>类型</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ALOHA</td>
-<td>教科书中流行的协议, 但没有实际应用, 划分上行/下行两个频段用来传输信息, 上行采用随机延迟来解决冲突问题, 下行采用广播机制</td>
-</tr>
-<tr>
-<td>CSMA/CD</td>
-<td>带冲突检测的载波侦听多址接入, 原始以太网使用, 但交换式以太网不再使用, 使用载波侦听+冲突检测+指数退避算法解决冲突问题</td>
-</tr>
-<tr>
-<td>CSMA/CA</td>
-<td>带冲突避免的载波侦听多址接入, 无线 LAN 使用, 与 CSMA/CD 类似, 不同在于分组传输前会发送一个控制报文, 接收方广播控制消息</td>
-</tr>
-</tbody>
-</table>
-<p>CSMA/CD:</p>
-<ul>
-<li>Carrier Sense 载波侦听</li>
-<li>Multiple Access 多址接入</li>
-<li>Collision Detect 冲突检测</li>
-</ul>
-<p>CSMA/CA:</p>
-<ul>
-<li>Carrier Sense 载波侦听</li>
-<li>Multiple Access 多址接入</li>
-<li>Collision Avoidance 冲突避免</li>
-</ul>
-<h3 id="15-3-以太网帧格式"><a class="header-anchor-1" href="#15-3-以太网帧格式">#</a>15.3 以太网帧格式</h3>
-<p>(传统)以太网: 是一种 LAN 技术, 最早在施乐公司的 PARC 中发明, 后来被标准化</p>
-<p>帧: 数据链路层的协议数据单元</p>
-<p>(传统)以太网帧格式:</p>
-<p><img src="ethernet_frame.png" alt="" /></p>
-<ul>
-<li>
-<p>以太网帧(64-1518) := 头部(14) + 载荷(46-1500) + CRC(4)</p>
-</li>
-<li>
-<p>头部 := 目的地址(MAC 地址, 6) + 源地址(MAC 地址, 6) + 类型(2)</p>
-</li>
-</ul>
-<h3 id="15-4-以太网帧的类型域"><a class="header-anchor-1" href="#15-4-以太网帧的类型域">#</a>15.4 以太网帧的类型域</h3>
-<p>以太网帧类型域包含了载荷中的报文类型, 如 IPv4/IPv6/ARP 等, 接收方检查该值来进行复用与解复用</p>
-<h3 id="15-5-802-3-以太网"><a class="header-anchor-1" href="#15-5-802-3-以太网">#</a>15.5 802.3 以太网</h3>
-<p>802.3 以太网: IEEE 802.3 重新修订后的以太网标准, (但不是很成功)</p>
-<p><img src="8023_ethernet_frame.png" alt="" /></p>
-<ul>
-<li>
-<p>802.3 以太网帧(64-1518) := 头部(14) + <strong>SNAP 头部(8)</strong> + 新载荷(46(存疑)-<strong>1492</strong>) + CRC(4)</p>
-</li>
-<li>
-<p>头部 := 目的地址(MAC 地址, 6) + 源地址(MAC 地址, 6) + <strong>帧长度(2)</strong></p>
-</li>
-<li>
-<p><strong>SNAP 头部 := LLC(3) + OUI(3) + 类型(2)</strong></p>
-</li>
-<li>
-<p>兼容性处理: 类型域&lt;=1500 是 802.3 帧, 否则是传统以太网帧</p>
-</li>
-</ul>
-<h3 id="15-7-粗缆布线的以太网"><a class="header-anchor-1" href="#15-7-粗缆布线的以太网">#</a>15.7 粗缆布线的以太网</h3>
-<p>粗缆以太网(Thick wire Ethernet)/粗网(Thicknet, 10Base5): 最初版本的以太网布线方案, 因为其使用笨重的同轴电缆+收发器+AUI 电缆方式而得名.</p>
-<p><img src="thicknet.png" alt="" /></p>
-<h3 id="15-8-细缆布线的以太网"><a class="header-anchor-1" href="#15-8-细缆布线的以太网">#</a>15.8 细缆布线的以太网</h3>
-<p>细缆以太网(Thin wire Ethernet)/细网(Thinnet, 10Base2): 第二代以太网布线方案, 使用细同轴电缆依次串联计算机, 不再需要 AUI 线, 收发器集成到 NIC 中, 缺点是容易单点故障</p>
-<p><img src="thinnet.png" alt="" /></p>
-<h3 id="15-9-双绞线布线的以太网"><a class="header-anchor-1" href="#15-9-双绞线布线的以太网">#</a>15.9 双绞线布线的以太网</h3>
-<p>双绞线以太网(10BaseT): 第三代以太网布线系统, 使用了双绞线取代同轴电缆, 引入中心集线器(hub)</p>
-<p><img src="twistnet.png" alt="" /></p>
-<p>集线器是物理层设备, 具有一定的功能, 比如 CSMA/CD 等, 现在大部分已经被交换机取代</p>
-<h3 id="16-2-无线网络的分类"><a class="header-anchor-1" href="#16-2-无线网络的分类">#</a>16.2 无线网络的分类</h3>
-<p>和有线网络类似: 个域网/局域网/城域网/广域网</p>
-<h3 id="16-3-个域网"><a class="header-anchor-1" href="#16-3-个域网">#</a>16.3 个域网</h3>
-<p>蓝牙/红外/ISM 无线</p>
-<h3 id="16-5-wlan-和-wi-fi"><a class="header-anchor-1" href="#16-5-wlan-和-wi-fi">#</a>16.5 WLAN 和 Wi-Fi</h3>
-<p>WLAN 技术的种类很多, 归类于 IEEE802.11 标准</p>
-<p>Wi-Fi 联盟: 一群无线设备供应商组成的非营利性组织, 使用 802.11 标准对无线设备进行测试与认证</p>
-<h3 id="16-8-wlan-基础结构"><a class="header-anchor-1" href="#16-8-wlan-基础结构">#</a>16.8 WLAN 基础结构</h3>
-<p>WLAN 的三个构件: 接入点(Access Point, AP, 非正式也称基站), 互联机构(交换机或路由器等), 无线主机(Station)</p>
-<p><img src="wlan.png" alt="" /></p>
-<p><img src="wlan2.png" alt="" /></p>
-<p>WLAN 的两种类型: Adhoc 无接入点结构(很少), Infrastructure 有中心接入点</p>
-<p>互联设备到 AP 的有线连接通常使用双绞线以太网</p>
-<p>基本服务组(BSS): 在某一个给定 AP 范围内的计算机集合</p>
-<h3 id="16-9-重叠-关联-802-11-帧格式"><a class="header-anchor-1" href="#16-9-重叠-关联-802-11-帧格式">#</a>16.9 重叠, 关联, 802.11 帧格式</h3>
-<p>重叠: 两个 AP 太近, 一台 STA 可以同时触及到两个 AP</p>
-<p>802.11 要求每个主机只能与一个 AP 相关联(associate), 而且在 802.11 帧中携带了 AP 的 MAC 地址</p>
-<ul>
-<li>接入点 MAC</li>
-<li>本机地址</li>
-<li>路由器 MAC</li>
-<li>专用地址</li>
-</ul>
-<p><img src="80211_frame.png" alt="" /></p>
-<h3 id="16-11-竞争与无竞争接入"><a class="header-anchor-1" href="#16-11-竞争与无竞争接入">#</a>16.11 竞争与无竞争接入</h3>
-<p>802.11 定义了两种接入方法</p>
-<ul>
-<li>点协调功能 PCF</li>
-<li>分布式协调功能 DCF</li>
-</ul>
-<p>隐蔽站问题: WLAN 中所用的发射机有一个受限的发射范围, 离发射机的距离超过发射范围的接收方将无法收到信号, 因而无法检测载波</p>
-<p>802.11 使用 CSMA/CA 协议来解决接入中的隐蔽站问题</p>
-<ul>
-<li>传输分组前交换一对 RTS,CTS 控制报文</li>
-<li>没有冲突检测, 而是采用确认 ACK+超时重传机制</li>
-<li>设定 SIFS(发 ACK 前延时)/DIFS(传输前延时)/Slot Time 等时间间隔参数</li>
-</ul>
-<p><img src="csma_ca.png" alt="" /></p>
-<h3 id="16-13-pan-技术与标准"><a class="header-anchor-1" href="#16-13-pan-技术与标准">#</a>16.13 PAN 技术与标准</h3>
-<ul>
-<li>802.15.1a 蓝牙</li>
-<li>802.15.3a UWB 超宽带</li>
-<li>802.15.4 Zigbee 工业无线控制标准</li>
-</ul>
-<h3 id="17-3-光纤猫扩展"><a class="header-anchor-1" href="#17-3-光纤猫扩展">#</a>17.3 光纤猫扩展</h3>
-<p>最简单的 LAN 扩展机制: 光纤+一对光纤猫, 连接一台计算机和一个远程以太网</p>
-<h3 id="17-4-中继器"><a class="header-anchor-1" href="#17-4-中继器">#</a>17.4 中继器</h3>
-<p>中继器: 信号放大, 信号转发, 早期广泛应用</p>
-<h3 id="17-5-网桥与桥接"><a class="header-anchor-1" href="#17-5-网桥与桥接">#</a>17.5 网桥与桥接</h3>
-<p>网桥: 往往用来连接两个 LAN 网段(比如 hub), 保证两边的计算机都能互相连通</p>
-<p>计算机无法分辨 LAN 中有无网桥</p>
-<h3 id="17-6-自学习网桥与帧过滤"><a class="header-anchor-1" href="#17-6-自学习网桥与帧过滤">#</a>17.6 自学习网桥与帧过滤</h3>
-<p>网桥与一根网线直连的区别: 网桥分隔冲突域, 但不分隔广播域 <strong>网桥仅在有必要的时候才进行转发</strong></p>
-<ul>
-<li>源地址和目标地址位于两个网段</li>
-<li>广播帧和多播帧</li>
-</ul>
-<p>网桥能够自动学习设备位于网桥的哪一侧(基于分组中的源 MAC 地址)</p>
-<h3 id="17-7-桥接的好处"><a class="header-anchor-1" href="#17-7-桥接的好处">#</a>17.7 桥接的好处</h3>
-<p>桥接的各个网段可以同时进行传输, 使得不同建筑物之间的通讯成为了可能</p>
-<h3 id="17-8-分布式生成树"><a class="header-anchor-1" href="#17-8-分布式生成树">#</a>17.8 分布式生成树</h3>
-<p>如果网桥连接导致网络中存在环路, 那么广播和多播帧会被无限循环转发下去</p>
-<p>因此网桥会执行生成树算法来生成一个树</p>
-<h3 id="18-7-下一条转发"><a class="header-anchor-1" href="#18-7-下一条转发">#</a>18.7 下一条转发</h3>
-<p>分组交换机收到一个分组后, 如果分组的目的地不是直连在交换机上, 就需要查表转发</p>
-<p>交换机的转发表: 目的地址:输出接口</p>
-<h3 id="18-9-广域网动态路由更新"><a class="header-anchor-1" href="#18-9-广域网动态路由更新">#</a>18.9 广域网动态路由更新</h3>
-<p>转发表的要求</p>
-<ul>
-<li>全局通信 - 必须覆盖所有可能目的地的</li>
-<li>最优路径 - 下一条必须是距目的地的最短路径</li>
-</ul>
-<p>路由软件: 自动重新配置转发表的软件</p>
-<h3 id="18-12-分布式路径计算"><a class="header-anchor-1" href="#18-12-分布式路径计算">#</a>18.12 分布式路径计算</h3>
-<p>分布式路径计算的两种常用形式:</p>
-<ul>
-<li>链路状态路由 LSR, 采用 Dijkstra 算法</li>
-<li>距离向量路由 DVR</li>
-</ul>
-<p>LSR: 每台交换机定期广播一条边的状态, 相邻交换机据此更新自己的转发表</p>
-<p>DVR: 每台交换机定期告诉相邻交换机自己的距离向量表(包含一对(目的,距离)), 相邻交换机据此更新自己的转发表</p>
-<h3 id="18-13-最短路径的计算"><a class="header-anchor-1" href="#18-13-最短路径的计算">#</a>18.13 最短路径的计算</h3>
-<p>Dijkstra 算法</p>
-<h3 id="20-6-用路由器连接物理网络"><a class="header-anchor-1" href="#20-6-用路由器连接物理网络">#</a>20.6 用路由器连接物理网络</h3>
-<p>路由器是一台专门完成网络互联任务的专用硬件系统, 可以将多个使用不同技术（包括不同的传输介质、物理编址方案或帧格式）的网络互相连接（互联）起来 (比如连接以太网和 WiFi 网)</p>
-<h3 id="21-7-ip-有类编址方案"><a class="header-anchor-1" href="#21-7-ip-有类编址方案">#</a>21.7 IP 有类编址方案</h3>
-<p>IP 地址<strong>有类编址方案</strong></p>
-<table>
-<thead>
-<tr>
-<th>类别</th>
-<th>标识位</th>
-<th>前缀长度</th>
-<th>最大网络数量</th>
-<th>后缀长度</th>
-<th>最大主机数量</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>A</td>
-<td>0</td>
-<td>7</td>
-<td>128</td>
-<td>24</td>
-<td>2^24</td>
-</tr>
-<tr>
-<td>B</td>
-<td>10</td>
-<td>14</td>
-<td>16384</td>
-<td>16</td>
-<td>65536</td>
-</tr>
-<tr>
-<td>C</td>
-<td>110</td>
-<td>21</td>
-<td>2^21</td>
-<td>8</td>
-<td>256</td>
-</tr>
-<tr>
-<td>D(组播)</td>
-<td>1110</td>
-<td>-</td>
-<td>-</td>
-<td>-</td>
-<td>-</td>
-</tr>
-<tr>
-<td>E(保留)</td>
-<td>1111</td>
-<td>-</td>
-<td>-</td>
-<td>-</td>
-<td>-</td>
-</tr>
-</tbody>
-</table>
-<h3 id="21-10-ip-无类编址方案"><a class="header-anchor-1" href="#21-10-ip-无类编址方案">#</a>21.10 IP 无类编址方案</h3>
-<p>IP 地址<strong>无类/子网编址方案</strong>: 引入附加的地址掩码(子网掩码)来指定网络地址和主机地址的分界线</p>
-<p>无类地址 &amp; 子网掩码 == 网络地址</p>
-<h3 id="21-21-ipv6-地址"><a class="header-anchor-1" href="#21-21-ipv6-地址">#</a>21.21 IPv6 地址</h3>
-<p>和 IPv4 类似, IPv6 为每个接入网络的计算机分配了一个独一无二的地址</p>
-<p>IPv6 的特点</p>
-<ul>
-<li>
-<p>将<code>网络地址</code>进一步细分为<code>全球单播地址</code>和<code>子网地址</code>两部分, <code>主机地址</code>仍保留, 两者共 128 位, 用<code>/xx</code>来表示<code>网络地址</code>的长度, 如不指定默认是 64 位</p>
-<p><img src="ipv6.png" alt="" /></p>
-</li>
-<li>
-<p>取消<code>广播</code>, 支持<code>多播</code>, 增加<code>任播</code>(anycast)</p>
-<p><img src="ipv6_special.png" alt="" /></p>
-</li>
-</ul>
-<h3 id="22-4-ip-数据报"><a class="header-anchor-1" href="#22-4-ip-数据报">#</a>22.4 IP 数据报</h3>
-<p>IP 数据报(-65535) := 头部 + 数据区(载荷区)</p>
-<h3 id="22-5-ip-数据报头部格式"><a class="header-anchor-1" href="#22-5-ip-数据报头部格式">#</a>22.5 IP 数据报头部格式</h3>
-<p><img src="ip_datagram.png" alt="" /></p>
-<h3 id="22-7-网络前缀提取与数据报转发"><a class="header-anchor-1" href="#22-7-网络前缀提取与数据报转发">#</a>22.7 网络前缀提取与数据报转发</h3>
-<p>根据网络地址查询转发表发给下一站</p>
-<h3 id="22-8-最长前缀匹配"><a class="header-anchor-1" href="#22-8-最长前缀匹配">#</a>22.8 最长前缀匹配</h3>
-<p>查询转发表时如果有多项匹配, 采用<strong>最长前缀匹配</strong>规则</p>
-<h3 id="22-11-ip-封装"><a class="header-anchor-1" href="#22-11-ip-封装">#</a>22.11 IP 封装</h3>
-<p>IP 数据报要被封装到一个帧里才能发送出去, 帧的目的地址是下一站的 IP 地址对应的 MAC 地址(通过 ARP 协议获得)</p>
-<h3 id="22-14-ip-分片和重装机制"><a class="header-anchor-1" href="#22-14-ip-分片和重装机制">#</a>22.14 IP 分片和重装机制</h3>
-<h3 id="22-15-分片数据报的收集"><a class="header-anchor-1" href="#22-15-分片数据报的收集">#</a>22.15 分片数据报的收集</h3>
-<p>最大传输单元 MTU: 每种物理网络规定的一帧能够携带的最大数据量</p>
-<p>IP 数据报分片机制: 当一个数据报长度大于前方网络的 MTU 时, 路由器会将数据报分成若干较小的片(fragment), 然后将每一片独立地封装发送出去</p>
-<p>分片: 每个片与数据报的格式一样, 头部部分参数不同</p>
-<ul>
-<li>标识: 每个数据报的唯一标识, 同一个原始数据报的所有片段的标识是一样的</li>
-<li>标志: 标识了该数据报是片还是完整的数据报, 以及是否是最后一片</li>
-<li>片偏移: 该片在原数据报中的位置</li>
-</ul>
-<p>重装: 在所有片的基础上重新产生原数据报的过程, <strong>IP 规定只有最终目的主机才能对片进行重装</strong></p>
-<h3 id="23-9-icmp-报文格式与封装"><a class="header-anchor-1" href="#23-9-icmp-报文格式与封装">#</a>23.9 ICMP 报文格式与封装</h3>
-<p>因特网控制报文协议(ICMP): 利用 IP 来传输 IP 传输中发生的错误</p>
-<p>ICMP 报文放置在 IP 数据报的数据区传输</p>
-<h3 id="23-10-协议软件-参数和配置"><a class="header-anchor-1" href="#23-10-协议软件-参数和配置">#</a>23.10 协议软件, 参数和配置</h3>
-<p>协议软件采用参数化设计</p>
-<p>主机配置采用自举过程, 运行时获取到 IP 地址, 掩码, DNS 服务器地址等参数填入程序中运行</p>
-<h3 id="24-3-udp"><a class="header-anchor-1" href="#24-3-udp">#</a>24.3 UDP</h3>
-<p>UDP 的特征:</p>
-<ul>
-<li>端到端: UDP 是一个传输协议, 它能区分运行在给定计算机上的多个应用程序</li>
-<li>无连接: UDP 提供给应用的接口遵从无连接模式</li>
-<li>面向报文: 使用 UDP 的应用进程所发送和接收的数据是单个报文</li>
-<li>尽力而为: UDP 提供给应用的是与 IP 一样的尽力传递机制</li>
-<li>任意交互: UDP 允许应用进程给很多其他应用进程发送数据, 也允许从很多其他应用进程那里接收数据, 或者只跟一个其他应用进程相互通信</li>
-<li>操作系统无关: UDP 所提供的标识应用程序的方法, 不取决于本地操作系统所使用的标识符</li>
-</ul>
-<p><img src="udp_segment.png" alt="" /></p>
-<h3 id="24-4-无连接的通信模式"><a class="header-anchor-1" href="#24-4-无连接的通信模式">#</a>24.4 无连接的通信模式</h3>
-<p>UDP 采用无连接通信模式, 可以在任何时候发送数据, 不需要维护通信状态, 也不使用控制报文, 因此传输开销极低</p>
-<h3 id="24-7-交互模式和广播传递"><a class="header-anchor-1" href="#24-7-交互模式和广播传递">#</a>24.7 交互模式和广播传递</h3>
-<p>UDP 支持四种交互通信方式:</p>
-<ul>
-<li>一对一</li>
-<li>一对多</li>
-<li>多对一</li>
-<li>多对多</li>
-</ul>
-<p>底层是利用 IP 组播和广播机制实现的</p>
-<h3 id="24-8-用协议端口号标识端点"><a class="header-anchor-1" href="#24-8-用协议端口号标识端点">#</a>24.8 用协议端口号标识端点</h3>
-<p>协议端口号: 用来标识应用程序的<strong>标识符抽象集</strong>, 独立于底层操作系统</p>
-<h3 id="25-3-tcp"><a class="header-anchor-1" href="#25-3-tcp">#</a>25.3 TCP</h3>
-<p>TCP 提供的服务有 7 个主要特点:</p>
-<ul>
-<li>面向连接: TCP 提供面向连接的服务, 应用程序必须首先请求建立一个到目的地的连接, 然后使用这个连接来传输数据</li>
-<li>点对点通信: 每个 TCP 连接上只有两个端点</li>
-<li>完全的可靠性: TCP 能保证在一个连接上发送的数据被正确地传递, 且保证数据的完整和按序到达</li>
-<li>全双工通信: TCP 连接允许数据在任何一个方向上流动, 并允许任何应用程序在任何时刻发送数据</li>
-<li>流接口: TCP 提供一个流接口, 利用它应用进程可以在一个连接上发送连续的字节流. TCP 不必将数据组合成记录或是报文, 也不要求传递给接收应用进程的数据段大小一定要与发送端所送出的数据段大小相同</li>
-<li>可靠的连接建立: TCP 允许两个应用进程可靠地开始通信</li>
-<li>友好的连接关闭: 在关闭一个连接之前, TCP 必须保证所有数据已经传递完毕, 并且通信双方都要同意关闭这个连接</li>
-</ul>
-<p><img src="tcp_segment.png" alt="" /></p>
-<h3 id="25-4-端对端服务与虚拟连接"><a class="header-anchor-1" href="#25-4-端对端服务与虚拟连接">#</a>25.4 端对端服务与虚拟连接</h3>
-<p>TCP 和 UDP 都是<strong>端到端协议</strong>: 提供在一台计算机上的应用进程与另一台计算机上的应用进程之间的通信能力</p>
-<p>TCP 是<strong>面向连接</strong>的协议, TCP 提供的连接是一种虚拟连接, 因为它是软件实现的连接</p>
-<p>TCP 将底层因特网视为一个通信系统</p>
-<h3 id="25-5-一般可靠传输协议所采用的技术"><a class="header-anchor-1" href="#25-5-一般可靠传输协议所采用的技术">#</a>25.5 一般可靠传输协议所采用的技术</h3>
-<ul>
-<li>
-<p>分组乱序</p>
-<ul>
-<li>排序技术: 每个分组都附加一个序号</li>
-</ul>
-</li>
-<li>
-<p>分组丢失</p>
-<ul>
-<li>带重传的正向确认: 接收方发送 ACK 报文表示成功接收; 若超时仍未收到 ACK, 则重传</li>
-</ul>
-</li>
-<li>
-<p>分组重复(重放错误)</p>
-<ul>
-<li>每一次会话用一个唯一的 ID 标识</li>
-</ul>
-</li>
-<li>
-<p>数据过载</p>
-<ul>
-<li>停-走系统: 不好, 效率很低</li>
-<li>滑动窗口: 定义<strong>窗口大小</strong>为接收方一次可以承载的最大数据量/发送方收到 ACK 前可以发送的最大数据量, 发送方收到 ACK 之后窗口向后移动</li>
-</ul>
-</li>
-</ul>
-<h3 id="25-11-缓冲-流控制-窗口"><a class="header-anchor-1" href="#25-11-缓冲-流控制-窗口">#</a>25.11 缓冲, 流控制, 窗口</h3>
-<p>TCP 使用了以字节计量的窗口, 接收方将自己剩余的缓冲区大小放在 ACK 报文中, 发送方根据这个窗口大小来决定是继续发送还是停止</p>
-<h3 id="26-4-动态路由和路由器"><a class="header-anchor-1" href="#26-4-动态路由和路由器">#</a>26.4 动态路由和路由器</h3>
-<p>每个路由器都运行路由软件，该软件了解其他路由器可以到达的目的地，并向其他路由器通知其可以到达的目的地。路由软件使用传入的信息来连续更新本地转发表。</p>
-<h3 id="26-7-两类因特网路由协议"><a class="header-anchor-1" href="#26-7-两类因特网路由协议">#</a>26.7 两类因特网路由协议</h3>
-<p>因特网路由协议的分类:</p>
-<ul>
-<li>内部网关协议 IGP: 自治系统内部使用的协议, 可以自由选择, 例如 RIP, OSPF, is-is 等</li>
-<li>外部网关协议 EGP: 自治系统之间使用的协议, 例如 BGP</li>
-</ul>
-<p>路由度量指标: 评价路由路径好坏的指标</p>
-<ul>
-<li>
-<p>尽管大多数 Internet 路由协议都设计为使用跃点作为路由指标，网络管理员也可以覆盖该指标以实施策略。</p>
-</li>
-<li>
-<p>在自治系统中，IGP 软件使用路由度量来选择到达每个目的地的最佳路径。 EGP 软件可以找到到达每个目的地的路径，但是找不到最佳路径，因为它无法比较来自多个自治系统的路由度量。</p>
-</li>
-</ul>
-<h3 id="26-12-ospf-协议"><a class="header-anchor-1" href="#26-12-ospf-协议">#</a>26.12 OSPF 协议</h3>
-<p>RIP 是内部网关协议, 使用<strong>距离矢量算法</strong>来传递路由信息。RIP 是在 UDP 协议之上的一种路由协议，应用于 OSI 网络七层模型的<strong>网络层</strong>。</p>
-<p>OSPF 是内部网关协议，它使用<strong>链路状态算法</strong>来传播路由信息。路由器使用<strong>Dijkstra 算法</strong>计算最短路径。</p>
-<h3 id="26-16-组播路由技术"><a class="header-anchor-1" href="#26-16-组播路由技术">#</a>26.16 组播路由技术</h3>
-<p>IP 组播群组的成员关系构成是动态的，即计算机可以随时加入或离开一个群组。群组成员关系只是定义了一组接收者；任意一个应用进程（即使它不是一个群组成员）都能发送数据报给组播群组。</p>
-<p>因特网组播的动态特性使它的组播路径传播问题变得很困难。虽然已经提出了很多协议，但是目前因特网还没有全网范围内的组播路由设施。</p>
-<h3 id="29-9-私有密钥-对称-加密"><a class="header-anchor-1" href="#29-9-私有密钥-对称-加密">#</a>29.9 私有密钥(对称)加密</h3>
-<h3 id="29-10-公开密钥-非对称-加密"><a class="header-anchor-1" href="#29-10-公开密钥-非对称-加密">#</a>29.10 公开密钥(非对称)加密</h3>
-<h3 id="29-11-使用数字签名的鉴别"><a class="header-anchor-1" href="#29-11-使用数字签名的鉴别">#</a>29.11 使用数字签名的鉴别</h3>
-<p>签名: 发送方使用自己的私钥对报文进行加密</p>
-<p>验证: 接收方使用发送方的公钥进行解密</p>
-<p>认证+加密: 发送者先对报文进行签名, 再用接收者的公钥进行加密</p>
-<h3 id="29-13-防火墙"><a class="header-anchor-1" href="#29-13-防火墙">#</a>29.13 防火墙</h3>
-<p>防火墙: 防止因特网上的问题扩散到本地内部的计算机上的技术, 一般放置在本单位的网络与外部因特网之间</p>
-<h3 id="29-14-包过滤防火墙的实现"><a class="header-anchor-1" href="#29-14-包过滤防火墙的实现">#</a>29.14 包过滤防火墙的实现</h3>
-<p>防火墙利用包过滤技术来防止不希望有的通信交互。每种过滤器规则都要给出数据包头部参数的组合，包括 IP 源地址、目的地址、协议端口号和传输协议类型等。</p>
-<h3 id="30-7-snmp"><a class="header-anchor-1" href="#30-7-snmp">#</a>30.7 SNMP</h3>
-<p>简单网络管理协议 SNMP: 基于 IP 的网络管理的标准协议</p>
-<h2 id="按作业内容"><a class="header-anchor-1" href="#按作业内容">#</a>按作业内容</h2>
-<h3 id="tcp-ip-的分层模型"><a class="header-anchor-1" href="#tcp-ip-的分层模型">#</a>TCP/IP 的分层模型</h3>
-<p>物理层/网络接口层/网络层/传输层/应用层</p>
-<h3 id="导线类型"><a class="header-anchor-1" href="#导线类型">#</a>导线类型</h3>
-<ul>
-<li>无屏蔽双绞线(UTP)</li>
-<li>屏蔽双绞线(STP)</li>
-<li>同轴电缆(CC)</li>
-</ul>
-<h3 id="通信卫星类型"><a class="header-anchor-1" href="#通信卫星类型">#</a>通信卫星类型</h3>
-<table>
-<thead>
-<tr>
-<th>类型</th>
-<th>优点</th>
-<th>缺点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>低地球轨道(LEO)</td>
-<td>低时延</td>
-<td>相对地球移动</td>
-</tr>
-<tr>
-<td>中地球轨道(MEO)</td>
-<td>主要提供南北级通信</td>
-<td>-</td>
-</tr>
-<tr>
-<td>地球静止轨道(GEO)</td>
-<td>相对地球静止</td>
-<td>距离远</td>
-</tr>
-</tbody>
-</table>
-<h3 id="为什么要区分上下行通信"><a class="header-anchor-1" href="#为什么要区分上下行通信">#</a>为什么要区分上下行通信</h3>
-<p>大多数因特网用户都是按非对称（asymmetric）模式使用网络的，即典型的居民用户从因特网接收的数据要多于他们发送出去的数据。例如，为了浏览一个网页，浏览器发送一个只包含几个字节的 URL，而 Web 服务器响应回来的内容可能是包含几千字节的文本或者是一个包含好几万字节的图片。运行 Web 服务器的商业用户可能具有相反的流量模式——商业用户发送的数据要多于接收的数据。</p>
-<h3 id="宽带与窄带"><a class="header-anchor-1" href="#宽带与窄带">#</a>宽带与窄带</h3>
-<p>窄带接入技术:</p>
-<ul>
-<li>拨号电话连接</li>
-<li>使用调制解调器的租用电路</li>
-<li>部分 T1 数据电路</li>
-<li>ISDN 及其他电信数据服务</li>
-</ul>
-<p>宽带接入技术:</p>
-<ul>
-<li>DSL 技术</li>
-<li>电缆调制解调器技术</li>
-<li>无线接入技术</li>
-<li>T1 速率或更高速率的数据线路</li>
-</ul>
-<h2 id=""><a class="header-anchor-1" href="#">#</a></h2>
-<h2 id="背背背"><a class="header-anchor-1" href="#背背背">#</a>背背背</h2>
-<h3 id="tcp-的特征"><a class="header-anchor-1" href="#tcp-的特征">#</a>TCP 的特征</h3>
-<ul>
-<li>面向连接: TCP 提供面向连接的服务, 应用程序必须首先请求建立一个到目的地的连接, 然后使用这个连接来传输数据</li>
-<li>点对点通信: 每个 TCP 连接上只有两个端点</li>
-<li>完全的可靠性: TCP 能保证在一个连接上发送的数据被正确地传递, 且保证数据的完整和按序到达</li>
-<li>全双工通信: TCP 连接允许数据在任何一个方向上流动, 并允许任何应用程序在任何时刻发送数据</li>
-<li>流接口: TCP 提供一个流接口, 利用它应用进程可以在一个连接上发送连续的字节流. TCP 不必将数据组合成记录或是报文, 也不要求传递给接收应用进程的数据段大小一定要与发送端所送出的数据段大小相同</li>
-<li>可靠的连接建立: TCP 允许两个应用进程可靠地开始通信</li>
-<li>友好的连接关闭: 在关闭一个连接之前, TCP 必须保证所有数据已经传递完毕, 并且通信双方都要同意关闭这个连接</li>
-</ul>
-<h3 id="udp-的特征"><a class="header-anchor-1" href="#udp-的特征">#</a>UDP 的特征</h3>
-<ul>
-<li>端到端: UDP 是一个传输协议，它能区分运行在给定计算机上的多个应用程序。</li>
-<li>无连接: UDP 提供给应用的接口遵从无连接模式。</li>
-<li>面向报文: 使用 UDP 的应用进程所发送和接收的数据是单个报文。</li>
-<li>尽力而为: UDP 提供给应用的是与 IP 一样的尽力传递机制。</li>
-<li>任意交互: UDP 允许应用进程给很多其他应用进程发送数据，也允许从很多其他应用进程那里接收数据，或者只跟一个其他应用进程相互通信。</li>
-</ul>
-<h3 id="服务端-客户端特征"><a class="header-anchor-1" href="#服务端-客户端特征">#</a>服务端-客户端特征</h3>
-<p>虽然存在少量的变种，但大多数客户——服务器交互模式都具有相同的一般特征。一般情况下，客户软件具有如下特征：</p>
-<ol>
-<li>它是一个任意的应用程序，仅在需要进行远程访问时才暂时成为客户，同时还要完成其他的计算任务。</li>
-<li>直接受用户介入操作，并且只执行一个会话过程。</li>
-<li>在用户的个人计算机上进行本地运行。</li>
-<li>主动地发起与服务器的连接请求。</li>
-<li>能访问所需的多种服务，但通常一次只与一个远地服务器请求连接。</li>
-<li>不会特别地要求功能强大的计算机硬件。</li>
-</ol>
-<p>而服务器软件的特征如下：</p>
-<ol>
-<li>它是一个专门提供某种服务的专用特权程序，但同时可以处理多个远程客户的请求。</li>
-<li>在系统启动时自动被调入执行，进行多次会话并持续不断地运行。</li>
-<li>运行在大型、高性能计算机上。</li>
-<li>被动地等待来自任意的远端客户的通信请求。</li>
-<li>接收来自任何客户的通信请求，但只提供单一的服务。</li>
-<li>要求功能强大的硬件和高级复杂的操作系统支持。</li>
-</ol>
-<h2 id="-2"><a class="header-anchor-1" href="#-2">#</a></h2>
-<h3 id="端口号"><a class="header-anchor-1" href="#端口号">#</a>端口号</h3>
-<p>FTP: 20/数据流, 21/控制流
-TELNET: 23
-SMTP: 25
-DNS: 53
-SNMP: 161/162</p>
-]]></content>
-      <categories>
-        <category>computer-networking</category>
-      </categories>
-      <tags>
-        <tag>计算机网络</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>KAIST CS492: Design and Analysis of Concurrent Programs</title>
-    <url>/2025/07/06/concurrent-program/</url>
-    <content><![CDATA[<h2 id="基本概念"><a class="header-anchor-1" href="#基本概念">#</a>基本概念</h2>
-<h3 id="progress"><a class="header-anchor-1" href="#progress">#</a>Progress</h3>
-<p>A program is making progress if, when the program threads are run for a sufficiently long time, at least one of the threads makes progress (for some sensible definition of progress).</p>
-<h3 id="make-progress"><a class="header-anchor-1" href="#make-progress">#</a>Make Progress</h3>
-<p>在多线程编程中，Make Progress 是指线程在全局时间上取得有用的进展。CAS 操作不算进展。</p>
-<p>使用锁的问题是可能存在一段时间，程序所有线程都没有 Make Progress。例如，当一个线程拿到锁，然后被调度器切换到其他线程，此时，整个程序就没有任何 Progress。</p>
-<h3 id="lock-free"><a class="header-anchor-1" href="#lock-free">#</a>Lock-free</h3>
-<p>| An algorithm is lock-free if, when the program threads are run for a sufficiently long time, at least one of the threads makes progress (for some sensible definition of progress).</p>
-<p>Lock-free 表示程序在任意时间内，<strong>至少有一个</strong>线程能够 Make Progress。</p>
-<h3 id="wait-free"><a class="header-anchor-1" href="#wait-free">#</a>Wait-free</h3>
-<p>| An algorithm is wait-free if every operation has a bound on the number of steps the algorithm will take before the operation completes.</p>
-<p>Wait-free 表示程序在任意时间内，<strong>所有线程</strong>都能够 Make Progress。</p>
-<p>关系: Wait-free ⊆ lock-free ⊆ obstruction-free ⊆ “nonblocking”</p>
-<h2 id="spinlocks"><a class="header-anchor-1" href="#spinlocks">#</a>Spinlocks</h2>
-<h3 id="naive-spinlock"><a class="header-anchor-1" href="#naive-spinlock">#</a>Naive Spinlock</h3>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// A spin lock.</span></span><br><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">SpinLock</span> &#123;</span><br><span class="line">    inner: AtomicBool,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span> <span class="title class_">RawLock</span> <span class="keyword">for</span> <span class="title class_">SpinLock</span> &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Token</span> = ();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">lock</span>(&amp;<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">backoff</span> = Backoff::<span class="title function_ invoke__">new</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">self</span></span><br><span class="line">            .inner</span><br><span class="line">            .<span class="title function_ invoke__">compare_exchange</span>(<span class="literal">false</span>, <span class="literal">true</span>, Acquire, Relaxed)</span><br><span class="line">            .<span class="title function_ invoke__">is_err</span>()</span><br><span class="line">        &#123;</span><br><span class="line">            backoff.<span class="title function_ invoke__">snooze</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsafe</span> <span class="keyword">fn</span> <span class="title function_">unlock</span>(&amp;<span class="keyword">self</span>, _token: ()) &#123;</span><br><span class="line">        <span class="keyword">self</span>.inner.<span class="title function_ invoke__">store</span>(<span class="literal">false</span>, Release);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span> <span class="title class_">RawTryLock</span> <span class="keyword">for</span> <span class="title class_">SpinLock</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">try_lock</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;(), ()&gt; &#123;</span><br><span class="line">        <span class="keyword">self</span>.inner</span><br><span class="line">            .<span class="title function_ invoke__">compare_exchange</span>(<span class="literal">false</span>, <span class="literal">true</span>, Acquire, Relaxed)</span><br><span class="line">            .<span class="title function_ invoke__">map</span>(|_| ())</span><br><span class="line">            .<span class="title function_ invoke__">map_err</span>(|_| ())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="ticket-lock"><a class="header-anchor-1" href="#ticket-lock">#</a>Ticket Lock</h3>
-<p>Ticket Lock 是一种自旋锁，它使用一个全局的计数器来实现锁。每个线程在进入临界区之前，需要先获取一个自增的 ticket，然后 spin 等待另一个计数器达到自己的 ticket 值。</p>
-<p>加锁操作:</p>
-<ol>
-<li>线程获取一个自增的 ticket 值。</li>
-<li>线程等待另一个计数器达到自己的 ticket 值。</li>
-<li>线程进入临界区。</li>
-</ol>
-<p>解锁操作:</p>
-<ol>
-<li>线程将另一个计数器加 1。</li>
-<li>线程退出临界区。</li>
-</ol>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">TicketLock</span> &#123;</span><br><span class="line">    next_ticket: AtomicUsize,</span><br><span class="line">    now_serving: AtomicUsize,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">TicketLock</span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">new</span>() <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">Self</span> &#123;</span><br><span class="line">            next_ticket: AtomicUsize::<span class="title function_ invoke__">new</span>(<span class="number">0</span>),</span><br><span class="line">            now_serving: AtomicUsize::<span class="title function_ invoke__">new</span>(<span class="number">0</span>),</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">lock</span>(&amp;<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">ticket</span> = <span class="keyword">self</span>.next_ticket.<span class="title function_ invoke__">fetch_add</span>(<span class="number">1</span>, Relaxed);</span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">self</span>.now_serving.<span class="title function_ invoke__">load</span>(Relaxed) != ticket &#123;</span><br><span class="line">            std::hint::<span class="title function_ invoke__">spin_loop</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">unlock</span>(&amp;<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">next</span> = <span class="keyword">self</span>.now_serving.<span class="title function_ invoke__">load</span>(Relaxed);</span><br><span class="line">        <span class="keyword">self</span>.now_serving.<span class="title function_ invoke__">store</span>(next + <span class="number">1</span>, Release);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="mcs-lock"><a class="header-anchor-1" href="#mcs-lock">#</a>MCS Lock</h3>
-<p>Ticket Lock 有一个问题，就是多个 CPU 同时争抢一把锁时，会导致严重的总线竞争，导致性能下降。</p>
-<p>MCS Lock (Mellor-Crummey and Scott locks)<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> 通过使用一个链表来实现锁，每个线程在进入临界区之前，需要先获取一个自增的 ticket，然后 spin 等待另一个线程的锁。</p>
-<p>数据结构:</p>
-<ul>
-<li>MCS 锁实例 ​​: 一条单向链表的指针，初始化为指向一个未拥有的节点。</li>
-<li>锁节点 ​​: 每次加锁时创建一个节点，包含 next 指针和 locked 状态。
-<ul>
-<li>next 指针指向下一个正在等待锁的节点。</li>
-<li>locked: volitile bool 状态表示当前线程是否正在持有锁。</li>
-</ul>
-</li>
-</ul>
-<p>加锁操作:</p>
-<ol>
-<li>当前线程创建锁节点，next 设为 nullptr。</li>
-<li>通过 lock.getAndSet()将自己加入队列尾部，并获取前驱节点 pred。</li>
-<li>如果 pred 为空，则说明没有线程在排队，直接结束。</li>
-<li>将当前锁节点的 locked 设为 true。</li>
-<li>将 pred-&gt;next 指针指向当前节点。</li>
-<li>自旋等待 locked 变成 false。</li>
-</ol>
-<p>解锁操作:</p>
-<ol>
-<li>获取当前线程的锁节点 I。</li>
-<li>如果 I-&gt;next 为空，则说明没有线程在排队。
-<ol>
-<li>通过 lock.cas(I, nullptr)将队列清空</li>
-<li>如果成功，则直接结束；否则，说明有后继节点过来了</li>
-<li>Spin 等待后继线程把 I-&gt;next 设置好</li>
-</ol>
-</li>
-<li>将 I-&gt;next-&gt;locked 设为 false。</li>
-</ol>
-<figure class="highlight pascal"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> qnode = <span class="keyword">record</span></span><br><span class="line">    next : ^qnode       <span class="comment">// 指向下一个正在等待锁的节点</span></span><br><span class="line">    locked : Boolean    <span class="comment">// 当前线程是否正在持有锁</span></span><br><span class="line"><span class="keyword">type</span> lock = ^qnode      <span class="comment">// initialized to nil</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// parameter I, below, points to a qnode record allocated</span></span><br><span class="line"><span class="comment">// (in an enclosing scope) in shared memory locally-accessible</span></span><br><span class="line"><span class="comment">// to the invoking processor</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">acquire_lock</span> <span class="params">(L : ^lock, I : ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span>-&gt;<span class="title">next</span> :</span>= <span class="keyword">nil</span></span><br><span class="line">    pred : ^qnode := fetch_and_store (L, I)  <span class="comment">// 节点入队</span></span><br><span class="line">    <span class="keyword">if</span> pred != <span class="keyword">nil</span>          <span class="comment">// 如果之前有线程正在持有锁，说明需要等待</span></span><br><span class="line">        I-&gt;locked := true</span><br><span class="line">        pred-&gt;next := I     <span class="comment">// 将当前节点加入到前驱节点的next指针</span></span><br><span class="line">        <span class="keyword">repeat</span> <span class="keyword">while</span> I-&gt;locked              <span class="comment">// 自旋等待前驱节点释放锁</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">release_lock</span> <span class="params">(L : ^lock, I: ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">if</span> <span class="title">I</span>-&gt;<span class="title">next</span> = <span class="title">nil</span>        <span class="comment">// 没有后继节点在排队</span></span></span><br><span class="line"><span class="function">        <span class="title">if</span> <span class="title">compare_and_store</span> <span class="params">(L, I, <span class="keyword">nil</span>)</span>    <span class="comment">// 确实没有后继节点在排队，则结束</span></span></span><br><span class="line"><span class="function">            <span class="title">return</span></span></span><br><span class="line"><span class="function">        <span class="title">repeat</span> <span class="title">while</span> <span class="title">I</span>-&gt;<span class="title">next</span> = <span class="title">nil</span>          <span class="comment">// 等待后继节点设置好next指针</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span>-&gt;<span class="title">next</span>-&gt;<span class="title">locked</span> :</span>= false  <span class="comment">// 后继节点可以获得锁了</span></span><br></pre></td></tr></table></figure>
-<h3 id="clh-lock"><a class="header-anchor-1" href="#clh-lock">#</a>CLH Lock</h3>
-<p>CLH Lock (Craig, Landin, and Hagersten locks)<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> 是一种基于 ​​ 单向链表实现的可扩展、高性能、公平的自旋锁，它使用一个链表来实现锁。加锁过程相当于将当前线程加入到队列尾部，并等待前驱节点释放锁。解锁过程相当于将当前节点从队列中移除。</p>
-<p>数据结构:</p>
-<ul>
-<li>CLH 锁实例 ​​: 一条单向链表的指针，初始化为指向一个未拥有的节点。</li>
-<li>锁节点 ​​: 每次加锁时创建一个节点，包含 prev 指针和 succ_must_wait 状态。
-<ul>
-<li>prev 指针指向前一个线程的锁节点。</li>
-<li>succ_must_wait: volitile bool 状态表示当前线程是否正在持有锁。</li>
-</ul>
-</li>
-</ul>
-<p>加锁操作:</p>
-<ol>
-<li>当前线程创建锁节点，succ_must_wait 设为 true。</li>
-<li>通过 lock.getAndSet()将自己加入队列尾部，并获取前驱节点。</li>
-<li>在前驱节点的 succ_must_wait 上自旋，直到其变为 false。</li>
-</ol>
-<p>解锁操作:</p>
-<ol>
-<li>获取前驱节点。</li>
-<li>将当前锁节点的 succ_must_wait 设为 false。</li>
-<li>返回前一个锁节点，用于下一次加锁使用 (前一个锁节点一定不再被使用，这里复用前一个锁节点以避免内存分配和释放)。</li>
-</ol>
-<figure class="highlight pascal"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> qnode = <span class="keyword">record</span></span><br><span class="line">    prev : ^qnode             <span class="comment">// 前一个正在等待锁/持有锁的节点</span></span><br><span class="line">    succ_must_wait : Boolean  <span class="comment">// 当前线程是否正在持有锁</span></span><br><span class="line"><span class="keyword">type</span> lock = ^qnode  <span class="comment">// initialized to point to an unowned qnode</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">acquire_lock</span> <span class="params">(L : ^lock, I : ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span>-&gt;<span class="title">succ_must_wait</span> :</span>= true</span><br><span class="line">    pred : ^qnode := I-&gt;prev := fetch_and_store (L, I)  <span class="comment">// 节点入队</span></span><br><span class="line">    <span class="keyword">repeat</span> <span class="keyword">while</span> pred-&gt;succ_must_wait</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">release_lock</span> <span class="params">(ref I : ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">pred</span> :</span> ^qnode := I-&gt;prev</span><br><span class="line">    I-&gt;succ_must_wait := false</span><br><span class="line">    I := pred       <span class="comment">// 返回前一个锁节点，用于下一次加锁使用。</span></span><br></pre></td></tr></table></figure>
-<p>CLH 锁的优缺点:</p>
-<ul>
-<li>空间复杂度低，N 个线程，L 个锁，每个线程获取一个锁，则存储空间为<code>O(N+L)</code></li>
-<li>NUMA 架构的 CPU 上，性能差。每个 CPU 都有自己的内存，如果前驱节点不在同一个 CPU 内存上，由于内存位置比较远，在自旋判断前驱节点的 locked 属性时，性能很差。不过在 SMP 架构的 CPU 上，不存在这个问题，性能依旧很高。</li>
-</ul>
-<p>Java 的 AbstractQueuedSynchronizer(简称为 AQS)就是基于 CLH Lock 思想实现的。</p>
-<h3 id="k42-lock"><a class="header-anchor-1" href="#k42-lock">#</a>K42 Lock</h3>
-<p>K42 Lock 是一种 MCS Lock 的变种，由 IBM K42 Group 提出，避免了加锁时需要多传一个参数的问题。</p>
-<figure class="highlight pascal"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Locks and queue nodes use the same data structure:</span></span><br><span class="line"><span class="keyword">type</span> lnode = <span class="keyword">record</span></span><br><span class="line">    next : ^lnode</span><br><span class="line">    union</span><br><span class="line">        locked : Boolean    <span class="comment">// for queue nodes</span></span><br><span class="line">        tail : ^lnode       <span class="comment">// for locks</span></span><br><span class="line"><span class="keyword">type</span> lock = lnode</span><br><span class="line"></span><br><span class="line"><span class="comment">// If threads are waiting for a held lock, next points to the queue node</span></span><br><span class="line"><span class="comment">// of the first of them, and tail to the queue node of the last.</span></span><br><span class="line"><span class="comment">// A held lock with no waiting threads has value &lt;&amp;head, nil&gt;.</span></span><br><span class="line"><span class="comment">// A free lock with no waiting threads has value &lt;nil, nil&gt;.</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">acquire_lock</span> <span class="params">(L : ^lnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span> :</span> lnode</span><br><span class="line">    loop</span><br><span class="line">        predecessor : ^lnode := L-&gt;tail</span><br><span class="line">        <span class="keyword">if</span> predecessor = <span class="keyword">nil</span></span><br><span class="line">            <span class="comment">// lock appears not to be held</span></span><br><span class="line">            <span class="keyword">if</span> compare_and_store (&amp;L-&gt;tail, <span class="keyword">nil</span>, &amp;L-&gt;next)</span><br><span class="line">                <span class="comment">// I have the lock</span></span><br><span class="line">                return</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="comment">// lock appears to be held</span></span><br><span class="line">            I.next := <span class="keyword">nil</span></span><br><span class="line">            <span class="keyword">if</span> compare_and_store (&amp;L-&gt;tail, predecessor, &amp;I)</span><br><span class="line">                <span class="comment">// I&#x27;m in line</span></span><br><span class="line">                I.locked := true</span><br><span class="line">                predecessor-&gt;next := &amp;I</span><br><span class="line">                <span class="keyword">repeat</span> <span class="keyword">while</span> I.locked             <span class="comment">// wait for lock</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">// I now have the lock</span></span><br><span class="line">                successor : ^lnode := I.next</span><br><span class="line">                <span class="keyword">if</span> successor = <span class="keyword">nil</span></span><br><span class="line">                    L-&gt;next := <span class="keyword">nil</span></span><br><span class="line">                    <span class="keyword">if</span> ! compare_and_store (&amp;L-&gt;tail, &amp;I, &amp;L-&gt;next)</span><br><span class="line">                        <span class="comment">// somebody got into the timing window</span></span><br><span class="line">                        <span class="keyword">repeat</span></span><br><span class="line">                            successor := I.next</span><br><span class="line">                        <span class="keyword">while</span> successor = <span class="keyword">nil</span>     <span class="comment">// wait for successor</span></span><br><span class="line">                        L-&gt;next := successor</span><br><span class="line">                    return</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                    L-&gt;next := successor</span><br><span class="line">                    return</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">release_lock</span> <span class="params">(L : ^lnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">successor</span> :</span> ^lnode := L-&gt;next</span><br><span class="line">    <span class="keyword">if</span> successor = <span class="keyword">nil</span>        <span class="comment">// no known successor</span></span><br><span class="line">        <span class="keyword">if</span> compare_and_store (&amp;L-&gt;tail, &amp;L-&gt;next, <span class="keyword">nil</span>)</span><br><span class="line">            return</span><br><span class="line">        <span class="keyword">repeat</span></span><br><span class="line">            successor := L-&gt;next</span><br><span class="line">        <span class="keyword">while</span> successor = <span class="keyword">nil</span>             <span class="comment">// wait for successor</span></span><br><span class="line">    successor-&gt;locked := false</span><br></pre></td></tr></table></figure>
-<h3 id="hclh-lock"><a class="header-anchor-1" href="#hclh-lock">#</a>HCLH Lock</h3>
-<p>A Hierarchical CLH Queue Lock</p>
-<h3 id="mcs-parking-lock"><a class="header-anchor-1" href="#mcs-parking-lock">#</a>MCS Parking Lock</h3>
-<h3 id="总结"><a class="header-anchor-1" href="#总结">#</a>总结</h3>
-<ul>
-<li>Non-scalable locks are dangerous.</li>
-<li>各种 Scalable Spinlock 的总结伪代码: <span class="exturl" data-url="aHR0cHM6Ly93d3cuY3Mucm9jaGVzdGVyLmVkdS9yZXNlYXJjaC9zeW5jaHJvbml6YXRpb24vcHNldWRvY29kZS9zcy5odG1s">https://www.cs.rochester.edu/research/synchronization/pseudocode/ss.html<i class="fa fa-external-link-alt"></i></span></li>
-</ul>
-<h2 id="lock-based-concurrency"><a class="header-anchor-1" href="#lock-based-concurrency">#</a>Lock-based Concurrency</h2>
-<h3 id="sequence-lock"><a class="header-anchor-1" href="#sequence-lock">#</a>Sequence Lock</h3>
-<p>序列锁是一种乐观读写锁，主要在 Linux 内核中使用。</p>
-<p>数据结构:</p>
-<ul>
-<li>序列锁实例 ​​: 一个整数 seq，初始化为 0。</li>
-</ul>
-<p>加锁(写锁)操作:</p>
-<ol>
-<li>读取 seq 的值 cur_seq。</li>
-<li>如果 cur_seq 的值是偶数
-<ol>
-<li>尝试 CAS(seq, cur_seq, cur_seq + 1)</li>
-<li>如果成功，返回 cur_seq</li>
-</ol>
-</li>
-<li>回到第 1 步重试。</li>
-</ol>
-<p>解锁(写锁)操作:</p>
-<ol>
-<li>seq = seq + 2</li>
-</ol>
-<p>加锁(读锁)操作:</p>
-<ol>
-<li>读取 seq 的值 cur_seq。</li>
-<li>如果 cur_seq 的值是偶数，则返回 cur_seq</li>
-<li>回到第 1 步重试。</li>
-</ol>
-<p>解锁(读锁)操作:</p>
-<ol>
-<li>seq = seq + 1</li>
-</ol>
-<h2 id="lock-free-data-structures"><a class="header-anchor-1" href="#lock-free-data-structures">#</a>Lock-free Data Structures</h2>
-<h3 id="treiber’s-stack"><a class="header-anchor-1" href="#treiber’s-stack">#</a>Treiber’s Stack</h3>
-<p>Treiber Stack 是一种无锁栈实现，它通过使用一个链表来实现栈。</p>
-<p>Push 操作:</p>
-<ol>
-<li>创建一个新的节点 n，并将其数据初始化。</li>
-<li>top = load(top)</li>
-<li>n-&gt;next = top</li>
-<li>CAS(top, top, n)</li>
-<li>如果失败，则回到第 2 步重试。</li>
-</ol>
-<p>Pop 操作:</p>
-<ol>
-<li>如果栈为空则返回 nullptr。</li>
-<li>top = load(top)</li>
-<li>next = top-&gt;next</li>
-<li>CAS(top, top, next)</li>
-<li>如果 CAS 成功，则返回 top，否则回到第 2 步重试。</li>
-</ol>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">impl</span>&lt;T&gt; Stack&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">/// Pushes a value on top of the stack.</span></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">push</span>(&amp;<span class="keyword">self</span>, t: T) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">node</span> = Owned::<span class="title function_ invoke__">new</span>(Node &#123;</span><br><span class="line">            data: MaybeUninit::<span class="title function_ invoke__">new</span>(t),</span><br><span class="line">            next: ptr::<span class="title function_ invoke__">null</span>(),</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// SAFETY: We don&#x27;t dereference any pointers obtained from this guard.</span></span><br><span class="line">        <span class="keyword">let</span> <span class="variable">guard</span> = <span class="keyword">unsafe</span> &#123; crossbeam_epoch::<span class="title function_ invoke__">unprotected</span>() &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">head</span> = <span class="keyword">self</span>.head.<span class="title function_ invoke__">load</span>(Relaxed, guard);</span><br><span class="line">        <span class="keyword">loop</span> &#123;</span><br><span class="line">            node.next = head.<span class="title function_ invoke__">as_raw</span>();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">match</span> <span class="keyword">self</span></span><br><span class="line">                .head</span><br><span class="line">                .<span class="title function_ invoke__">compare_exchange</span>(head, node, Release, Relaxed, guard)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="title function_ invoke__">Ok</span>(_) =&gt; <span class="keyword">break</span>,</span><br><span class="line">                <span class="title function_ invoke__">Err</span>(e) =&gt; &#123;</span><br><span class="line">                    head = e.current;</span><br><span class="line">                    node = e.new;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// Attempts to pop the top element from the stack.</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">/// Returns `None` if the stack is empty.</span></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">pop</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;T&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = crossbeam_epoch::<span class="title function_ invoke__">pin</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">loop</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">head</span> = <span class="keyword">self</span>.head.<span class="title function_ invoke__">load</span>(Acquire, &amp;guard);</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">h</span> = <span class="keyword">unsafe</span> &#123; head.<span class="title function_ invoke__">as_ref</span>() &#125;?;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">next</span> = Shared::<span class="title function_ invoke__">from</span>(h.next);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">self</span></span><br><span class="line">                .head</span><br><span class="line">                .<span class="title function_ invoke__">compare_exchange</span>(head, next, Relaxed, Relaxed, &amp;guard)</span><br><span class="line">                .<span class="title function_ invoke__">is_ok</span>()</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// Since the above `compare_exchange()` succeeded, `head` is detached from</span></span><br><span class="line">                <span class="comment">// `self` so is unreachable from other threads.</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">// SAFETY: We are returning ownership of `data` in `head` by making a copy of it via</span></span><br><span class="line">                <span class="comment">// `assume_init_read()`. This is safe as no other thread has access to `data` after</span></span><br><span class="line">                <span class="comment">// `head` is unreachable, so the ownership of `data` in `head` will never be used</span></span><br><span class="line">                <span class="comment">// again.</span></span><br><span class="line">                <span class="keyword">let</span> <span class="variable">result</span> = <span class="keyword">unsafe</span> &#123; h.data.<span class="title function_ invoke__">assume_init_read</span>() &#125;;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// SAFETY: `head` is unreachable, and we no longer access `head`.</span></span><br><span class="line">                <span class="keyword">unsafe</span> &#123; guard.<span class="title function_ invoke__">defer_destroy</span>(head) &#125;;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> <span class="title function_ invoke__">Some</span>(result);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Repin to ensure the global epoch can make progress.</span></span><br><span class="line">            guard.<span class="title function_ invoke__">repin</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="michael-scott’s-queue"><a class="header-anchor-1" href="#michael-scott’s-queue">#</a>Michael-Scott’s Queue</h3>
-<p>Michael-Scott’s queue 是一种无锁队列实现，它通过使用一个链表来实现队列。</p>
-<p>Enqueue 操作:</p>
-<ol>
-<li>创建一个新的节点 n，并将其数据初始化。</li>
-<li>tail = load(tail)</li>
-<li>n-&gt;next = tail</li>
-<li>CAS(tail, tail, n)</li>
-<li>如果失败，则回到第 2 步重试。</li>
-</ol>
-<p>Dequeue 操作：和 Treiber Stack 的 Pop 操作一样</p>
-<h3 id="harris’s-sorted-linked-list"><a class="header-anchor-1" href="#harris’s-sorted-linked-list">#</a>Harris’s Sorted Linked List</h3>
-<p>Harris’s Sorted Linked List<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> 是一种无锁、有序单链表实现。</p>
-<p>数据结构:</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Node</span>&lt;KeyType&gt; &#123;</span><br><span class="line">    KeyType key;</span><br><span class="line">    Node *next;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">Node</span> (KeyType key) &#123;</span><br><span class="line">        <span class="keyword">this</span>.key = key;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">List</span>&lt;KeyType&gt; &#123;</span><br><span class="line">    Node&lt;KeyType&gt; *head;</span><br><span class="line">    Node&lt;KeyType&gt; *tail;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">List</span>() &#123;</span><br><span class="line">        head = <span class="keyword">new</span> <span class="built_in">Node</span>&lt;KeyType&gt; ();</span><br><span class="line">        tail = <span class="keyword">new</span> <span class="built_in">Node</span>&lt;KeyType&gt; ();</span><br><span class="line">        head.next = tail;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用逻辑删除来实现删除操作，即不真正删除节点，而是将节点标记为已删除。</p>
-<p>完整回收实现需要结合 Hazard Pointers 等内存回收算法使用。</p>
-<h2 id="memory-reclamation-algorithms-in-lock-free-data-structures"><a class="header-anchor-1" href="#memory-reclamation-algorithms-in-lock-free-data-structures">#</a>Memory Reclamation Algorithms In Lock-free Data Structures</h2>
-<h3 id="reference-counting"><a class="header-anchor-1" href="#reference-counting">#</a>Reference Counting</h3>
-<p>Reference Counting 是最容易想到的一种方案，但是仔细想想，需要同时原子地更新指针和引用计数，需要特殊的硬件指令支持，因此在实际中很少使用。</p>
-<h3 id="read-copy-update-rcu"><a class="header-anchor-1" href="#read-copy-update-rcu">#</a>Read-Copy-Update (RCU)</h3>
-<p>RCU 的思想是，在不会存在并发执行的、合适的时间点（例如，无中断的情况下）统一执行删除操作。</p>
-<h3 id="hazard-pointers"><a class="header-anchor-1" href="#hazard-pointers">#</a>Hazard Pointers</h3>
-<p>Hazard Pointers<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup> 是一种在 Lock-free Data Structures 中使用的内存回收算法，主要用于解决无锁数据结构中，插入和删除操作可以并发执行的情况下，删除的内存何时回收的问题。</p>
-<p>Hazard Pointers 数据结构:</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">class</span> <span class="title">alignas</span><span class="params">(hardware_destructive_interference_size)</span> hazptr_rec </span>&#123;</span><br><span class="line">  std::atomic&lt;<span class="type">const</span> <span class="type">void</span>*&gt; hazptr_&#123;<span class="literal">nullptr</span>&#125;; <span class="comment">// the hazard pointer</span></span><br><span class="line">  hazptr_rec* next_; <span class="comment">// Next in the main hazard pointer list. Immutable.</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">thread_local</span> std::vector&lt;hazptr_rec&gt; retired_list; <span class="comment">// 线程本地回收列表</span></span><br></pre></td></tr></table></figure>
-<p>Hazard Pointers 读操作:</p>
-<ol>
-<li>从 hprec 列表中获取一个空闲的 hprec。</li>
-<li>令 hprec 的 hazptr 字段指向要保护的对象。
-<ol>
-<li>读取被保护的对象。</li>
-</ol>
-</li>
-<li>读取完成后，令 hprec 的 hazptr=nullptr。</li>
-</ol>
-<p>Hazard Pointers 写操作:</p>
-<ol>
-<li>创建一个新的 hprec，hazptr 字段指向新版本的对象节点。</li>
-<li>将新的 hprec 通过 CAS 插入到链表中。</li>
-<li>如果不成功，则回到第 1 步重试。</li>
-<li>将 CAS 得到的旧版本 hprec 添加到 thread-local 的 retired_list 中。</li>
-</ol>
-<p>Hazard Pointers 回收算法:</p>
-<ol>
-<li>扫描 thread-local 的 retired_list，获取所有数据非空的 hprec。</li>
-<li>将 retired_list 中的对象节点回收。</li>
-</ol>
-<h3 id="epoch-based-reclamation"><a class="header-anchor-1" href="#epoch-based-reclamation">#</a>Epoch-Based Reclamation</h3>
-<hr class="footnotes-sep" />
-<section class="footnotes">
-<ol class="footnotes-list">
-<li id="fn1" class="footnote-item"><p>Mellor-Crummey, M. and Scott, M.L. 1981. Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors. ACM TOCS, February 1991. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
-</li>
-<li id="fn2" class="footnote-item"><p>Discovered independently by Travis Craig at the University of Washington (UW TR 93-02-02, February 1993), and by Anders Landin and Eric Hagersten of the Swedish Institute of Computer Science (IPPS, 1994). <a href="#fnref2" class="footnote-backref">↩︎</a></p>
-</li>
-<li id="fn3" class="footnote-item"><p>Harris, T. A Pragmatic Implementation of Non-Blocking Linked-Lists. DISC 2001. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
-</li>
-<li id="fn4" class="footnote-item"><p>Andrei Alexandrescu, Maged Michael. Lock-Free Data Structures with Hazard Pointers. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
-</li>
-</ol>
-</section>
-]]></content>
-      <categories>
-        <category>concurrent</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-        <tag>并发</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>《编译原理》（龙书）第二版阅读记录</title>
     <url>/2024/04/15/dragon-book/</url>
     <content><![CDATA[<p>标注:</p>
@@ -3062,6 +2041,1027 @@ I=\{
       </categories>
       <tags>
         <tag>编译原理</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ARP协议</title>
+    <url>/2021/10/20/arp-protocol/</url>
+    <content><![CDATA[<h2 id="arp-协议"><a class="header-anchor-1" href="#arp-协议">#</a>ARP 协议</h2>
+<p>ARP 协议的全称是 Address Resolution Protocol(地址解析协议)，它是一个通过解析网络层地址来找寻数据链路层地址的网络传输协议，它在 IPv4 中<strong>极其重要</strong>。是 IPv4 能够正常工作的基础。</p>
+<p>ARP 协议与 IP 协议一样，位于网络层，ARP 报文在以太网帧结构中的帧类型字段为<code>0x0806</code></p>
+<p>在 IPv6 中邻居发现协议（NDP）用于代替地址解析协议（ARP）。</p>
+<h3 id="arp-报文格式"><a class="header-anchor-1" href="#arp-报文格式">#</a>ARP 报文格式</h3>
+<p>以太网首部：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ether_hdr</span> &#123;</span><br><span class="line">    <span class="type">uint8_t</span> target_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint8_t</span> sender_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint16_t</span> ptype; <span class="comment">/* equal to 0x0806 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ARP 报文：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">arp_hdr</span> &#123;</span><br><span class="line">    <span class="type">uint16_t</span> htype;</span><br><span class="line">    <span class="type">uint16_t</span> ptype;</span><br><span class="line">    <span class="type">uint8_t</span> hlen;</span><br><span class="line">    <span class="type">uint8_t</span> plen;</span><br><span class="line">    <span class="type">uint16_t</span> opcode;</span><br><span class="line">    <span class="type">uint8_t</span> sender_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint8_t</span> sender_ip[<span class="number">4</span>];</span><br><span class="line">    <span class="type">uint8_t</span> target_mac[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint8_t</span> target_ip[<span class="number">4</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="arp-表"><a class="header-anchor-1" href="#arp-表">#</a>ARP 表</h3>
+<p>在每台安装有 TCP/IP 协议的电脑或路由器里都有一个 ARP 缓存表，表里的 IP 地址与 MAC 地址是一对应的，表中的每一行表示在<strong>当前局域网</strong>中，拥有<code>IP地址</code>的设备的 MAC 地址是<code>MAC地址</code>，如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th>主机名称</th>
+<th>IP 地址</th>
+<th>MAC 地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>192.168.38.10</td>
+<td>00-AA-00-62-D2-02</td>
+</tr>
+<tr>
+<td>B</td>
+<td>192.168.38.11</td>
+<td>00-BB-00-62-C2-02</td>
+</tr>
+<tr>
+<td>C</td>
+<td>192.168.38.12</td>
+<td>00-CC-00-62-C2-02</td>
+</tr>
+<tr>
+<td>D</td>
+<td>192.168.38.13</td>
+<td>00-DD-00-62-C2-02</td>
+</tr>
+<tr>
+<td>E</td>
+<td>192.168.38.14</td>
+<td>00-EE-00-62-C2-02</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<p>ARP 缓存表采用老化机制，在一段时间内如果表中的某一行没有使用，就会被删除，这样可减少缓存表的长度，加快查询速度。</p>
+<h3 id="arp-流程"><a class="header-anchor-1" href="#arp-流程">#</a>ARP 流程</h3>
+<ol>
+<li>
+<p>当发送数据时，主机 A 会在自己的 ARP 缓存表中寻找是否有目标 IP 地址。如果找到就知道目标 MAC 地址为（00-BB-00-62-C2-02），直接把目标 MAC 地址写入帧里面发送就可。</p>
+</li>
+<li>
+<p>如果在 ARP 缓存表中没有找到相对应的 IP 地址，主机 A 就会在网络上发送一个广播（ARP request），目标 MAC 地址是“FF.FF.FF.FF.FF.FF”，这表示向同一网段内的所有主机发出这样的询问：“192.168.38.11 的 MAC 地址是什么？”</p>
+</li>
+<li>
+<p>网络上其他主机并不响应 ARP 询问，只有主机 B 接收到这个帧时，才向主机 A 做出这样的回应（ARP response）：“192.168.38.11 的 MAC 地址是 00-BB-00-62-C2-02”，此回应以单播方式。这样，主机 A 就知道主机 B 的 MAC 地址，它就可以向主机 B 发送信息。同时它还更新自己的 ARP 高速缓存（ARP cache），下次再向主机 B 发送信息时，直接从 ARP 缓存表里查找就可。</p>
+</li>
+</ol>
+<h3 id="免费-arp"><a class="header-anchor-1" href="#免费-arp">#</a>免费 ARP</h3>
+<p>免费 ARP（gratuitous ARP）是指主机发送 ARP 查询（广播）自己的 IP 地址，当 ARP 功能被开启或者是端口初始配置完成，主机向网络发送免费 ARP 来查询自己的 IP 地址确认地址唯一可用。</p>
+<p>作用：</p>
+<ol>
+<li>
+<p>确定网络中是否有其他主机使用了 IP 地址，如果有应答则产生错误消息。</p>
+</li>
+<li>
+<p>免费 ARP 可以做更新 ARP 缓存用，网络中的其他主机收到该广播则在缓存中更新条目，收到该广播的主机无论是否存在与 IP 地址相关的条目都会强制更新，如果存在旧条目则会将 MAC 更新为广播包中的 MAC。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>computer-networking</category>
+      </categories>
+      <tags>
+        <tag>计算机网络</tag>
+        <tag>基础架构</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>计算机网络课程笔记</title>
+    <url>/2021/01/05/computer-networking-notes/</url>
+    <content><![CDATA[<h2 id="按章节"><a class="header-anchor-1" href="#按章节">#</a>按章节</h2>
+<h3 id="1-9-osi-七层模型"><a class="header-anchor-1" href="#1-9-osi-七层模型">#</a>1.9 OSI 七层模型</h3>
+<p>设计者: 国际标准化组织 ISO, 国际电信联盟 ITU</p>
+<p>OSI 七层模型: 物理层/数据链路层/网络层/传输层/会话层/表示层/应用层</p>
+<p>TCP/IP 位于: 传输层/网络层</p>
+<p>会话层和表示层几乎没有内容</p>
+<h3 id="3-4-cs-模型"><a class="header-anchor-1" href="#3-4-cs-模型">#</a>3.4 CS 模型</h3>
+<table>
+<thead>
+<tr>
+<th>服务端程序 S</th>
+<th>客户端程序 A</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>先启动</td>
+<td>后启动</td>
+</tr>
+<tr>
+<td>不知道 C</td>
+<td>必须知道 S 的位置</td>
+</tr>
+<tr>
+<td>积极等待 C 来连接</td>
+<td>需要通讯时初始化连接</td>
+</tr>
+<tr>
+<td>通过收发数据进行通讯</td>
+<td>通过收发数据进行通讯</td>
+</tr>
+<tr>
+<td>服务之后继续运行, 等待下一个 C 来连接</td>
+<td>可能结束</td>
+</tr>
+</tbody>
+</table>
+<p>Internet 只提供基本通讯, 实际上是由计算机上的程序来处理连接</p>
+<h3 id="3-5-c-s-程序的特点"><a class="header-anchor-1" href="#3-5-c-s-程序的特点">#</a>3.5 C/S 程序的特点</h3>
+<p>略</p>
+<h3 id="3-13-网络编程-socket-api"><a class="header-anchor-1" href="#3-13-网络编程-socket-api">#</a>3.13 网络编程 Socket API</h3>
+<p>事实标准: Socket API</p>
+<h3 id="4-6-url-和超链接"><a class="header-anchor-1" href="#4-6-url-和超链接">#</a>4.6 URL 和超链接</h3>
+<h3 id="4-7-http"><a class="header-anchor-1" href="#4-7-http">#</a>4.7 HTTP</h3>
+<h3 id="4-17-dns-和域名"><a class="header-anchor-1" href="#4-17-dns-和域名">#</a>4.17 DNS 和域名</h3>
+<h3 id="4-20-名字解析"><a class="header-anchor-1" href="#4-20-名字解析">#</a>4.20 名字解析</h3>
+<h3 id="5-5-与数据传输相关的话题"><a class="header-anchor-1" href="#5-5-与数据传输相关的话题">#</a>5.5 与数据传输相关的话题</h3>
+<ul>
+<li>信息源</li>
+<li>数据源编码/解码器</li>
+<li>加密/解密器</li>
+<li>通道编码/解码器</li>
+<li>复用/解复用器</li>
+<li>调制/解调器</li>
+<li>物理信道和传输</li>
+</ul>
+<h3 id="7-18-低地卫星-leo-和集群"><a class="header-anchor-1" href="#7-18-低地卫星-leo-和集群">#</a>7.18 低地卫星(LEO)和集群</h3>
+<p>LEO 卫星群协同工作以转发消息。集群成员必须知道当前在地球给定区域上的卫星，并将消息转发给适当的成员以传输到地面站。</p>
+<h3 id="8-6-奇偶校验码"><a class="header-anchor-1" href="#8-6-奇偶校验码">#</a>8.6 奇偶校验码</h3>
+<p>单奇偶校验（SPC）是信道编码的一种基本形式，其中发送方<strong>在每个字节上添加一个额外的位，以使 1 的个数为偶数（或奇数）</strong>，接收方验证输入的数据是否具有正确的 1 位数。</p>
+<h3 id="8-12-因特网使用的-16-位校验和"><a class="header-anchor-1" href="#8-12-因特网使用的-16-位校验和">#</a>8.12 因特网使用的 16 位校验和</h3>
+<p>源数据 M, 任意长度</p>
+<ol>
+<li>补零, 直至长度是 16 位的倍数</li>
+<li>将 M 按照 16 位分组并求和, 最多允许溢出到 32 位</li>
+<li>将结果对半相加(高 16 位加低 16 位), 只保留 16 位</li>
+<li>将结果取反</li>
+<li>如果是 0 则再取反</li>
+</ol>
+<p>取反的目的: 方便验证, 只要求完相加判断是否溢出剩 0 就行了</p>
+<h3 id="8-13-crc"><a class="header-anchor-1" href="#8-13-crc">#</a>8.13 CRC</h3>
+<p>例: data=<code>10010101010</code>, G=<code>10101</code>
+多项式表示: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><msup><mi>x</mi><mn>5</mn></msup><mo>+</mo><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">G=x^5+x^3+1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">G</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">5</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span></p>
+<ol>
+<li>补零</li>
+</ol>
+<p><code>mdata = data + '0' * (G.length - 1)</code></p>
+<p>得到<code>mdata = 100101010100000</code></p>
+<ol start="2">
+<li>模 2 除法</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">      ___101100101100_</span><br><span class="line"><span class="number">10101</span>/<span class="number">100101010100000</span></span><br><span class="line">    / <span class="number">10101</span> |   | | |</span><br><span class="line">     =  <span class="number">11110</span>   | | |</span><br><span class="line">        <span class="number">10101</span>   | | |</span><br><span class="line">       = <span class="number">10111</span>  | | |</span><br><span class="line">         <span class="number">10101</span>  | | |</span><br><span class="line">        =   <span class="number">10010</span> | |</span><br><span class="line">            <span class="number">10101</span> | |</span><br><span class="line">           =  <span class="number">11100</span> |</span><br><span class="line">              <span class="number">10101</span> |</span><br><span class="line">             = <span class="number">10010</span>|</span><br><span class="line">               <span class="number">10101</span>|</span><br><span class="line">              =  <span class="number">1110</span></span><br></pre></td></tr></table></figure>
+<p>得到 CRC=<code>1110</code></p>
+<ol start="3">
+<li>拼接</li>
+</ol>
+<p>发送的数据<code>send = data + CRC</code></p>
+<p><code>send = 1000101010 1110</code></p>
+<h3 id="9-12-单工-半双工-全双工传输"><a class="header-anchor-1" href="#9-12-单工-半双工-全双工传输">#</a>9.12 单工/半双工/全双工传输</h3>
+<p>信道的三种类型</p>
+<p>单工: 只能单向传输, 单根光纤就是单工, 类比收音机, 电视</p>
+<p>全双工: 可以同时双向传输, 有两个光纤就可以组成全双工, 类比电话</p>
+<p>半双工: 需要一个共享传输介质, 可以双向传输但是不能同时, 类比对讲机</p>
+<h3 id="10-3-模拟调制"><a class="header-anchor-1" href="#10-3-模拟调制">#</a>10.3 模拟调制</h3>
+<p>载波: 信息发送出去时以电波的形式, 负责承载信息的波就是载波</p>
+<p>调制: 根据要发送的信息, 对载波进行的调整</p>
+<pre><code>原始载波(输入1) --\
+                (调制器) ---&gt; 调制过的载波(输出)
+信息 (输入2)    --/
+</code></pre>
+<p>三种主要调制技术:</p>
+<ul>
+<li>振幅调制</li>
+<li>频率调制</li>
+<li>移相调制</li>
+</ul>
+<h3 id="10-12-modem"><a class="header-anchor-1" href="#10-12-modem">#</a>10.12 Modem</h3>
+<p>为了方便网络安装, 一般将调制和解调功能集成在一个叫做调制解调器的设备中</p>
+<h3 id="12-6-局部环路特性和适应"><a class="header-anchor-1" href="#12-6-局部环路特性和适应">#</a>12.6 局部环路特性和适应</h3>
+<p>接入技术: ISP 到用户的连接</p>
+<p>本地用户环路(local subscriber line)/本地环路(local loop): 电话公司交换局到用户之间的物理连接, 一般是使用双绞线 (其实就是电话线路?)</p>
+<p>DSL: 一种利用 local loop 提供网络的技术</p>
+<p>ADSL: 不对称 DSL, 利用频分复用将 local loop 的带宽分成三个区域</p>
+<table>
+<thead>
+<tr>
+<th>频率</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0-4</td>
+<td>普通老式电话业务</td>
+</tr>
+<tr>
+<td>26-138</td>
+<td>上行频带</td>
+</tr>
+<tr>
+<td>138-1100</td>
+<td>下行频带</td>
+</tr>
+</tbody>
+</table>
+<p>因为本地环路的电气特性变化各异，ADSL 采用了自适应技术，即一对调制解调器先探测彼此之间连接线路上的许多频率，然后选择在此线路上能产生最优传输质量的频率和相应的调制技术。</p>
+<h3 id="12-7-adsl-的传输速率"><a class="header-anchor-1" href="#12-7-adsl-的传输速率">#</a>12.7 ADSL 的传输速率</h3>
+<p>上行: 32 - 640 Kbps, 去掉控制信道: 32 - 576 Kbps</p>
+<p>下行: 32 - 8448 Kbps</p>
+<h3 id="12-9-电缆调制解调器技术"><a class="header-anchor-1" href="#12-9-电缆调制解调器技术">#</a>12.9 电缆调制解调器技术</h3>
+<p>本地环路具有局限性: 双绞线不抗干扰,</p>
+<p>因此创造了基于 同轴电缆 + FDM + 统计复用 的电缆调制解调器技术, 每一组用户共享一个数据信道, 通过 Modem 判断数据是否属于该用户</p>
+<p>传输速率: 上行 512 Kbps, 下行 52 Mbps</p>
+<h3 id="13-4-本地和广域包交换网络"><a class="header-anchor-1" href="#13-4-本地和广域包交换网络">#</a>13.4 本地和广域包交换网络</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>距离</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LAN</td>
+<td>房间/建筑</td>
+</tr>
+<tr>
+<td>MAN</td>
+<td>大城市</td>
+</tr>
+<tr>
+<td>WAN</td>
+<td>多个城市</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-9-包识别-解复用-mac-地址"><a class="header-anchor-1" href="#13-9-包识别-解复用-mac-地址">#</a>13.9 包识别, 解复用, MAC 地址</h3>
+<p>地址: 在包交换系统中, 解复用时使用的标识符, 每个包都包含了目的地地址</p>
+<p>IEEE 地址(MAC 地址): 48 位地址, 每个 NIC 都不一样, 分为前 24 位 OUI, 24 位 NIC 地址</p>
+<h3 id="13-10-单播-广播-多播"><a class="header-anchor-1" href="#13-10-单播-广播-多播">#</a>13.10 单播, 广播, 多播</h3>
+<p>IEEE 保留了 MAC 地址中的一位(最高有效字节的最低位)来区分单播(0)和多播(1)</p>
+<p>广播视为一种特殊的多播, 广播地址所有位全 1</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单播</td>
+<td>唯一标识一台计算机，并规定只有被标识的那台计算机才能接收分组的副本</td>
+</tr>
+<tr>
+<td>广播</td>
+<td>对应所有的计算机，并规定网络上每台计算机都应该接收分组的副本</td>
+</tr>
+<tr>
+<td>组播</td>
+<td>标识指定网络上所有计算机的一个子集，并规定该子集中的每台计算机都应该接收分组的副本</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-11-广播-多播和多点传递"><a class="header-anchor-1" href="#13-11-广播-多播和多点传递">#</a>13.11 广播, 多播和多点传递</h3>
+<p>在 LAN 中, 广播和多播极大地提高了效率</p>
+<h3 id="14-6-随机接入协议"><a class="header-anchor-1" href="#14-6-随机接入协议">#</a>14.6 随机接入协议</h3>
+<p>接入技术: 多台相互独立的计算机如何进行协调接入一个<strong>共享介质</strong></p>
+<p>MAC 层: Media <strong>Access</strong> Control 介质接入控制</p>
+<p>方法: 采用复用技术的改进形式, 采用分布式算法</p>
+<p>多址接入协议</p>
+<ul>
+<li>受控接入协议
+<ul>
+<li>预约</li>
+<li>轮询</li>
+<li>令牌传递</li>
+</ul>
+</li>
+<li>随机接入协议
+<ul>
+<li>ALOHA</li>
+<li>CSMA/CD</li>
+<li>CSMA/CA</li>
+</ul>
+</li>
+<li>信道分配协议
+<ul>
+<li>FDMA</li>
+<li>TDMA</li>
+<li>CDMA</li>
+</ul>
+</li>
+</ul>
+<p>在 LAN 中, 用户接入共享介质的时机是随机的, 因此可能造成冲突, 需要用合适的方法解决</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ALOHA</td>
+<td>教科书中流行的协议, 但没有实际应用, 划分上行/下行两个频段用来传输信息, 上行采用随机延迟来解决冲突问题, 下行采用广播机制</td>
+</tr>
+<tr>
+<td>CSMA/CD</td>
+<td>带冲突检测的载波侦听多址接入, 原始以太网使用, 但交换式以太网不再使用, 使用载波侦听+冲突检测+指数退避算法解决冲突问题</td>
+</tr>
+<tr>
+<td>CSMA/CA</td>
+<td>带冲突避免的载波侦听多址接入, 无线 LAN 使用, 与 CSMA/CD 类似, 不同在于分组传输前会发送一个控制报文, 接收方广播控制消息</td>
+</tr>
+</tbody>
+</table>
+<p>CSMA/CD:</p>
+<ul>
+<li>Carrier Sense 载波侦听</li>
+<li>Multiple Access 多址接入</li>
+<li>Collision Detect 冲突检测</li>
+</ul>
+<p>CSMA/CA:</p>
+<ul>
+<li>Carrier Sense 载波侦听</li>
+<li>Multiple Access 多址接入</li>
+<li>Collision Avoidance 冲突避免</li>
+</ul>
+<h3 id="15-3-以太网帧格式"><a class="header-anchor-1" href="#15-3-以太网帧格式">#</a>15.3 以太网帧格式</h3>
+<p>(传统)以太网: 是一种 LAN 技术, 最早在施乐公司的 PARC 中发明, 后来被标准化</p>
+<p>帧: 数据链路层的协议数据单元</p>
+<p>(传统)以太网帧格式:</p>
+<p><img src="ethernet_frame.png" alt="" /></p>
+<ul>
+<li>
+<p>以太网帧(64-1518) := 头部(14) + 载荷(46-1500) + CRC(4)</p>
+</li>
+<li>
+<p>头部 := 目的地址(MAC 地址, 6) + 源地址(MAC 地址, 6) + 类型(2)</p>
+</li>
+</ul>
+<h3 id="15-4-以太网帧的类型域"><a class="header-anchor-1" href="#15-4-以太网帧的类型域">#</a>15.4 以太网帧的类型域</h3>
+<p>以太网帧类型域包含了载荷中的报文类型, 如 IPv4/IPv6/ARP 等, 接收方检查该值来进行复用与解复用</p>
+<h3 id="15-5-802-3-以太网"><a class="header-anchor-1" href="#15-5-802-3-以太网">#</a>15.5 802.3 以太网</h3>
+<p>802.3 以太网: IEEE 802.3 重新修订后的以太网标准, (但不是很成功)</p>
+<p><img src="8023_ethernet_frame.png" alt="" /></p>
+<ul>
+<li>
+<p>802.3 以太网帧(64-1518) := 头部(14) + <strong>SNAP 头部(8)</strong> + 新载荷(46(存疑)-<strong>1492</strong>) + CRC(4)</p>
+</li>
+<li>
+<p>头部 := 目的地址(MAC 地址, 6) + 源地址(MAC 地址, 6) + <strong>帧长度(2)</strong></p>
+</li>
+<li>
+<p><strong>SNAP 头部 := LLC(3) + OUI(3) + 类型(2)</strong></p>
+</li>
+<li>
+<p>兼容性处理: 类型域&lt;=1500 是 802.3 帧, 否则是传统以太网帧</p>
+</li>
+</ul>
+<h3 id="15-7-粗缆布线的以太网"><a class="header-anchor-1" href="#15-7-粗缆布线的以太网">#</a>15.7 粗缆布线的以太网</h3>
+<p>粗缆以太网(Thick wire Ethernet)/粗网(Thicknet, 10Base5): 最初版本的以太网布线方案, 因为其使用笨重的同轴电缆+收发器+AUI 电缆方式而得名.</p>
+<p><img src="thicknet.png" alt="" /></p>
+<h3 id="15-8-细缆布线的以太网"><a class="header-anchor-1" href="#15-8-细缆布线的以太网">#</a>15.8 细缆布线的以太网</h3>
+<p>细缆以太网(Thin wire Ethernet)/细网(Thinnet, 10Base2): 第二代以太网布线方案, 使用细同轴电缆依次串联计算机, 不再需要 AUI 线, 收发器集成到 NIC 中, 缺点是容易单点故障</p>
+<p><img src="thinnet.png" alt="" /></p>
+<h3 id="15-9-双绞线布线的以太网"><a class="header-anchor-1" href="#15-9-双绞线布线的以太网">#</a>15.9 双绞线布线的以太网</h3>
+<p>双绞线以太网(10BaseT): 第三代以太网布线系统, 使用了双绞线取代同轴电缆, 引入中心集线器(hub)</p>
+<p><img src="twistnet.png" alt="" /></p>
+<p>集线器是物理层设备, 具有一定的功能, 比如 CSMA/CD 等, 现在大部分已经被交换机取代</p>
+<h3 id="16-2-无线网络的分类"><a class="header-anchor-1" href="#16-2-无线网络的分类">#</a>16.2 无线网络的分类</h3>
+<p>和有线网络类似: 个域网/局域网/城域网/广域网</p>
+<h3 id="16-3-个域网"><a class="header-anchor-1" href="#16-3-个域网">#</a>16.3 个域网</h3>
+<p>蓝牙/红外/ISM 无线</p>
+<h3 id="16-5-wlan-和-wi-fi"><a class="header-anchor-1" href="#16-5-wlan-和-wi-fi">#</a>16.5 WLAN 和 Wi-Fi</h3>
+<p>WLAN 技术的种类很多, 归类于 IEEE802.11 标准</p>
+<p>Wi-Fi 联盟: 一群无线设备供应商组成的非营利性组织, 使用 802.11 标准对无线设备进行测试与认证</p>
+<h3 id="16-8-wlan-基础结构"><a class="header-anchor-1" href="#16-8-wlan-基础结构">#</a>16.8 WLAN 基础结构</h3>
+<p>WLAN 的三个构件: 接入点(Access Point, AP, 非正式也称基站), 互联机构(交换机或路由器等), 无线主机(Station)</p>
+<p><img src="wlan.png" alt="" /></p>
+<p><img src="wlan2.png" alt="" /></p>
+<p>WLAN 的两种类型: Adhoc 无接入点结构(很少), Infrastructure 有中心接入点</p>
+<p>互联设备到 AP 的有线连接通常使用双绞线以太网</p>
+<p>基本服务组(BSS): 在某一个给定 AP 范围内的计算机集合</p>
+<h3 id="16-9-重叠-关联-802-11-帧格式"><a class="header-anchor-1" href="#16-9-重叠-关联-802-11-帧格式">#</a>16.9 重叠, 关联, 802.11 帧格式</h3>
+<p>重叠: 两个 AP 太近, 一台 STA 可以同时触及到两个 AP</p>
+<p>802.11 要求每个主机只能与一个 AP 相关联(associate), 而且在 802.11 帧中携带了 AP 的 MAC 地址</p>
+<ul>
+<li>接入点 MAC</li>
+<li>本机地址</li>
+<li>路由器 MAC</li>
+<li>专用地址</li>
+</ul>
+<p><img src="80211_frame.png" alt="" /></p>
+<h3 id="16-11-竞争与无竞争接入"><a class="header-anchor-1" href="#16-11-竞争与无竞争接入">#</a>16.11 竞争与无竞争接入</h3>
+<p>802.11 定义了两种接入方法</p>
+<ul>
+<li>点协调功能 PCF</li>
+<li>分布式协调功能 DCF</li>
+</ul>
+<p>隐蔽站问题: WLAN 中所用的发射机有一个受限的发射范围, 离发射机的距离超过发射范围的接收方将无法收到信号, 因而无法检测载波</p>
+<p>802.11 使用 CSMA/CA 协议来解决接入中的隐蔽站问题</p>
+<ul>
+<li>传输分组前交换一对 RTS,CTS 控制报文</li>
+<li>没有冲突检测, 而是采用确认 ACK+超时重传机制</li>
+<li>设定 SIFS(发 ACK 前延时)/DIFS(传输前延时)/Slot Time 等时间间隔参数</li>
+</ul>
+<p><img src="csma_ca.png" alt="" /></p>
+<h3 id="16-13-pan-技术与标准"><a class="header-anchor-1" href="#16-13-pan-技术与标准">#</a>16.13 PAN 技术与标准</h3>
+<ul>
+<li>802.15.1a 蓝牙</li>
+<li>802.15.3a UWB 超宽带</li>
+<li>802.15.4 Zigbee 工业无线控制标准</li>
+</ul>
+<h3 id="17-3-光纤猫扩展"><a class="header-anchor-1" href="#17-3-光纤猫扩展">#</a>17.3 光纤猫扩展</h3>
+<p>最简单的 LAN 扩展机制: 光纤+一对光纤猫, 连接一台计算机和一个远程以太网</p>
+<h3 id="17-4-中继器"><a class="header-anchor-1" href="#17-4-中继器">#</a>17.4 中继器</h3>
+<p>中继器: 信号放大, 信号转发, 早期广泛应用</p>
+<h3 id="17-5-网桥与桥接"><a class="header-anchor-1" href="#17-5-网桥与桥接">#</a>17.5 网桥与桥接</h3>
+<p>网桥: 往往用来连接两个 LAN 网段(比如 hub), 保证两边的计算机都能互相连通</p>
+<p>计算机无法分辨 LAN 中有无网桥</p>
+<h3 id="17-6-自学习网桥与帧过滤"><a class="header-anchor-1" href="#17-6-自学习网桥与帧过滤">#</a>17.6 自学习网桥与帧过滤</h3>
+<p>网桥与一根网线直连的区别: 网桥分隔冲突域, 但不分隔广播域 <strong>网桥仅在有必要的时候才进行转发</strong></p>
+<ul>
+<li>源地址和目标地址位于两个网段</li>
+<li>广播帧和多播帧</li>
+</ul>
+<p>网桥能够自动学习设备位于网桥的哪一侧(基于分组中的源 MAC 地址)</p>
+<h3 id="17-7-桥接的好处"><a class="header-anchor-1" href="#17-7-桥接的好处">#</a>17.7 桥接的好处</h3>
+<p>桥接的各个网段可以同时进行传输, 使得不同建筑物之间的通讯成为了可能</p>
+<h3 id="17-8-分布式生成树"><a class="header-anchor-1" href="#17-8-分布式生成树">#</a>17.8 分布式生成树</h3>
+<p>如果网桥连接导致网络中存在环路, 那么广播和多播帧会被无限循环转发下去</p>
+<p>因此网桥会执行生成树算法来生成一个树</p>
+<h3 id="18-7-下一条转发"><a class="header-anchor-1" href="#18-7-下一条转发">#</a>18.7 下一条转发</h3>
+<p>分组交换机收到一个分组后, 如果分组的目的地不是直连在交换机上, 就需要查表转发</p>
+<p>交换机的转发表: 目的地址:输出接口</p>
+<h3 id="18-9-广域网动态路由更新"><a class="header-anchor-1" href="#18-9-广域网动态路由更新">#</a>18.9 广域网动态路由更新</h3>
+<p>转发表的要求</p>
+<ul>
+<li>全局通信 - 必须覆盖所有可能目的地的</li>
+<li>最优路径 - 下一条必须是距目的地的最短路径</li>
+</ul>
+<p>路由软件: 自动重新配置转发表的软件</p>
+<h3 id="18-12-分布式路径计算"><a class="header-anchor-1" href="#18-12-分布式路径计算">#</a>18.12 分布式路径计算</h3>
+<p>分布式路径计算的两种常用形式:</p>
+<ul>
+<li>链路状态路由 LSR, 采用 Dijkstra 算法</li>
+<li>距离向量路由 DVR</li>
+</ul>
+<p>LSR: 每台交换机定期广播一条边的状态, 相邻交换机据此更新自己的转发表</p>
+<p>DVR: 每台交换机定期告诉相邻交换机自己的距离向量表(包含一对(目的,距离)), 相邻交换机据此更新自己的转发表</p>
+<h3 id="18-13-最短路径的计算"><a class="header-anchor-1" href="#18-13-最短路径的计算">#</a>18.13 最短路径的计算</h3>
+<p>Dijkstra 算法</p>
+<h3 id="20-6-用路由器连接物理网络"><a class="header-anchor-1" href="#20-6-用路由器连接物理网络">#</a>20.6 用路由器连接物理网络</h3>
+<p>路由器是一台专门完成网络互联任务的专用硬件系统, 可以将多个使用不同技术（包括不同的传输介质、物理编址方案或帧格式）的网络互相连接（互联）起来 (比如连接以太网和 WiFi 网)</p>
+<h3 id="21-7-ip-有类编址方案"><a class="header-anchor-1" href="#21-7-ip-有类编址方案">#</a>21.7 IP 有类编址方案</h3>
+<p>IP 地址<strong>有类编址方案</strong></p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>标识位</th>
+<th>前缀长度</th>
+<th>最大网络数量</th>
+<th>后缀长度</th>
+<th>最大主机数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>0</td>
+<td>7</td>
+<td>128</td>
+<td>24</td>
+<td>2^24</td>
+</tr>
+<tr>
+<td>B</td>
+<td>10</td>
+<td>14</td>
+<td>16384</td>
+<td>16</td>
+<td>65536</td>
+</tr>
+<tr>
+<td>C</td>
+<td>110</td>
+<td>21</td>
+<td>2^21</td>
+<td>8</td>
+<td>256</td>
+</tr>
+<tr>
+<td>D(组播)</td>
+<td>1110</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>E(保留)</td>
+<td>1111</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="21-10-ip-无类编址方案"><a class="header-anchor-1" href="#21-10-ip-无类编址方案">#</a>21.10 IP 无类编址方案</h3>
+<p>IP 地址<strong>无类/子网编址方案</strong>: 引入附加的地址掩码(子网掩码)来指定网络地址和主机地址的分界线</p>
+<p>无类地址 &amp; 子网掩码 == 网络地址</p>
+<h3 id="21-21-ipv6-地址"><a class="header-anchor-1" href="#21-21-ipv6-地址">#</a>21.21 IPv6 地址</h3>
+<p>和 IPv4 类似, IPv6 为每个接入网络的计算机分配了一个独一无二的地址</p>
+<p>IPv6 的特点</p>
+<ul>
+<li>
+<p>将<code>网络地址</code>进一步细分为<code>全球单播地址</code>和<code>子网地址</code>两部分, <code>主机地址</code>仍保留, 两者共 128 位, 用<code>/xx</code>来表示<code>网络地址</code>的长度, 如不指定默认是 64 位</p>
+<p><img src="ipv6.png" alt="" /></p>
+</li>
+<li>
+<p>取消<code>广播</code>, 支持<code>多播</code>, 增加<code>任播</code>(anycast)</p>
+<p><img src="ipv6_special.png" alt="" /></p>
+</li>
+</ul>
+<h3 id="22-4-ip-数据报"><a class="header-anchor-1" href="#22-4-ip-数据报">#</a>22.4 IP 数据报</h3>
+<p>IP 数据报(-65535) := 头部 + 数据区(载荷区)</p>
+<h3 id="22-5-ip-数据报头部格式"><a class="header-anchor-1" href="#22-5-ip-数据报头部格式">#</a>22.5 IP 数据报头部格式</h3>
+<p><img src="ip_datagram.png" alt="" /></p>
+<h3 id="22-7-网络前缀提取与数据报转发"><a class="header-anchor-1" href="#22-7-网络前缀提取与数据报转发">#</a>22.7 网络前缀提取与数据报转发</h3>
+<p>根据网络地址查询转发表发给下一站</p>
+<h3 id="22-8-最长前缀匹配"><a class="header-anchor-1" href="#22-8-最长前缀匹配">#</a>22.8 最长前缀匹配</h3>
+<p>查询转发表时如果有多项匹配, 采用<strong>最长前缀匹配</strong>规则</p>
+<h3 id="22-11-ip-封装"><a class="header-anchor-1" href="#22-11-ip-封装">#</a>22.11 IP 封装</h3>
+<p>IP 数据报要被封装到一个帧里才能发送出去, 帧的目的地址是下一站的 IP 地址对应的 MAC 地址(通过 ARP 协议获得)</p>
+<h3 id="22-14-ip-分片和重装机制"><a class="header-anchor-1" href="#22-14-ip-分片和重装机制">#</a>22.14 IP 分片和重装机制</h3>
+<h3 id="22-15-分片数据报的收集"><a class="header-anchor-1" href="#22-15-分片数据报的收集">#</a>22.15 分片数据报的收集</h3>
+<p>最大传输单元 MTU: 每种物理网络规定的一帧能够携带的最大数据量</p>
+<p>IP 数据报分片机制: 当一个数据报长度大于前方网络的 MTU 时, 路由器会将数据报分成若干较小的片(fragment), 然后将每一片独立地封装发送出去</p>
+<p>分片: 每个片与数据报的格式一样, 头部部分参数不同</p>
+<ul>
+<li>标识: 每个数据报的唯一标识, 同一个原始数据报的所有片段的标识是一样的</li>
+<li>标志: 标识了该数据报是片还是完整的数据报, 以及是否是最后一片</li>
+<li>片偏移: 该片在原数据报中的位置</li>
+</ul>
+<p>重装: 在所有片的基础上重新产生原数据报的过程, <strong>IP 规定只有最终目的主机才能对片进行重装</strong></p>
+<h3 id="23-9-icmp-报文格式与封装"><a class="header-anchor-1" href="#23-9-icmp-报文格式与封装">#</a>23.9 ICMP 报文格式与封装</h3>
+<p>因特网控制报文协议(ICMP): 利用 IP 来传输 IP 传输中发生的错误</p>
+<p>ICMP 报文放置在 IP 数据报的数据区传输</p>
+<h3 id="23-10-协议软件-参数和配置"><a class="header-anchor-1" href="#23-10-协议软件-参数和配置">#</a>23.10 协议软件, 参数和配置</h3>
+<p>协议软件采用参数化设计</p>
+<p>主机配置采用自举过程, 运行时获取到 IP 地址, 掩码, DNS 服务器地址等参数填入程序中运行</p>
+<h3 id="24-3-udp"><a class="header-anchor-1" href="#24-3-udp">#</a>24.3 UDP</h3>
+<p>UDP 的特征:</p>
+<ul>
+<li>端到端: UDP 是一个传输协议, 它能区分运行在给定计算机上的多个应用程序</li>
+<li>无连接: UDP 提供给应用的接口遵从无连接模式</li>
+<li>面向报文: 使用 UDP 的应用进程所发送和接收的数据是单个报文</li>
+<li>尽力而为: UDP 提供给应用的是与 IP 一样的尽力传递机制</li>
+<li>任意交互: UDP 允许应用进程给很多其他应用进程发送数据, 也允许从很多其他应用进程那里接收数据, 或者只跟一个其他应用进程相互通信</li>
+<li>操作系统无关: UDP 所提供的标识应用程序的方法, 不取决于本地操作系统所使用的标识符</li>
+</ul>
+<p><img src="udp_segment.png" alt="" /></p>
+<h3 id="24-4-无连接的通信模式"><a class="header-anchor-1" href="#24-4-无连接的通信模式">#</a>24.4 无连接的通信模式</h3>
+<p>UDP 采用无连接通信模式, 可以在任何时候发送数据, 不需要维护通信状态, 也不使用控制报文, 因此传输开销极低</p>
+<h3 id="24-7-交互模式和广播传递"><a class="header-anchor-1" href="#24-7-交互模式和广播传递">#</a>24.7 交互模式和广播传递</h3>
+<p>UDP 支持四种交互通信方式:</p>
+<ul>
+<li>一对一</li>
+<li>一对多</li>
+<li>多对一</li>
+<li>多对多</li>
+</ul>
+<p>底层是利用 IP 组播和广播机制实现的</p>
+<h3 id="24-8-用协议端口号标识端点"><a class="header-anchor-1" href="#24-8-用协议端口号标识端点">#</a>24.8 用协议端口号标识端点</h3>
+<p>协议端口号: 用来标识应用程序的<strong>标识符抽象集</strong>, 独立于底层操作系统</p>
+<h3 id="25-3-tcp"><a class="header-anchor-1" href="#25-3-tcp">#</a>25.3 TCP</h3>
+<p>TCP 提供的服务有 7 个主要特点:</p>
+<ul>
+<li>面向连接: TCP 提供面向连接的服务, 应用程序必须首先请求建立一个到目的地的连接, 然后使用这个连接来传输数据</li>
+<li>点对点通信: 每个 TCP 连接上只有两个端点</li>
+<li>完全的可靠性: TCP 能保证在一个连接上发送的数据被正确地传递, 且保证数据的完整和按序到达</li>
+<li>全双工通信: TCP 连接允许数据在任何一个方向上流动, 并允许任何应用程序在任何时刻发送数据</li>
+<li>流接口: TCP 提供一个流接口, 利用它应用进程可以在一个连接上发送连续的字节流. TCP 不必将数据组合成记录或是报文, 也不要求传递给接收应用进程的数据段大小一定要与发送端所送出的数据段大小相同</li>
+<li>可靠的连接建立: TCP 允许两个应用进程可靠地开始通信</li>
+<li>友好的连接关闭: 在关闭一个连接之前, TCP 必须保证所有数据已经传递完毕, 并且通信双方都要同意关闭这个连接</li>
+</ul>
+<p><img src="tcp_segment.png" alt="" /></p>
+<h3 id="25-4-端对端服务与虚拟连接"><a class="header-anchor-1" href="#25-4-端对端服务与虚拟连接">#</a>25.4 端对端服务与虚拟连接</h3>
+<p>TCP 和 UDP 都是<strong>端到端协议</strong>: 提供在一台计算机上的应用进程与另一台计算机上的应用进程之间的通信能力</p>
+<p>TCP 是<strong>面向连接</strong>的协议, TCP 提供的连接是一种虚拟连接, 因为它是软件实现的连接</p>
+<p>TCP 将底层因特网视为一个通信系统</p>
+<h3 id="25-5-一般可靠传输协议所采用的技术"><a class="header-anchor-1" href="#25-5-一般可靠传输协议所采用的技术">#</a>25.5 一般可靠传输协议所采用的技术</h3>
+<ul>
+<li>
+<p>分组乱序</p>
+<ul>
+<li>排序技术: 每个分组都附加一个序号</li>
+</ul>
+</li>
+<li>
+<p>分组丢失</p>
+<ul>
+<li>带重传的正向确认: 接收方发送 ACK 报文表示成功接收; 若超时仍未收到 ACK, 则重传</li>
+</ul>
+</li>
+<li>
+<p>分组重复(重放错误)</p>
+<ul>
+<li>每一次会话用一个唯一的 ID 标识</li>
+</ul>
+</li>
+<li>
+<p>数据过载</p>
+<ul>
+<li>停-走系统: 不好, 效率很低</li>
+<li>滑动窗口: 定义<strong>窗口大小</strong>为接收方一次可以承载的最大数据量/发送方收到 ACK 前可以发送的最大数据量, 发送方收到 ACK 之后窗口向后移动</li>
+</ul>
+</li>
+</ul>
+<h3 id="25-11-缓冲-流控制-窗口"><a class="header-anchor-1" href="#25-11-缓冲-流控制-窗口">#</a>25.11 缓冲, 流控制, 窗口</h3>
+<p>TCP 使用了以字节计量的窗口, 接收方将自己剩余的缓冲区大小放在 ACK 报文中, 发送方根据这个窗口大小来决定是继续发送还是停止</p>
+<h3 id="26-4-动态路由和路由器"><a class="header-anchor-1" href="#26-4-动态路由和路由器">#</a>26.4 动态路由和路由器</h3>
+<p>每个路由器都运行路由软件，该软件了解其他路由器可以到达的目的地，并向其他路由器通知其可以到达的目的地。路由软件使用传入的信息来连续更新本地转发表。</p>
+<h3 id="26-7-两类因特网路由协议"><a class="header-anchor-1" href="#26-7-两类因特网路由协议">#</a>26.7 两类因特网路由协议</h3>
+<p>因特网路由协议的分类:</p>
+<ul>
+<li>内部网关协议 IGP: 自治系统内部使用的协议, 可以自由选择, 例如 RIP, OSPF, is-is 等</li>
+<li>外部网关协议 EGP: 自治系统之间使用的协议, 例如 BGP</li>
+</ul>
+<p>路由度量指标: 评价路由路径好坏的指标</p>
+<ul>
+<li>
+<p>尽管大多数 Internet 路由协议都设计为使用跃点作为路由指标，网络管理员也可以覆盖该指标以实施策略。</p>
+</li>
+<li>
+<p>在自治系统中，IGP 软件使用路由度量来选择到达每个目的地的最佳路径。 EGP 软件可以找到到达每个目的地的路径，但是找不到最佳路径，因为它无法比较来自多个自治系统的路由度量。</p>
+</li>
+</ul>
+<h3 id="26-12-ospf-协议"><a class="header-anchor-1" href="#26-12-ospf-协议">#</a>26.12 OSPF 协议</h3>
+<p>RIP 是内部网关协议, 使用<strong>距离矢量算法</strong>来传递路由信息。RIP 是在 UDP 协议之上的一种路由协议，应用于 OSI 网络七层模型的<strong>网络层</strong>。</p>
+<p>OSPF 是内部网关协议，它使用<strong>链路状态算法</strong>来传播路由信息。路由器使用<strong>Dijkstra 算法</strong>计算最短路径。</p>
+<h3 id="26-16-组播路由技术"><a class="header-anchor-1" href="#26-16-组播路由技术">#</a>26.16 组播路由技术</h3>
+<p>IP 组播群组的成员关系构成是动态的，即计算机可以随时加入或离开一个群组。群组成员关系只是定义了一组接收者；任意一个应用进程（即使它不是一个群组成员）都能发送数据报给组播群组。</p>
+<p>因特网组播的动态特性使它的组播路径传播问题变得很困难。虽然已经提出了很多协议，但是目前因特网还没有全网范围内的组播路由设施。</p>
+<h3 id="29-9-私有密钥-对称-加密"><a class="header-anchor-1" href="#29-9-私有密钥-对称-加密">#</a>29.9 私有密钥(对称)加密</h3>
+<h3 id="29-10-公开密钥-非对称-加密"><a class="header-anchor-1" href="#29-10-公开密钥-非对称-加密">#</a>29.10 公开密钥(非对称)加密</h3>
+<h3 id="29-11-使用数字签名的鉴别"><a class="header-anchor-1" href="#29-11-使用数字签名的鉴别">#</a>29.11 使用数字签名的鉴别</h3>
+<p>签名: 发送方使用自己的私钥对报文进行加密</p>
+<p>验证: 接收方使用发送方的公钥进行解密</p>
+<p>认证+加密: 发送者先对报文进行签名, 再用接收者的公钥进行加密</p>
+<h3 id="29-13-防火墙"><a class="header-anchor-1" href="#29-13-防火墙">#</a>29.13 防火墙</h3>
+<p>防火墙: 防止因特网上的问题扩散到本地内部的计算机上的技术, 一般放置在本单位的网络与外部因特网之间</p>
+<h3 id="29-14-包过滤防火墙的实现"><a class="header-anchor-1" href="#29-14-包过滤防火墙的实现">#</a>29.14 包过滤防火墙的实现</h3>
+<p>防火墙利用包过滤技术来防止不希望有的通信交互。每种过滤器规则都要给出数据包头部参数的组合，包括 IP 源地址、目的地址、协议端口号和传输协议类型等。</p>
+<h3 id="30-7-snmp"><a class="header-anchor-1" href="#30-7-snmp">#</a>30.7 SNMP</h3>
+<p>简单网络管理协议 SNMP: 基于 IP 的网络管理的标准协议</p>
+<h2 id="按作业内容"><a class="header-anchor-1" href="#按作业内容">#</a>按作业内容</h2>
+<h3 id="tcp-ip-的分层模型"><a class="header-anchor-1" href="#tcp-ip-的分层模型">#</a>TCP/IP 的分层模型</h3>
+<p>物理层/网络接口层/网络层/传输层/应用层</p>
+<h3 id="导线类型"><a class="header-anchor-1" href="#导线类型">#</a>导线类型</h3>
+<ul>
+<li>无屏蔽双绞线(UTP)</li>
+<li>屏蔽双绞线(STP)</li>
+<li>同轴电缆(CC)</li>
+</ul>
+<h3 id="通信卫星类型"><a class="header-anchor-1" href="#通信卫星类型">#</a>通信卫星类型</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>低地球轨道(LEO)</td>
+<td>低时延</td>
+<td>相对地球移动</td>
+</tr>
+<tr>
+<td>中地球轨道(MEO)</td>
+<td>主要提供南北级通信</td>
+<td>-</td>
+</tr>
+<tr>
+<td>地球静止轨道(GEO)</td>
+<td>相对地球静止</td>
+<td>距离远</td>
+</tr>
+</tbody>
+</table>
+<h3 id="为什么要区分上下行通信"><a class="header-anchor-1" href="#为什么要区分上下行通信">#</a>为什么要区分上下行通信</h3>
+<p>大多数因特网用户都是按非对称（asymmetric）模式使用网络的，即典型的居民用户从因特网接收的数据要多于他们发送出去的数据。例如，为了浏览一个网页，浏览器发送一个只包含几个字节的 URL，而 Web 服务器响应回来的内容可能是包含几千字节的文本或者是一个包含好几万字节的图片。运行 Web 服务器的商业用户可能具有相反的流量模式——商业用户发送的数据要多于接收的数据。</p>
+<h3 id="宽带与窄带"><a class="header-anchor-1" href="#宽带与窄带">#</a>宽带与窄带</h3>
+<p>窄带接入技术:</p>
+<ul>
+<li>拨号电话连接</li>
+<li>使用调制解调器的租用电路</li>
+<li>部分 T1 数据电路</li>
+<li>ISDN 及其他电信数据服务</li>
+</ul>
+<p>宽带接入技术:</p>
+<ul>
+<li>DSL 技术</li>
+<li>电缆调制解调器技术</li>
+<li>无线接入技术</li>
+<li>T1 速率或更高速率的数据线路</li>
+</ul>
+<h2 id=""><a class="header-anchor-1" href="#">#</a></h2>
+<h2 id="背背背"><a class="header-anchor-1" href="#背背背">#</a>背背背</h2>
+<h3 id="tcp-的特征"><a class="header-anchor-1" href="#tcp-的特征">#</a>TCP 的特征</h3>
+<ul>
+<li>面向连接: TCP 提供面向连接的服务, 应用程序必须首先请求建立一个到目的地的连接, 然后使用这个连接来传输数据</li>
+<li>点对点通信: 每个 TCP 连接上只有两个端点</li>
+<li>完全的可靠性: TCP 能保证在一个连接上发送的数据被正确地传递, 且保证数据的完整和按序到达</li>
+<li>全双工通信: TCP 连接允许数据在任何一个方向上流动, 并允许任何应用程序在任何时刻发送数据</li>
+<li>流接口: TCP 提供一个流接口, 利用它应用进程可以在一个连接上发送连续的字节流. TCP 不必将数据组合成记录或是报文, 也不要求传递给接收应用进程的数据段大小一定要与发送端所送出的数据段大小相同</li>
+<li>可靠的连接建立: TCP 允许两个应用进程可靠地开始通信</li>
+<li>友好的连接关闭: 在关闭一个连接之前, TCP 必须保证所有数据已经传递完毕, 并且通信双方都要同意关闭这个连接</li>
+</ul>
+<h3 id="udp-的特征"><a class="header-anchor-1" href="#udp-的特征">#</a>UDP 的特征</h3>
+<ul>
+<li>端到端: UDP 是一个传输协议，它能区分运行在给定计算机上的多个应用程序。</li>
+<li>无连接: UDP 提供给应用的接口遵从无连接模式。</li>
+<li>面向报文: 使用 UDP 的应用进程所发送和接收的数据是单个报文。</li>
+<li>尽力而为: UDP 提供给应用的是与 IP 一样的尽力传递机制。</li>
+<li>任意交互: UDP 允许应用进程给很多其他应用进程发送数据，也允许从很多其他应用进程那里接收数据，或者只跟一个其他应用进程相互通信。</li>
+</ul>
+<h3 id="服务端-客户端特征"><a class="header-anchor-1" href="#服务端-客户端特征">#</a>服务端-客户端特征</h3>
+<p>虽然存在少量的变种，但大多数客户——服务器交互模式都具有相同的一般特征。一般情况下，客户软件具有如下特征：</p>
+<ol>
+<li>它是一个任意的应用程序，仅在需要进行远程访问时才暂时成为客户，同时还要完成其他的计算任务。</li>
+<li>直接受用户介入操作，并且只执行一个会话过程。</li>
+<li>在用户的个人计算机上进行本地运行。</li>
+<li>主动地发起与服务器的连接请求。</li>
+<li>能访问所需的多种服务，但通常一次只与一个远地服务器请求连接。</li>
+<li>不会特别地要求功能强大的计算机硬件。</li>
+</ol>
+<p>而服务器软件的特征如下：</p>
+<ol>
+<li>它是一个专门提供某种服务的专用特权程序，但同时可以处理多个远程客户的请求。</li>
+<li>在系统启动时自动被调入执行，进行多次会话并持续不断地运行。</li>
+<li>运行在大型、高性能计算机上。</li>
+<li>被动地等待来自任意的远端客户的通信请求。</li>
+<li>接收来自任何客户的通信请求，但只提供单一的服务。</li>
+<li>要求功能强大的硬件和高级复杂的操作系统支持。</li>
+</ol>
+<h2 id="-2"><a class="header-anchor-1" href="#-2">#</a></h2>
+<h3 id="端口号"><a class="header-anchor-1" href="#端口号">#</a>端口号</h3>
+<p>FTP: 20/数据流, 21/控制流
+TELNET: 23
+SMTP: 25
+DNS: 53
+SNMP: 161/162</p>
+]]></content>
+      <categories>
+        <category>computer-networking</category>
+      </categories>
+      <tags>
+        <tag>计算机网络</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>KAIST CS492: Design and Analysis of Concurrent Programs</title>
+    <url>/2025/07/06/concurrent-program/</url>
+    <content><![CDATA[<h2 id="基本概念"><a class="header-anchor-1" href="#基本概念">#</a>基本概念</h2>
+<h3 id="progress"><a class="header-anchor-1" href="#progress">#</a>Progress</h3>
+<p>A program is making progress if, when the program threads are run for a sufficiently long time, at least one of the threads makes progress (for some sensible definition of progress).</p>
+<h3 id="make-progress"><a class="header-anchor-1" href="#make-progress">#</a>Make Progress</h3>
+<p>在多线程编程中，Make Progress 是指线程在全局时间上取得有用的进展。CAS 操作不算进展。</p>
+<p>使用锁的问题是可能存在一段时间，程序所有线程都没有 Make Progress。例如，当一个线程拿到锁，然后被调度器切换到其他线程，此时，整个程序就没有任何 Progress。</p>
+<h3 id="lock-free"><a class="header-anchor-1" href="#lock-free">#</a>Lock-free</h3>
+<p>| An algorithm is lock-free if, when the program threads are run for a sufficiently long time, at least one of the threads makes progress (for some sensible definition of progress).</p>
+<p>Lock-free 表示程序在任意时间内，<strong>至少有一个</strong>线程能够 Make Progress。</p>
+<h3 id="wait-free"><a class="header-anchor-1" href="#wait-free">#</a>Wait-free</h3>
+<p>| An algorithm is wait-free if every operation has a bound on the number of steps the algorithm will take before the operation completes.</p>
+<p>Wait-free 表示程序在任意时间内，<strong>所有线程</strong>都能够 Make Progress。</p>
+<p>关系: Wait-free ⊆ lock-free ⊆ obstruction-free ⊆ “nonblocking”</p>
+<h2 id="spinlocks"><a class="header-anchor-1" href="#spinlocks">#</a>Spinlocks</h2>
+<h3 id="naive-spinlock"><a class="header-anchor-1" href="#naive-spinlock">#</a>Naive Spinlock</h3>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// A spin lock.</span></span><br><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">SpinLock</span> &#123;</span><br><span class="line">    inner: AtomicBool,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span> <span class="title class_">RawLock</span> <span class="keyword">for</span> <span class="title class_">SpinLock</span> &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Token</span> = ();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">lock</span>(&amp;<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">backoff</span> = Backoff::<span class="title function_ invoke__">new</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">self</span></span><br><span class="line">            .inner</span><br><span class="line">            .<span class="title function_ invoke__">compare_exchange</span>(<span class="literal">false</span>, <span class="literal">true</span>, Acquire, Relaxed)</span><br><span class="line">            .<span class="title function_ invoke__">is_err</span>()</span><br><span class="line">        &#123;</span><br><span class="line">            backoff.<span class="title function_ invoke__">snooze</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsafe</span> <span class="keyword">fn</span> <span class="title function_">unlock</span>(&amp;<span class="keyword">self</span>, _token: ()) &#123;</span><br><span class="line">        <span class="keyword">self</span>.inner.<span class="title function_ invoke__">store</span>(<span class="literal">false</span>, Release);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">impl</span> <span class="title class_">RawTryLock</span> <span class="keyword">for</span> <span class="title class_">SpinLock</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">try_lock</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;(), ()&gt; &#123;</span><br><span class="line">        <span class="keyword">self</span>.inner</span><br><span class="line">            .<span class="title function_ invoke__">compare_exchange</span>(<span class="literal">false</span>, <span class="literal">true</span>, Acquire, Relaxed)</span><br><span class="line">            .<span class="title function_ invoke__">map</span>(|_| ())</span><br><span class="line">            .<span class="title function_ invoke__">map_err</span>(|_| ())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="ticket-lock"><a class="header-anchor-1" href="#ticket-lock">#</a>Ticket Lock</h3>
+<p>Ticket Lock 是一种自旋锁，它使用一个全局的计数器来实现锁。每个线程在进入临界区之前，需要先获取一个自增的 ticket，然后 spin 等待另一个计数器达到自己的 ticket 值。</p>
+<p>加锁操作:</p>
+<ol>
+<li>线程获取一个自增的 ticket 值。</li>
+<li>线程等待另一个计数器达到自己的 ticket 值。</li>
+<li>线程进入临界区。</li>
+</ol>
+<p>解锁操作:</p>
+<ol>
+<li>线程将另一个计数器加 1。</li>
+<li>线程退出临界区。</li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">TicketLock</span> &#123;</span><br><span class="line">    next_ticket: AtomicUsize,</span><br><span class="line">    now_serving: AtomicUsize,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">TicketLock</span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">new</span>() <span class="punctuation">-&gt;</span> <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">Self</span> &#123;</span><br><span class="line">            next_ticket: AtomicUsize::<span class="title function_ invoke__">new</span>(<span class="number">0</span>),</span><br><span class="line">            now_serving: AtomicUsize::<span class="title function_ invoke__">new</span>(<span class="number">0</span>),</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">lock</span>(&amp;<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">ticket</span> = <span class="keyword">self</span>.next_ticket.<span class="title function_ invoke__">fetch_add</span>(<span class="number">1</span>, Relaxed);</span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">self</span>.now_serving.<span class="title function_ invoke__">load</span>(Relaxed) != ticket &#123;</span><br><span class="line">            std::hint::<span class="title function_ invoke__">spin_loop</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">unlock</span>(&amp;<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">next</span> = <span class="keyword">self</span>.now_serving.<span class="title function_ invoke__">load</span>(Relaxed);</span><br><span class="line">        <span class="keyword">self</span>.now_serving.<span class="title function_ invoke__">store</span>(next + <span class="number">1</span>, Release);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="mcs-lock"><a class="header-anchor-1" href="#mcs-lock">#</a>MCS Lock</h3>
+<p>Ticket Lock 有一个问题，就是多个 CPU 同时争抢一把锁时，会导致严重的总线竞争，导致性能下降。</p>
+<p>MCS Lock (Mellor-Crummey and Scott locks)<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> 通过使用一个链表来实现锁，每个线程在进入临界区之前，需要先获取一个自增的 ticket，然后 spin 等待另一个线程的锁。</p>
+<p>数据结构:</p>
+<ul>
+<li>MCS 锁实例 ​​: 一条单向链表的指针，初始化为指向一个未拥有的节点。</li>
+<li>锁节点 ​​: 每次加锁时创建一个节点，包含 next 指针和 locked 状态。
+<ul>
+<li>next 指针指向下一个正在等待锁的节点。</li>
+<li>locked: volitile bool 状态表示当前线程是否正在持有锁。</li>
+</ul>
+</li>
+</ul>
+<p>加锁操作:</p>
+<ol>
+<li>当前线程创建锁节点，next 设为 nullptr。</li>
+<li>通过 lock.getAndSet()将自己加入队列尾部，并获取前驱节点 pred。</li>
+<li>如果 pred 为空，则说明没有线程在排队，直接结束。</li>
+<li>将当前锁节点的 locked 设为 true。</li>
+<li>将 pred-&gt;next 指针指向当前节点。</li>
+<li>自旋等待 locked 变成 false。</li>
+</ol>
+<p>解锁操作:</p>
+<ol>
+<li>获取当前线程的锁节点 I。</li>
+<li>如果 I-&gt;next 为空，则说明没有线程在排队。
+<ol>
+<li>通过 lock.cas(I, nullptr)将队列清空</li>
+<li>如果成功，则直接结束；否则，说明有后继节点过来了</li>
+<li>Spin 等待后继线程把 I-&gt;next 设置好</li>
+</ol>
+</li>
+<li>将 I-&gt;next-&gt;locked 设为 false。</li>
+</ol>
+<figure class="highlight pascal"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> qnode = <span class="keyword">record</span></span><br><span class="line">    next : ^qnode       <span class="comment">// 指向下一个正在等待锁的节点</span></span><br><span class="line">    locked : Boolean    <span class="comment">// 当前线程是否正在持有锁</span></span><br><span class="line"><span class="keyword">type</span> lock = ^qnode      <span class="comment">// initialized to nil</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// parameter I, below, points to a qnode record allocated</span></span><br><span class="line"><span class="comment">// (in an enclosing scope) in shared memory locally-accessible</span></span><br><span class="line"><span class="comment">// to the invoking processor</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">acquire_lock</span> <span class="params">(L : ^lock, I : ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span>-&gt;<span class="title">next</span> :</span>= <span class="keyword">nil</span></span><br><span class="line">    pred : ^qnode := fetch_and_store (L, I)  <span class="comment">// 节点入队</span></span><br><span class="line">    <span class="keyword">if</span> pred != <span class="keyword">nil</span>          <span class="comment">// 如果之前有线程正在持有锁，说明需要等待</span></span><br><span class="line">        I-&gt;locked := true</span><br><span class="line">        pred-&gt;next := I     <span class="comment">// 将当前节点加入到前驱节点的next指针</span></span><br><span class="line">        <span class="keyword">repeat</span> <span class="keyword">while</span> I-&gt;locked              <span class="comment">// 自旋等待前驱节点释放锁</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">release_lock</span> <span class="params">(L : ^lock, I: ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">if</span> <span class="title">I</span>-&gt;<span class="title">next</span> = <span class="title">nil</span>        <span class="comment">// 没有后继节点在排队</span></span></span><br><span class="line"><span class="function">        <span class="title">if</span> <span class="title">compare_and_store</span> <span class="params">(L, I, <span class="keyword">nil</span>)</span>    <span class="comment">// 确实没有后继节点在排队，则结束</span></span></span><br><span class="line"><span class="function">            <span class="title">return</span></span></span><br><span class="line"><span class="function">        <span class="title">repeat</span> <span class="title">while</span> <span class="title">I</span>-&gt;<span class="title">next</span> = <span class="title">nil</span>          <span class="comment">// 等待后继节点设置好next指针</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span>-&gt;<span class="title">next</span>-&gt;<span class="title">locked</span> :</span>= false  <span class="comment">// 后继节点可以获得锁了</span></span><br></pre></td></tr></table></figure>
+<h3 id="clh-lock"><a class="header-anchor-1" href="#clh-lock">#</a>CLH Lock</h3>
+<p>CLH Lock (Craig, Landin, and Hagersten locks)<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> 是一种基于 ​​ 单向链表实现的可扩展、高性能、公平的自旋锁，它使用一个链表来实现锁。加锁过程相当于将当前线程加入到队列尾部，并等待前驱节点释放锁。解锁过程相当于将当前节点从队列中移除。</p>
+<p>数据结构:</p>
+<ul>
+<li>CLH 锁实例 ​​: 一条单向链表的指针，初始化为指向一个未拥有的节点。</li>
+<li>锁节点 ​​: 每次加锁时创建一个节点，包含 prev 指针和 succ_must_wait 状态。
+<ul>
+<li>prev 指针指向前一个线程的锁节点。</li>
+<li>succ_must_wait: volitile bool 状态表示当前线程是否正在持有锁。</li>
+</ul>
+</li>
+</ul>
+<p>加锁操作:</p>
+<ol>
+<li>当前线程创建锁节点，succ_must_wait 设为 true。</li>
+<li>通过 lock.getAndSet()将自己加入队列尾部，并获取前驱节点。</li>
+<li>在前驱节点的 succ_must_wait 上自旋，直到其变为 false。</li>
+</ol>
+<p>解锁操作:</p>
+<ol>
+<li>获取前驱节点。</li>
+<li>将当前锁节点的 succ_must_wait 设为 false。</li>
+<li>返回前一个锁节点，用于下一次加锁使用 (前一个锁节点一定不再被使用，这里复用前一个锁节点以避免内存分配和释放)。</li>
+</ol>
+<figure class="highlight pascal"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> qnode = <span class="keyword">record</span></span><br><span class="line">    prev : ^qnode             <span class="comment">// 前一个正在等待锁/持有锁的节点</span></span><br><span class="line">    succ_must_wait : Boolean  <span class="comment">// 当前线程是否正在持有锁</span></span><br><span class="line"><span class="keyword">type</span> lock = ^qnode  <span class="comment">// initialized to point to an unowned qnode</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">acquire_lock</span> <span class="params">(L : ^lock, I : ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span>-&gt;<span class="title">succ_must_wait</span> :</span>= true</span><br><span class="line">    pred : ^qnode := I-&gt;prev := fetch_and_store (L, I)  <span class="comment">// 节点入队</span></span><br><span class="line">    <span class="keyword">repeat</span> <span class="keyword">while</span> pred-&gt;succ_must_wait</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">release_lock</span> <span class="params">(ref I : ^qnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">pred</span> :</span> ^qnode := I-&gt;prev</span><br><span class="line">    I-&gt;succ_must_wait := false</span><br><span class="line">    I := pred       <span class="comment">// 返回前一个锁节点，用于下一次加锁使用。</span></span><br></pre></td></tr></table></figure>
+<p>CLH 锁的优缺点:</p>
+<ul>
+<li>空间复杂度低，N 个线程，L 个锁，每个线程获取一个锁，则存储空间为<code>O(N+L)</code></li>
+<li>NUMA 架构的 CPU 上，性能差。每个 CPU 都有自己的内存，如果前驱节点不在同一个 CPU 内存上，由于内存位置比较远，在自旋判断前驱节点的 locked 属性时，性能很差。不过在 SMP 架构的 CPU 上，不存在这个问题，性能依旧很高。</li>
+</ul>
+<p>Java 的 AbstractQueuedSynchronizer(简称为 AQS)就是基于 CLH Lock 思想实现的。</p>
+<h3 id="k42-lock"><a class="header-anchor-1" href="#k42-lock">#</a>K42 Lock</h3>
+<p>K42 Lock 是一种 MCS Lock 的变种，由 IBM K42 Group 提出，避免了加锁时需要多传一个参数的问题。</p>
+<figure class="highlight pascal"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Locks and queue nodes use the same data structure:</span></span><br><span class="line"><span class="keyword">type</span> lnode = <span class="keyword">record</span></span><br><span class="line">    next : ^lnode</span><br><span class="line">    union</span><br><span class="line">        locked : Boolean    <span class="comment">// for queue nodes</span></span><br><span class="line">        tail : ^lnode       <span class="comment">// for locks</span></span><br><span class="line"><span class="keyword">type</span> lock = lnode</span><br><span class="line"></span><br><span class="line"><span class="comment">// If threads are waiting for a held lock, next points to the queue node</span></span><br><span class="line"><span class="comment">// of the first of them, and tail to the queue node of the last.</span></span><br><span class="line"><span class="comment">// A held lock with no waiting threads has value &lt;&amp;head, nil&gt;.</span></span><br><span class="line"><span class="comment">// A free lock with no waiting threads has value &lt;nil, nil&gt;.</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">acquire_lock</span> <span class="params">(L : ^lnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">I</span> :</span> lnode</span><br><span class="line">    loop</span><br><span class="line">        predecessor : ^lnode := L-&gt;tail</span><br><span class="line">        <span class="keyword">if</span> predecessor = <span class="keyword">nil</span></span><br><span class="line">            <span class="comment">// lock appears not to be held</span></span><br><span class="line">            <span class="keyword">if</span> compare_and_store (&amp;L-&gt;tail, <span class="keyword">nil</span>, &amp;L-&gt;next)</span><br><span class="line">                <span class="comment">// I have the lock</span></span><br><span class="line">                return</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="comment">// lock appears to be held</span></span><br><span class="line">            I.next := <span class="keyword">nil</span></span><br><span class="line">            <span class="keyword">if</span> compare_and_store (&amp;L-&gt;tail, predecessor, &amp;I)</span><br><span class="line">                <span class="comment">// I&#x27;m in line</span></span><br><span class="line">                I.locked := true</span><br><span class="line">                predecessor-&gt;next := &amp;I</span><br><span class="line">                <span class="keyword">repeat</span> <span class="keyword">while</span> I.locked             <span class="comment">// wait for lock</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">// I now have the lock</span></span><br><span class="line">                successor : ^lnode := I.next</span><br><span class="line">                <span class="keyword">if</span> successor = <span class="keyword">nil</span></span><br><span class="line">                    L-&gt;next := <span class="keyword">nil</span></span><br><span class="line">                    <span class="keyword">if</span> ! compare_and_store (&amp;L-&gt;tail, &amp;I, &amp;L-&gt;next)</span><br><span class="line">                        <span class="comment">// somebody got into the timing window</span></span><br><span class="line">                        <span class="keyword">repeat</span></span><br><span class="line">                            successor := I.next</span><br><span class="line">                        <span class="keyword">while</span> successor = <span class="keyword">nil</span>     <span class="comment">// wait for successor</span></span><br><span class="line">                        L-&gt;next := successor</span><br><span class="line">                    return</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                    L-&gt;next := successor</span><br><span class="line">                    return</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">procedure</span> <span class="title">release_lock</span> <span class="params">(L : ^lnode)</span></span></span><br><span class="line"><span class="function">    <span class="title">successor</span> :</span> ^lnode := L-&gt;next</span><br><span class="line">    <span class="keyword">if</span> successor = <span class="keyword">nil</span>        <span class="comment">// no known successor</span></span><br><span class="line">        <span class="keyword">if</span> compare_and_store (&amp;L-&gt;tail, &amp;L-&gt;next, <span class="keyword">nil</span>)</span><br><span class="line">            return</span><br><span class="line">        <span class="keyword">repeat</span></span><br><span class="line">            successor := L-&gt;next</span><br><span class="line">        <span class="keyword">while</span> successor = <span class="keyword">nil</span>             <span class="comment">// wait for successor</span></span><br><span class="line">    successor-&gt;locked := false</span><br></pre></td></tr></table></figure>
+<h3 id="hclh-lock"><a class="header-anchor-1" href="#hclh-lock">#</a>HCLH Lock</h3>
+<p>A Hierarchical CLH Queue Lock</p>
+<h3 id="mcs-parking-lock"><a class="header-anchor-1" href="#mcs-parking-lock">#</a>MCS Parking Lock</h3>
+<h3 id="总结"><a class="header-anchor-1" href="#总结">#</a>总结</h3>
+<ul>
+<li>Non-scalable locks are dangerous.</li>
+<li>各种 Scalable Spinlock 的总结伪代码: <span class="exturl" data-url="aHR0cHM6Ly93d3cuY3Mucm9jaGVzdGVyLmVkdS9yZXNlYXJjaC9zeW5jaHJvbml6YXRpb24vcHNldWRvY29kZS9zcy5odG1s">https://www.cs.rochester.edu/research/synchronization/pseudocode/ss.html<i class="fa fa-external-link-alt"></i></span></li>
+</ul>
+<h2 id="lock-based-concurrency"><a class="header-anchor-1" href="#lock-based-concurrency">#</a>Lock-based Concurrency</h2>
+<h3 id="sequence-lock"><a class="header-anchor-1" href="#sequence-lock">#</a>Sequence Lock</h3>
+<p>序列锁是一种乐观读写锁，主要在 Linux 内核中使用。</p>
+<p>数据结构:</p>
+<ul>
+<li>序列锁实例 ​​: 一个整数 seq，初始化为 0。</li>
+</ul>
+<p>加锁(写锁)操作:</p>
+<ol>
+<li>读取 seq 的值 cur_seq。</li>
+<li>如果 cur_seq 的值是偶数
+<ol>
+<li>尝试 CAS(seq, cur_seq, cur_seq + 1)</li>
+<li>如果成功，返回 cur_seq</li>
+</ol>
+</li>
+<li>回到第 1 步重试。</li>
+</ol>
+<p>解锁(写锁)操作:</p>
+<ol>
+<li>seq = seq + 2</li>
+</ol>
+<p>加锁(读锁)操作:</p>
+<ol>
+<li>读取 seq 的值 cur_seq。</li>
+<li>如果 cur_seq 的值是偶数，则返回 cur_seq</li>
+<li>回到第 1 步重试。</li>
+</ol>
+<p>解锁(读锁)操作:</p>
+<ol>
+<li>seq = seq + 1</li>
+</ol>
+<h2 id="lock-free-data-structures"><a class="header-anchor-1" href="#lock-free-data-structures">#</a>Lock-free Data Structures</h2>
+<h3 id="treiber’s-stack"><a class="header-anchor-1" href="#treiber’s-stack">#</a>Treiber’s Stack</h3>
+<p>Treiber Stack 是一种无锁栈实现，它通过使用一个链表来实现栈。</p>
+<p>Push 操作:</p>
+<ol>
+<li>创建一个新的节点 n，并将其数据初始化。</li>
+<li>top = load(top)</li>
+<li>n-&gt;next = top</li>
+<li>CAS(top, top, n)</li>
+<li>如果失败，则回到第 2 步重试。</li>
+</ol>
+<p>Pop 操作:</p>
+<ol>
+<li>如果栈为空则返回 nullptr。</li>
+<li>top = load(top)</li>
+<li>next = top-&gt;next</li>
+<li>CAS(top, top, next)</li>
+<li>如果 CAS 成功，则返回 top，否则回到第 2 步重试。</li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">impl</span>&lt;T&gt; Stack&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">/// Pushes a value on top of the stack.</span></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">push</span>(&amp;<span class="keyword">self</span>, t: T) &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">node</span> = Owned::<span class="title function_ invoke__">new</span>(Node &#123;</span><br><span class="line">            data: MaybeUninit::<span class="title function_ invoke__">new</span>(t),</span><br><span class="line">            next: ptr::<span class="title function_ invoke__">null</span>(),</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// SAFETY: We don&#x27;t dereference any pointers obtained from this guard.</span></span><br><span class="line">        <span class="keyword">let</span> <span class="variable">guard</span> = <span class="keyword">unsafe</span> &#123; crossbeam_epoch::<span class="title function_ invoke__">unprotected</span>() &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">head</span> = <span class="keyword">self</span>.head.<span class="title function_ invoke__">load</span>(Relaxed, guard);</span><br><span class="line">        <span class="keyword">loop</span> &#123;</span><br><span class="line">            node.next = head.<span class="title function_ invoke__">as_raw</span>();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">match</span> <span class="keyword">self</span></span><br><span class="line">                .head</span><br><span class="line">                .<span class="title function_ invoke__">compare_exchange</span>(head, node, Release, Relaxed, guard)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="title function_ invoke__">Ok</span>(_) =&gt; <span class="keyword">break</span>,</span><br><span class="line">                <span class="title function_ invoke__">Err</span>(e) =&gt; &#123;</span><br><span class="line">                    head = e.current;</span><br><span class="line">                    node = e.new;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// Attempts to pop the top element from the stack.</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">/// Returns `None` if the stack is empty.</span></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">pop</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> <span class="type">Option</span>&lt;T&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">guard</span> = crossbeam_epoch::<span class="title function_ invoke__">pin</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">loop</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">head</span> = <span class="keyword">self</span>.head.<span class="title function_ invoke__">load</span>(Acquire, &amp;guard);</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">h</span> = <span class="keyword">unsafe</span> &#123; head.<span class="title function_ invoke__">as_ref</span>() &#125;?;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">next</span> = Shared::<span class="title function_ invoke__">from</span>(h.next);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">self</span></span><br><span class="line">                .head</span><br><span class="line">                .<span class="title function_ invoke__">compare_exchange</span>(head, next, Relaxed, Relaxed, &amp;guard)</span><br><span class="line">                .<span class="title function_ invoke__">is_ok</span>()</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// Since the above `compare_exchange()` succeeded, `head` is detached from</span></span><br><span class="line">                <span class="comment">// `self` so is unreachable from other threads.</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">// SAFETY: We are returning ownership of `data` in `head` by making a copy of it via</span></span><br><span class="line">                <span class="comment">// `assume_init_read()`. This is safe as no other thread has access to `data` after</span></span><br><span class="line">                <span class="comment">// `head` is unreachable, so the ownership of `data` in `head` will never be used</span></span><br><span class="line">                <span class="comment">// again.</span></span><br><span class="line">                <span class="keyword">let</span> <span class="variable">result</span> = <span class="keyword">unsafe</span> &#123; h.data.<span class="title function_ invoke__">assume_init_read</span>() &#125;;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// SAFETY: `head` is unreachable, and we no longer access `head`.</span></span><br><span class="line">                <span class="keyword">unsafe</span> &#123; guard.<span class="title function_ invoke__">defer_destroy</span>(head) &#125;;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> <span class="title function_ invoke__">Some</span>(result);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Repin to ensure the global epoch can make progress.</span></span><br><span class="line">            guard.<span class="title function_ invoke__">repin</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="michael-scott’s-queue"><a class="header-anchor-1" href="#michael-scott’s-queue">#</a>Michael-Scott’s Queue</h3>
+<p>Michael-Scott’s queue 是一种无锁队列实现，它通过使用一个链表来实现队列。</p>
+<p>Enqueue 操作:</p>
+<ol>
+<li>创建一个新的节点 n，并将其数据初始化。</li>
+<li>tail = load(tail)</li>
+<li>n-&gt;next = tail</li>
+<li>CAS(tail, tail, n)</li>
+<li>如果失败，则回到第 2 步重试。</li>
+</ol>
+<p>Dequeue 操作：和 Treiber Stack 的 Pop 操作一样</p>
+<h3 id="harris’s-sorted-linked-list"><a class="header-anchor-1" href="#harris’s-sorted-linked-list">#</a>Harris’s Sorted Linked List</h3>
+<p>Harris’s Sorted Linked List<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> 是一种无锁、有序单链表实现。</p>
+<p>数据结构:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Node</span>&lt;KeyType&gt; &#123;</span><br><span class="line">    KeyType key;</span><br><span class="line">    Node *next;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">Node</span> (KeyType key) &#123;</span><br><span class="line">        <span class="keyword">this</span>.key = key;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">List</span>&lt;KeyType&gt; &#123;</span><br><span class="line">    Node&lt;KeyType&gt; *head;</span><br><span class="line">    Node&lt;KeyType&gt; *tail;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">List</span>() &#123;</span><br><span class="line">        head = <span class="keyword">new</span> <span class="built_in">Node</span>&lt;KeyType&gt; ();</span><br><span class="line">        tail = <span class="keyword">new</span> <span class="built_in">Node</span>&lt;KeyType&gt; ();</span><br><span class="line">        head.next = tail;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用逻辑删除来实现删除操作，即不真正删除节点，而是将节点标记为已删除。</p>
+<p>完整回收实现需要结合 Hazard Pointers 等内存回收算法使用。</p>
+<h2 id="memory-reclamation-algorithms-in-lock-free-data-structures"><a class="header-anchor-1" href="#memory-reclamation-algorithms-in-lock-free-data-structures">#</a>Memory Reclamation Algorithms In Lock-free Data Structures</h2>
+<h3 id="reference-counting"><a class="header-anchor-1" href="#reference-counting">#</a>Reference Counting</h3>
+<p>Reference Counting 是最容易想到的一种方案，但是仔细想想，需要同时原子地更新指针和引用计数，需要特殊的硬件指令支持，因此在实际中很少使用。</p>
+<h3 id="read-copy-update-rcu"><a class="header-anchor-1" href="#read-copy-update-rcu">#</a>Read-Copy-Update (RCU)</h3>
+<p>RCU 的思想是，在不会存在并发执行的、合适的时间点（例如，无中断的情况下）统一执行删除操作。</p>
+<h3 id="hazard-pointers"><a class="header-anchor-1" href="#hazard-pointers">#</a>Hazard Pointers</h3>
+<p>Hazard Pointers<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup> 是一种在 Lock-free Data Structures 中使用的内存回收算法，主要用于解决无锁数据结构中，插入和删除操作可以并发执行的情况下，删除的内存何时回收的问题。</p>
+<p>Hazard Pointers 数据结构:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">class</span> <span class="title">alignas</span><span class="params">(hardware_destructive_interference_size)</span> hazptr_rec </span>&#123;</span><br><span class="line">  std::atomic&lt;<span class="type">const</span> <span class="type">void</span>*&gt; hazptr_&#123;<span class="literal">nullptr</span>&#125;; <span class="comment">// the hazard pointer</span></span><br><span class="line">  hazptr_rec* next_; <span class="comment">// Next in the main hazard pointer list. Immutable.</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">thread_local</span> std::vector&lt;hazptr_rec&gt; retired_list; <span class="comment">// 线程本地回收列表</span></span><br></pre></td></tr></table></figure>
+<p>Hazard Pointers 读操作:</p>
+<ol>
+<li>从 hprec 列表中获取一个空闲的 hprec。</li>
+<li>令 hprec 的 hazptr 字段指向要保护的对象。
+<ol>
+<li>读取被保护的对象。</li>
+</ol>
+</li>
+<li>读取完成后，令 hprec 的 hazptr=nullptr。</li>
+</ol>
+<p>Hazard Pointers 写操作:</p>
+<ol>
+<li>创建一个新的 hprec，hazptr 字段指向新版本的对象节点。</li>
+<li>将新的 hprec 通过 CAS 插入到链表中。</li>
+<li>如果不成功，则回到第 1 步重试。</li>
+<li>将 CAS 得到的旧版本 hprec 添加到 thread-local 的 retired_list 中。</li>
+</ol>
+<p>Hazard Pointers 回收算法:</p>
+<ol>
+<li>扫描 thread-local 的 retired_list，获取所有数据非空的 hprec。</li>
+<li>将 retired_list 中的对象节点回收。</li>
+</ol>
+<h3 id="epoch-based-reclamation"><a class="header-anchor-1" href="#epoch-based-reclamation">#</a>Epoch-Based Reclamation</h3>
+<hr class="footnotes-sep" />
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>Mellor-Crummey, M. and Scott, M.L. 1981. Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors. ACM TOCS, February 1991. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p>Discovered independently by Travis Craig at the University of Washington (UW TR 93-02-02, February 1993), and by Anders Landin and Eric Hagersten of the Swedish Institute of Computer Science (IPPS, 1994). <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p>Harris, T. A Pragmatic Implementation of Non-Blocking Linked-Lists. DISC 2001. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn4" class="footnote-item"><p>Andrei Alexandrescu, Maged Michael. Lock-Free Data Structures with Hazard Pointers. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+]]></content>
+      <categories>
+        <category>concurrent</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>并发</tag>
       </tags>
   </entry>
   <entry>
@@ -6239,23 +6239,6 @@ top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
       </tags>
   </entry>
   <entry>
-    <title>word2vec</title>
-    <url>/2023/10/28/word2vec/</url>
-    <content><![CDATA[<h2 id="what’s-it"><a class="header-anchor-1" href="#what’s-it">#</a>What’s it</h2>
-<p>2013 年，Google 开源的，用于词向量计算的工具</p>
-<h2 id="架构"><a class="header-anchor-1" href="#架构">#</a>架构</h2>
-<p>X – Dense – Dense – Softmax – Y</p>
-<p>CBoW: 利用上下文预测当前词</p>
-<p>Skip-gram: 利用当前词预测上下文</p>
-]]></content>
-      <categories>
-        <category>machine-learning</category>
-      </categories>
-      <tags>
-        <tag>NLP</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CS246: Mining Massive Data Sets</title>
     <url>/2025/03/14/cs246/</url>
     <content><![CDATA[<p>CS246: Mining Massive Data Sets</p>
@@ -6490,6 +6473,23 @@ top half 中<code>raise_softirq(nr)</code>，每个 cpu 串行执行</p>
       <tags>
         <tag>算法</tag>
         <tag>机器学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>word2vec</title>
+    <url>/2023/10/28/word2vec/</url>
+    <content><![CDATA[<h2 id="what’s-it"><a class="header-anchor-1" href="#what’s-it">#</a>What’s it</h2>
+<p>2013 年，Google 开源的，用于词向量计算的工具</p>
+<h2 id="架构"><a class="header-anchor-1" href="#架构">#</a>架构</h2>
+<p>X – Dense – Dense – Softmax – Y</p>
+<p>CBoW: 利用上下文预测当前词</p>
+<p>Skip-gram: 利用当前词预测上下文</p>
+]]></content>
+      <categories>
+        <category>machine-learning</category>
+      </categories>
+      <tags>
+        <tag>NLP</tag>
       </tags>
   </entry>
   <entry>
@@ -10285,6 +10285,20 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       </tags>
   </entry>
   <entry>
+    <title>SPDK 入门</title>
+    <url>/2025/04/10/spdk-intro/</url>
+    <content><![CDATA[<p>SPDK 是 Intel 提出的一套用户态 NVMe SSD I/O 软件栈，其核心是使用用户态的 SSD 驱动绕过上下文切换的开销。</p>
+<p>因为驱动程序放在用户态，自然也没法使用 Linux 的 FS 接口，配套地，SPDK 提供了 Blobstore​​ 和 ​​BlobFS​​ 接口。支持对接 MySQL、RocksDB、Ceph 等。</p>
+]]></content>
+      <categories>
+        <category>storage-system</category>
+      </categories>
+      <tags>
+        <tag>SPDK</tag>
+        <tag>Storage</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>io_uring 入门</title>
     <url>/2025/07/19/io-uring/</url>
     <content><![CDATA[<p>io_uring 是 Linux 内核 5.1 版本引入的异步 I/O 框架，</p>
@@ -10323,22 +10337,8 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
         <category>storage-system</category>
       </categories>
       <tags>
+        <tag>Storage</tag>
         <tag>io_uring</tag>
-        <tag>Storage</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SPDK 入门</title>
-    <url>/2025/04/10/spdk-intro/</url>
-    <content><![CDATA[<p>SPDK 是 Intel 提出的一套用户态 NVMe SSD I/O 软件栈，其核心是使用用户态的 SSD 驱动绕过上下文切换的开销。</p>
-<p>因为驱动程序放在用户态，自然也没法使用 Linux 的 FS 接口，配套地，SPDK 提供了 Blobstore​​ 和 ​​BlobFS​​ 接口。支持对接 MySQL、RocksDB、Ceph 等。</p>
-]]></content>
-      <categories>
-        <category>storage-system</category>
-      </categories>
-      <tags>
-        <tag>Storage</tag>
-        <tag>SPDK</tag>
       </tags>
   </entry>
   <entry>
