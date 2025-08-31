@@ -287,6 +287,79 @@
       </tags>
   </entry>
   <entry>
+    <title>自己动手写编译器</title>
+    <url>/2023/12/19/make-a-c-compiler/</url>
+    <content><![CDATA[<blockquote>
+<p>What I cannot create, I do not understand. – Richard Feynman</p>
+</blockquote>
+<h2 id="目标"><a class="header-anchor-1" href="#目标">#</a>目标</h2>
+<ul>
+<li>实现一个 C-to-assembly compiler</li>
+<li>可以有 pre-processer</li>
+<li>不需要 linker, 生成二进制通过已有的 Assembler</li>
+<li>支持常用的 C99 语法</li>
+<li>需要有编译优化</li>
+</ul>
+<h2 id="词法分析-语法分析"><a class="header-anchor-1" href="#词法分析-语法分析">#</a>词法分析, 语法分析</h2>
+<ul>
+<li>用已有的工具 flex, bison</li>
+</ul>
+<h2 id="类型系统"><a class="header-anchor-1" href="#类型系统">#</a>类型系统</h2>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TypeKind</span> &#123;</span></span><br><span class="line"> VOID,</span><br><span class="line"> ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="中间表示-cminor"><a class="header-anchor-1" href="#中间表示-cminor">#</a>中间表示 - CMinor</h2>
+<p>IR 定义：</p>
+<ul>
+<li>ARITH arg1 arg2 result
+<ul>
+<li>ADD/SUB/MUL/MOD/SHL/SHR/AND/OR/XOR</li>
+<li>LT/LE/GT/GE/EQ/NE</li>
+</ul>
+</li>
+<li>ARITH arg result
+<ul>
+<li>NEG/NOT/CAST</li>
+</ul>
+</li>
+<li>MOV arg result</li>
+<li>GOTO addr</li>
+<li>IF_GOTO arg label</li>
+<li>UNLESS_GOTO arg label</li>
+<li>IF_REL arg1 arg2 label
+<ul>
+<li>LT/LE/GT/GE/EQ/NE</li>
+</ul>
+</li>
+<li>PARAM x</li>
+<li>y = CALL p, n</li>
+<li>RETURN y</li>
+<li>GET_ELEMENT array index result</li>
+<li>STORE_ELEMENT array index value</li>
+<li>ADDR arg result</li>
+<li>LOAD arg result</li>
+<li>STORE arg result</li>
+</ul>
+<h2 id="关键数据结构"><a class="header-anchor-1" href="#关键数据结构">#</a>关键数据结构</h2>
+<ol>
+<li>
+<p>类型(Type)结构</p>
+</li>
+<li>
+<p>结构体/联合体成员(Member)结构</p>
+</li>
+<li>
+<p>全局变量/函数定义对象(Obj)结构</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>compiler-principle</category>
+      </categories>
+      <tags>
+        <tag>编译原理</tag>
+        <tag>编译器</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LLVM 中间语言参考</title>
     <url>/2023/12/22/llvm/</url>
     <content><![CDATA[<h2 id="概述"><a class="header-anchor-1" href="#概述">#</a>概述</h2>
@@ -418,79 +491,6 @@
       <tags>
         <tag>编译原理</tag>
         <tag>程序分析</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>自己动手写编译器</title>
-    <url>/2023/12/19/make-a-c-compiler/</url>
-    <content><![CDATA[<blockquote>
-<p>What I cannot create, I do not understand. – Richard Feynman</p>
-</blockquote>
-<h2 id="目标"><a class="header-anchor-1" href="#目标">#</a>目标</h2>
-<ul>
-<li>实现一个 C-to-assembly compiler</li>
-<li>可以有 pre-processer</li>
-<li>不需要 linker, 生成二进制通过已有的 Assembler</li>
-<li>支持常用的 C99 语法</li>
-<li>需要有编译优化</li>
-</ul>
-<h2 id="词法分析-语法分析"><a class="header-anchor-1" href="#词法分析-语法分析">#</a>词法分析, 语法分析</h2>
-<ul>
-<li>用已有的工具 flex, bison</li>
-</ul>
-<h2 id="类型系统"><a class="header-anchor-1" href="#类型系统">#</a>类型系统</h2>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TypeKind</span> &#123;</span></span><br><span class="line"> VOID,</span><br><span class="line"> ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="中间表示-cminor"><a class="header-anchor-1" href="#中间表示-cminor">#</a>中间表示 - CMinor</h2>
-<p>IR 定义：</p>
-<ul>
-<li>ARITH arg1 arg2 result
-<ul>
-<li>ADD/SUB/MUL/MOD/SHL/SHR/AND/OR/XOR</li>
-<li>LT/LE/GT/GE/EQ/NE</li>
-</ul>
-</li>
-<li>ARITH arg result
-<ul>
-<li>NEG/NOT/CAST</li>
-</ul>
-</li>
-<li>MOV arg result</li>
-<li>GOTO addr</li>
-<li>IF_GOTO arg label</li>
-<li>UNLESS_GOTO arg label</li>
-<li>IF_REL arg1 arg2 label
-<ul>
-<li>LT/LE/GT/GE/EQ/NE</li>
-</ul>
-</li>
-<li>PARAM x</li>
-<li>y = CALL p, n</li>
-<li>RETURN y</li>
-<li>GET_ELEMENT array index result</li>
-<li>STORE_ELEMENT array index value</li>
-<li>ADDR arg result</li>
-<li>LOAD arg result</li>
-<li>STORE arg result</li>
-</ul>
-<h2 id="关键数据结构"><a class="header-anchor-1" href="#关键数据结构">#</a>关键数据结构</h2>
-<ol>
-<li>
-<p>类型(Type)结构</p>
-</li>
-<li>
-<p>结构体/联合体成员(Member)结构</p>
-</li>
-<li>
-<p>全局变量/函数定义对象(Obj)结构</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>compiler-principle</category>
-      </categories>
-      <tags>
-        <tag>编译原理</tag>
-        <tag>编译器</tag>
       </tags>
   </entry>
   <entry>
@@ -1611,296 +1611,15 @@ I=\{
       </categories>
   </entry>
   <entry>
-    <title>编译原理课程笔记 - Chapter 4 目标代码生成</title>
-    <url>/2020/12/17/note4-codegen/</url>
-    <content><![CDATA[<h2 id="目标代码生成"><a class="header-anchor-1" href="#目标代码生成">#</a>目标代码生成</h2>
-<h3 id="任务"><a class="header-anchor-1" href="#任务">#</a>任务</h3>
-<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">中间代码 --&gt; 代码生成器 --&gt; 目标程序</span><br><span class="line">                ^</span><br><span class="line">                |</span><br><span class="line">              符号表</span><br></pre></td></tr></table></figure>
-<h3 id="目标代码的三种形式"><a class="header-anchor-1" href="#目标代码的三种形式">#</a>目标代码的三种形式</h3>
-<ol>
-<li>能立即执行的机器码(所有地址已经定位)</li>
-<li>待装配的机器语言模块(连接装入后即可执行)</li>
-<li>汇编语言代码(经汇编程序汇编后即可执行)</li>
-</ol>
-<p>此处选择汇编语言</p>
-<h3 id="目标机器模型"><a class="header-anchor-1" href="#目标机器模型">#</a>目标机器模型</h3>
-<p>此处假设目标计算机:</p>
-<ol>
-<li>具有多个通用寄存器, 可以用来运算, 也可以用来取地址</li>
-<li>支持四种指令形式
-<ol>
-<li>直接地址型 <code>OP R, M</code> - <code>R OP M =&gt; R</code></li>
-<li>寄存器型 <code>OP Ri, Rj</code> - <code>Ri OP Rj =&gt; Ri</code></li>
-<li>变址型 <code>OP Ri, c(Rj)</code> - <code>Ri OP (Rj+c) =&gt; Ri</code></li>
-<li>间接型
-<ol>
-<li><code>OP Ri, (M)</code> - <code>R OP (M) =&gt; R</code></li>
-<li><code>OP Ri, (Rj)</code> - <code>Ri OP (Rj) =&gt; Ri</code></li>
-<li><code>OP Ri, (c(Rj))</code> - <code>Ri OP ((Rj+c)) =&gt; Ri</code></li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-<p>OP 可以是 ADD,SUB,MUL,DIV 等</p>
-<h3 id="简单代码生成器"><a class="header-anchor-1" href="#简单代码生成器">#</a>简单代码生成器</h3>
-<p>思路: 代码生成器在生成每一条指令时, 必须要知道每个寄存器中存储的是什么, 以及每个变量存储到什么位置</p>
-<p>方法:</p>
-<ol>
-<li>引入<strong>待用信息</strong></li>
-<li>寄存器描述数组</li>
-<li>变量地址描述数组</li>
-</ol>
-<h3 id="待用信息"><a class="header-anchor-1" href="#待用信息">#</a>待用信息</h3>
-<p>待用信息</p>
-<ul>
-<li>在基本块中, 四元式 i 对 A 定值, 四元式 j 对 A 取值, 且 i,j 之间无再对 A 定值, 则称 j 是 i 的变量 A 的待用信息</li>
-</ul>
-<p>活跃信息</p>
-<ul>
-<li>基本块中的一个名字在某个给定点之后仍被引用, 则称该名字在给定点是活跃的</li>
-</ul>
-<p>修改符号表</p>
-<ul>
-<li>记录待用信息和活跃信息</li>
-<li>表示: (<code>待用信息[i/^]</code>,<code>活跃信息[y/^]</code>)</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>变量名</th>
-<th>待用/活跃信息栏</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>A</td>
-<td>(…, …)</td>
-</tr>
-<tr>
-<td>B</td>
-<td>(…, …)</td>
-</tr>
-<tr>
-<td>…</td>
-<td>(…, …)</td>
-</tr>
-</tbody>
-</table>
-<p>计算待用和活跃信息</p>
-<ol>
-<li>开始时, 所有变量均为<code>非待用</code>, 根据基本块之后是否活跃填写<code>活跃</code>或<code>非活跃</code></li>
-<li>逆序遍历每个四元式<code>i</code>
-<ol>
-<li>把<code>A</code>的引用信息附加到四元式<code>i</code>左值上</li>
-<li><code>A</code>的引用信息附加<code>(^,^)</code></li>
-<li>把<code>B</code>,<code>C</code>的引用信息附加到四元式<code>i</code>上</li>
-<li><code>B</code>,<code>C</code>的引用信息附加<code>(^,^)</code></li>
-</ol>
-</li>
-</ol>
-<p>例:</p>
-<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">T1:=B-C</span><br><span class="line">T2:=A*T1</span><br><span class="line">T3:=D+1</span><br><span class="line">T4:=E-F</span><br><span class="line">T5:=T3*T4</span><br><span class="line">W:=T2/T5</span><br></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th>序号</th>
-<th>四元式</th>
-<th>左值</th>
-<th>左操作数</th>
-<th>右操作数</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>(6)</td>
-<td>W:=T2/T5</td>
-<td>(^,y)</td>
-<td>(<sup>,</sup>)</td>
-<td>(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>(5)</td>
-<td>T5:=T3*T4</td>
-<td>(6,y)</td>
-<td>(<sup>,</sup>)</td>
-<td>(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>(4)</td>
-<td>T4:=E-F</td>
-<td>(3,y)</td>
-<td>(<sup>,</sup>)</td>
-<td>(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>(3)</td>
-<td>T3:=D+1</td>
-<td>(3,y)</td>
-<td>(<sup>,</sup>)</td>
-<td>(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>(2)</td>
-<td>T2:=A*T1</td>
-<td>(6,y)</td>
-<td>(<sup>,</sup>)</td>
-<td>(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>(1)</td>
-<td>T1:=B-C</td>
-<td>(2,y)</td>
-<td>(<sup>,</sup>)</td>
-<td>(<sup>,</sup>)</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th>变量名</th>
-<th>待用/活跃信息栏</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>T5</td>
-<td>(<sup>,</sup>)-&gt;(6,y)-&gt;(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>T4</td>
-<td>(<sup>,</sup>)-&gt;(3,y)-&gt;(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>T3</td>
-<td>(<sup>,</sup>)-&gt;(3,y)-&gt;(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>T2</td>
-<td>(<sup>,</sup>)-&gt;(6,y)-&gt;(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>T1</td>
-<td>(<sup>,</sup>)-&gt;(2,y)-&gt;(<sup>,</sup>)</td>
-</tr>
-<tr>
-<td>W</td>
-<td>(<sup>,y)-&gt;(</sup>,^)</td>
-</tr>
-<tr>
-<td>F</td>
-<td>(<sup>,</sup>)-&gt;(4,y)</td>
-</tr>
-<tr>
-<td>E</td>
-<td>(<sup>,</sup>)-&gt;(4,y)</td>
-</tr>
-<tr>
-<td>D</td>
-<td>(<sup>,</sup>)-&gt;(3,y)</td>
-</tr>
-<tr>
-<td>C</td>
-<td>(<sup>,</sup>)-&gt;(1,y)</td>
-</tr>
-<tr>
-<td>B</td>
-<td>(<sup>,</sup>)-&gt;(1,y)</td>
-</tr>
-<tr>
-<td>A</td>
-<td>(<sup>,</sup>)-&gt;(2,y)</td>
-</tr>
-</tbody>
-</table>
-<h3 id="寄存器分配算法"><a class="header-anchor-1" href="#寄存器分配算法">#</a>寄存器分配算法</h3>
-<p>寄存器描述和地址描述</p>
-<ul>
-<li>寄存器描述数组<code>RVALUE</code>
-<ul>
-<li>记录寄存器内存储的变量, 可以是多个</li>
-<li><code>RVALUE[R1]=&#123;A,B&#125;</code></li>
-</ul>
-</li>
-<li>变量地址描述数组<code>AVALUE</code>
-<ul>
-<li>记录变量存储的位置(寄存器/内存)</li>
-<li><code>AVALUE[A]=&#123;R1,R2,A&#125;</code></li>
-</ul>
-</li>
-</ul>
-<p>代码生成算法</p>
-<ul>
-<li>对于四元式<code>A:=B op C</code>, 依次执行</li>
-</ul>
-<ol>
-<li>调用<code>GETREG(i: A:=B op C)</code>获取一个寄存器<code>R</code></li>
-<li>查询<code>AVALUE[B]</code>和<code>AVALUE[C]</code>, 如果在寄存器中, 假设是<code>B'</code>和<code>C'</code></li>
-<li>如果<code>B'≠R</code>, 先把<code>B</code>加载到<code>R</code>中, 生成代码: <code>LD R,B'</code></li>
-<li>进行运算, 生成代码: <code>op R,C'</code></li>
-<li>更新描述信息
-<ol>
-<li>如果<code>B'</code>或<code>C'</code>是<code>R</code>, 就要把<code>AVALUE</code>中的记录删除</li>
-<li>设置<code>AVALUE[A]=&#123;R&#125;, RVALUE[R]=&#123;A&#125;</code></li>
-</ol>
-</li>
-<li>如果<code>B</code>或<code>C</code>仍存储在某个寄存器中, 但后续不再被引用且不再活跃, 就从<code>AVALUE</code>和<code>RVALUE</code>中删除<code>B</code>和<code>C</code>的记录</li>
-</ol>
-<p>寄存器分配原则</p>
-<ul>
-<li>尽可能用 B 独占的寄存器</li>
-<li>尽可能用空闲的寄存器</li>
-<li>抢占用非空闲寄存器
-<ul>
-<li><code>Ri</code>的值也存储在内存中</li>
-<li><code>Ri</code>最远才会用到</li>
-</ul>
-</li>
-</ul>
-<p>寄存器分配算法<code>GETREG(i: A:=B op C)</code></p>
-<ol>
-<li>
-<p>如果 B 独占某个寄存器</p>
-<ul>
-<li>如果<code>AB</code>是同一个标识符(即修改 B 的指令<code>B:=B op C</code>)
-<ul>
-<li>返回<code>B</code>所在的寄存器</li>
-</ul>
-</li>
-<li>如果<code>B</code>在后面不会再引用(非待用, 非活跃)
-<ul>
-<li>返回<code>B</code>所在的寄存器</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p>如果有空闲寄存器, 返回空闲寄存器</p>
-</li>
-<li>
-<p>抢占一个寄存器<code>Ri</code>,</p>
-<ul>
-<li>对于<code>Ri</code>中存储的每一个变量<code>M</code>, 如果存储的不是<code>A</code>, 或者存储的是<code>A == C != B</code>且<code>Ri</code>中不存储<code>B</code>.(<code>M==A &amp;&amp; M==C &amp;&amp; M!=B &amp;&amp; B not in RVALUE[Ri]</code>)
-<ol>
-<li>如果<code>M</code>仅存储在<code>Ri</code>, 则要存到内存中: <code>ST Ri, M</code></li>
-<li>如果<code>M == B</code>, 或者<code>M == C &amp;&amp; B in RVALUE[Ri]</code>中, 则令<code>AVALUE[M]=&#123;M,R&#125;</code>, 否则令<code>AVALUE[M]=&#123;M&#125;</code></li>
-<li>删除<code>M</code>在<code>Ri</code>中的记录, <code>RVALUE[Ri].reLD e(M)</code></li>
-<li>返回<code>R</code></li>
-</ol>
-</li>
-</ul>
-</li>
-</ol>
-<p>例:</p>
-<p>寄存器: R0，R1；基本块出口活跃变量: W</p>
-<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">T1:=B-C</span><br><span class="line">T2:=A*T1</span><br><span class="line">T3:=D+1</span><br><span class="line">T4:=E-F</span><br><span class="line">T5:=T3*T4</span><br><span class="line">W:=T2/T5</span><br></pre></td></tr></table></figure>
-<p>答案:</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">【解答】该基本块的目标代码如下(指令后面为相应的注释)：</span><br><span class="line">LD  R0, B  <span class="comment">/* 取第一个空闲寄存器 R0 */</span></span><br><span class="line">SUB R0, C  <span class="comment">/* 运算结束后R0中为T1结果，内存中无该结果 */</span></span><br><span class="line">LD  R1, A  <span class="comment">/* 取一个空闲寄存器R1 */</span></span><br><span class="line">MUL R1, R0 <span class="comment">/* 运算结束后R1中为T2结果，内存中无该结果 */</span></span><br><span class="line">LD  R0,D  <span class="comment">/* 此时R0中结果T1已经没有引用点，且临时单元T1是非活跃的，所以，寄存器R0可作为空闲寄存器使用 */</span></span><br><span class="line">ADD R0, <span class="number">1</span> <span class="comment">/* 运算结束后R0中为T3结果，内存中无该结果 */</span></span><br><span class="line">ST  R1, T2  <span class="comment">/*翻译四元式T4=E-F时，所有寄存器已经分配完毕，寄存器R0中存的T3和寄存器R1中存的T2都是有用的。由于T2的下一个引用点较T3的下一个引用点更远，所以暂时可将寄存器R1中的结果存回到内存的变量T2中，从而将寄存器R1空闲以备使用*/</span></span><br><span class="line">LD  R1, E</span><br><span class="line">SUB R1, F  <span class="comment">/*运算结束后R1中为T4结果，内存中无该结果*/</span></span><br><span class="line">MUL R0, R1 <span class="comment">/*运算结束后R0中为T5结果，内存中无该结果。注意，该指令将寄存器R0中原来的结果T3冲掉了。可以这么做的原因是，T3在该指令后不再有引用点，且是非活跃变量*/</span></span><br><span class="line">LD  R1, T2 <span class="comment">/*此时R1中结果T4已经没有引用点，且临时单元T4是非活跃的，因此寄存器R1可作为空闲寄存器使用*/</span></span><br><span class="line">DIV R1, R0</span><br><span class="line"><span class="comment">/*运算结束后R1中为W结果，内存中无该结果。此时所有指令部分已经翻译完毕*/</span></span><br><span class="line">ST  R1, W</span><br><span class="line"><span class="comment">/*指令翻译完毕时，寄存器中存有最新的计算结果，必须将它们存回到内存相应的单元中去，否则，在翻译下一个基本块时，所有的寄存器被当成空闲的寄存器使用，从而造成计算结果的丢失。考虑到寄存器R0中的T5和寄存器R1中的W，临时单元T5是非活跃的，因此只要将结果W存回对应单元即可*/</span></span><br></pre></td></tr></table></figure>
-]]></content>
+    <title>现代编译原理 阅读记录</title>
+    <url>/2024/04/30/tiger-book/</url>
+    <content><![CDATA[]]></content>
       <categories>
         <category>compiler-principle</category>
       </categories>
+      <tags>
+        <tag>编译原理</tag>
+      </tags>
   </entry>
   <entry>
     <title>编译原理课程笔记 - Chapter 5 优化</title>
@@ -2031,17 +1750,6 @@ I=\{
       <categories>
         <category>compiler-principle</category>
       </categories>
-  </entry>
-  <entry>
-    <title>现代编译原理 阅读记录</title>
-    <url>/2024/04/30/tiger-book/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>compiler-principle</category>
-      </categories>
-      <tags>
-        <tag>编译原理</tag>
-      </tags>
   </entry>
   <entry>
     <title>ARP协议</title>
@@ -3003,6 +2711,298 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
+    <title>编译原理课程笔记 - Chapter 4 目标代码生成</title>
+    <url>/2020/12/17/note4-codegen/</url>
+    <content><![CDATA[<h2 id="目标代码生成"><a class="header-anchor-1" href="#目标代码生成">#</a>目标代码生成</h2>
+<h3 id="任务"><a class="header-anchor-1" href="#任务">#</a>任务</h3>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">中间代码 --&gt; 代码生成器 --&gt; 目标程序</span><br><span class="line">                ^</span><br><span class="line">                |</span><br><span class="line">              符号表</span><br></pre></td></tr></table></figure>
+<h3 id="目标代码的三种形式"><a class="header-anchor-1" href="#目标代码的三种形式">#</a>目标代码的三种形式</h3>
+<ol>
+<li>能立即执行的机器码(所有地址已经定位)</li>
+<li>待装配的机器语言模块(连接装入后即可执行)</li>
+<li>汇编语言代码(经汇编程序汇编后即可执行)</li>
+</ol>
+<p>此处选择汇编语言</p>
+<h3 id="目标机器模型"><a class="header-anchor-1" href="#目标机器模型">#</a>目标机器模型</h3>
+<p>此处假设目标计算机:</p>
+<ol>
+<li>具有多个通用寄存器, 可以用来运算, 也可以用来取地址</li>
+<li>支持四种指令形式
+<ol>
+<li>直接地址型 <code>OP R, M</code> - <code>R OP M =&gt; R</code></li>
+<li>寄存器型 <code>OP Ri, Rj</code> - <code>Ri OP Rj =&gt; Ri</code></li>
+<li>变址型 <code>OP Ri, c(Rj)</code> - <code>Ri OP (Rj+c) =&gt; Ri</code></li>
+<li>间接型
+<ol>
+<li><code>OP Ri, (M)</code> - <code>R OP (M) =&gt; R</code></li>
+<li><code>OP Ri, (Rj)</code> - <code>Ri OP (Rj) =&gt; Ri</code></li>
+<li><code>OP Ri, (c(Rj))</code> - <code>Ri OP ((Rj+c)) =&gt; Ri</code></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>OP 可以是 ADD,SUB,MUL,DIV 等</p>
+<h3 id="简单代码生成器"><a class="header-anchor-1" href="#简单代码生成器">#</a>简单代码生成器</h3>
+<p>思路: 代码生成器在生成每一条指令时, 必须要知道每个寄存器中存储的是什么, 以及每个变量存储到什么位置</p>
+<p>方法:</p>
+<ol>
+<li>引入<strong>待用信息</strong></li>
+<li>寄存器描述数组</li>
+<li>变量地址描述数组</li>
+</ol>
+<h3 id="待用信息"><a class="header-anchor-1" href="#待用信息">#</a>待用信息</h3>
+<p>待用信息</p>
+<ul>
+<li>在基本块中, 四元式 i 对 A 定值, 四元式 j 对 A 取值, 且 i,j 之间无再对 A 定值, 则称 j 是 i 的变量 A 的待用信息</li>
+</ul>
+<p>活跃信息</p>
+<ul>
+<li>基本块中的一个名字在某个给定点之后仍被引用, 则称该名字在给定点是活跃的</li>
+</ul>
+<p>修改符号表</p>
+<ul>
+<li>记录待用信息和活跃信息</li>
+<li>表示: (<code>待用信息[i/^]</code>,<code>活跃信息[y/^]</code>)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>待用/活跃信息栏</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>(…, …)</td>
+</tr>
+<tr>
+<td>B</td>
+<td>(…, …)</td>
+</tr>
+<tr>
+<td>…</td>
+<td>(…, …)</td>
+</tr>
+</tbody>
+</table>
+<p>计算待用和活跃信息</p>
+<ol>
+<li>开始时, 所有变量均为<code>非待用</code>, 根据基本块之后是否活跃填写<code>活跃</code>或<code>非活跃</code></li>
+<li>逆序遍历每个四元式<code>i</code>
+<ol>
+<li>把<code>A</code>的引用信息附加到四元式<code>i</code>左值上</li>
+<li><code>A</code>的引用信息附加<code>(^,^)</code></li>
+<li>把<code>B</code>,<code>C</code>的引用信息附加到四元式<code>i</code>上</li>
+<li><code>B</code>,<code>C</code>的引用信息附加<code>(^,^)</code></li>
+</ol>
+</li>
+</ol>
+<p>例:</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">T1:=B-C</span><br><span class="line">T2:=A*T1</span><br><span class="line">T3:=D+1</span><br><span class="line">T4:=E-F</span><br><span class="line">T5:=T3*T4</span><br><span class="line">W:=T2/T5</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>四元式</th>
+<th>左值</th>
+<th>左操作数</th>
+<th>右操作数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(6)</td>
+<td>W:=T2/T5</td>
+<td>(^,y)</td>
+<td>(<sup>,</sup>)</td>
+<td>(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>(5)</td>
+<td>T5:=T3*T4</td>
+<td>(6,y)</td>
+<td>(<sup>,</sup>)</td>
+<td>(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>(4)</td>
+<td>T4:=E-F</td>
+<td>(3,y)</td>
+<td>(<sup>,</sup>)</td>
+<td>(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>(3)</td>
+<td>T3:=D+1</td>
+<td>(3,y)</td>
+<td>(<sup>,</sup>)</td>
+<td>(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>(2)</td>
+<td>T2:=A*T1</td>
+<td>(6,y)</td>
+<td>(<sup>,</sup>)</td>
+<td>(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>(1)</td>
+<td>T1:=B-C</td>
+<td>(2,y)</td>
+<td>(<sup>,</sup>)</td>
+<td>(<sup>,</sup>)</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>待用/活跃信息栏</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T5</td>
+<td>(<sup>,</sup>)-&gt;(6,y)-&gt;(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>T4</td>
+<td>(<sup>,</sup>)-&gt;(3,y)-&gt;(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>(<sup>,</sup>)-&gt;(3,y)-&gt;(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>(<sup>,</sup>)-&gt;(6,y)-&gt;(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>T1</td>
+<td>(<sup>,</sup>)-&gt;(2,y)-&gt;(<sup>,</sup>)</td>
+</tr>
+<tr>
+<td>W</td>
+<td>(<sup>,y)-&gt;(</sup>,^)</td>
+</tr>
+<tr>
+<td>F</td>
+<td>(<sup>,</sup>)-&gt;(4,y)</td>
+</tr>
+<tr>
+<td>E</td>
+<td>(<sup>,</sup>)-&gt;(4,y)</td>
+</tr>
+<tr>
+<td>D</td>
+<td>(<sup>,</sup>)-&gt;(3,y)</td>
+</tr>
+<tr>
+<td>C</td>
+<td>(<sup>,</sup>)-&gt;(1,y)</td>
+</tr>
+<tr>
+<td>B</td>
+<td>(<sup>,</sup>)-&gt;(1,y)</td>
+</tr>
+<tr>
+<td>A</td>
+<td>(<sup>,</sup>)-&gt;(2,y)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="寄存器分配算法"><a class="header-anchor-1" href="#寄存器分配算法">#</a>寄存器分配算法</h3>
+<p>寄存器描述和地址描述</p>
+<ul>
+<li>寄存器描述数组<code>RVALUE</code>
+<ul>
+<li>记录寄存器内存储的变量, 可以是多个</li>
+<li><code>RVALUE[R1]=&#123;A,B&#125;</code></li>
+</ul>
+</li>
+<li>变量地址描述数组<code>AVALUE</code>
+<ul>
+<li>记录变量存储的位置(寄存器/内存)</li>
+<li><code>AVALUE[A]=&#123;R1,R2,A&#125;</code></li>
+</ul>
+</li>
+</ul>
+<p>代码生成算法</p>
+<ul>
+<li>对于四元式<code>A:=B op C</code>, 依次执行</li>
+</ul>
+<ol>
+<li>调用<code>GETREG(i: A:=B op C)</code>获取一个寄存器<code>R</code></li>
+<li>查询<code>AVALUE[B]</code>和<code>AVALUE[C]</code>, 如果在寄存器中, 假设是<code>B'</code>和<code>C'</code></li>
+<li>如果<code>B'≠R</code>, 先把<code>B</code>加载到<code>R</code>中, 生成代码: <code>LD R,B'</code></li>
+<li>进行运算, 生成代码: <code>op R,C'</code></li>
+<li>更新描述信息
+<ol>
+<li>如果<code>B'</code>或<code>C'</code>是<code>R</code>, 就要把<code>AVALUE</code>中的记录删除</li>
+<li>设置<code>AVALUE[A]=&#123;R&#125;, RVALUE[R]=&#123;A&#125;</code></li>
+</ol>
+</li>
+<li>如果<code>B</code>或<code>C</code>仍存储在某个寄存器中, 但后续不再被引用且不再活跃, 就从<code>AVALUE</code>和<code>RVALUE</code>中删除<code>B</code>和<code>C</code>的记录</li>
+</ol>
+<p>寄存器分配原则</p>
+<ul>
+<li>尽可能用 B 独占的寄存器</li>
+<li>尽可能用空闲的寄存器</li>
+<li>抢占用非空闲寄存器
+<ul>
+<li><code>Ri</code>的值也存储在内存中</li>
+<li><code>Ri</code>最远才会用到</li>
+</ul>
+</li>
+</ul>
+<p>寄存器分配算法<code>GETREG(i: A:=B op C)</code></p>
+<ol>
+<li>
+<p>如果 B 独占某个寄存器</p>
+<ul>
+<li>如果<code>AB</code>是同一个标识符(即修改 B 的指令<code>B:=B op C</code>)
+<ul>
+<li>返回<code>B</code>所在的寄存器</li>
+</ul>
+</li>
+<li>如果<code>B</code>在后面不会再引用(非待用, 非活跃)
+<ul>
+<li>返回<code>B</code>所在的寄存器</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>如果有空闲寄存器, 返回空闲寄存器</p>
+</li>
+<li>
+<p>抢占一个寄存器<code>Ri</code>,</p>
+<ul>
+<li>对于<code>Ri</code>中存储的每一个变量<code>M</code>, 如果存储的不是<code>A</code>, 或者存储的是<code>A == C != B</code>且<code>Ri</code>中不存储<code>B</code>.(<code>M==A &amp;&amp; M==C &amp;&amp; M!=B &amp;&amp; B not in RVALUE[Ri]</code>)
+<ol>
+<li>如果<code>M</code>仅存储在<code>Ri</code>, 则要存到内存中: <code>ST Ri, M</code></li>
+<li>如果<code>M == B</code>, 或者<code>M == C &amp;&amp; B in RVALUE[Ri]</code>中, 则令<code>AVALUE[M]=&#123;M,R&#125;</code>, 否则令<code>AVALUE[M]=&#123;M&#125;</code></li>
+<li>删除<code>M</code>在<code>Ri</code>中的记录, <code>RVALUE[Ri].reLD e(M)</code></li>
+<li>返回<code>R</code></li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<p>例:</p>
+<p>寄存器: R0，R1；基本块出口活跃变量: W</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">T1:=B-C</span><br><span class="line">T2:=A*T1</span><br><span class="line">T3:=D+1</span><br><span class="line">T4:=E-F</span><br><span class="line">T5:=T3*T4</span><br><span class="line">W:=T2/T5</span><br></pre></td></tr></table></figure>
+<p>答案:</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">【解答】该基本块的目标代码如下(指令后面为相应的注释)：</span><br><span class="line">LD  R0, B  <span class="comment">/* 取第一个空闲寄存器 R0 */</span></span><br><span class="line">SUB R0, C  <span class="comment">/* 运算结束后R0中为T1结果，内存中无该结果 */</span></span><br><span class="line">LD  R1, A  <span class="comment">/* 取一个空闲寄存器R1 */</span></span><br><span class="line">MUL R1, R0 <span class="comment">/* 运算结束后R1中为T2结果，内存中无该结果 */</span></span><br><span class="line">LD  R0,D  <span class="comment">/* 此时R0中结果T1已经没有引用点，且临时单元T1是非活跃的，所以，寄存器R0可作为空闲寄存器使用 */</span></span><br><span class="line">ADD R0, <span class="number">1</span> <span class="comment">/* 运算结束后R0中为T3结果，内存中无该结果 */</span></span><br><span class="line">ST  R1, T2  <span class="comment">/*翻译四元式T4=E-F时，所有寄存器已经分配完毕，寄存器R0中存的T3和寄存器R1中存的T2都是有用的。由于T2的下一个引用点较T3的下一个引用点更远，所以暂时可将寄存器R1中的结果存回到内存的变量T2中，从而将寄存器R1空闲以备使用*/</span></span><br><span class="line">LD  R1, E</span><br><span class="line">SUB R1, F  <span class="comment">/*运算结束后R1中为T4结果，内存中无该结果*/</span></span><br><span class="line">MUL R0, R1 <span class="comment">/*运算结束后R0中为T5结果，内存中无该结果。注意，该指令将寄存器R0中原来的结果T3冲掉了。可以这么做的原因是，T3在该指令后不再有引用点，且是非活跃变量*/</span></span><br><span class="line">LD  R1, T2 <span class="comment">/*此时R1中结果T4已经没有引用点，且临时单元T4是非活跃的，因此寄存器R1可作为空闲寄存器使用*/</span></span><br><span class="line">DIV R1, R0</span><br><span class="line"><span class="comment">/*运算结束后R1中为W结果，内存中无该结果。此时所有指令部分已经翻译完毕*/</span></span><br><span class="line">ST  R1, W</span><br><span class="line"><span class="comment">/*指令翻译完毕时，寄存器中存有最新的计算结果，必须将它们存回到内存相应的单元中去，否则，在翻译下一个基本块时，所有的寄存器被当成空闲的寄存器使用，从而造成计算结果的丢失。考虑到寄存器R0中的T5和寄存器R1中的W，临时单元T5是非活跃的，因此只要将结果W存回对应单元即可*/</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>compiler-principle</category>
+      </categories>
+  </entry>
+  <entry>
     <title>CMU 15-445 数据库系统 课程笔记</title>
     <url>/2024/04/15/CMU-15-445-database-systems-fall-2023/</url>
     <content><![CDATA[<p>教师：Andy Pavlo</p>
@@ -3439,6 +3439,766 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
+    <title>Oracle APEX学习</title>
+    <url>/2020/12/07/oracle-apex/</url>
+    <content><![CDATA[<h2 id="前言"><a class="header-anchor-1" href="#前言">#</a>前言</h2>
+<p>什么垃圾软件, 毁我人生!!</p>
+<h2 id="安装"><a class="header-anchor-1" href="#安装">#</a>安装</h2>
+<p>略</p>
+<h2 id="启动"><a class="header-anchor-1" href="#启动">#</a>启动</h2>
+<p>启动 apex 安装到的数据库(PDB 默认不会自动 open)</p>
+<p>启动 ords 服务</p>
+<p><code>$ java -jar ords.war</code></p>
+<h2 id="怎么修改密码"><a class="header-anchor-1" href="#怎么修改密码">#</a>怎么修改密码</h2>
+<p><code>SQL&gt; @apxchpwd.sql</code></p>
+]]></content>
+      <categories>
+        <category>database-system</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Oracle数据库学习</title>
+    <url>/2020/12/03/oracledb/</url>
+    <content><![CDATA[<h1>前言</h1>
+<p>参考资料:</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9kb2NzLm9yYWNsZS5jb20vZW4vZGF0YWJhc2Uvb3JhY2xlL29yYWNsZS1kYXRhYmFzZS9pbmRleC5odG1s">Oracle官方文档<i class="fa fa-external-link-alt"></i></span></p>
+<h1>Schema</h1>
+<p>Schema是表, 索引, 存储过程等等数据库对象(DB Object)的存储容器</p>
+<p>用户与Schema之间是<strong>一对一</strong>的关系</p>
+<p>例如: 访问用户A的xxx对象就通过 <code>A.xxx</code></p>
+<p><img src="user-schema-tables.png" alt="" /></p>
+<h1>Oracle 表空间</h1>
+<p>表空间是逻辑上, 存放数据表的容器</p>
+<p>每张表一定属于某个表空间</p>
+<p>每个用户(Schema)可以拥有多个表空间, 而且都有一个默认表空间</p>
+<p>用户之间可以通过共享表空间的方式共享数据表</p>
+<p>物理上, 表空间的存储可能不是连续的</p>
+<h1>PL/SQL</h1>
+<ul>
+<li>A primary benefit of PL/SQL is the ability to store application logic in the database itself.</li>
+</ul>
+<h1>Oracle 体系结构 (重要)</h1>
+<ul>
+<li>Oracle Server = Oracle Instance + Oracle Database</li>
+</ul>
+<h2 id="1-oracle实例-oracle-instance"><a class="header-anchor-1" href="#1-oracle实例-oracle-instance">#</a>1. Oracle实例 (Oracle Instance)</h2>
+<p>Oracle Instance = SGA(system global area) + Background Process</p>
+<p>是一组 <strong>OS进程(线程)和一些内存(SGA)</strong> 的总称</p>
+<p>可以用来mount和open一个数据库</p>
+<p>一个实例在其生存期中最多只能装载和打开一个数据库。要想再打开这个（或其他）数据库，必须先丢弃这个实例，并创建一个新的实例。</p>
+<p>一个数据库实例的状态分为以下几种</p>
+<ul>
+<li>
+<p><code>started</code></p>
+</li>
+<li>
+<p><code>mounted</code></p>
+</li>
+<li>
+<p><code>open</code></p>
+</li>
+<li>
+<p><code>close</code></p>
+</li>
+<li>
+<p><code>mounted</code></p>
+</li>
+<li>
+<p><code>open</code></p>
+</li>
+</ul>
+<h3 id="started-状态"><a class="header-anchor-1" href="#started-状态">#</a><code>started</code> 状态</h3>
+<p>在执行<code>startup nomount</code>命令后, Oracle会执行以下操作, 之后实例会进入<code>started</code>状态, 此时实例还未绑定数据库</p>
+<ul>
+<li>
+<p>读取配置文件</p>
+</li>
+<li>
+<p>分配<code>SGA</code></p>
+</li>
+<li>
+<p>启动后台进程</p>
+</li>
+<li>
+<p>打开一些用于记录的文件</p>
+</li>
+</ul>
+<h3 id="mounted-状态"><a class="header-anchor-1" href="#mounted-状态">#</a><code>mounted</code> 状态</h3>
+<p>在执行<code>startup mount</code>或者<code>alter database mount</code>命令后, 实例会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
+<p>数据库打开后, 执行<code>alter database close</code>命令后, 实例也会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
+<p>此时实例与数据库建立了联系, 但是只有DBA能够访问数据库。</p>
+<h3 id="open-状态"><a class="header-anchor-1" href="#open-状态">#</a><code>open</code> 状态</h3>
+<p>在执行<code>startup</code>或者<code>alter database open</code>命令后, 实例会进入<code>open</code>状态。</p>
+<p>此时实例与数据库建立了联系, 数据库完全启动, 普通用户也可以访问数据库。</p>
+<h2 id="2-oracle数据库-oracle-database"><a class="header-anchor-1" href="#2-oracle数据库-oracle-database">#</a>2. Oracle数据库 (Oracle Database)</h2>
+<p>Oracle Database = Controlfile + datafile + logfile + spfile + …</p>
+<p>是存储在<strong>磁盘</strong>上的<strong>一组数据文件</strong>的集合</p>
+<p>一般来说, 一个数据库上只有一个实例对其进行操作</p>
+<p>但是也有例外: RAC（Real Application Clusters）就允许在集群环境中的多台计算机上操作，这样就可以有多台实例同时装载并打开一个数据库（位于一组共享物理磁盘上）</p>
+<p>例外2: 容器式数据库</p>
+<h2 id="3-oracle数据库和oracle实例的关系"><a class="header-anchor-1" href="#3-oracle数据库和oracle实例的关系">#</a>3. <em>Oracle数据库</em>和<em>Oracle实例</em>的关系</h2>
+<ol>
+<li>
+<p>一个实例一生只能够装载及打开一个数据库</p>
+</li>
+<li>
+<p>一个数据库能够被多个实例装载并打开(RAC)</p>
+</li>
+<li>
+<p>每个运行着的数据库一定与至少一个实例关联</p>
+</li>
+</ol>
+<p><img src="instance-and-database.png" alt="" /></p>
+<p>Oracle数据库与实例的启动过程</p>
+<p><img src="startup-sequence.png" alt="" /></p>
+<p>Oracle数据库与实例的关闭过程</p>
+<p><img src="shutdown-sequence.png" alt="" /></p>
+<h1>常用命令</h1>
+<ul>
+<li>
+<p>名称, 版本信息查看</p>
+<ul>
+<li>
+<p>查询数据库版本信息</p>
+<pre><code>`SQL&gt; select * from v$version;`
+</code></pre>
+</li>
+<li>
+<p>查看数据库名称</p>
+<pre><code>`SQL&gt; show parameter db_name;`
+</code></pre>
+</li>
+<li>
+<p>查看数据库服务名</p>
+<pre><code>`SQL&gt; show parameter service_names;`
+</code></pre>
+</li>
+<li>
+<p>查询全局数据库名称</p>
+<pre><code>`SQL&gt; select * from global_name;`
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>数据库实例 (Instance)</p>
+<ul>
+<li>
+<p>查询当前数据库实例名称</p>
+<pre><code>`SQL&gt; select instance_name from v$instance;`
+</code></pre>
+</li>
+<li>
+<p>查看当前数据库实例状态(open/mount等)</p>
+<pre><code>`SQL&gt; select status from v$instance;`
+</code></pre>
+</li>
+<li>
+<p>查看数据库实例启动时间</p>
+<pre><code>`SQL&gt; SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS &quot;Inst Start Time&quot; FROM V$INSTANCE;`
+</code></pre>
+</li>
+<li>
+<p>创建一个新的数据库实例、加载数据库、打开数据库 (需要DBA权限)</p>
+<pre><code>`SQL&gt; startup [nomount | mount | open];`
+</code></pre>
+</li>
+<li>
+<p>关闭实例绑定的数据库、卸载数据库、结束当前实例 (需要DBA权限)</p>
+<pre><code>`SQL&gt; shutdown [normal | transactional | immediate];`
+</code></pre>
+</li>
+<li>
+<p>关闭实例绑定的数据库、卸载数据库</p>
+<pre><code>`SQL&gt; alter database close;`
+</code></pre>
+</li>
+<li>
+<p>加载数据库/打开数据库</p>
+<pre><code>`SQL&gt; alter database [mount | open];`
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>数据库设置, 统计信息等</p>
+<ul>
+<li>
+<p>查询数据库打开模式(mounted/open/read write)</p>
+<pre><code>`SQL&gt; select open_mode from v$database;`
+</code></pre>
+</li>
+<li>
+<p>查看数据库DBF文件位置</p>
+<pre><code>`SQL&gt; select name from v$datafile;`
+</code></pre>
+</li>
+<li>
+<p>查询数据文件状态</p>
+<pre><code>`SQL&gt; select file#,name,status,enabled,checkpoint_change# from v$datafile;`
+</code></pre>
+</li>
+<li>
+<p>查询数据文件位置</p>
+<pre><code>`SQL&gt; select name from v$datafile;`
+</code></pre>
+</li>
+<li>
+<p>查询数据文件（表空间）大小</p>
+<pre><code>`SQL&gt; select sum(bytes)/1024/1024/1024 as GB from v$datafile;`
+</code></pre>
+</li>
+<li>
+<p>查询有效数据大小</p>
+<pre><code>`SQL&gt; select sum(bytes)/1024/1024/1024 as GB from dba_segments;`
+</code></pre>
+</li>
+<li>
+<p>查看当前库的所有数据表</p>
+<pre><code>`SQL&gt; select TABLE_NAME from all_tables;`
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>可插拔数据库 (PDB) 管理</p>
+<ul>
+<li>
+<p>查看数据库是CDB还是传统DB</p>
+<pre><code>`SQL&gt; select name, cdb, open_mode, con_id from v$database;`
+</code></pre>
+</li>
+<li>
+<p>查看当前容器 (CDB) 名</p>
+<pre><code>`SQL&gt; show con_name;`
+</code></pre>
+</li>
+<li>
+<p>列举当前容器中的所有PDB以及状态</p>
+<pre><code>`SQL&gt; select con_id, dbid, guid, name, open_mode from v$pdbs;`
+</code></pre>
+</li>
+<li>
+<p>切换到某个PDB</p>
+<pre><code>`SQL&gt; alter session set container=&lt;PDB&gt;;`
+</code></pre>
+</li>
+<li>
+<p>启动PDB数据库</p>
+<pre><code>`SQL&gt; alter pluggable database &lt;PDB&gt; open;`
+
+或者
+
+`SQL&gt; alter session set container=&lt;PDB&gt;;`
+`SQL&gt; startup`
+</code></pre>
+</li>
+<li>
+<p>关闭PDB数据库</p>
+<pre><code>`SQL&gt; alter pluggable database &lt;PDB&gt; close;`
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>用户管理</p>
+<ul>
+<li>创建用户</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>database-system</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>CS246: Mining Massive Data Sets</title>
+    <url>/2025/03/14/cs246/</url>
+    <content><![CDATA[<p>CS246: Mining Massive Data Sets</p>
+<p>课程教材: MMDs</p>
+<p>前序知识: 编程语言 Python 或者 Java；数据结构和算法；概率论；线性代数；多变量积分；数据库系统</p>
+<h2 id="介绍"><a class="header-anchor-1" href="#介绍">#</a>介绍</h2>
+<h3 id="什么是数据挖掘"><a class="header-anchor-1" href="#什么是数据挖掘">#</a>什么是数据挖掘</h3>
+<p>数据分析和挖掘的应用场景</p>
+<ul>
+<li>推荐系统</li>
+<li>网络检索</li>
+<li>AlphaGo</li>
+<li>机器人控制</li>
+</ul>
+<p>数据分析和挖掘的基本任务</p>
+<dl>
+<dt>数据分析</dt>
+<dd>对数据进行 inspecting, cleaning, transforming 和 modeling，以发现有用的信息，提出建议，支持决策</dd>
+<dt>数据挖掘</dt>
+<dd>数据分析技术之一，更加关注于利用 modeling 和 knowledge discovery 来做预测，而不是仅仅做数据的描述</dd>
+</dl>
+<p>不同类型的数据</p>
+<ul>
+<li>高维数据</li>
+<li>图数据</li>
+<li>无限流数据</li>
+<li>多模态数据</li>
+</ul>
+<p>数据挖掘与其他学科的关系</p>
+<ul>
+<li>与数据库: 都有大规模数据，简单查询
+<ul>
+<li>数据库视角: 大规模数据的查询分析</li>
+</ul>
+</li>
+<li>与机器学习: 都有小量数据，复杂模型
+<ul>
+<li>机器学习视角: 模型推理</li>
+</ul>
+</li>
+<li>与 AI</li>
+<li>与计算机理论: 都有随机化算法</li>
+</ul>
+<p>数据挖掘的清单</p>
+<ul>
+<li>按照场景划分
+<ul>
+<li>监督学习</li>
+<li>无监督学习</li>
+<li>强化学习</li>
+<li>半监督学习</li>
+<li>迁移学习</li>
+<li>结构化学习</li>
+</ul>
+</li>
+<li>按照任务划分
+<ul>
+<li>回归</li>
+<li>分类</li>
+<li>聚类</li>
+</ul>
+</li>
+<li>按照方法
+<ul>
+<li>线性模型</li>
+<li>深度学习</li>
+<li>SVM</li>
+<li>决策树</li>
+<li>KNN</li>
+</ul>
+</li>
+</ul>
+<h3 id="mapreduce-spark"><a class="header-anchor-1" href="#mapreduce-spark">#</a>MapReduce &amp; Spark</h3>
+<p>大规模计算的挑战</p>
+<ul>
+<li>
+<p>如何分发计算</p>
+</li>
+<li>
+<p>如何让写分布式程序更简单</p>
+</li>
+<li>
+<p>机器故障: 每台机器的平均寿命是 3 年</p>
+</li>
+<li>
+<p>通过网络传输数据很慢</p>
+<ul>
+<li>近数据计算</li>
+<li>Spark/Hadoop</li>
+</ul>
+</li>
+<li>
+<p>节点故障如何保证数据安全</p>
+<ul>
+<li>分布式存储</li>
+</ul>
+</li>
+</ul>
+<p>经典 MapReduce 模型</p>
+<ul>
+<li>三个阶段：Map, Shuffle, Reduce</li>
+<li>实现：原始 Google 实现，Hadoop，Spark，Flink</li>
+<li>优点：
+<ul>
+<li>模型简单</li>
+<li>隐藏了底层细节</li>
+</ul>
+</li>
+<li>缺点：
+<ul>
+<li><strong>巨大的性能折损</strong>：Map 的中间结果需要先写入磁盘，进行排序，然后再被 Reducer 读取</li>
+<li><strong>表达力弱</strong>：很多问题不容易表示成 MapReduce 过程</li>
+</ul>
+</li>
+</ul>
+<p>MapReduce 的改进 – Data-Flow 系统</p>
+<ul>
+<li>MapReduce 的问题在于，Map 和 Reduce 之间的数据流动是固定的，不够灵活。</li>
+<li>Data-Flow 系统的改进包括
+<ul>
+<li>允许任意数量的任务</li>
+<li>允许 Map 和 Reduce 以外的函数</li>
+<li>如果数据流是无环的，可以实现局部错误恢复</li>
+</ul>
+</li>
+</ul>
+<p>Spark 引擎</p>
+<ul>
+<li>表达力更强的计算系统</li>
+<li>快速数据共享
+<ul>
+<li>中间结果可以在内存中共享
+<ul>
+<li>需要大量内存</li>
+</ul>
+</li>
+<li>重复计算可以缓存</li>
+</ul>
+</li>
+<li>一般化的执行图：DAG 模型</li>
+<li>更丰富的函数库：不止 Map 和 Reduce</li>
+<li>容易编程</li>
+</ul>
+<p>Spark 的关键设计</p>
+<ul>
+<li><strong>RDD</strong>: Resilient Distributed Dataset
+<ul>
+<li>KV 集合的分片</li>
+</ul>
+</li>
+<li><strong>Transformations</strong>: 对 RDD 进行数据操作
+<ul>
+<li>例如: map, filter, join, union, intersection, distinct</li>
+<li>Lazy Evaluation</li>
+</ul>
+</li>
+<li><strong>Actions</strong>: 返回结果
+<ul>
+<li>collect, count, reduce, take</li>
+</ul>
+</li>
+<li><strong>DataFrame</strong>: 类似于 SQL 的表格</li>
+<li><strong>DataSet</strong>: 类似于 DataFrame，但是类型安全</li>
+</ul>
+<p>Spark 的库</p>
+<ul>
+<li>Spark SQL</li>
+<li>Spark Streaming</li>
+<li>MLlib</li>
+<li>GraphX</li>
+</ul>
+<p>适合于 MR 的问题</p>
+<ul>
+<li>统计每个 Host 下所有网页的总大小</li>
+<li>统计机器翻译：5-gram 的频率</li>
+<li>计算两个表的自然连接</li>
+</ul>
+<p>不适合于 MR 的问题</p>
+<ul>
+<li>图</li>
+<li>相互依赖的数据
+<ul>
+<li>机器学习</li>
+<li>很多 pair 数据的对比</li>
+</ul>
+</li>
+</ul>
+<p>MR 的开销估算</p>
+<ul>
+<li>通信开销</li>
+<li>已用的通信开销</li>
+<li>计算开销</li>
+</ul>
+<h2 id="关联规则挖掘"><a class="header-anchor-1" href="#关联规则挖掘">#</a>关联规则挖掘</h2>
+<p>动机：识别超市中哪些商品经常被一起购买</p>
+<p>问题定义：</p>
+<p>给定 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> 次交易记录，每次交易记录包含若干个物品。找到频繁项集。</p>
+<h3 id="应用场景"><a class="header-anchor-1" href="#应用场景">#</a>应用场景</h3>
+<ul>
+<li>搜索引擎对重复内容的网页去重</li>
+<li>新闻网站对一系列相关的新闻聚类</li>
+<li>寻找基因组中相似的序列</li>
+<li>从用户行为中找到相似的用户</li>
+<li>文本抄袭检测</li>
+<li>组合药物的相互作用</li>
+</ul>
+<h3 id="定义"><a class="header-anchor-1" href="#定义">#</a>定义</h3>
+<dl>
+<dt>支持度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>u</mi><mi>p</mi><mi>p</mi><mi>o</mi><mi>r</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">Support</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mord mathnormal">u</span><span class="mord mathnormal">pp</span><span class="mord mathnormal" style="margin-right:0.02778em;">or</span><span class="mord mathnormal">t</span></span></span></span></dt>
+<dd>项集 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi></mrow><annotation encoding="application/x-tex">I</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span></span></span></span> 的支持度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mi>u</mi><mi>p</mi><mi>p</mi><mi>o</mi><mi>r</mi><mi>t</mi><mo stretchy="false">(</mo><mi>I</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mtext>包含</mtext><mi>I</mi><mtext>的交易数量</mtext></mrow><mi>N</mi></mfrac></mrow><annotation encoding="application/x-tex">support(I) = \frac{包含I的交易数量}{N}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">s</span><span class="mord mathnormal">u</span><span class="mord mathnormal">pp</span><span class="mord mathnormal" style="margin-right:0.02778em;">or</span><span class="mord mathnormal">t</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2173em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8723em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord cjk_fallback mtight">包含</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="mord cjk_fallback mtight">的交易数量</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>，支持度越高，说明 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi></mrow><annotation encoding="application/x-tex">I</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span></span></span></span> 共同出现得越频繁。</dd>
+<dt>频繁项集（Frequent Itemset）</dt>
+<dd>如果一个项集 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi></mrow><annotation encoding="application/x-tex">I</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span></span></span></span> 的支持度大于 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span>，则称 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi></mrow><annotation encoding="application/x-tex">I</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span></span></span></span> 是频繁的。</dd>
+<dt>关联规则（Association Rules）</dt>
+<dd>使用 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">{</mo><msub><mi>i</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>i</mi><mn>2</mn></msub><mo separator="true">,</mo><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mo separator="true">,</mo><msub><mi>i</mi><mi>k</mi></msub><mo stretchy="false">}</mo><mo>→</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">\{i_1, i_2, ..., i_k\} \rightarrow j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">...</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">}</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.854em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span></span></span></span> 表示：如果一笔交易包含物品 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">{</mo><msub><mi>i</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>i</mi><mn>2</mn></msub><mo separator="true">,</mo><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mo separator="true">,</mo><msub><mi>i</mi><mi>k</mi></msub><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">\{i_1, i_2, ..., i_k\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">...</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">}</span></span></span></span>，则该交易很可能包含物品 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi></mrow><annotation encoding="application/x-tex">j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.854em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span></span></span></span>。</dd>
+<dt>置信度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>o</mi><mi>n</mi><mi>f</mi><mi>i</mi><mi>d</mi><mi>e</mi><mi>n</mi><mi>c</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">Confidence</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal">o</span><span class="mord mathnormal">n</span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal">i</span><span class="mord mathnormal">d</span><span class="mord mathnormal">e</span><span class="mord mathnormal">n</span><span class="mord mathnormal">ce</span></span></span></span></dt>
+<dd>关联规则 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo>=</mo><mo stretchy="false">{</mo><msub><mi>i</mi><mn>1</mn></msub><mo separator="true">,</mo><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mo separator="true">,</mo><msub><mi>i</mi><mi>k</mi></msub><mo stretchy="false">}</mo><mo>→</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">I=\{i_1,...,i_k\} \rightarrow j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">...</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">}</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.854em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span></span></span></span> 的置信度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>o</mi><mi>n</mi><mi>f</mi><mo stretchy="false">(</mo><mi>I</mi><mo>→</mo><mi>j</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>s</mi><mi>u</mi><mi>p</mi><mi>p</mi><mi>o</mi><mi>r</mi><mi>t</mi><mo stretchy="false">(</mo><mi>I</mi><mo>∪</mo><mi>j</mi><mo stretchy="false">)</mo></mrow><mrow><mi>s</mi><mi>u</mi><mi>p</mi><mi>p</mi><mi>o</mi><mi>r</mi><mi>t</mi><mo stretchy="false">(</mo><mi>I</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">conf(I\rightarrow j) = \frac{support(I \cup j)}{support(I)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">co</span><span class="mord mathnormal">n</span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.53em;vertical-align:-0.52em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">u</span><span class="mord mathnormal mtight">pp</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">or</span><span class="mord mathnormal mtight">t</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="mclose mtight">)</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">u</span><span class="mord mathnormal mtight">pp</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">or</span><span class="mord mathnormal mtight">t</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="mbin mtight">∪</span><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>。</dd>
+</dl>
+<h2 id="min-hashing-算法"><a class="header-anchor-1" href="#min-hashing-算法">#</a>Min-Hashing 算法</h2>
+<h3 id="动机"><a class="header-anchor-1" href="#动机">#</a>动机</h3>
+<p>从大规模数据中快速找到相似的数据对。例如，从网页中找到相似的网页，从用户中找到相似的用户。严谨定义：从数据集 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi></mrow><annotation encoding="application/x-tex">D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span> 中找到所有相似的数据对 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>i</mi></msub><mo separator="true">,</mo><msub><mi>x</mi><mi>j</mi></msub><mo>∈</mo><mi>D</mi></mrow><annotation encoding="application/x-tex">x_i, x_j \in D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8252em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span>，并且 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo separator="true">,</mo><msub><mi>x</mi><mi>j</mi></msub><mo stretchy="false">)</mo><mo>≤</mo><mi>s</mi></mrow><annotation encoding="application/x-tex">d(x_i, x_j) \leq s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord mathnormal">d</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span>。</p>
+<p>朴素方法需要计算所有数据对的相似度，复杂度为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>，不适用于大规模数据。</p>
+<h3 id="方法"><a class="header-anchor-1" href="#方法">#</a>方法</h3>
+<ol>
+<li>Shingling: 把原始文档转换成离散的集合</li>
+<li>Min-Hashing: 用小的签名表示大的集合</li>
+<li>Locality-Sensitive Hashing: 用小的签名找到相似的数据对</li>
+</ol>
+]]></content>
+      <categories>
+        <category>machine-learning</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+        <tag>机器学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>word2vec</title>
+    <url>/2023/10/28/word2vec/</url>
+    <content><![CDATA[<h2 id="what’s-it"><a class="header-anchor-1" href="#what’s-it">#</a>What’s it</h2>
+<p>2013 年，Google 开源的，用于词向量计算的工具</p>
+<h2 id="架构"><a class="header-anchor-1" href="#架构">#</a>架构</h2>
+<p>X – Dense – Dense – Softmax – Y</p>
+<p>CBoW: 利用上下文预测当前词</p>
+<p>Skip-gram: 利用当前词预测上下文</p>
+]]></content>
+      <categories>
+        <category>machine-learning</category>
+      </categories>
+      <tags>
+        <tag>NLP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>[OSDI&#39;06] Bigtable: A Distributed Storage System for Structured Data 论文阅读</title>
+    <url>/2025/02/27/bigtable-a-distributed-storage-system/</url>
+    <content><![CDATA[<h2 id="0-摘要"><a class="header-anchor-1" href="#0-摘要">#</a>0. 摘要</h2>
+<p>Bigtable 是一个分布式存储系统，用于管理结构化数据，能够扩展到巨大的规模：PB 级别的数据，数千台机器。
+Google 的很多项目都保存在 Bigtable 中，包括网页索引，Google Earth 和 Google Finance。</p>
+<h2 id="1-引言"><a class="header-anchor-1" href="#1-引言">#</a>1. 引言</h2>
+<p>Bigtable 从很多方面像一个数据库：它与数据库有很多类似的策略。并行数据库，内存数据库已经实现了缩放性和高性能，但是 Bigtable 提供了不同的接口。
+Bigtable 不支持完整的关系模型；取而代之，它提供一个简单的数据模型，还支持动态改变数据布局和格式。而且允许客户端对底层存储的数据的局部性进行推理。数据使用行和列名进行索引，行列是任意的字符串。
+Bigtable 把数据视为字符串，需要客户端序列化和反序列化后使用。客户端能够通过细致地控制 schema 来控制数据的局部性。最后，Bigtable 的 schema 有参数控制能否在 OOM 的时候继续提供服务。</p>
+<h2 id="2-数据模型"><a class="header-anchor-1" href="#2-数据模型">#</a>2. 数据模型</h2>
+<p>Bigtable 是一个稀疏、分布式、持久化的多维排序映射表。这个表是通过行键、列键和时间戳索引的。表中的值是字节串。</p>
+<p>(row:string, column:string, time:int64) -&gt; string</p>
+<p>Google 分析了很多潜在的应用场景，最终敲定了这个数据模型。</p>
+<h3 id="行键"><a class="header-anchor-1" href="#行键">#</a>行键</h3>
+<p>表格中的行键是任意的字符串，最大可以是 64KB，典型值是 10-100 字节。</p>
+<p>Bigtable 会按照字典序排序行键。表中的所有行会被动态划分为更小的段，称为 Tablet，是数据分散和负载均衡的单元。客户端能够控制行键的格式，以便于控制数据的局部性。例如，在 Google 的 Webtable 中，行键是反转的 hostname，这样 <code>maps.google.com/index.html</code> 就会存储在 <code>com.google.maps/index.html</code> 的位置。</p>
+<h3 id="列族（column-family-cf）"><a class="header-anchor-1" href="#列族（column-family-cf）">#</a>列族（Column Family, CF）</h3>
+<p>表格中的列被分成若干组，称为<em>列族</em>，列族是基本的 ACL 单元。一个列族中的所有数据通常都是同一种类型（同一个列族的会放在一起压缩）。列族必须在表创建时指定，一旦写入数据之后就不能修改。列族数量按预期是很小的，最多几百个，而且很少会改变。相对的，列的数量没有上限。</p>
+<p>列键使用 <code>family:qualifier</code> 的形式命名。其中 <code>family</code> 必须是可打印的字符，<code>qualifier</code> 可以是任意的字节串。例如 Webtable 中的一个 CF 是 <code>language</code>，用于存储网页的语言。<code>language</code> 下只有一个列，存储语言 ID。另一个 CF 是 <code>anchor</code>，其中每一个列名是指向的站点的名字，值是链接文本。例如 Webtable 中的一条数据可能是这样的：</p>
+<table>
+<thead>
+<tr>
+<th>Row Key</th>
+<th>contents</th>
+<th>anchor:cnnsi.com</th>
+<th>anchor:my.look.ca</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“com.cnn.www”</td>
+<td>“&lt;html&gt;”</td>
+<td>“CNN”</td>
+<td>“<span class="exturl" data-url="aHR0cDovL0NOTi5jb20=">CNN.com<i class="fa fa-external-link-alt"></i></span>”</td>
+</tr>
+</tbody>
+</table>
+<p>访问控制和磁盘和内存统计都是在 CF 级别进行的。因此可以通过 CF 管理不同的应用程序：例如一部分只写入新的基本数据，一部分读基本数据然后创建衍生数据，一部分只读取已有的数据。</p>
+<h3 id="时间戳"><a class="header-anchor-1" href="#时间戳">#</a>时间戳</h3>
+<p>Bigtable 中的每个单元都可以包含相同数据的多个版本，这些版本通过时间戳进行索引。
+Bigtable 的时间戳是 64 位整数，这个时间戳可以由 Bigtable 自动生成（使用现实世界的毫秒），也可以由客户端提供。如果由客户端提供，需要保证并发写的时候，多个客户端的时间戳是不冲突的。
+Bigtable 会按照时间戳的逆序存储数据，这样最新的数据会被最先读取。</p>
+<p>为了更容易地管理多版本数据，Bigtable 提供了两个 CF 级别的设置：允许 Bigtable 自动回收旧版本的数据。客户端可以选择保留多少个版本，或者只保留最新的版本。</p>
+<p>在 Webtable 中，<code>contents</code> 列存储的数据的时间戳是文档的实际爬取时间，而且设置了只保存最新 3 个版本。</p>
+<h2 id="3-api"><a class="header-anchor-1" href="#3-api">#</a>3. API</h2>
+<p>写入 Bigtable 的代码示例：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Open the table</span></span><br><span class="line">Table *T = <span class="built_in">OpenOrDie</span>(<span class="string">&quot;/bigtable/web/webtable&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Write a new anchor and delete an old anchor</span></span><br><span class="line"><span class="function">RowMutation <span class="title">r1</span><span class="params">(T, <span class="string">&quot;com.cnn.www&quot;</span>)</span></span>;</span><br><span class="line">r<span class="number">1.</span><span class="built_in">Set</span>(<span class="string">&quot;anchor:www.c-span.org&quot;</span>, <span class="string">&quot;CNN&quot;</span>);</span><br><span class="line">r<span class="number">1.</span><span class="built_in">Delete</span>(<span class="string">&quot;anchor:www.abc.com&quot;</span>);</span><br><span class="line">Operation op;</span><br><span class="line"><span class="built_in">Apply</span>(&amp;op, &amp;r1);</span><br></pre></td></tr></table></figure>
+<p>读取 Bigtable 的代码示例：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">Scanner <span class="title">scanner</span><span class="params">(T)</span></span>;</span><br><span class="line">ScanStream *stream;</span><br><span class="line">stream = scanner.<span class="built_in">FetchColumnFamily</span>(<span class="string">&quot;anchor&quot;</span>);</span><br><span class="line">stream-&gt;<span class="built_in">SetReturnAllVersions</span>();</span><br><span class="line">scanner.<span class="built_in">Lookup</span>(<span class="string">&quot;com.cnn.www&quot;</span>);</span><br><span class="line"><span class="keyword">for</span> (; !stream-&gt;<span class="built_in">Done</span>(); stream-&gt;<span class="built_in">Next</span>()) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s %s %lld %s\n&quot;</span>,</span><br><span class="line">        scanner.<span class="built_in">RowName</span>(),</span><br><span class="line">        stream-&gt;<span class="built_in">ColumnName</span>(),</span><br><span class="line">        stream-&gt;<span class="built_in">MicroTimestamp</span>(),</span><br><span class="line">        stream-&gt;<span class="built_in">Value</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Bigtable API 提供了这些方法和特性：</p>
+<ul>
+<li>修改集群</li>
+<li>创建和删除表</li>
+<li>创建、修改和删除 CF，修改 ACL</li>
+<li>读、写和扫描数据</li>
+<li>把一组操作打包成一个原子操作</li>
+<li>单行事务：可以对单行数据进行原子的 Read-Modify-Write 操作</li>
+<li>单元格作为计数器</li>
+<li>在服务器的地址空间中执行客户端提供的 Sawzall 脚本（PS. 类似 lua in redis）
+Sawzall 的 API 不能写数据，但是可以进行一些复杂的数据变换、过滤和聚合操作。</li>
+</ul>
+<p>Bigtable 还可以和 MapReduce 结合使用，Google 写了很多包装器，用于在 MapReduce 任务中读写 Bigtable。</p>
+<h2 id="4-基本构建块"><a class="header-anchor-1" href="#4-基本构建块">#</a>4. 基本构建块</h2>
+<p>Bigtable 是建立在其他几个已有的 Google 系统之上的：</p>
+<ol>
+<li>GFS（Google File System）：用于存储日志和数据</li>
+<li>集群管理系统：调度任务，管理资源，处理机器故障，和监控集群状态</li>
+<li>Chubby：分布式锁服务</li>
+</ol>
+<p>Bigtable 使用了 Google <em>SSTable</em> 文件格式。SSTable 提供一个持久化的、有序的、不可变的 K-V 映射，其中 K 和 V 都是任意的字节串。SSTable 文件能提供的操作有：</p>
+<ul>
+<li>按 key 查找 value</li>
+<li>迭代特定范围内的所有 key-value 对</li>
+</ul>
+<p>SSTable 内部包含一个块序列（块大小可变，默认 64KB）。SSTable 文件末尾存储着块索引，用于定位块。当 SSTable 文件被打开时，块索引会被读入内存。每次查询操作只需要一次磁盘 seek 操作：首先在内存索引中二分查找到块的位置，然后读取该块即可。可选地，SSTable 还可以被完全映射到内存中，这样就不需要访问磁盘了。</p>
+<p>Bigtable 还依赖于高可用和持久化地分布式锁服务 Chubby。
+Chubby 服务包含 5 个副本，其中一个会被选举为 Master，依赖于 Paxos 算法保证副本数据一致性。Chubby 提供了一个由目录和文件组成的命名空间，每个目录或文件都可以用作锁，而且读写文件的操作是原子的。
+Chubby 客户端库提供对 Chubby 文件的一致性缓存，每个客户端都维持着一个 <em>session</em>。如果客户端在超时时间内没有成功续约，则会过期，并失去所有的锁。
+Chubby 客户端还可以注册 callback，当锁的状态发生变化时，这个 callback 会被调用。</p>
+<p>Bigtable 用 Chubby 实现这些任务：</p>
+<ul>
+<li>保证任意时刻最多只有一个 Master；</li>
+<li>保存 Bigtable 的 bootstrap 位置；</li>
+<li>发现新 Tablet Server 的位置；处理 Tablet Server 的后事；</li>
+<li>存储 schema 信息：每个表的 CF；</li>
+<li>存储 ACL；</li>
+</ul>
+<p>Bigtable 强依赖于 Chubby，如果 Chubby 不可用，Bigtable 也不可用。
+Google 衡量了由于 Chubby 问题导致的 Bigtable 不可用的平均时间，在 14 个 Bigtable 集群，使用 11 个 Chubby 实例，这个时间只占 0.0047%。受影响最严重的单个集群，这个时间也只占 0.00326%。</p>
+<h2 id="5-实现"><a class="header-anchor-1" href="#5-实现">#</a>5. 实现</h2>
+<p>Bigtable 的实现包含三部分：链接到应用程序中的客户端库、一个 Master 进程和若干个 Tablet Server 进程。Tablet Server 可以动态地增加或删除。</p>
+<p>Bigtable 的 Master 进程负责：</p>
+<ul>
+<li>分配 Tablet 到 Tablet Server</li>
+<li>检测 Tablet Server 的增删</li>
+<li>均衡 Tablet Server 的负载</li>
+<li>垃圾回收 GFS 中的文件</li>
+<li>处理 Schema 变更（例如表和 CF 的增删）。</li>
+</ul>
+<p>Tablet Server 负责管理 Tablet，每个 Tablet Server 通常会管理 10 个到 1000 个 Tablet。
+Tablet Server 还要负责处理客户端的读写请求，还有分裂过大的 Tablet。</p>
+<p>和许多单主节点的分布式存储系统（比如 GFS）一样，客户端数据是不会流过 Master 节点的，而是直接和 Tablet Server 交互。因为客户端不依赖于 Master 来获取 Tablet 位置信息，大多数客户端从来不会和 Master 通信。因此 Master 的任务是很轻松的。</p>
+<p>一个 Bigtable 集群存储多个表，每个表由一系列的 Tablet 组成，每个 Tablet 包含了一段行范围的数据。初始时，每个表只有一个 Tablet。随着表的增长，Tablet 会被分裂成更多更小的 Tablet，默认 Tablet 的大小是 100-200 MB。</p>
+<h3 id="5-1-tablet-位置"><a class="header-anchor-1" href="#5-1-tablet-位置">#</a>5.1 Tablet 位置</h3>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Level 0  |         Chubby file</span><br><span class="line">         |              |</span><br><span class="line">         |              v</span><br><span class="line">Level 1  |         Root Tablet (META1)</span><br><span class="line">         |        /   |    |   \</span><br><span class="line">         |       v    v    v    v</span><br><span class="line">Level 2  |   META2 META3 META4 ...</span><br><span class="line">         |    /|\   /|\   /|\  ...</span><br><span class="line">         |    vvv   vvv   vvv  ...</span><br><span class="line">Level 3  | USER1..  ...   ...  ...</span><br></pre></td></tr></table></figure>
+<p>Bigtable 使用了三级层次结构来存储 Tablet 位置信息。第 0 级是一个保存于 Chubby 中的文件，保存着 <em>Root Tablet</em> 的位置信息。</p>
+<p>Root Tablet 是 METADATA 表的第一个 Tablet，而且不会被分裂。</p>
+<p>METADATA 表是整个系统的元数据表，其中保存着所有其他表的 Tablet 位置信息。其行键是表名和末尾行的编码，值是 Tablet 的位置信息。
+METADATA 中的每一行数据大约占用 1KB。按照保守估计，每个 Tablet 大小 128MB 的话，三级的 METADATA 表可以存储 2^34 个 Tablet 的位置。</p>
+<p>客户端库会缓存 Tablet 的位置信息。如果客户端没有缓存，或者发现缓存的位置信息不正确，那么它就会递归地到上一级查找。按照这种算法，如果当前没有缓存，定位需要 3 个 RT，加上 1 次 Chubby 读。如果缓存不对，那么最多需要 6 个 RT，加上 1 次 Chubby 读。虽然 Tablet 位置是保存在内存中的，即不需要访问 GFS，但是这种定位方法还是很慢。为了加速一般情况，Bigtable 会让客户端预取 Tablet 位置信息，每次读的时候都多读几个 Tablet 的位置信息。</p>
+<p>为方便 debug，METADATA 表中还会存储每个 Tablet 的时间日志。</p>
+<h3 id="5-2-tablet-分配"><a class="header-anchor-1" href="#5-2-tablet-分配">#</a>5.2 Tablet 分配</h3>
+<p>每个 Tablet 最多只会分配给一个 Tablet Server。
+Master 负责记录活着的 Tablet Server，以及 Tablet 到 Tablet Server 的映射关系。如果一个 Tablet 还没有分配，而且某个 Tablet Server 有空闲空间，那么 Master 就会向这个 Tablet Server 发送一个 Tablet load 请求，把这个 Tablet 分配给他。</p>
+<p>Bigtable 使用 Chubby 追踪 Tablet Server 的状态。当一个 Tablet Server 启动时，它会在 Chubby 的特定目录下创建一个名字唯一的文件（Server file），并且获取文件的排他锁。Master 会监听这个目录来发现新的 Tablet Server。如果一个 Tablet Server 丢失了这个排它锁，那么它就不再对外提供服务。它会先检查 Server file 是否存在，如果存在就尝试重新获取锁，否则就会直接退出。当 Tablet Server 结束时，它会释放锁，就会被 Master 拿到。</p>
+<p>Master 需要周期性地监测 Tablet Server 是否在正常工作，如果不是，就要尽快把它负责的 Tablet 分配给其他 Tablet Server。为此，Master 会定期询问 Tablet Server 是否还持有 Server file 的锁，如果没有，或者多次尝试都超时，Master 就会尝试拿一下这个 Tablet 的锁。如果拿到了，说明 Chubby 服务正常，Tablet Server 挂了，就会把这个 Server file 删掉，让 Tablet Server 自行退出；然后把它负责的 Tablet 添加到未分配集合中。为了确保 Bigtable 集群不会受 Master 和 Chubby 之间网络的影响，Master 的 Chubby session 过期，就会直接退出。</p>
+<p>当一个新 Master 被集群管理系统拉起的时候，它需要先检查有哪些 Tablet，按照如下步骤：</p>
+<ol>
+<li>Master 获取一个 Master lock；</li>
+<li>扫描 Server file 目录，找到所有活着的 Tablet Server；</li>
+<li>与每一个 Tablet Server 通信，询问它们负责的 Tablet 列表；</li>
+<li>扫描 METADATA 表，找到所有的 Tablet：此时就可以找到哪些 Tablet 还未分配。</li>
+</ol>
+<p>一个小问题是如果 METADATA Tablet 还没有分配的话，Master 就没办法找到 METADATA 表的位置，那步骤 4 就无法进行。因此在步骤 4 之前，Master 会额外检查一下 Root Tablet 有没有分配，如果没有分配，就会额外把 Root Tablet 添加到未分配集合中，最终 Root Tablet 会被分配给空闲的 Tablet Server。</p>
+<p>已有 Tablet 的集合只有当以下时候才会变化：</p>
+<ol>
+<li>创建或删除表；</li>
+<li>Tablet 合并：两个已有的 Tablet 合并成一个大的 Tablet；</li>
+<li>Tablet 分裂：一个 Tablet 被分裂成两个更小的 Tablet；</li>
+</ol>
+<p>情况 1 和 2 都是由 Master 初始化的，Master 自然能够追踪这些变更；情况 3 是由 Tablet Server 完成的，Tablet Server 会把分裂出来的新 Tablet 信息记录在 METADATA 表中，然后通知 Master。即使这条通知消息丢失了，当 Master 要求 Tablet Server 加载分裂出来的 Tablet 时，Master 也会找到这个新 Tablet。</p>
+<h3 id="5-3-tablet-服务"><a class="header-anchor-1" href="#5-3-tablet-服务">#</a>5.3 Tablet 服务</h3>
+<p>Tablet 的持久化状态是保存在 GFS 中的。更新操作会被记录成操作日志（Commit log），其中保存着 redo 记录。在这些更新中，最近提交的更新会被保存在内存中的一个称为 Memtable 的有序数据结构中。为了恢复一个 Tablet，Tablet Server 需要先从 METADATA 表中找到这个 Tablet 的元数据，包括组成这个 Tablet 的一系列 SSTable 文件，还有一系列 redo 点，即指向操作日志的指针。
+Tablet Server 会把这些 SSTable 文件的索引加载到内存中，然后通过应用自 redo 点开始的所有更新来重建 Memtable。</p>
+<p>写操作：</p>
+<ol>
+<li>Server 检查是否合法，是否有权限（通过读取 Chubby 中的 ACL）</li>
+<li>有效的变更会被写入操作日志：会分批写入提高吞吐量</li>
+<li>变更会被写入 Memtable</li>
+</ol>
+<p>读操作：</p>
+<ol>
+<li>Server 检查是否合法，是否有权限（通过读取 Chubby 中的 ACL）</li>
+<li>在由一系列 SSTable 和 Memtable 组成的数据视图中查找数据</li>
+</ol>
+<p>Tablet 分裂和合并不影响读写操作。</p>
+<h3 id="5-4-数据回收"><a class="header-anchor-1" href="#5-4-数据回收">#</a>5.4 数据回收</h3>
+<p><em>Minor compaction</em>：写入数据的时候，Memtable 会增大，当增加到一定程度时，就会被冻结，然后转换成 SSTable 写入 GFS。与此同时，一个新的 Memtable 会被创建。</p>
+<p>Minor compaction 的目的是：</p>
+<ul>
+<li>减小内存占用</li>
+<li>减少重启时的恢复时间</li>
+</ul>
+<p>Minor compaction 不影响读写操作。</p>
+<p>每次 Minor compaction 都会创建一个新的 SSTable。如果一直增加下去，读的时候就需要合并很多 SSTable。因此 Bigtable 会定期在后台执行 <em>Merging compaction</em>，也叫 <em>Major compaction</em>。
+Major compaction 会把多个 SSTable + Memtable 合并成一个 SSTable。合并的时候，会把被删除的数据去掉。</p>
+<p>Major compaction 的目的是：</p>
+<ul>
+<li>回收删除数据占用的空间</li>
+<li>保证被删除的数据能够及时消失（对于敏感数据）</li>
+</ul>
+<h2 id="6-细化"><a class="header-anchor-1" href="#6-细化">#</a>6 细化</h2>
+<p>为了实现高性能，高可用，高可靠性，Bigtable 实现上还做了很多细节优化。</p>
+<h3 id="局部性群组"><a class="header-anchor-1" href="#局部性群组">#</a>局部性群组</h3>
+<p>客户端可以把多个 CF 设置成一个局部性群组。在每个 Tablet 中，每个局部性群组都会有一个单独的 SSTable。将不经常一起访问的 CF 划分成多个局部性群组，能够提高读性能。例如，Webtable 中的页面元数据（例如 langauge 和 chunksums）可以放进一个局部性群组，而网页内容可以放进另一个局部性群组：因为一个读元数据的应用程序往往不会读取内容。</p>
+<p>此外，局部性群组有一些有用的调优参数，例如，局部性群组可以被声明为 <em>in-memory</em>。这样的话，这个局部性群组的 SSTable 在用到时就会被加载到内存中，在读取这个局部性群组内的 CF 时就不用访问磁盘了。这个特性对于频繁访问的小块数据很有用：METADATA 表中的 <code>location</code> CF 就是一个 in-memory 的局部性群组。</p>
+<h3 id="压缩"><a class="header-anchor-1" href="#压缩">#</a>压缩</h3>
+<p>客户端可以控制一个局部性群组的 SSTable 是否压缩，以及使用什么算法。压缩的粒度是 SSTable 中的块，而不是整个 SSTable，这样读的时候就不用解压整个 SSTable。很多客户端会使用一个两趟压缩算法，第一趟用 Bentley-McIlroy 模式，用一个长窗口压缩长的重复串，第二趟用一个快速的算法，在 16KB 的小窗口内压缩剩下的数据。这种两趟压缩算法是很快的，在现代机器上，压缩速度可以达到 100-200MB/s，解压速度可以达到 400-1000MB/s。</p>
+<p>虽然我们在选择压缩算法的时候更倾向于压缩速度而不是压缩率。这种两趟压缩算法的压缩率也不错。在 Webtable 中进行测试，压缩 html 文档，每个文档只保存一个版本，两趟压缩算法的压缩率能达到 10:1，比 gzip 的 3:1 或者 4:1 好的多。如果保存多个版本，压缩率会更高。</p>
+<h3 id="缓存以提升读性能"><a class="header-anchor-1" href="#缓存以提升读性能">#</a>缓存以提升读性能</h3>
+<p>为了提升读性能，Tablet Server 使用了两级缓存。</p>
+<ul>
+<li>Scan 缓存是 high-level 的缓存，缓存 SSTable 返回的 kv 对。</li>
+<li>Block 缓存是 low-level 的缓存，缓存从 GFS 中读出来的 SSTable 块。</li>
+</ul>
+<h3 id="布隆过滤器"><a class="header-anchor-1" href="#布隆过滤器">#</a>布隆过滤器</h3>
+<p>读操作必须要从所有的 SSTable 中查找数据，如果 SSTable 不在内存中，就会需要多次磁盘访问。
+Bigtable 允许客户端指定创建一个布隆过滤器，用于快速判断一个 key 是否在 SSTable 中。</p>
+<h3 id="提交日志实现"><a class="header-anchor-1" href="#提交日志实现">#</a>提交日志实现</h3>
+<p>如果我们把每个 Tablet 的提交日志都放在单独的 log 文件中，就需要往 GFS 里面写大量的文件。再加上 GFS 实现，可能导致大量磁盘访问。另外，用多个 log 文件也不容易做 group commit 优化。因此 Bigtable 设计成每个 Tablet Server 使用一个 log 文件。</p>
+<p>使用单个 log 文件提供了正常路径下的性能优势，但是会让恢复变得麻烦。当 Tablet Server 挂了，它负责的 Tablet 需要被迁移走，而每个接管的 Server 通常只会分到其中一部分。为了进行恢复，每个 Server 都需要读取一遍完整的 log 文件，会导致巨量的读放大。</p>
+<p>为了避免这种读放大，首先，Bigtable 会按照 <code>&lt;table, row name, log sequence number&gt;</code> 顺序排序 log 文件。排序后，对于单个 Tablet 的变更就是连续存储的，因此新 owner 只需要进行一次 seek 加顺序读就可以了。为了并行化这种排序过程，log 文件会按照 64MB 大小分段，然后分散在不同的 Tablet Server 上并行排序。这种排序过程是由 Master 协调的。当任意 Tablet Server 需要从 log 文件恢复 Tablet 的时候，就会开始这种排序过程。</p>
+<p>由于各种各样的原因，有时往 GFS 上写日志的时候，会有性能抖动。例如 GFS 正在故障恢复，或者网络拥塞，或者单纯就是负载太重。为了避免 GFS 延迟尖峰，每个 Tablet Server 实际上会有两个写 log 的线程，每个线程写自己的日志文件，同一时刻只会有一个线程被使用。如果写入的性能太差，就会切换到另一个线程。队列里面后续的变更也会由另一个线程来处理。日志条目中包含了自增序列号以防止线程切换的时候重复应用相同的日志。</p>
+<h3 id="加速-tablet-恢复"><a class="header-anchor-1" href="#加速-tablet-恢复">#</a>加速 Tablet 恢复</h3>
+<p>如果 Master 要把一个 Tablet 从一个 Server 迁移到另一个，源 Server 会先对这个 Tablet 进行一次 Minor compaction。这次 compaction 能够缩短恢复时间，因为需要恢复的 log 变少了。在 compaction 之后，源 Tablet Server 就会停止服务这个 Tablet。在真正卸载这个 Tablet 之前，Server 会再做一次（通常是很快的）Minor compaction，目的是消除第一次 compaction 期间收到的变更。第二次 compaction 之后，就没有剩余的 log 了，目标 Server 只需加载 Tablet 就可以了。</p>
+<h3 id="利用不可变性"><a class="header-anchor-1" href="#利用不可变性">#</a>利用不可变性</h3>
+<p>除了 SSTable 缓存以外，Bigtable 系统的各种其他部分也利用了 SSTable 文件的不可变性。比如，并发读 SSTable 的时候不需要任何同步机制。因此行之间的并发控制就可以实现得非常高效。唯一的例外是 Memtable。为了减少 Memtable 的读争抢，我们让每个 Memtable 的行都是 CoW 的，这样读和写就可以并行进行。</p>
+<p>因为 SSTable 是不可变的，所以移除已经删除的数据就转换成了垃圾回收过时 SSTable 的问题。每个 Tablet 的 SSTable 都被注册到 METADATA 表中。Master 在 SSTable 文件集合上使用标记-清除算法来回收过时的 SSTable。</p>
+<p>SSTable 的不可变性还允许我们快速地分裂 Tablet。相对于给每个 Tablet 生成一组新的 SSTable 文件，Bigtable 让子 Tablet 共享父 Tablet 的 SSTable 文件。</p>
+<h2 id="7-性能评估"><a class="header-anchor-1" href="#7-性能评估">#</a>7 性能评估</h2>
+<p>评估实验使用了一个 N 个 Tablet Server 的 Bigtable 集群。用来评估性能和可拓展性随 N 的变化。每个 Tablet Server 使用 1GB 内存，写入一个 1,786 机器的 GFS 集群，每个 GFS 节点配置两块 400GB 的 IDE 硬盘。还有 N 个客户端用于生成读写负载。N 个客户端相对于 N 个 Tablet Server 是非常充足的，这样可以保证客户端的负载不会成为瓶颈。每个机器有两颗双核 Opteron 2GHz 的 CPU。</p>
+<p>（略）</p>
+<h2 id="8-现实世界的应用"><a class="header-anchor-1" href="#8-现实世界的应用">#</a>8 现实世界的应用</h2>
+<p>截至 2006 年 8 月，Google 内部有 388 个生产 Bigtable 集群，一共有 24,500 个 Tablet Server。其中大部分都是供开发使用，因此经常是闲置的。大部分集群都有很少的机器数。有 14 个忙的集群，一共由 8069 个 Tablet Server 组成，服务了 1.2M 的 QPS，进的 RPC 流量大约是 741MB/s，出的是 16GB/s。</p>
+<h2 id="8-1-google-analytics"><a class="header-anchor-1" href="#8-1-google-analytics">#</a>8.1 Google Analytics</h2>
+<p>Google Analytics 用于帮助网站所有者分析流量模式。包括聚合统计，例如每天的 UV，每个 URL 的 PV，还有支付的用户比例。为了启用这个功能，网站所有者需要在网站上插入一个 JavaScript 代码片段。每次页面被访问的时候，这个代码片段就会执行。这个代码会记录各种各样的信息，例如用户 id 和页面的信息，发送到 Google Analytics。
+Google Analytics 总结这些信息，然后提供给网站所有者。</p>
+<p>Google Analytics 使用的 Bigtable 表包括：</p>
+<ul>
+<li>raw click 表：~200TB，每个用户会话一行，行名字是网站名+Session 创建时间。这样保证了访问相同站点的用户会话会被存储在一起，而且是按照时间排序的。这个表的压缩率是 14%。</li>
+<li>summary 表：~20TB，包含每个网站的各种聚合统计信息。这个表是被周期调度的 MapReduce 任务从 raw click 表中生成的。每个 MR 任务从 raw click 表中提取最近的会话数据。这个表的压缩率是 29%。</li>
+</ul>
+<h2 id="8-2-google-earth"><a class="header-anchor-1" href="#8-2-google-earth">#</a>8.2 Google Earth</h2>
+<p>Google 运营着一系列服务，提供地球表面高解析度的卫星图像。这个服务既通过基于 web 的 Google Maps 提供，也通过 Google Earth 软件客户端提供。</p>
+<p>Google Earth 的预处理流水线使用了一个 Bigtable 表存储原始图像数据。在预处理过程中，图像被清理和合并，形成最终提供服务的图像。这个表包含了约 70TB 的数据，因此是存储在磁盘中的。这些图像已经被有效地压缩过了，因此 Bigtable 的压缩被关闭了。</p>
+<p>图像表的每一行对应一个地理区域，行名字保证了相邻区域的行是相邻的。这个表包含了一个 CF，用于追踪每个区域的数据来源。这个 CF 有很多列：基本上每个原始图像都有一个列。因为每个区域的图像是从很少几张原始图像中合成的，这个 CF 非常稀疏。</p>
+<p>预处理流水线重度依赖 MapReduce over Bigtable 来处理图像数据。</p>
+<p>服务系统使用一个表来索引 GFS 中的数据。这个表相对较小，只有 ~500GB，但是要保证每个数据中心能低延迟地提供上万的 QPS。因此这个表跨越了数百个 Tablet Server，还开启了 in-memory 选项。</p>
+<h2 id="8-3-个性化搜索"><a class="header-anchor-1" href="#8-3-个性化搜索">#</a>8.3 个性化搜索</h2>
+<p>Personalized Search 是一个 Google 的实验性服务，记录用户的查询和点击行为，跨越 Google 的多种服务，例如搜索，图片和新闻。用户可以浏览搜索历史来找到他们之前搜索和点击过的内容，然后他们可以寻求个性化的搜索结果，根据他们的历史行为。</p>
+<p>个性化搜索把每个用户的数据保存在 Bigtable 中。每个用户有一个唯一的 userid，和一个对应的行。所有用户的行为都会被记录在这个行中。每种行为都有一个单独的 CF 保存（例如有一个 CF 保存搜索历史）。数据元素是行为发生的时间戳。个性化搜索用 MapReduce over Bigtable 来生成用户的资料。</p>
+<p>个性化搜索数据在多个 Bigtable 集群之间复制，以增加可用性和减少延迟。个性化搜索团队原本在 Bigtable 之上实现了一个自己的复制系统，但是后来改成了使用 Bigtable 的复制功能。</p>
+<p>个性化搜索的存储系统允许其他组在他们的列中添加每个用户的信息，然后这个系统也被很多其他的，需要为每个用户保存数据的 Google 业务使用。在很多组之间共享一个表导致了不寻常的 CF 数量。为了解决这个问题，Bigtable 增加了一个简单的 Quota 机制来限制单个客户端在共享表中的空间消耗，提供了一定的隔离性。</p>
+<h2 id="faq"><a class="header-anchor-1" href="#faq">#</a>FAQ</h2>
+<h3 id="1-gfs-可能出现重复记录或者-padding，bigtable-如何处理这种情况？"><a class="header-anchor-1" href="#1-gfs-可能出现重复记录或者-padding，bigtable-如何处理这种情况？">#</a>1. GFS 可能出现重复记录或者 padding，Bigtable 如何处理这种情况？</h3>
+<p>Bigtable 写入 GFS 的数据分为两种：</p>
+<ol>
+<li>操作日志，当 Tablet Server 发生故障时，它上面服务的 Tablet 会被迁移到集群中的其他 Tablet Server 上继续提供服务，加载 Tablet 可能需要回放操作日志，每条操作日志唯一的序号，通过它可以去除重复的操作日志。</li>
+<li>每个 Tablet 包含的 SSTable 数据，如果写入 GFS 失败可以重试并产生多条重复记录，但是 Bigtable 只会索引最后一条写入成功的记录。</li>
+</ol>
+<h3 id="2-如何保证同一个-tablet-不会被多台机器同时服务？"><a class="header-anchor-1" href="#2-如何保证同一个-tablet-不会被多台机器同时服务？">#</a>2. 如何保证同一个 Tablet 不会被多台机器同时服务？</h3>
+<p>利用 Chubby 保证互斥性。</p>
+]]></content>
+      <categories>
+        <category>distributed-system</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+        <tag>Bigtable</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Dynamo: Amazon’s Highly Available Key-value Store 论文阅读</title>
     <url>/2025/04/13/dynamo-amazons-highly-available-key-value-store/</url>
     <content><![CDATA[<p>今天来读经典。</p>
@@ -3714,515 +4474,9 @@ Dynamo 的早期设计使用去中心化故障检测器来维护全局一致的�
         <category>database-system</category>
       </categories>
       <tags>
+        <tag>分布式系统</tag>
         <tag>数据库</tag>
-        <tag>分布式系统</tag>
         <tag>K-V 存储</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Oracle APEX学习</title>
-    <url>/2020/12/07/oracle-apex/</url>
-    <content><![CDATA[<h2 id="前言"><a class="header-anchor-1" href="#前言">#</a>前言</h2>
-<p>什么垃圾软件, 毁我人生!!</p>
-<h2 id="安装"><a class="header-anchor-1" href="#安装">#</a>安装</h2>
-<p>略</p>
-<h2 id="启动"><a class="header-anchor-1" href="#启动">#</a>启动</h2>
-<p>启动 apex 安装到的数据库(PDB 默认不会自动 open)</p>
-<p>启动 ords 服务</p>
-<p><code>$ java -jar ords.war</code></p>
-<h2 id="怎么修改密码"><a class="header-anchor-1" href="#怎么修改密码">#</a>怎么修改密码</h2>
-<p><code>SQL&gt; @apxchpwd.sql</code></p>
-]]></content>
-      <categories>
-        <category>database-system</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Oracle数据库学习</title>
-    <url>/2020/12/03/oracledb/</url>
-    <content><![CDATA[<h1>前言</h1>
-<p>参考资料:</p>
-<p><span class="exturl" data-url="aHR0cHM6Ly9kb2NzLm9yYWNsZS5jb20vZW4vZGF0YWJhc2Uvb3JhY2xlL29yYWNsZS1kYXRhYmFzZS9pbmRleC5odG1s">Oracle官方文档<i class="fa fa-external-link-alt"></i></span></p>
-<h1>Schema</h1>
-<p>Schema是表, 索引, 存储过程等等数据库对象(DB Object)的存储容器</p>
-<p>用户与Schema之间是<strong>一对一</strong>的关系</p>
-<p>例如: 访问用户A的xxx对象就通过 <code>A.xxx</code></p>
-<p><img src="user-schema-tables.png" alt="" /></p>
-<h1>Oracle 表空间</h1>
-<p>表空间是逻辑上, 存放数据表的容器</p>
-<p>每张表一定属于某个表空间</p>
-<p>每个用户(Schema)可以拥有多个表空间, 而且都有一个默认表空间</p>
-<p>用户之间可以通过共享表空间的方式共享数据表</p>
-<p>物理上, 表空间的存储可能不是连续的</p>
-<h1>PL/SQL</h1>
-<ul>
-<li>A primary benefit of PL/SQL is the ability to store application logic in the database itself.</li>
-</ul>
-<h1>Oracle 体系结构 (重要)</h1>
-<ul>
-<li>Oracle Server = Oracle Instance + Oracle Database</li>
-</ul>
-<h2 id="1-oracle实例-oracle-instance"><a class="header-anchor-1" href="#1-oracle实例-oracle-instance">#</a>1. Oracle实例 (Oracle Instance)</h2>
-<p>Oracle Instance = SGA(system global area) + Background Process</p>
-<p>是一组 <strong>OS进程(线程)和一些内存(SGA)</strong> 的总称</p>
-<p>可以用来mount和open一个数据库</p>
-<p>一个实例在其生存期中最多只能装载和打开一个数据库。要想再打开这个（或其他）数据库，必须先丢弃这个实例，并创建一个新的实例。</p>
-<p>一个数据库实例的状态分为以下几种</p>
-<ul>
-<li>
-<p><code>started</code></p>
-</li>
-<li>
-<p><code>mounted</code></p>
-</li>
-<li>
-<p><code>open</code></p>
-</li>
-<li>
-<p><code>close</code></p>
-</li>
-<li>
-<p><code>mounted</code></p>
-</li>
-<li>
-<p><code>open</code></p>
-</li>
-</ul>
-<h3 id="started-状态"><a class="header-anchor-1" href="#started-状态">#</a><code>started</code> 状态</h3>
-<p>在执行<code>startup nomount</code>命令后, Oracle会执行以下操作, 之后实例会进入<code>started</code>状态, 此时实例还未绑定数据库</p>
-<ul>
-<li>
-<p>读取配置文件</p>
-</li>
-<li>
-<p>分配<code>SGA</code></p>
-</li>
-<li>
-<p>启动后台进程</p>
-</li>
-<li>
-<p>打开一些用于记录的文件</p>
-</li>
-</ul>
-<h3 id="mounted-状态"><a class="header-anchor-1" href="#mounted-状态">#</a><code>mounted</code> 状态</h3>
-<p>在执行<code>startup mount</code>或者<code>alter database mount</code>命令后, 实例会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
-<p>数据库打开后, 执行<code>alter database close</code>命令后, 实例也会进入<code>mounted</code>状态, 对应数据库的open_mode也是<code>mounted</code>。</p>
-<p>此时实例与数据库建立了联系, 但是只有DBA能够访问数据库。</p>
-<h3 id="open-状态"><a class="header-anchor-1" href="#open-状态">#</a><code>open</code> 状态</h3>
-<p>在执行<code>startup</code>或者<code>alter database open</code>命令后, 实例会进入<code>open</code>状态。</p>
-<p>此时实例与数据库建立了联系, 数据库完全启动, 普通用户也可以访问数据库。</p>
-<h2 id="2-oracle数据库-oracle-database"><a class="header-anchor-1" href="#2-oracle数据库-oracle-database">#</a>2. Oracle数据库 (Oracle Database)</h2>
-<p>Oracle Database = Controlfile + datafile + logfile + spfile + …</p>
-<p>是存储在<strong>磁盘</strong>上的<strong>一组数据文件</strong>的集合</p>
-<p>一般来说, 一个数据库上只有一个实例对其进行操作</p>
-<p>但是也有例外: RAC（Real Application Clusters）就允许在集群环境中的多台计算机上操作，这样就可以有多台实例同时装载并打开一个数据库（位于一组共享物理磁盘上）</p>
-<p>例外2: 容器式数据库</p>
-<h2 id="3-oracle数据库和oracle实例的关系"><a class="header-anchor-1" href="#3-oracle数据库和oracle实例的关系">#</a>3. <em>Oracle数据库</em>和<em>Oracle实例</em>的关系</h2>
-<ol>
-<li>
-<p>一个实例一生只能够装载及打开一个数据库</p>
-</li>
-<li>
-<p>一个数据库能够被多个实例装载并打开(RAC)</p>
-</li>
-<li>
-<p>每个运行着的数据库一定与至少一个实例关联</p>
-</li>
-</ol>
-<p><img src="instance-and-database.png" alt="" /></p>
-<p>Oracle数据库与实例的启动过程</p>
-<p><img src="startup-sequence.png" alt="" /></p>
-<p>Oracle数据库与实例的关闭过程</p>
-<p><img src="shutdown-sequence.png" alt="" /></p>
-<h1>常用命令</h1>
-<ul>
-<li>
-<p>名称, 版本信息查看</p>
-<ul>
-<li>
-<p>查询数据库版本信息</p>
-<pre><code>`SQL&gt; select * from v$version;`
-</code></pre>
-</li>
-<li>
-<p>查看数据库名称</p>
-<pre><code>`SQL&gt; show parameter db_name;`
-</code></pre>
-</li>
-<li>
-<p>查看数据库服务名</p>
-<pre><code>`SQL&gt; show parameter service_names;`
-</code></pre>
-</li>
-<li>
-<p>查询全局数据库名称</p>
-<pre><code>`SQL&gt; select * from global_name;`
-</code></pre>
-</li>
-</ul>
-</li>
-<li>
-<p>数据库实例 (Instance)</p>
-<ul>
-<li>
-<p>查询当前数据库实例名称</p>
-<pre><code>`SQL&gt; select instance_name from v$instance;`
-</code></pre>
-</li>
-<li>
-<p>查看当前数据库实例状态(open/mount等)</p>
-<pre><code>`SQL&gt; select status from v$instance;`
-</code></pre>
-</li>
-<li>
-<p>查看数据库实例启动时间</p>
-<pre><code>`SQL&gt; SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS &quot;Inst Start Time&quot; FROM V$INSTANCE;`
-</code></pre>
-</li>
-<li>
-<p>创建一个新的数据库实例、加载数据库、打开数据库 (需要DBA权限)</p>
-<pre><code>`SQL&gt; startup [nomount | mount | open];`
-</code></pre>
-</li>
-<li>
-<p>关闭实例绑定的数据库、卸载数据库、结束当前实例 (需要DBA权限)</p>
-<pre><code>`SQL&gt; shutdown [normal | transactional | immediate];`
-</code></pre>
-</li>
-<li>
-<p>关闭实例绑定的数据库、卸载数据库</p>
-<pre><code>`SQL&gt; alter database close;`
-</code></pre>
-</li>
-<li>
-<p>加载数据库/打开数据库</p>
-<pre><code>`SQL&gt; alter database [mount | open];`
-</code></pre>
-</li>
-</ul>
-</li>
-<li>
-<p>数据库设置, 统计信息等</p>
-<ul>
-<li>
-<p>查询数据库打开模式(mounted/open/read write)</p>
-<pre><code>`SQL&gt; select open_mode from v$database;`
-</code></pre>
-</li>
-<li>
-<p>查看数据库DBF文件位置</p>
-<pre><code>`SQL&gt; select name from v$datafile;`
-</code></pre>
-</li>
-<li>
-<p>查询数据文件状态</p>
-<pre><code>`SQL&gt; select file#,name,status,enabled,checkpoint_change# from v$datafile;`
-</code></pre>
-</li>
-<li>
-<p>查询数据文件位置</p>
-<pre><code>`SQL&gt; select name from v$datafile;`
-</code></pre>
-</li>
-<li>
-<p>查询数据文件（表空间）大小</p>
-<pre><code>`SQL&gt; select sum(bytes)/1024/1024/1024 as GB from v$datafile;`
-</code></pre>
-</li>
-<li>
-<p>查询有效数据大小</p>
-<pre><code>`SQL&gt; select sum(bytes)/1024/1024/1024 as GB from dba_segments;`
-</code></pre>
-</li>
-<li>
-<p>查看当前库的所有数据表</p>
-<pre><code>`SQL&gt; select TABLE_NAME from all_tables;`
-</code></pre>
-</li>
-</ul>
-</li>
-<li>
-<p>可插拔数据库 (PDB) 管理</p>
-<ul>
-<li>
-<p>查看数据库是CDB还是传统DB</p>
-<pre><code>`SQL&gt; select name, cdb, open_mode, con_id from v$database;`
-</code></pre>
-</li>
-<li>
-<p>查看当前容器 (CDB) 名</p>
-<pre><code>`SQL&gt; show con_name;`
-</code></pre>
-</li>
-<li>
-<p>列举当前容器中的所有PDB以及状态</p>
-<pre><code>`SQL&gt; select con_id, dbid, guid, name, open_mode from v$pdbs;`
-</code></pre>
-</li>
-<li>
-<p>切换到某个PDB</p>
-<pre><code>`SQL&gt; alter session set container=&lt;PDB&gt;;`
-</code></pre>
-</li>
-<li>
-<p>启动PDB数据库</p>
-<pre><code>`SQL&gt; alter pluggable database &lt;PDB&gt; open;`
-
-或者
-
-`SQL&gt; alter session set container=&lt;PDB&gt;;`
-`SQL&gt; startup`
-</code></pre>
-</li>
-<li>
-<p>关闭PDB数据库</p>
-<pre><code>`SQL&gt; alter pluggable database &lt;PDB&gt; close;`
-</code></pre>
-</li>
-</ul>
-</li>
-<li>
-<p>用户管理</p>
-<ul>
-<li>创建用户</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>database-system</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>[OSDI&#39;06] Bigtable: A Distributed Storage System for Structured Data 论文阅读</title>
-    <url>/2025/02/27/bigtable-a-distributed-storage-system/</url>
-    <content><![CDATA[<h2 id="0-摘要"><a class="header-anchor-1" href="#0-摘要">#</a>0. 摘要</h2>
-<p>Bigtable 是一个分布式存储系统，用于管理结构化数据，能够扩展到巨大的规模：PB 级别的数据，数千台机器。
-Google 的很多项目都保存在 Bigtable 中，包括网页索引，Google Earth 和 Google Finance。</p>
-<h2 id="1-引言"><a class="header-anchor-1" href="#1-引言">#</a>1. 引言</h2>
-<p>Bigtable 从很多方面像一个数据库：它与数据库有很多类似的策略。并行数据库，内存数据库已经实现了缩放性和高性能，但是 Bigtable 提供了不同的接口。
-Bigtable 不支持完整的关系模型；取而代之，它提供一个简单的数据模型，还支持动态改变数据布局和格式。而且允许客户端对底层存储的数据的局部性进行推理。数据使用行和列名进行索引，行列是任意的字符串。
-Bigtable 把数据视为字符串，需要客户端序列化和反序列化后使用。客户端能够通过细致地控制 schema 来控制数据的局部性。最后，Bigtable 的 schema 有参数控制能否在 OOM 的时候继续提供服务。</p>
-<h2 id="2-数据模型"><a class="header-anchor-1" href="#2-数据模型">#</a>2. 数据模型</h2>
-<p>Bigtable 是一个稀疏、分布式、持久化的多维排序映射表。这个表是通过行键、列键和时间戳索引的。表中的值是字节串。</p>
-<p>(row:string, column:string, time:int64) -&gt; string</p>
-<p>Google 分析了很多潜在的应用场景，最终敲定了这个数据模型。</p>
-<h3 id="行键"><a class="header-anchor-1" href="#行键">#</a>行键</h3>
-<p>表格中的行键是任意的字符串，最大可以是 64KB，典型值是 10-100 字节。</p>
-<p>Bigtable 会按照字典序排序行键。表中的所有行会被动态划分为更小的段，称为 Tablet，是数据分散和负载均衡的单元。客户端能够控制行键的格式，以便于控制数据的局部性。例如，在 Google 的 Webtable 中，行键是反转的 hostname，这样 <code>maps.google.com/index.html</code> 就会存储在 <code>com.google.maps/index.html</code> 的位置。</p>
-<h3 id="列族（column-family-cf）"><a class="header-anchor-1" href="#列族（column-family-cf）">#</a>列族（Column Family, CF）</h3>
-<p>表格中的列被分成若干组，称为<em>列族</em>，列族是基本的 ACL 单元。一个列族中的所有数据通常都是同一种类型（同一个列族的会放在一起压缩）。列族必须在表创建时指定，一旦写入数据之后就不能修改。列族数量按预期是很小的，最多几百个，而且很少会改变。相对的，列的数量没有上限。</p>
-<p>列键使用 <code>family:qualifier</code> 的形式命名。其中 <code>family</code> 必须是可打印的字符，<code>qualifier</code> 可以是任意的字节串。例如 Webtable 中的一个 CF 是 <code>language</code>，用于存储网页的语言。<code>language</code> 下只有一个列，存储语言 ID。另一个 CF 是 <code>anchor</code>，其中每一个列名是指向的站点的名字，值是链接文本。例如 Webtable 中的一条数据可能是这样的：</p>
-<table>
-<thead>
-<tr>
-<th>Row Key</th>
-<th>contents</th>
-<th>anchor:cnnsi.com</th>
-<th>anchor:my.look.ca</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>“com.cnn.www”</td>
-<td>“&lt;html&gt;”</td>
-<td>“CNN”</td>
-<td>“<span class="exturl" data-url="aHR0cDovL0NOTi5jb20=">CNN.com<i class="fa fa-external-link-alt"></i></span>”</td>
-</tr>
-</tbody>
-</table>
-<p>访问控制和磁盘和内存统计都是在 CF 级别进行的。因此可以通过 CF 管理不同的应用程序：例如一部分只写入新的基本数据，一部分读基本数据然后创建衍生数据，一部分只读取已有的数据。</p>
-<h3 id="时间戳"><a class="header-anchor-1" href="#时间戳">#</a>时间戳</h3>
-<p>Bigtable 中的每个单元都可以包含相同数据的多个版本，这些版本通过时间戳进行索引。
-Bigtable 的时间戳是 64 位整数，这个时间戳可以由 Bigtable 自动生成（使用现实世界的毫秒），也可以由客户端提供。如果由客户端提供，需要保证并发写的时候，多个客户端的时间戳是不冲突的。
-Bigtable 会按照时间戳的逆序存储数据，这样最新的数据会被最先读取。</p>
-<p>为了更容易地管理多版本数据，Bigtable 提供了两个 CF 级别的设置：允许 Bigtable 自动回收旧版本的数据。客户端可以选择保留多少个版本，或者只保留最新的版本。</p>
-<p>在 Webtable 中，<code>contents</code> 列存储的数据的时间戳是文档的实际爬取时间，而且设置了只保存最新 3 个版本。</p>
-<h2 id="3-api"><a class="header-anchor-1" href="#3-api">#</a>3. API</h2>
-<p>写入 Bigtable 的代码示例：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Open the table</span></span><br><span class="line">Table *T = <span class="built_in">OpenOrDie</span>(<span class="string">&quot;/bigtable/web/webtable&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Write a new anchor and delete an old anchor</span></span><br><span class="line"><span class="function">RowMutation <span class="title">r1</span><span class="params">(T, <span class="string">&quot;com.cnn.www&quot;</span>)</span></span>;</span><br><span class="line">r<span class="number">1.</span><span class="built_in">Set</span>(<span class="string">&quot;anchor:www.c-span.org&quot;</span>, <span class="string">&quot;CNN&quot;</span>);</span><br><span class="line">r<span class="number">1.</span><span class="built_in">Delete</span>(<span class="string">&quot;anchor:www.abc.com&quot;</span>);</span><br><span class="line">Operation op;</span><br><span class="line"><span class="built_in">Apply</span>(&amp;op, &amp;r1);</span><br></pre></td></tr></table></figure>
-<p>读取 Bigtable 的代码示例：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">Scanner <span class="title">scanner</span><span class="params">(T)</span></span>;</span><br><span class="line">ScanStream *stream;</span><br><span class="line">stream = scanner.<span class="built_in">FetchColumnFamily</span>(<span class="string">&quot;anchor&quot;</span>);</span><br><span class="line">stream-&gt;<span class="built_in">SetReturnAllVersions</span>();</span><br><span class="line">scanner.<span class="built_in">Lookup</span>(<span class="string">&quot;com.cnn.www&quot;</span>);</span><br><span class="line"><span class="keyword">for</span> (; !stream-&gt;<span class="built_in">Done</span>(); stream-&gt;<span class="built_in">Next</span>()) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s %s %lld %s\n&quot;</span>,</span><br><span class="line">        scanner.<span class="built_in">RowName</span>(),</span><br><span class="line">        stream-&gt;<span class="built_in">ColumnName</span>(),</span><br><span class="line">        stream-&gt;<span class="built_in">MicroTimestamp</span>(),</span><br><span class="line">        stream-&gt;<span class="built_in">Value</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Bigtable API 提供了这些方法和特性：</p>
-<ul>
-<li>修改集群</li>
-<li>创建和删除表</li>
-<li>创建、修改和删除 CF，修改 ACL</li>
-<li>读、写和扫描数据</li>
-<li>把一组操作打包成一个原子操作</li>
-<li>单行事务：可以对单行数据进行原子的 Read-Modify-Write 操作</li>
-<li>单元格作为计数器</li>
-<li>在服务器的地址空间中执行客户端提供的 Sawzall 脚本（PS. 类似 lua in redis）
-Sawzall 的 API 不能写数据，但是可以进行一些复杂的数据变换、过滤和聚合操作。</li>
-</ul>
-<p>Bigtable 还可以和 MapReduce 结合使用，Google 写了很多包装器，用于在 MapReduce 任务中读写 Bigtable。</p>
-<h2 id="4-基本构建块"><a class="header-anchor-1" href="#4-基本构建块">#</a>4. 基本构建块</h2>
-<p>Bigtable 是建立在其他几个已有的 Google 系统之上的：</p>
-<ol>
-<li>GFS（Google File System）：用于存储日志和数据</li>
-<li>集群管理系统：调度任务，管理资源，处理机器故障，和监控集群状态</li>
-<li>Chubby：分布式锁服务</li>
-</ol>
-<p>Bigtable 使用了 Google <em>SSTable</em> 文件格式。SSTable 提供一个持久化的、有序的、不可变的 K-V 映射，其中 K 和 V 都是任意的字节串。SSTable 文件能提供的操作有：</p>
-<ul>
-<li>按 key 查找 value</li>
-<li>迭代特定范围内的所有 key-value 对</li>
-</ul>
-<p>SSTable 内部包含一个块序列（块大小可变，默认 64KB）。SSTable 文件末尾存储着块索引，用于定位块。当 SSTable 文件被打开时，块索引会被读入内存。每次查询操作只需要一次磁盘 seek 操作：首先在内存索引中二分查找到块的位置，然后读取该块即可。可选地，SSTable 还可以被完全映射到内存中，这样就不需要访问磁盘了。</p>
-<p>Bigtable 还依赖于高可用和持久化地分布式锁服务 Chubby。
-Chubby 服务包含 5 个副本，其中一个会被选举为 Master，依赖于 Paxos 算法保证副本数据一致性。Chubby 提供了一个由目录和文件组成的命名空间，每个目录或文件都可以用作锁，而且读写文件的操作是原子的。
-Chubby 客户端库提供对 Chubby 文件的一致性缓存，每个客户端都维持着一个 <em>session</em>。如果客户端在超时时间内没有成功续约，则会过期，并失去所有的锁。
-Chubby 客户端还可以注册 callback，当锁的状态发生变化时，这个 callback 会被调用。</p>
-<p>Bigtable 用 Chubby 实现这些任务：</p>
-<ul>
-<li>保证任意时刻最多只有一个 Master；</li>
-<li>保存 Bigtable 的 bootstrap 位置；</li>
-<li>发现新 Tablet Server 的位置；处理 Tablet Server 的后事；</li>
-<li>存储 schema 信息：每个表的 CF；</li>
-<li>存储 ACL；</li>
-</ul>
-<p>Bigtable 强依赖于 Chubby，如果 Chubby 不可用，Bigtable 也不可用。
-Google 衡量了由于 Chubby 问题导致的 Bigtable 不可用的平均时间，在 14 个 Bigtable 集群，使用 11 个 Chubby 实例，这个时间只占 0.0047%。受影响最严重的单个集群，这个时间也只占 0.00326%。</p>
-<h2 id="5-实现"><a class="header-anchor-1" href="#5-实现">#</a>5. 实现</h2>
-<p>Bigtable 的实现包含三部分：链接到应用程序中的客户端库、一个 Master 进程和若干个 Tablet Server 进程。Tablet Server 可以动态地增加或删除。</p>
-<p>Bigtable 的 Master 进程负责：</p>
-<ul>
-<li>分配 Tablet 到 Tablet Server</li>
-<li>检测 Tablet Server 的增删</li>
-<li>均衡 Tablet Server 的负载</li>
-<li>垃圾回收 GFS 中的文件</li>
-<li>处理 Schema 变更（例如表和 CF 的增删）。</li>
-</ul>
-<p>Tablet Server 负责管理 Tablet，每个 Tablet Server 通常会管理 10 个到 1000 个 Tablet。
-Tablet Server 还要负责处理客户端的读写请求，还有分裂过大的 Tablet。</p>
-<p>和许多单主节点的分布式存储系统（比如 GFS）一样，客户端数据是不会流过 Master 节点的，而是直接和 Tablet Server 交互。因为客户端不依赖于 Master 来获取 Tablet 位置信息，大多数客户端从来不会和 Master 通信。因此 Master 的任务是很轻松的。</p>
-<p>一个 Bigtable 集群存储多个表，每个表由一系列的 Tablet 组成，每个 Tablet 包含了一段行范围的数据。初始时，每个表只有一个 Tablet。随着表的增长，Tablet 会被分裂成更多更小的 Tablet，默认 Tablet 的大小是 100-200 MB。</p>
-<h3 id="5-1-tablet-位置"><a class="header-anchor-1" href="#5-1-tablet-位置">#</a>5.1 Tablet 位置</h3>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Level 0  |         Chubby file</span><br><span class="line">         |              |</span><br><span class="line">         |              v</span><br><span class="line">Level 1  |         Root Tablet (META1)</span><br><span class="line">         |        /   |    |   \</span><br><span class="line">         |       v    v    v    v</span><br><span class="line">Level 2  |   META2 META3 META4 ...</span><br><span class="line">         |    /|\   /|\   /|\  ...</span><br><span class="line">         |    vvv   vvv   vvv  ...</span><br><span class="line">Level 3  | USER1..  ...   ...  ...</span><br></pre></td></tr></table></figure>
-<p>Bigtable 使用了三级层次结构来存储 Tablet 位置信息。第 0 级是一个保存于 Chubby 中的文件，保存着 <em>Root Tablet</em> 的位置信息。</p>
-<p>Root Tablet 是 METADATA 表的第一个 Tablet，而且不会被分裂。</p>
-<p>METADATA 表是整个系统的元数据表，其中保存着所有其他表的 Tablet 位置信息。其行键是表名和末尾行的编码，值是 Tablet 的位置信息。
-METADATA 中的每一行数据大约占用 1KB。按照保守估计，每个 Tablet 大小 128MB 的话，三级的 METADATA 表可以存储 2^34 个 Tablet 的位置。</p>
-<p>客户端库会缓存 Tablet 的位置信息。如果客户端没有缓存，或者发现缓存的位置信息不正确，那么它就会递归地到上一级查找。按照这种算法，如果当前没有缓存，定位需要 3 个 RT，加上 1 次 Chubby 读。如果缓存不对，那么最多需要 6 个 RT，加上 1 次 Chubby 读。虽然 Tablet 位置是保存在内存中的，即不需要访问 GFS，但是这种定位方法还是很慢。为了加速一般情况，Bigtable 会让客户端预取 Tablet 位置信息，每次读的时候都多读几个 Tablet 的位置信息。</p>
-<p>为方便 debug，METADATA 表中还会存储每个 Tablet 的时间日志。</p>
-<h3 id="5-2-tablet-分配"><a class="header-anchor-1" href="#5-2-tablet-分配">#</a>5.2 Tablet 分配</h3>
-<p>每个 Tablet 最多只会分配给一个 Tablet Server。
-Master 负责记录活着的 Tablet Server，以及 Tablet 到 Tablet Server 的映射关系。如果一个 Tablet 还没有分配，而且某个 Tablet Server 有空闲空间，那么 Master 就会向这个 Tablet Server 发送一个 Tablet load 请求，把这个 Tablet 分配给他。</p>
-<p>Bigtable 使用 Chubby 追踪 Tablet Server 的状态。当一个 Tablet Server 启动时，它会在 Chubby 的特定目录下创建一个名字唯一的文件（Server file），并且获取文件的排他锁。Master 会监听这个目录来发现新的 Tablet Server。如果一个 Tablet Server 丢失了这个排它锁，那么它就不再对外提供服务。它会先检查 Server file 是否存在，如果存在就尝试重新获取锁，否则就会直接退出。当 Tablet Server 结束时，它会释放锁，就会被 Master 拿到。</p>
-<p>Master 需要周期性地监测 Tablet Server 是否在正常工作，如果不是，就要尽快把它负责的 Tablet 分配给其他 Tablet Server。为此，Master 会定期询问 Tablet Server 是否还持有 Server file 的锁，如果没有，或者多次尝试都超时，Master 就会尝试拿一下这个 Tablet 的锁。如果拿到了，说明 Chubby 服务正常，Tablet Server 挂了，就会把这个 Server file 删掉，让 Tablet Server 自行退出；然后把它负责的 Tablet 添加到未分配集合中。为了确保 Bigtable 集群不会受 Master 和 Chubby 之间网络的影响，Master 的 Chubby session 过期，就会直接退出。</p>
-<p>当一个新 Master 被集群管理系统拉起的时候，它需要先检查有哪些 Tablet，按照如下步骤：</p>
-<ol>
-<li>Master 获取一个 Master lock；</li>
-<li>扫描 Server file 目录，找到所有活着的 Tablet Server；</li>
-<li>与每一个 Tablet Server 通信，询问它们负责的 Tablet 列表；</li>
-<li>扫描 METADATA 表，找到所有的 Tablet：此时就可以找到哪些 Tablet 还未分配。</li>
-</ol>
-<p>一个小问题是如果 METADATA Tablet 还没有分配的话，Master 就没办法找到 METADATA 表的位置，那步骤 4 就无法进行。因此在步骤 4 之前，Master 会额外检查一下 Root Tablet 有没有分配，如果没有分配，就会额外把 Root Tablet 添加到未分配集合中，最终 Root Tablet 会被分配给空闲的 Tablet Server。</p>
-<p>已有 Tablet 的集合只有当以下时候才会变化：</p>
-<ol>
-<li>创建或删除表；</li>
-<li>Tablet 合并：两个已有的 Tablet 合并成一个大的 Tablet；</li>
-<li>Tablet 分裂：一个 Tablet 被分裂成两个更小的 Tablet；</li>
-</ol>
-<p>情况 1 和 2 都是由 Master 初始化的，Master 自然能够追踪这些变更；情况 3 是由 Tablet Server 完成的，Tablet Server 会把分裂出来的新 Tablet 信息记录在 METADATA 表中，然后通知 Master。即使这条通知消息丢失了，当 Master 要求 Tablet Server 加载分裂出来的 Tablet 时，Master 也会找到这个新 Tablet。</p>
-<h3 id="5-3-tablet-服务"><a class="header-anchor-1" href="#5-3-tablet-服务">#</a>5.3 Tablet 服务</h3>
-<p>Tablet 的持久化状态是保存在 GFS 中的。更新操作会被记录成操作日志（Commit log），其中保存着 redo 记录。在这些更新中，最近提交的更新会被保存在内存中的一个称为 Memtable 的有序数据结构中。为了恢复一个 Tablet，Tablet Server 需要先从 METADATA 表中找到这个 Tablet 的元数据，包括组成这个 Tablet 的一系列 SSTable 文件，还有一系列 redo 点，即指向操作日志的指针。
-Tablet Server 会把这些 SSTable 文件的索引加载到内存中，然后通过应用自 redo 点开始的所有更新来重建 Memtable。</p>
-<p>写操作：</p>
-<ol>
-<li>Server 检查是否合法，是否有权限（通过读取 Chubby 中的 ACL）</li>
-<li>有效的变更会被写入操作日志：会分批写入提高吞吐量</li>
-<li>变更会被写入 Memtable</li>
-</ol>
-<p>读操作：</p>
-<ol>
-<li>Server 检查是否合法，是否有权限（通过读取 Chubby 中的 ACL）</li>
-<li>在由一系列 SSTable 和 Memtable 组成的数据视图中查找数据</li>
-</ol>
-<p>Tablet 分裂和合并不影响读写操作。</p>
-<h3 id="5-4-数据回收"><a class="header-anchor-1" href="#5-4-数据回收">#</a>5.4 数据回收</h3>
-<p><em>Minor compaction</em>：写入数据的时候，Memtable 会增大，当增加到一定程度时，就会被冻结，然后转换成 SSTable 写入 GFS。与此同时，一个新的 Memtable 会被创建。</p>
-<p>Minor compaction 的目的是：</p>
-<ul>
-<li>减小内存占用</li>
-<li>减少重启时的恢复时间</li>
-</ul>
-<p>Minor compaction 不影响读写操作。</p>
-<p>每次 Minor compaction 都会创建一个新的 SSTable。如果一直增加下去，读的时候就需要合并很多 SSTable。因此 Bigtable 会定期在后台执行 <em>Merging compaction</em>，也叫 <em>Major compaction</em>。
-Major compaction 会把多个 SSTable + Memtable 合并成一个 SSTable。合并的时候，会把被删除的数据去掉。</p>
-<p>Major compaction 的目的是：</p>
-<ul>
-<li>回收删除数据占用的空间</li>
-<li>保证被删除的数据能够及时消失（对于敏感数据）</li>
-</ul>
-<h2 id="6-细化"><a class="header-anchor-1" href="#6-细化">#</a>6 细化</h2>
-<p>为了实现高性能，高可用，高可靠性，Bigtable 实现上还做了很多细节优化。</p>
-<h3 id="局部性群组"><a class="header-anchor-1" href="#局部性群组">#</a>局部性群组</h3>
-<p>客户端可以把多个 CF 设置成一个局部性群组。在每个 Tablet 中，每个局部性群组都会有一个单独的 SSTable。将不经常一起访问的 CF 划分成多个局部性群组，能够提高读性能。例如，Webtable 中的页面元数据（例如 langauge 和 chunksums）可以放进一个局部性群组，而网页内容可以放进另一个局部性群组：因为一个读元数据的应用程序往往不会读取内容。</p>
-<p>此外，局部性群组有一些有用的调优参数，例如，局部性群组可以被声明为 <em>in-memory</em>。这样的话，这个局部性群组的 SSTable 在用到时就会被加载到内存中，在读取这个局部性群组内的 CF 时就不用访问磁盘了。这个特性对于频繁访问的小块数据很有用：METADATA 表中的 <code>location</code> CF 就是一个 in-memory 的局部性群组。</p>
-<h3 id="压缩"><a class="header-anchor-1" href="#压缩">#</a>压缩</h3>
-<p>客户端可以控制一个局部性群组的 SSTable 是否压缩，以及使用什么算法。压缩的粒度是 SSTable 中的块，而不是整个 SSTable，这样读的时候就不用解压整个 SSTable。很多客户端会使用一个两趟压缩算法，第一趟用 Bentley-McIlroy 模式，用一个长窗口压缩长的重复串，第二趟用一个快速的算法，在 16KB 的小窗口内压缩剩下的数据。这种两趟压缩算法是很快的，在现代机器上，压缩速度可以达到 100-200MB/s，解压速度可以达到 400-1000MB/s。</p>
-<p>虽然我们在选择压缩算法的时候更倾向于压缩速度而不是压缩率。这种两趟压缩算法的压缩率也不错。在 Webtable 中进行测试，压缩 html 文档，每个文档只保存一个版本，两趟压缩算法的压缩率能达到 10:1，比 gzip 的 3:1 或者 4:1 好的多。如果保存多个版本，压缩率会更高。</p>
-<h3 id="缓存以提升读性能"><a class="header-anchor-1" href="#缓存以提升读性能">#</a>缓存以提升读性能</h3>
-<p>为了提升读性能，Tablet Server 使用了两级缓存。</p>
-<ul>
-<li>Scan 缓存是 high-level 的缓存，缓存 SSTable 返回的 kv 对。</li>
-<li>Block 缓存是 low-level 的缓存，缓存从 GFS 中读出来的 SSTable 块。</li>
-</ul>
-<h3 id="布隆过滤器"><a class="header-anchor-1" href="#布隆过滤器">#</a>布隆过滤器</h3>
-<p>读操作必须要从所有的 SSTable 中查找数据，如果 SSTable 不在内存中，就会需要多次磁盘访问。
-Bigtable 允许客户端指定创建一个布隆过滤器，用于快速判断一个 key 是否在 SSTable 中。</p>
-<h3 id="提交日志实现"><a class="header-anchor-1" href="#提交日志实现">#</a>提交日志实现</h3>
-<p>如果我们把每个 Tablet 的提交日志都放在单独的 log 文件中，就需要往 GFS 里面写大量的文件。再加上 GFS 实现，可能导致大量磁盘访问。另外，用多个 log 文件也不容易做 group commit 优化。因此 Bigtable 设计成每个 Tablet Server 使用一个 log 文件。</p>
-<p>使用单个 log 文件提供了正常路径下的性能优势，但是会让恢复变得麻烦。当 Tablet Server 挂了，它负责的 Tablet 需要被迁移走，而每个接管的 Server 通常只会分到其中一部分。为了进行恢复，每个 Server 都需要读取一遍完整的 log 文件，会导致巨量的读放大。</p>
-<p>为了避免这种读放大，首先，Bigtable 会按照 <code>&lt;table, row name, log sequence number&gt;</code> 顺序排序 log 文件。排序后，对于单个 Tablet 的变更就是连续存储的，因此新 owner 只需要进行一次 seek 加顺序读就可以了。为了并行化这种排序过程，log 文件会按照 64MB 大小分段，然后分散在不同的 Tablet Server 上并行排序。这种排序过程是由 Master 协调的。当任意 Tablet Server 需要从 log 文件恢复 Tablet 的时候，就会开始这种排序过程。</p>
-<p>由于各种各样的原因，有时往 GFS 上写日志的时候，会有性能抖动。例如 GFS 正在故障恢复，或者网络拥塞，或者单纯就是负载太重。为了避免 GFS 延迟尖峰，每个 Tablet Server 实际上会有两个写 log 的线程，每个线程写自己的日志文件，同一时刻只会有一个线程被使用。如果写入的性能太差，就会切换到另一个线程。队列里面后续的变更也会由另一个线程来处理。日志条目中包含了自增序列号以防止线程切换的时候重复应用相同的日志。</p>
-<h3 id="加速-tablet-恢复"><a class="header-anchor-1" href="#加速-tablet-恢复">#</a>加速 Tablet 恢复</h3>
-<p>如果 Master 要把一个 Tablet 从一个 Server 迁移到另一个，源 Server 会先对这个 Tablet 进行一次 Minor compaction。这次 compaction 能够缩短恢复时间，因为需要恢复的 log 变少了。在 compaction 之后，源 Tablet Server 就会停止服务这个 Tablet。在真正卸载这个 Tablet 之前，Server 会再做一次（通常是很快的）Minor compaction，目的是消除第一次 compaction 期间收到的变更。第二次 compaction 之后，就没有剩余的 log 了，目标 Server 只需加载 Tablet 就可以了。</p>
-<h3 id="利用不可变性"><a class="header-anchor-1" href="#利用不可变性">#</a>利用不可变性</h3>
-<p>除了 SSTable 缓存以外，Bigtable 系统的各种其他部分也利用了 SSTable 文件的不可变性。比如，并发读 SSTable 的时候不需要任何同步机制。因此行之间的并发控制就可以实现得非常高效。唯一的例外是 Memtable。为了减少 Memtable 的读争抢，我们让每个 Memtable 的行都是 CoW 的，这样读和写就可以并行进行。</p>
-<p>因为 SSTable 是不可变的，所以移除已经删除的数据就转换成了垃圾回收过时 SSTable 的问题。每个 Tablet 的 SSTable 都被注册到 METADATA 表中。Master 在 SSTable 文件集合上使用标记-清除算法来回收过时的 SSTable。</p>
-<p>SSTable 的不可变性还允许我们快速地分裂 Tablet。相对于给每个 Tablet 生成一组新的 SSTable 文件，Bigtable 让子 Tablet 共享父 Tablet 的 SSTable 文件。</p>
-<h2 id="7-性能评估"><a class="header-anchor-1" href="#7-性能评估">#</a>7 性能评估</h2>
-<p>评估实验使用了一个 N 个 Tablet Server 的 Bigtable 集群。用来评估性能和可拓展性随 N 的变化。每个 Tablet Server 使用 1GB 内存，写入一个 1,786 机器的 GFS 集群，每个 GFS 节点配置两块 400GB 的 IDE 硬盘。还有 N 个客户端用于生成读写负载。N 个客户端相对于 N 个 Tablet Server 是非常充足的，这样可以保证客户端的负载不会成为瓶颈。每个机器有两颗双核 Opteron 2GHz 的 CPU。</p>
-<p>（略）</p>
-<h2 id="8-现实世界的应用"><a class="header-anchor-1" href="#8-现实世界的应用">#</a>8 现实世界的应用</h2>
-<p>截至 2006 年 8 月，Google 内部有 388 个生产 Bigtable 集群，一共有 24,500 个 Tablet Server。其中大部分都是供开发使用，因此经常是闲置的。大部分集群都有很少的机器数。有 14 个忙的集群，一共由 8069 个 Tablet Server 组成，服务了 1.2M 的 QPS，进的 RPC 流量大约是 741MB/s，出的是 16GB/s。</p>
-<h2 id="8-1-google-analytics"><a class="header-anchor-1" href="#8-1-google-analytics">#</a>8.1 Google Analytics</h2>
-<p>Google Analytics 用于帮助网站所有者分析流量模式。包括聚合统计，例如每天的 UV，每个 URL 的 PV，还有支付的用户比例。为了启用这个功能，网站所有者需要在网站上插入一个 JavaScript 代码片段。每次页面被访问的时候，这个代码片段就会执行。这个代码会记录各种各样的信息，例如用户 id 和页面的信息，发送到 Google Analytics。
-Google Analytics 总结这些信息，然后提供给网站所有者。</p>
-<p>Google Analytics 使用的 Bigtable 表包括：</p>
-<ul>
-<li>raw click 表：~200TB，每个用户会话一行，行名字是网站名+Session 创建时间。这样保证了访问相同站点的用户会话会被存储在一起，而且是按照时间排序的。这个表的压缩率是 14%。</li>
-<li>summary 表：~20TB，包含每个网站的各种聚合统计信息。这个表是被周期调度的 MapReduce 任务从 raw click 表中生成的。每个 MR 任务从 raw click 表中提取最近的会话数据。这个表的压缩率是 29%。</li>
-</ul>
-<h2 id="8-2-google-earth"><a class="header-anchor-1" href="#8-2-google-earth">#</a>8.2 Google Earth</h2>
-<p>Google 运营着一系列服务，提供地球表面高解析度的卫星图像。这个服务既通过基于 web 的 Google Maps 提供，也通过 Google Earth 软件客户端提供。</p>
-<p>Google Earth 的预处理流水线使用了一个 Bigtable 表存储原始图像数据。在预处理过程中，图像被清理和合并，形成最终提供服务的图像。这个表包含了约 70TB 的数据，因此是存储在磁盘中的。这些图像已经被有效地压缩过了，因此 Bigtable 的压缩被关闭了。</p>
-<p>图像表的每一行对应一个地理区域，行名字保证了相邻区域的行是相邻的。这个表包含了一个 CF，用于追踪每个区域的数据来源。这个 CF 有很多列：基本上每个原始图像都有一个列。因为每个区域的图像是从很少几张原始图像中合成的，这个 CF 非常稀疏。</p>
-<p>预处理流水线重度依赖 MapReduce over Bigtable 来处理图像数据。</p>
-<p>服务系统使用一个表来索引 GFS 中的数据。这个表相对较小，只有 ~500GB，但是要保证每个数据中心能低延迟地提供上万的 QPS。因此这个表跨越了数百个 Tablet Server，还开启了 in-memory 选项。</p>
-<h2 id="8-3-个性化搜索"><a class="header-anchor-1" href="#8-3-个性化搜索">#</a>8.3 个性化搜索</h2>
-<p>Personalized Search 是一个 Google 的实验性服务，记录用户的查询和点击行为，跨越 Google 的多种服务，例如搜索，图片和新闻。用户可以浏览搜索历史来找到他们之前搜索和点击过的内容，然后他们可以寻求个性化的搜索结果，根据他们的历史行为。</p>
-<p>个性化搜索把每个用户的数据保存在 Bigtable 中。每个用户有一个唯一的 userid，和一个对应的行。所有用户的行为都会被记录在这个行中。每种行为都有一个单独的 CF 保存（例如有一个 CF 保存搜索历史）。数据元素是行为发生的时间戳。个性化搜索用 MapReduce over Bigtable 来生成用户的资料。</p>
-<p>个性化搜索数据在多个 Bigtable 集群之间复制，以增加可用性和减少延迟。个性化搜索团队原本在 Bigtable 之上实现了一个自己的复制系统，但是后来改成了使用 Bigtable 的复制功能。</p>
-<p>个性化搜索的存储系统允许其他组在他们的列中添加每个用户的信息，然后这个系统也被很多其他的，需要为每个用户保存数据的 Google 业务使用。在很多组之间共享一个表导致了不寻常的 CF 数量。为了解决这个问题，Bigtable 增加了一个简单的 Quota 机制来限制单个客户端在共享表中的空间消耗，提供了一定的隔离性。</p>
-<h2 id="faq"><a class="header-anchor-1" href="#faq">#</a>FAQ</h2>
-<h3 id="1-gfs-可能出现重复记录或者-padding，bigtable-如何处理这种情况？"><a class="header-anchor-1" href="#1-gfs-可能出现重复记录或者-padding，bigtable-如何处理这种情况？">#</a>1. GFS 可能出现重复记录或者 padding，Bigtable 如何处理这种情况？</h3>
-<p>Bigtable 写入 GFS 的数据分为两种：</p>
-<ol>
-<li>操作日志，当 Tablet Server 发生故障时，它上面服务的 Tablet 会被迁移到集群中的其他 Tablet Server 上继续提供服务，加载 Tablet 可能需要回放操作日志，每条操作日志唯一的序号，通过它可以去除重复的操作日志。</li>
-<li>每个 Tablet 包含的 SSTable 数据，如果写入 GFS 失败可以重试并产生多条重复记录，但是 Bigtable 只会索引最后一条写入成功的记录。</li>
-</ol>
-<h3 id="2-如何保证同一个-tablet-不会被多台机器同时服务？"><a class="header-anchor-1" href="#2-如何保证同一个-tablet-不会被多台机器同时服务？">#</a>2. 如何保证同一个 Tablet 不会被多台机器同时服务？</h3>
-<p>利用 Chubby 保证互斥性。</p>
-]]></content>
-      <categories>
-        <category>distributed-system</category>
-      </categories>
-      <tags>
-        <tag>分布式系统</tag>
-        <tag>Bigtable</tag>
       </tags>
   </entry>
   <entry>
@@ -4709,8 +4963,8 @@ Lomet 和 Li 对于这种时间数据库描述了一种实现策略。</p>
         <category>distributed-system</category>
       </categories>
       <tags>
-        <tag>数据库</tag>
         <tag>分布式系统</tag>
+        <tag>数据库</tag>
         <tag>Spanner</tag>
       </tags>
   </entry>
@@ -5095,260 +5349,6 @@ NN 会把不同客户端发起的操作合并成一个 batch，只要有一个�
         <tag>分布式系统</tag>
         <tag>大数据</tag>
         <tag>HDFS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CS246: Mining Massive Data Sets</title>
-    <url>/2025/03/14/cs246/</url>
-    <content><![CDATA[<p>CS246: Mining Massive Data Sets</p>
-<p>课程教材: MMDs</p>
-<p>前序知识: 编程语言 Python 或者 Java；数据结构和算法；概率论；线性代数；多变量积分；数据库系统</p>
-<h2 id="介绍"><a class="header-anchor-1" href="#介绍">#</a>介绍</h2>
-<h3 id="什么是数据挖掘"><a class="header-anchor-1" href="#什么是数据挖掘">#</a>什么是数据挖掘</h3>
-<p>数据分析和挖掘的应用场景</p>
-<ul>
-<li>推荐系统</li>
-<li>网络检索</li>
-<li>AlphaGo</li>
-<li>机器人控制</li>
-</ul>
-<p>数据分析和挖掘的基本任务</p>
-<dl>
-<dt>数据分析</dt>
-<dd>对数据进行 inspecting, cleaning, transforming 和 modeling，以发现有用的信息，提出建议，支持决策</dd>
-<dt>数据挖掘</dt>
-<dd>数据分析技术之一，更加关注于利用 modeling 和 knowledge discovery 来做预测，而不是仅仅做数据的描述</dd>
-</dl>
-<p>不同类型的数据</p>
-<ul>
-<li>高维数据</li>
-<li>图数据</li>
-<li>无限流数据</li>
-<li>多模态数据</li>
-</ul>
-<p>数据挖掘与其他学科的关系</p>
-<ul>
-<li>与数据库: 都有大规模数据，简单查询
-<ul>
-<li>数据库视角: 大规模数据的查询分析</li>
-</ul>
-</li>
-<li>与机器学习: 都有小量数据，复杂模型
-<ul>
-<li>机器学习视角: 模型推理</li>
-</ul>
-</li>
-<li>与 AI</li>
-<li>与计算机理论: 都有随机化算法</li>
-</ul>
-<p>数据挖掘的清单</p>
-<ul>
-<li>按照场景划分
-<ul>
-<li>监督学习</li>
-<li>无监督学习</li>
-<li>强化学习</li>
-<li>半监督学习</li>
-<li>迁移学习</li>
-<li>结构化学习</li>
-</ul>
-</li>
-<li>按照任务划分
-<ul>
-<li>回归</li>
-<li>分类</li>
-<li>聚类</li>
-</ul>
-</li>
-<li>按照方法
-<ul>
-<li>线性模型</li>
-<li>深度学习</li>
-<li>SVM</li>
-<li>决策树</li>
-<li>KNN</li>
-</ul>
-</li>
-</ul>
-<h3 id="mapreduce-spark"><a class="header-anchor-1" href="#mapreduce-spark">#</a>MapReduce &amp; Spark</h3>
-<p>大规模计算的挑战</p>
-<ul>
-<li>
-<p>如何分发计算</p>
-</li>
-<li>
-<p>如何让写分布式程序更简单</p>
-</li>
-<li>
-<p>机器故障: 每台机器的平均寿命是 3 年</p>
-</li>
-<li>
-<p>通过网络传输数据很慢</p>
-<ul>
-<li>近数据计算</li>
-<li>Spark/Hadoop</li>
-</ul>
-</li>
-<li>
-<p>节点故障如何保证数据安全</p>
-<ul>
-<li>分布式存储</li>
-</ul>
-</li>
-</ul>
-<p>经典 MapReduce 模型</p>
-<ul>
-<li>三个阶段：Map, Shuffle, Reduce</li>
-<li>实现：原始 Google 实现，Hadoop，Spark，Flink</li>
-<li>优点：
-<ul>
-<li>模型简单</li>
-<li>隐藏了底层细节</li>
-</ul>
-</li>
-<li>缺点：
-<ul>
-<li><strong>巨大的性能折损</strong>：Map 的中间结果需要先写入磁盘，进行排序，然后再被 Reducer 读取</li>
-<li><strong>表达力弱</strong>：很多问题不容易表示成 MapReduce 过程</li>
-</ul>
-</li>
-</ul>
-<p>MapReduce 的改进 – Data-Flow 系统</p>
-<ul>
-<li>MapReduce 的问题在于，Map 和 Reduce 之间的数据流动是固定的，不够灵活。</li>
-<li>Data-Flow 系统的改进包括
-<ul>
-<li>允许任意数量的任务</li>
-<li>允许 Map 和 Reduce 以外的函数</li>
-<li>如果数据流是无环的，可以实现局部错误恢复</li>
-</ul>
-</li>
-</ul>
-<p>Spark 引擎</p>
-<ul>
-<li>表达力更强的计算系统</li>
-<li>快速数据共享
-<ul>
-<li>中间结果可以在内存中共享
-<ul>
-<li>需要大量内存</li>
-</ul>
-</li>
-<li>重复计算可以缓存</li>
-</ul>
-</li>
-<li>一般化的执行图：DAG 模型</li>
-<li>更丰富的函数库：不止 Map 和 Reduce</li>
-<li>容易编程</li>
-</ul>
-<p>Spark 的关键设计</p>
-<ul>
-<li><strong>RDD</strong>: Resilient Distributed Dataset
-<ul>
-<li>KV 集合的分片</li>
-</ul>
-</li>
-<li><strong>Transformations</strong>: 对 RDD 进行数据操作
-<ul>
-<li>例如: map, filter, join, union, intersection, distinct</li>
-<li>Lazy Evaluation</li>
-</ul>
-</li>
-<li><strong>Actions</strong>: 返回结果
-<ul>
-<li>collect, count, reduce, take</li>
-</ul>
-</li>
-<li><strong>DataFrame</strong>: 类似于 SQL 的表格</li>
-<li><strong>DataSet</strong>: 类似于 DataFrame，但是类型安全</li>
-</ul>
-<p>Spark 的库</p>
-<ul>
-<li>Spark SQL</li>
-<li>Spark Streaming</li>
-<li>MLlib</li>
-<li>GraphX</li>
-</ul>
-<p>适合于 MR 的问题</p>
-<ul>
-<li>统计每个 Host 下所有网页的总大小</li>
-<li>统计机器翻译：5-gram 的频率</li>
-<li>计算两个表的自然连接</li>
-</ul>
-<p>不适合于 MR 的问题</p>
-<ul>
-<li>图</li>
-<li>相互依赖的数据
-<ul>
-<li>机器学习</li>
-<li>很多 pair 数据的对比</li>
-</ul>
-</li>
-</ul>
-<p>MR 的开销估算</p>
-<ul>
-<li>通信开销</li>
-<li>已用的通信开销</li>
-<li>计算开销</li>
-</ul>
-<h2 id="关联规则挖掘"><a class="header-anchor-1" href="#关联规则挖掘">#</a>关联规则挖掘</h2>
-<p>动机：识别超市中哪些商品经常被一起购买</p>
-<p>问题定义：</p>
-<p>给定 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> 次交易记录，每次交易记录包含若干个物品。找到频繁项集。</p>
-<h3 id="应用场景"><a class="header-anchor-1" href="#应用场景">#</a>应用场景</h3>
-<ul>
-<li>搜索引擎对重复内容的网页去重</li>
-<li>新闻网站对一系列相关的新闻聚类</li>
-<li>寻找基因组中相似的序列</li>
-<li>从用户行为中找到相似的用户</li>
-<li>文本抄袭检测</li>
-<li>组合药物的相互作用</li>
-</ul>
-<h3 id="定义"><a class="header-anchor-1" href="#定义">#</a>定义</h3>
-<dl>
-<dt>支持度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>u</mi><mi>p</mi><mi>p</mi><mi>o</mi><mi>r</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">Support</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mord mathnormal">u</span><span class="mord mathnormal">pp</span><span class="mord mathnormal" style="margin-right:0.02778em;">or</span><span class="mord mathnormal">t</span></span></span></span></dt>
-<dd>项集 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi></mrow><annotation encoding="application/x-tex">I</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span></span></span></span> 的支持度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mi>u</mi><mi>p</mi><mi>p</mi><mi>o</mi><mi>r</mi><mi>t</mi><mo stretchy="false">(</mo><mi>I</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mtext>包含</mtext><mi>I</mi><mtext>的交易数量</mtext></mrow><mi>N</mi></mfrac></mrow><annotation encoding="application/x-tex">support(I) = \frac{包含I的交易数量}{N}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">s</span><span class="mord mathnormal">u</span><span class="mord mathnormal">pp</span><span class="mord mathnormal" style="margin-right:0.02778em;">or</span><span class="mord mathnormal">t</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2173em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8723em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord cjk_fallback mtight">包含</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="mord cjk_fallback mtight">的交易数量</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>，支持度越高，说明 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi></mrow><annotation encoding="application/x-tex">I</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span></span></span></span> 共同出现得越频繁。</dd>
-<dt>频繁项集（Frequent Itemset）</dt>
-<dd>如果一个项集 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi></mrow><annotation encoding="application/x-tex">I</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span></span></span></span> 的支持度大于 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span>，则称 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi></mrow><annotation encoding="application/x-tex">I</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span></span></span></span> 是频繁的。</dd>
-<dt>关联规则（Association Rules）</dt>
-<dd>使用 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">{</mo><msub><mi>i</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>i</mi><mn>2</mn></msub><mo separator="true">,</mo><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mo separator="true">,</mo><msub><mi>i</mi><mi>k</mi></msub><mo stretchy="false">}</mo><mo>→</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">\{i_1, i_2, ..., i_k\} \rightarrow j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">...</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">}</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.854em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span></span></span></span> 表示：如果一笔交易包含物品 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">{</mo><msub><mi>i</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>i</mi><mn>2</mn></msub><mo separator="true">,</mo><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mo separator="true">,</mo><msub><mi>i</mi><mi>k</mi></msub><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">\{i_1, i_2, ..., i_k\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">...</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">}</span></span></span></span>，则该交易很可能包含物品 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi></mrow><annotation encoding="application/x-tex">j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.854em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span></span></span></span>。</dd>
-<dt>置信度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>o</mi><mi>n</mi><mi>f</mi><mi>i</mi><mi>d</mi><mi>e</mi><mi>n</mi><mi>c</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">Confidence</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal">o</span><span class="mord mathnormal">n</span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal">i</span><span class="mord mathnormal">d</span><span class="mord mathnormal">e</span><span class="mord mathnormal">n</span><span class="mord mathnormal">ce</span></span></span></span></dt>
-<dd>关联规则 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo>=</mo><mo stretchy="false">{</mo><msub><mi>i</mi><mn>1</mn></msub><mo separator="true">,</mo><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mo separator="true">,</mo><msub><mi>i</mi><mi>k</mi></msub><mo stretchy="false">}</mo><mo>→</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">I=\{i_1,...,i_k\} \rightarrow j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">...</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">}</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.854em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span></span></span></span> 的置信度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>o</mi><mi>n</mi><mi>f</mi><mo stretchy="false">(</mo><mi>I</mi><mo>→</mo><mi>j</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>s</mi><mi>u</mi><mi>p</mi><mi>p</mi><mi>o</mi><mi>r</mi><mi>t</mi><mo stretchy="false">(</mo><mi>I</mi><mo>∪</mo><mi>j</mi><mo stretchy="false">)</mo></mrow><mrow><mi>s</mi><mi>u</mi><mi>p</mi><mi>p</mi><mi>o</mi><mi>r</mi><mi>t</mi><mo stretchy="false">(</mo><mi>I</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">conf(I\rightarrow j) = \frac{support(I \cup j)}{support(I)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">co</span><span class="mord mathnormal">n</span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.53em;vertical-align:-0.52em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">u</span><span class="mord mathnormal mtight">pp</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">or</span><span class="mord mathnormal mtight">t</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="mclose mtight">)</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">u</span><span class="mord mathnormal mtight">pp</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">or</span><span class="mord mathnormal mtight">t</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="mbin mtight">∪</span><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>。</dd>
-</dl>
-<h2 id="min-hashing-算法"><a class="header-anchor-1" href="#min-hashing-算法">#</a>Min-Hashing 算法</h2>
-<h3 id="动机"><a class="header-anchor-1" href="#动机">#</a>动机</h3>
-<p>从大规模数据中快速找到相似的数据对。例如，从网页中找到相似的网页，从用户中找到相似的用户。严谨定义：从数据集 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi></mrow><annotation encoding="application/x-tex">D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span> 中找到所有相似的数据对 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>i</mi></msub><mo separator="true">,</mo><msub><mi>x</mi><mi>j</mi></msub><mo>∈</mo><mi>D</mi></mrow><annotation encoding="application/x-tex">x_i, x_j \in D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8252em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span>，并且 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo separator="true">,</mo><msub><mi>x</mi><mi>j</mi></msub><mo stretchy="false">)</mo><mo>≤</mo><mi>s</mi></mrow><annotation encoding="application/x-tex">d(x_i, x_j) \leq s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord mathnormal">d</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span>。</p>
-<p>朴素方法需要计算所有数据对的相似度，复杂度为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>，不适用于大规模数据。</p>
-<h3 id="方法"><a class="header-anchor-1" href="#方法">#</a>方法</h3>
-<ol>
-<li>Shingling: 把原始文档转换成离散的集合</li>
-<li>Min-Hashing: 用小的签名表示大的集合</li>
-<li>Locality-Sensitive Hashing: 用小的签名找到相似的数据对</li>
-</ol>
-]]></content>
-      <categories>
-        <category>machine-learning</category>
-      </categories>
-      <tags>
-        <tag>算法</tag>
-        <tag>机器学习</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>word2vec</title>
-    <url>/2023/10/28/word2vec/</url>
-    <content><![CDATA[<h2 id="what’s-it"><a class="header-anchor-1" href="#what’s-it">#</a>What’s it</h2>
-<p>2013 年，Google 开源的，用于词向量计算的工具</p>
-<h2 id="架构"><a class="header-anchor-1" href="#架构">#</a>架构</h2>
-<p>X – Dense – Dense – Softmax – Y</p>
-<p>CBoW: 利用上下文预测当前词</p>
-<p>Skip-gram: 利用当前词预测上下文</p>
-]]></content>
-      <categories>
-        <category>machine-learning</category>
-      </categories>
-      <tags>
-        <tag>NLP</tag>
       </tags>
   </entry>
   <entry>
@@ -8878,6 +8878,7 @@ Petuum 正是利用了这种容错特性, 通过在参数服务器系统之上�
 <li><span class="exturl" data-url="aHR0cHM6Ly93d3cuemhpaHUuY29tL3F1ZXN0aW9uLzMxNjM0ODg5">如何评价 Eric Xing 实验室做的 Petuum 分布式机器学习平台？<i class="fa fa-external-link-alt"></i></span></li>
 <li><span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dhb2tla2UvYXJ0aWNsZS9kZXRhaWxzLzEwNjM3NjgzMg==">Petuum：大规模机器学习平台的变革<i class="fa fa-external-link-alt"></i></span></li>
 <li><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3NhaWxpbmctcG1scy9ib3Nlbg==">GitHub: sailing-pmls/bosen<i class="fa fa-external-link-alt"></i></span></li>
+<li><span class="exturl" data-url="aHR0cHM6Ly93d3cuemhpaHUuY29tL3F1ZXN0aW9uLzU0OTU2MDg3L2Fuc3dlci8xNDU0MjIyNjA=">tensorflow 和 petuum 有可能集成在一起使用吗？ - 张颖峰的回答 - 知乎<i class="fa fa-external-link-alt"></i></span></li>
 </ul>
 ]]></content>
       <categories>
@@ -13977,6 +13978,20 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </tags>
   </entry>
   <entry>
+    <title>20 行代码速通 Safe Rust Double Free (整活向)</title>
+    <url>/2025/02/11/unsound-rust/</url>
+    <content><![CDATA[<p>受到 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL1NwZXlraW91cy9jdmUtcnM=">cve-rs<i class="fa fa-external-link-alt"></i></span> 项目启发，利用 Type system 的固有 Unsoundness 实现一个经典的 Double Free。</p>
+<h2 id="代码"><a class="header-anchor-1" href="#代码">#</a>代码</h2>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="meta">#[inline(never)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> <span class="keyword">fn</span> <span class="title function_">lifetime_translator</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>, T: ?<span class="built_in">Sized</span>&gt;(_: &amp;<span class="symbol">&#x27;a</span> &amp;<span class="symbol">&#x27;b</span> (), x: &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T &#123;</span><br><span class="line">    x</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">expand</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>, T: ?<span class="built_in">Sized</span>&gt;(x: &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">f</span>: <span class="keyword">for</span>&lt;<span class="symbol">&#x27;x</span>&gt; <span class="title function_ invoke__">fn</span>(_, &amp;<span class="symbol">&#x27;x</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T = lifetime_translator;</span><br><span class="line">    <span class="title function_ invoke__">f</span>(STATIC_UNIT, x)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> STATIC_UNIT: &amp;&amp;() = &amp;&amp;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">dead</span> = <span class="title function_ invoke__">expand</span>(&amp;<span class="keyword">mut</span> <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]);</span><br><span class="line">    dead.<span class="title function_ invoke__">push</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="运行"><a class="header-anchor-1" href="#运行">#</a>运行</h2>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">frezcirno@homelab:~/unsound-rust$ rustc unsound.rs</span><br><span class="line">frezcirno@homelab:~/unsound-rust$ ./unsound</span><br><span class="line">free(): double free detected in tcache 2</span><br><span class="line">已中止</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>misc</category>
+        <category>rust</category>
+      </categories>
+  </entry>
+  <entry>
     <title>日本语 0x01</title>
     <url>/2021/02/15/1/</url>
     <content><![CDATA[<h2 id="what-is-japanese"><a class="header-anchor-1" href="#what-is-japanese">#</a>What is Japanese</h2>
@@ -14085,20 +14100,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       <categories>
         <category>misc</category>
         <category>japanese</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>20 行代码速通 Safe Rust Double Free (整活向)</title>
-    <url>/2025/02/11/unsound-rust/</url>
-    <content><![CDATA[<p>受到 <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL1NwZXlraW91cy9jdmUtcnM=">cve-rs<i class="fa fa-external-link-alt"></i></span> 项目启发，利用 Type system 的固有 Unsoundness 实现一个经典的 Double Free。</p>
-<h2 id="代码"><a class="header-anchor-1" href="#代码">#</a>代码</h2>
-<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="meta">#[inline(never)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> <span class="keyword">fn</span> <span class="title function_">lifetime_translator</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>, T: ?<span class="built_in">Sized</span>&gt;(_: &amp;<span class="symbol">&#x27;a</span> &amp;<span class="symbol">&#x27;b</span> (), x: &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T &#123;</span><br><span class="line">    x</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">expand</span>&lt;<span class="symbol">&#x27;a</span>, <span class="symbol">&#x27;b</span>, T: ?<span class="built_in">Sized</span>&gt;(x: &amp;<span class="symbol">&#x27;a</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">f</span>: <span class="keyword">for</span>&lt;<span class="symbol">&#x27;x</span>&gt; <span class="title function_ invoke__">fn</span>(_, &amp;<span class="symbol">&#x27;x</span> <span class="keyword">mut</span> T) <span class="punctuation">-&gt;</span> &amp;<span class="symbol">&#x27;b</span> <span class="keyword">mut</span> T = lifetime_translator;</span><br><span class="line">    <span class="title function_ invoke__">f</span>(STATIC_UNIT, x)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">const</span> STATIC_UNIT: &amp;&amp;() = &amp;&amp;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">dead</span> = <span class="title function_ invoke__">expand</span>(&amp;<span class="keyword">mut</span> <span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]);</span><br><span class="line">    dead.<span class="title function_ invoke__">push</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="运行"><a class="header-anchor-1" href="#运行">#</a>运行</h2>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">frezcirno@homelab:~/unsound-rust$ rustc unsound.rs</span><br><span class="line">frezcirno@homelab:~/unsound-rust$ ./unsound</span><br><span class="line">free(): double free detected in tcache 2</span><br><span class="line">已中止</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>misc</category>
-        <category>rust</category>
       </categories>
   </entry>
   <entry>
@@ -17035,48 +17036,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/27/2020-12-27/</url>
-    <content><![CDATA[<h1>配环境心得</h1>
-<p>放平心态</p>
-<h1>Linux之图形化界面</h1>
-<h2 id="x-vs-wayland"><a class="header-anchor-1" href="#x-vs-wayland">#</a>X vs. Wayland</h2>
-<p>X是最广泛使用的linux显示服务器, 是底层的图形化界面显示标准</p>
-<h2 id="display-manager"><a class="header-anchor-1" href="#display-manager">#</a>Display Manager</h2>
-<p>显示管理器(或登录管理器)是一个在启动最后显示的图形界面. 负责管理用户登录, 启动X等等. 有些集成在桌面环境中.</p>
-<p>用户一般直接与显示管理器打交道.</p>
-<p>常见的显示管理器有:</p>
-<ul>
-<li>GDM(GNOME)</li>
-<li>LXDM(LXDE)</li>
-<li>lightDM(支持多种DE)
-等等</li>
-</ul>
-<h2 id="desktop-environment"><a class="header-anchor-1" href="#desktop-environment">#</a>Desktop Environment</h2>
-<p>桌面环境通过汇集使用相同组件库的程序, 为用户提供了完全的图形用户界面.</p>
-<p>常见的桌面环境有:</p>
-<ul>
-<li>GNOME</li>
-<li>KDE</li>
-<li>Xfce
-等等</li>
-</ul>
-<h2 id="远程桌面"><a class="header-anchor-1" href="#远程桌面">#</a>远程桌面</h2>
-<ul>
-<li>xdmcp</li>
-<li>vnc</li>
-</ul>
-]]></content>
-      <categories>
-        <category>misc</category>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/30/2020-12-30/</url>
     <content><![CDATA[<h1>计网答辩顺利</h1>
 <p>开心!</p>
@@ -17143,6 +17102,48 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       <tags>
         <tag>计算机网络</tag>
         <tag>答辩</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/27/2020-12-27/</url>
+    <content><![CDATA[<h1>配环境心得</h1>
+<p>放平心态</p>
+<h1>Linux之图形化界面</h1>
+<h2 id="x-vs-wayland"><a class="header-anchor-1" href="#x-vs-wayland">#</a>X vs. Wayland</h2>
+<p>X是最广泛使用的linux显示服务器, 是底层的图形化界面显示标准</p>
+<h2 id="display-manager"><a class="header-anchor-1" href="#display-manager">#</a>Display Manager</h2>
+<p>显示管理器(或登录管理器)是一个在启动最后显示的图形界面. 负责管理用户登录, 启动X等等. 有些集成在桌面环境中.</p>
+<p>用户一般直接与显示管理器打交道.</p>
+<p>常见的显示管理器有:</p>
+<ul>
+<li>GDM(GNOME)</li>
+<li>LXDM(LXDE)</li>
+<li>lightDM(支持多种DE)
+等等</li>
+</ul>
+<h2 id="desktop-environment"><a class="header-anchor-1" href="#desktop-environment">#</a>Desktop Environment</h2>
+<p>桌面环境通过汇集使用相同组件库的程序, 为用户提供了完全的图形用户界面.</p>
+<p>常见的桌面环境有:</p>
+<ul>
+<li>GNOME</li>
+<li>KDE</li>
+<li>Xfce
+等等</li>
+</ul>
+<h2 id="远程桌面"><a class="header-anchor-1" href="#远程桌面">#</a>远程桌面</h2>
+<ul>
+<li>xdmcp</li>
+<li>vnc</li>
+</ul>
+]]></content>
+      <categories>
+        <category>misc</category>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
