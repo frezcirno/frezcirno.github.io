@@ -12444,7 +12444,7 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
-    <title>Dynamo: Amazon’s Highly Available Key-value Store 论文阅读</title>
+    <title>[SOSP&#39;07] Dynamo: Amazon’s Highly Available Key-value Store 论文阅读</title>
     <url>/2025/04/13/dynamo-amazons-highly-available-key-value-store/</url>
     <content><![CDATA[<p>今天来读经典。</p>
 <p>Dynamo 是 Amazon 在 2007 年发表于 SOSP 的 K-V 存储系统。作为电商领域的巨头, Amazon 较早面临巨大业务规模带来的技术挑战。
@@ -16087,6 +16087,29 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
+    <url>/2020/12/13/2020-12-13/</url>
+    <content><![CDATA[<h2 id="c-stl-中-unique-的用法"><a class="header-anchor-1" href="#c-stl-中-unique-的用法">#</a>C++ STL 中 unique 的用法</h2>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>, <span class="keyword">class</span> <span class="title class_">BinaryPredicate</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last,</span></span></span><br><span class="line"><span class="params"><span class="function">                           BinaryPredicate pred )</span></span>;</span><br></pre></td></tr></table></figure>
+<p>将<code>[first, last)</code>之间, <strong>相邻</strong>的多个相同元素合并为一个, 返回指向不重复部分末尾的迭代器. 多和 sort 函数一起使用</p>
+<p>例: 使用 unique 实现<span class="exturl" data-url="aHR0cHM6Ly9vaS13aWtpLm9yZy9taXNjL2Rpc2NyZXRlLw==">离散化<i class="fa fa-external-link-alt"></i></span>:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// vector&lt;int&gt; array;</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">auto</span> disc = array;</span><br><span class="line"><span class="built_in">sort</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>());</span><br><span class="line">disc.<span class="built_in">erase</span>(<span class="built_in">unique</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>()), disc.<span class="built_in">end</span>())</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; disc.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">  disc[i] = <span class="built_in">lower_bound</span>(array.<span class="built_in">begin</span>(), array.<span class="built_in">end</span>(), disc[i]) - array.<span class="built_in">begin</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 那么disc就可以作为离散化之后的索引</span></span><br><span class="line"><span class="comment">// disc[i] = array中第i种元素的最小下标</span></span><br></pre></td></tr></table></figure>
+<h2 id="ccfcsp"><a class="header-anchor-1" href="#ccfcsp">#</a>CCFCSP</h2>
+<p>今天考了 CCF CSP.</p>
+<h2 id="区间树-interval-tree-和线段树-segment-tree"><a class="header-anchor-1" href="#区间树-interval-tree-和线段树-segment-tree">#</a>区间树(Interval Tree)和线段树(Segment Tree)</h2>
+]]></content>
+      <categories>
+        <category>misc</category>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>STL</tag>
+        <tag>CCFCSP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
     <url>/2020/12/11/2020-12-11/</url>
     <content><![CDATA[<h2 id="linux-内核提权"><a class="header-anchor-1" href="#linux-内核提权">#</a>Linux 内核提权</h2>
 <ul>
@@ -16117,29 +16140,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>信息安全</tag>
         <tag>GCC</tag>
         <tag>NCRE</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/13/2020-12-13/</url>
-    <content><![CDATA[<h2 id="c-stl-中-unique-的用法"><a class="header-anchor-1" href="#c-stl-中-unique-的用法">#</a>C++ STL 中 unique 的用法</h2>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>, <span class="keyword">class</span> <span class="title class_">BinaryPredicate</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last,</span></span></span><br><span class="line"><span class="params"><span class="function">                           BinaryPredicate pred )</span></span>;</span><br></pre></td></tr></table></figure>
-<p>将<code>[first, last)</code>之间, <strong>相邻</strong>的多个相同元素合并为一个, 返回指向不重复部分末尾的迭代器. 多和 sort 函数一起使用</p>
-<p>例: 使用 unique 实现<span class="exturl" data-url="aHR0cHM6Ly9vaS13aWtpLm9yZy9taXNjL2Rpc2NyZXRlLw==">离散化<i class="fa fa-external-link-alt"></i></span>:</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// vector&lt;int&gt; array;</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">auto</span> disc = array;</span><br><span class="line"><span class="built_in">sort</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>());</span><br><span class="line">disc.<span class="built_in">erase</span>(<span class="built_in">unique</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>()), disc.<span class="built_in">end</span>())</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; disc.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">  disc[i] = <span class="built_in">lower_bound</span>(array.<span class="built_in">begin</span>(), array.<span class="built_in">end</span>(), disc[i]) - array.<span class="built_in">begin</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 那么disc就可以作为离散化之后的索引</span></span><br><span class="line"><span class="comment">// disc[i] = array中第i种元素的最小下标</span></span><br></pre></td></tr></table></figure>
-<h2 id="ccfcsp"><a class="header-anchor-1" href="#ccfcsp">#</a>CCFCSP</h2>
-<p>今天考了 CCF CSP.</p>
-<h2 id="区间树-interval-tree-和线段树-segment-tree"><a class="header-anchor-1" href="#区间树-interval-tree-和线段树-segment-tree">#</a>区间树(Interval Tree)和线段树(Segment Tree)</h2>
-]]></content>
-      <categories>
-        <category>misc</category>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-        <tag>STL</tag>
-        <tag>CCFCSP</tag>
       </tags>
   </entry>
   <entry>
