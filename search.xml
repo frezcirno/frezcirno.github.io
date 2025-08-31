@@ -2832,38 +2832,6 @@ SNMP: 161/162</p>
       </tags>
   </entry>
   <entry>
-    <title>C++ 并发三件套 - future, promise, async</title>
-    <url>/2024/04/20/cpp-concurrency/</url>
-    <content><![CDATA[<p>C++标准库提供了很多用于并发编程的工具，不太熟悉，总结一下。</p>
-<h2 id="异步计算结果-std-future-t"><a class="header-anchor-1" href="#异步计算结果-std-future-t">#</a>异步计算结果 <code>std::future&lt;T&gt;</code></h2>
-<p><code>std::future&lt;T&gt;</code> 表示一个异步计算过程的结果。</p>
-<p><code>std::future::wait()</code> 方法阻塞当前线程直至计算完成。如果计算已经完成，则直接返回。</p>
-<p><code>std::future::get()</code> 方法等待计算完成，并获取 <code>future&lt;T&gt;</code> 表示的值或异常。<code>get()</code> 方法会消耗掉当前 future 保存的值，因此只能调用一次。</p>
-<p><code>std::future::valid()</code> 方法表示当前 future 中是否还有值可以被获取，如果值已经被 get 过，则会返回 false。</p>
-<p><code>std::future::share()</code> 方法返回一个 <code>std::shared_future&lt;T&gt;</code>。</p>
-<p><code>std::future&lt;T&gt;</code> 是 move-only 的结构，且独占 <code>T</code> 的所有权。当多个对等的线程需要访问同一个期望值时，可以使用 copyable 的 <code>std::shared_future&lt;T&gt;</code>。注意，<code>std::shared_future&lt;T&gt;</code> 本身并不是线程安全的，需要每个线程拷贝并持有一个自己的 <code>std::shared_future&lt;T&gt;</code>。</p>
-<h2 id="异步生产者-std-promise-t"><a class="header-anchor-1" href="#异步生产者-std-promise-t">#</a>异步生产者 <code>std::promise&lt;T&gt;</code></h2>
-<p><code>std::promise&lt;T&gt;</code> 用于生产者提供一个 <code>std::future&lt;T&gt;</code> 及其中的值给消费者。<code>std::promise&lt;T&gt;::get_future()</code> 方法返回一个 <code>std::future&lt;T&gt;</code> 给消费者。</p>
-<p>对于生产者，使用 <code>std::promise&lt;T&gt;::set_value()</code> 方法填充 <code>future</code> 中的值；或者使用 <code>std::promise&lt;T&gt;::set_exception()</code> 方法填充 <code>future</code> 中的异常；</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> std::promise&lt;<span class="type">double</span>&gt; some_promise;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_value</span>(<span class="built_in">calculate_value</span>());</span><br><span class="line">&#125; <span class="built_in">catch</span>(...) &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_exception</span>(std::<span class="built_in">current_exception</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="异步执行-std-async"><a class="header-anchor-1" href="#异步执行-std-async">#</a>异步执行 <code>std::async()</code></h2>
-<p><code>std::async</code> 是一个函数，它启动一个异步任务去执行指定的函数，返回一个表示计算结果的 <code>std::future</code></p>
-<p><code>std::async</code> 允许额外指定一个<code>std::launch</code>类型的参数来指定任务启动的方式，有以下几种启动策略：</p>
-<ul>
-<li><code>std::launch::async</code>: 任务必须在独立线程中执行，因此需要库去负责线程创建和销毁；</li>
-<li><code>std::launch::deferred</code>: 任务可以延迟到<code>wait()</code>或者<code>get()</code>的时候，在调用者线程上同步执行 (有点类似 Rust Tokio 的设计)；</li>
-<li><code>std::launch::async | std::launch::deferred</code>: 默认的方式，表示以上两种执行时机都可以，由具体实现去选择。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>cpp</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-        <tag>并发编程</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>KAIST CS492: Design and Analysis of Concurrent Programs</title>
     <url>/2025/07/06/concurrent-program/</url>
     <content><![CDATA[<h2 id="基本概念"><a class="header-anchor-1" href="#基本概念">#</a>基本概念</h2>
@@ -3094,6 +3062,38 @@ SNMP: 161/162</p>
       <tags>
         <tag>C++</tag>
         <tag>并发</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++ 并发三件套 - future, promise, async</title>
+    <url>/2024/04/20/cpp-concurrency/</url>
+    <content><![CDATA[<p>C++标准库提供了很多用于并发编程的工具，不太熟悉，总结一下。</p>
+<h2 id="异步计算结果-std-future-t"><a class="header-anchor-1" href="#异步计算结果-std-future-t">#</a>异步计算结果 <code>std::future&lt;T&gt;</code></h2>
+<p><code>std::future&lt;T&gt;</code> 表示一个异步计算过程的结果。</p>
+<p><code>std::future::wait()</code> 方法阻塞当前线程直至计算完成。如果计算已经完成，则直接返回。</p>
+<p><code>std::future::get()</code> 方法等待计算完成，并获取 <code>future&lt;T&gt;</code> 表示的值或异常。<code>get()</code> 方法会消耗掉当前 future 保存的值，因此只能调用一次。</p>
+<p><code>std::future::valid()</code> 方法表示当前 future 中是否还有值可以被获取，如果值已经被 get 过，则会返回 false。</p>
+<p><code>std::future::share()</code> 方法返回一个 <code>std::shared_future&lt;T&gt;</code>。</p>
+<p><code>std::future&lt;T&gt;</code> 是 move-only 的结构，且独占 <code>T</code> 的所有权。当多个对等的线程需要访问同一个期望值时，可以使用 copyable 的 <code>std::shared_future&lt;T&gt;</code>。注意，<code>std::shared_future&lt;T&gt;</code> 本身并不是线程安全的，需要每个线程拷贝并持有一个自己的 <code>std::shared_future&lt;T&gt;</code>。</p>
+<h2 id="异步生产者-std-promise-t"><a class="header-anchor-1" href="#异步生产者-std-promise-t">#</a>异步生产者 <code>std::promise&lt;T&gt;</code></h2>
+<p><code>std::promise&lt;T&gt;</code> 用于生产者提供一个 <code>std::future&lt;T&gt;</code> 及其中的值给消费者。<code>std::promise&lt;T&gt;::get_future()</code> 方法返回一个 <code>std::future&lt;T&gt;</code> 给消费者。</p>
+<p>对于生产者，使用 <code>std::promise&lt;T&gt;::set_value()</code> 方法填充 <code>future</code> 中的值；或者使用 <code>std::promise&lt;T&gt;::set_exception()</code> 方法填充 <code>future</code> 中的异常；</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> std::promise&lt;<span class="type">double</span>&gt; some_promise;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_value</span>(<span class="built_in">calculate_value</span>());</span><br><span class="line">&#125; <span class="built_in">catch</span>(...) &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_exception</span>(std::<span class="built_in">current_exception</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="异步执行-std-async"><a class="header-anchor-1" href="#异步执行-std-async">#</a>异步执行 <code>std::async()</code></h2>
+<p><code>std::async</code> 是一个函数，它启动一个异步任务去执行指定的函数，返回一个表示计算结果的 <code>std::future</code></p>
+<p><code>std::async</code> 允许额外指定一个<code>std::launch</code>类型的参数来指定任务启动的方式，有以下几种启动策略：</p>
+<ul>
+<li><code>std::launch::async</code>: 任务必须在独立线程中执行，因此需要库去负责线程创建和销毁；</li>
+<li><code>std::launch::deferred</code>: 任务可以延迟到<code>wait()</code>或者<code>get()</code>的时候，在调用者线程上同步执行 (有点类似 Rust Tokio 的设计)；</li>
+<li><code>std::launch::async | std::launch::deferred</code>: 默认的方式，表示以上两种执行时机都可以，由具体实现去选择。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>并发编程</tag>
       </tags>
   </entry>
   <entry>
@@ -7356,6 +7356,28 @@ T(\alpha_1, \alpha_2, ..., \alpha_n)&amp;=(\alpha_1, \alpha_2, ..., \alpha_n)A
       </tags>
   </entry>
   <entry>
+    <title>模运算的性质(程序设计版)</title>
+    <url>/2021/01/10/modulo-arithmetic/</url>
+    <content><![CDATA[<h2 id="模运算的性质-程序设计版"><a class="header-anchor-1" href="#模运算的性质-程序设计版">#</a>模运算的性质(程序设计版)</h2>
+<p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>+</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a + b)\bmod p = (a\bmod p + b\bmod p)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>−</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>−</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a - b)\bmod p = (a\bmod p - b\bmod p)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>×</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>×</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a \times b)\bmod p = (a\bmod p \times b\bmod p)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><msup><mi>a</mi><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><msup><mo stretchy="false">)</mo><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a^b)\bmod p = ((a\bmod p)^b)\bmod p
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">((</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
+]]></content>
+      <categories>
+        <category>maths</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+        <tag>数学</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>概率论与数理统计 - 概念总结</title>
     <url>/2023/10/27/probability-and-mathematical-statistics/</url>
     <content><![CDATA[<h2 id="基本概念"><a class="header-anchor-1" href="#基本概念">#</a>基本概念</h2>
@@ -7725,28 +7747,6 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       </categories>
       <tags>
         <tag>数学基础</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>模运算的性质(程序设计版)</title>
-    <url>/2021/01/10/modulo-arithmetic/</url>
-    <content><![CDATA[<h2 id="模运算的性质-程序设计版"><a class="header-anchor-1" href="#模运算的性质-程序设计版">#</a>模运算的性质(程序设计版)</h2>
-<p>模运算与基本四则运算有些相似，但是除法例外。其规则如下：</p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>+</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a + b)\bmod p = (a\bmod p + b\bmod p)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>−</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>−</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a - b)\bmod p = (a\bmod p - b\bmod p)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>×</mo><mi>b</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>×</mo><mi>b</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a \times b)\bmod p = (a\bmod p \times b\bmod p)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><msup><mi>a</mi><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>a</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi><msup><mo stretchy="false">)</mo><mi>b</mi></msup><mo stretchy="false">)</mo><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>p</mi></mrow><annotation encoding="application/x-tex">(a^b)\bmod p = ((a\bmod p)^b)\bmod p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">((</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.1491em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span></span></p>
-]]></content>
-      <categories>
-        <category>maths</category>
-      </categories>
-      <tags>
-        <tag>算法</tag>
-        <tag>数学</tag>
       </tags>
   </entry>
   <entry>
@@ -8827,44 +8827,6 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
       </tags>
   </entry>
   <entry>
-    <title>RIME 输入法配置指南</title>
-    <url>/2024/05/08/rime-usage/</url>
-    <content><![CDATA[<p>RIME 输入法（中州韻輸入法）是一个开源的中文输入法框架。</p>
-<p>使用闭源输入法会有隐私泄露的问题，小心哪天密码被输入法盗走。</p>
-<h2 id="目录结构"><a class="header-anchor-1" href="#目录结构">#</a>目录结构</h2>
-<p>用户配置目录：</p>
-<ul>
-<li>Windows：<code>%APPDATA%\Rime</code></li>
-<li>Linux：<code>~/.config/ibus/rime</code> 或 <code>~/.config/fcitx/rime</code></li>
-</ul>
-<p><code>default.custom.yaml</code>：默认配置补丁文件，包含了用户的自定义设置，如输入方案、皮肤、快捷键等。</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">patch:</span></span><br><span class="line">  <span class="attr">&quot;menu/page_size&quot;:</span> <span class="number">8</span></span><br><span class="line">  <span class="attr">schema_list:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">schema:</span> <span class="string">clover</span></span><br></pre></td></tr></table></figure>
-<p><code>clover.schema.yaml</code>: Schema 的配置文件
-<code>clover.custom.yaml</code>: Schema 的配置补丁文件
-<code>clover.dict.yaml</code>: Schema 的词库文件，其中又可以 import 其他更多的词库文件</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">clover</span></span><br><span class="line"><span class="attr">version:</span> <span class="string">&quot;1&quot;</span></span><br><span class="line"><span class="attr">sort:</span> <span class="string">by_weight</span></span><br><span class="line"></span><br><span class="line"><span class="attr">import_tables:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">clover.base</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">clover.phrase</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_animal</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_caijing</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_car</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_chengyu</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_diming</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_food</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_IT</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_law</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_lishimingren</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_medical</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_poem</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">sogou</span></span><br></pre></td></tr></table></figure>
-<p><code>clover.key_bindings.yaml</code>: Schema 的快捷键配置
-<code>sync/</code>: 保存上一次同步得到的用户词库</p>
-<h2 id="用户词库"><a class="header-anchor-1" href="#用户词库">#</a>用户词库</h2>
-<p>RIME 输入法自带用户数据同步功能，会将当前平台用户的所有配置和数据导出到 <code>&#123;sync_dir&#125;/&#123;install_id&#125;/</code> 目录下。例如内部会有一个 <code>xxx.userdb.txt</code> 文件，保存了当前用户的词库数据。</p>
-<p>同步是双向的，如果<code>&#123;sync_dir&#125;</code>下还存在其他用户目录，会将其导入到当前输入法中，并且更新<code>&#123;install_id&#125;</code>。</p>
-<h2 id="lua-拓展"><a class="header-anchor-1" href="#lua-拓展">#</a>Lua 拓展</h2>
-<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2hjaHVuaHVpL2xpYnJpbWUtbHVh">librime-lua<i class="fa fa-external-link-alt"></i></span>项目实现了用 lua 脚本拓展 RIME 的功能。</p>
-<p>Ubuntu 下可以直接安装 rime-plugin-lua 软件包</p>
-<h3 id="动态获取时间日期"><a class="header-anchor-1" href="#动态获取时间日期">#</a>动态获取时间日期</h3>
-<figure class="highlight lua"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">date_translator</span><span class="params">(input, seg)</span></span></span><br><span class="line">   <span class="keyword">if</span> (<span class="built_in">input</span> == <span class="string">&quot;date&quot;</span>) <span class="keyword">then</span></span><br><span class="line">      <span class="comment">--- Candidate(type, start, end, text, comment)</span></span><br><span class="line">      <span class="built_in">yield</span>(Candidate(<span class="string">&quot;date&quot;</span>, seg.start, seg._end, <span class="built_in">os</span>.<span class="built_in">date</span>(<span class="string">&quot;%Y-%m-%d&quot;</span>), <span class="string">&quot;&quot;</span>))</span><br><span class="line">      <span class="built_in">yield</span>(Candidate(<span class="string">&quot;date&quot;</span>, seg.start, seg._end, <span class="built_in">os</span>.<span class="built_in">date</span>(<span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>), <span class="string">&quot;&quot;</span>))</span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">engine:</span></span><br><span class="line">  <span class="attr">translators:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">lua_translator@date_translator</span></span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>misc</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>RIME</tag>
-        <tag>输入法</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Python splitlines() 函数的坑</title>
     <url>/2024/04/17/python-splitline/</url>
     <content><![CDATA[<h2 id="str-splitlines"><a class="header-anchor-1" href="#str-splitlines">#</a>str.splitlines()</h2>
@@ -8959,20 +8921,42 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
       </categories>
   </entry>
   <entry>
-    <title>自签名 SSL 证书</title>
-    <url>/2023/11/21/ssl-certificate/</url>
-    <content><![CDATA[<h2 id="成为-ca"><a class="header-anchor-1" href="#成为-ca">#</a>成为 CA</h2>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Generate private key</span></span><br><span class="line">openssl genrsa -des3 -out myCA.key 2048</span><br><span class="line"><span class="comment"># Generate root certificate</span></span><br><span class="line">openssl req -x509 -new -nodes -key myCA.key -sha256 -days 825 -out myCA.pem \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Shanghai/L=Shanghai/O=/OU=/CN=My first CA&quot;</span></span><br></pre></td></tr></table></figure>
-<h2 id="信任-ca"><a class="header-anchor-1" href="#信任-ca">#</a>信任 CA</h2>
-<p>Ubuntu:</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> myCA.pem /usr/local/share/ca-certificates/myCA.crt</span><br><span class="line"><span class="built_in">sudo</span> update-ca-certificates</span><br></pre></td></tr></table></figure>
-<h2 id="颁发证书"><a class="header-anchor-1" href="#颁发证书">#</a>颁发证书</h2>
-<p>可以有多个域名/IP 地址</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Use your own domain name</span></span><br><span class="line">NAME=my.domain.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># Generate a private key</span></span><br><span class="line">openssl genrsa -out <span class="variable">$NAME</span>.key 2048</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a certificate-signing request</span></span><br><span class="line">openssl req -new -key <span class="variable">$NAME</span>.key -out <span class="variable">$NAME</span>.csr \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Shanghai/L=Shanghai/O=/OU=/CN=<span class="variable">$NAME</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a config file for the extensions</span></span><br><span class="line"><span class="built_in">cat</span> &gt;<span class="variable">$NAME</span>.ext &lt;&lt;-<span class="string">EOF</span></span><br><span class="line"><span class="string">authorityKeyIdentifier=keyid,issuer</span></span><br><span class="line"><span class="string">basicConstraints=CA:FALSE</span></span><br><span class="line"><span class="string">keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment</span></span><br><span class="line"><span class="string">subjectAltName = @alt_names</span></span><br><span class="line"><span class="string">[alt_names]</span></span><br><span class="line"><span class="string">DNS.1 = $NAME # Be sure to include the domain name here because Common Name is not so commonly honoured by itself</span></span><br><span class="line"><span class="string">DNS.2 = bar.$NAME # Optionally, add additional domains (I&#x27;ve added a subdomain here)</span></span><br><span class="line"><span class="string">IP.1 = 1.2.3.4 # Optionally, add an IP address (if the connection which you have planned requires it)</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create the signed certificate</span></span><br><span class="line">openssl x509 -req -<span class="keyword">in</span> <span class="variable">$NAME</span>.csr -CA myCA.pem -CAkey myCA.key -CAcreateserial \</span><br><span class="line">    -out <span class="variable">$NAME</span>.crt -days 825 -sha256 -extfile <span class="variable">$NAME</span>.ext</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> <span class="variable">$NAME</span>.crt <span class="variable">$NAME</span>.key &gt;<span class="variable">$NAME</span>.pem</span><br></pre></td></tr></table></figure>
+    <title>RIME 输入法配置指南</title>
+    <url>/2024/05/08/rime-usage/</url>
+    <content><![CDATA[<p>RIME 输入法（中州韻輸入法）是一个开源的中文输入法框架。</p>
+<p>使用闭源输入法会有隐私泄露的问题，小心哪天密码被输入法盗走。</p>
+<h2 id="目录结构"><a class="header-anchor-1" href="#目录结构">#</a>目录结构</h2>
+<p>用户配置目录：</p>
+<ul>
+<li>Windows：<code>%APPDATA%\Rime</code></li>
+<li>Linux：<code>~/.config/ibus/rime</code> 或 <code>~/.config/fcitx/rime</code></li>
+</ul>
+<p><code>default.custom.yaml</code>：默认配置补丁文件，包含了用户的自定义设置，如输入方案、皮肤、快捷键等。</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">patch:</span></span><br><span class="line">  <span class="attr">&quot;menu/page_size&quot;:</span> <span class="number">8</span></span><br><span class="line">  <span class="attr">schema_list:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">schema:</span> <span class="string">clover</span></span><br></pre></td></tr></table></figure>
+<p><code>clover.schema.yaml</code>: Schema 的配置文件
+<code>clover.custom.yaml</code>: Schema 的配置补丁文件
+<code>clover.dict.yaml</code>: Schema 的词库文件，其中又可以 import 其他更多的词库文件</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">clover</span></span><br><span class="line"><span class="attr">version:</span> <span class="string">&quot;1&quot;</span></span><br><span class="line"><span class="attr">sort:</span> <span class="string">by_weight</span></span><br><span class="line"></span><br><span class="line"><span class="attr">import_tables:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">clover.base</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">clover.phrase</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_animal</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_caijing</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_car</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_chengyu</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_diming</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_food</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_IT</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_law</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_lishimingren</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_medical</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">THUOCL_poem</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">sogou</span></span><br></pre></td></tr></table></figure>
+<p><code>clover.key_bindings.yaml</code>: Schema 的快捷键配置
+<code>sync/</code>: 保存上一次同步得到的用户词库</p>
+<h2 id="用户词库"><a class="header-anchor-1" href="#用户词库">#</a>用户词库</h2>
+<p>RIME 输入法自带用户数据同步功能，会将当前平台用户的所有配置和数据导出到 <code>&#123;sync_dir&#125;/&#123;install_id&#125;/</code> 目录下。例如内部会有一个 <code>xxx.userdb.txt</code> 文件，保存了当前用户的词库数据。</p>
+<p>同步是双向的，如果<code>&#123;sync_dir&#125;</code>下还存在其他用户目录，会将其导入到当前输入法中，并且更新<code>&#123;install_id&#125;</code>。</p>
+<h2 id="lua-拓展"><a class="header-anchor-1" href="#lua-拓展">#</a>Lua 拓展</h2>
+<p><span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2hjaHVuaHVpL2xpYnJpbWUtbHVh">librime-lua<i class="fa fa-external-link-alt"></i></span>项目实现了用 lua 脚本拓展 RIME 的功能。</p>
+<p>Ubuntu 下可以直接安装 rime-plugin-lua 软件包</p>
+<h3 id="动态获取时间日期"><a class="header-anchor-1" href="#动态获取时间日期">#</a>动态获取时间日期</h3>
+<figure class="highlight lua"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">date_translator</span><span class="params">(input, seg)</span></span></span><br><span class="line">   <span class="keyword">if</span> (<span class="built_in">input</span> == <span class="string">&quot;date&quot;</span>) <span class="keyword">then</span></span><br><span class="line">      <span class="comment">--- Candidate(type, start, end, text, comment)</span></span><br><span class="line">      <span class="built_in">yield</span>(Candidate(<span class="string">&quot;date&quot;</span>, seg.start, seg._end, <span class="built_in">os</span>.<span class="built_in">date</span>(<span class="string">&quot;%Y-%m-%d&quot;</span>), <span class="string">&quot;&quot;</span>))</span><br><span class="line">      <span class="built_in">yield</span>(Candidate(<span class="string">&quot;date&quot;</span>, seg.start, seg._end, <span class="built_in">os</span>.<span class="built_in">date</span>(<span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>), <span class="string">&quot;&quot;</span>))</span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">engine:</span></span><br><span class="line">  <span class="attr">translators:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">lua_translator@date_translator</span></span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>misc</category>
       </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>RIME</tag>
+        <tag>输入法</tag>
+      </tags>
   </entry>
   <entry>
     <title>软件工程考试大纲</title>
@@ -9443,6 +9427,22 @@ The nerves make my hand move, staining a dead tree with some dark substance.</p>
       </tags>
   </entry>
   <entry>
+    <title>自签名 SSL 证书</title>
+    <url>/2023/11/21/ssl-certificate/</url>
+    <content><![CDATA[<h2 id="成为-ca"><a class="header-anchor-1" href="#成为-ca">#</a>成为 CA</h2>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Generate private key</span></span><br><span class="line">openssl genrsa -des3 -out myCA.key 2048</span><br><span class="line"><span class="comment"># Generate root certificate</span></span><br><span class="line">openssl req -x509 -new -nodes -key myCA.key -sha256 -days 825 -out myCA.pem \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Shanghai/L=Shanghai/O=/OU=/CN=My first CA&quot;</span></span><br></pre></td></tr></table></figure>
+<h2 id="信任-ca"><a class="header-anchor-1" href="#信任-ca">#</a>信任 CA</h2>
+<p>Ubuntu:</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> myCA.pem /usr/local/share/ca-certificates/myCA.crt</span><br><span class="line"><span class="built_in">sudo</span> update-ca-certificates</span><br></pre></td></tr></table></figure>
+<h2 id="颁发证书"><a class="header-anchor-1" href="#颁发证书">#</a>颁发证书</h2>
+<p>可以有多个域名/IP 地址</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Use your own domain name</span></span><br><span class="line">NAME=my.domain.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># Generate a private key</span></span><br><span class="line">openssl genrsa -out <span class="variable">$NAME</span>.key 2048</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a certificate-signing request</span></span><br><span class="line">openssl req -new -key <span class="variable">$NAME</span>.key -out <span class="variable">$NAME</span>.csr \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Shanghai/L=Shanghai/O=/OU=/CN=<span class="variable">$NAME</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a config file for the extensions</span></span><br><span class="line"><span class="built_in">cat</span> &gt;<span class="variable">$NAME</span>.ext &lt;&lt;-<span class="string">EOF</span></span><br><span class="line"><span class="string">authorityKeyIdentifier=keyid,issuer</span></span><br><span class="line"><span class="string">basicConstraints=CA:FALSE</span></span><br><span class="line"><span class="string">keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment</span></span><br><span class="line"><span class="string">subjectAltName = @alt_names</span></span><br><span class="line"><span class="string">[alt_names]</span></span><br><span class="line"><span class="string">DNS.1 = $NAME # Be sure to include the domain name here because Common Name is not so commonly honoured by itself</span></span><br><span class="line"><span class="string">DNS.2 = bar.$NAME # Optionally, add additional domains (I&#x27;ve added a subdomain here)</span></span><br><span class="line"><span class="string">IP.1 = 1.2.3.4 # Optionally, add an IP address (if the connection which you have planned requires it)</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create the signed certificate</span></span><br><span class="line">openssl x509 -req -<span class="keyword">in</span> <span class="variable">$NAME</span>.csr -CA myCA.pem -CAkey myCA.key -CAcreateserial \</span><br><span class="line">    -out <span class="variable">$NAME</span>.crt -days 825 -sha256 -extfile <span class="variable">$NAME</span>.ext</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> <span class="variable">$NAME</span>.crt <span class="variable">$NAME</span>.key &gt;<span class="variable">$NAME</span>.pem</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>misc</category>
+      </categories>
+  </entry>
+  <entry>
     <title>TTS &amp; SVC Survey (For Fun)</title>
     <url>/2024/10/05/tts-survey/</url>
     <content><![CDATA[<h2 id="tacotron2"><a class="header-anchor-1" href="#tacotron2">#</a>Tacotron2</h2>
@@ -9638,7 +9638,7 @@ VirtIO 规范中定义了多种实现方式，最常见的是 VirtIO over PCI，
       </tags>
   </entry>
   <entry>
-    <title>A Unified Architecture for Accelerating Distributed DNN Training in Heterogeneous GPU/CPU Clusters 论文阅读</title>
+    <title>[OSDI&#39;20] A Unified Architecture for Accelerating Distributed DNN Training in Heterogeneous GPU/CPU Clusters 论文阅读</title>
     <url>/2025/04/06/a-unified-architecture-for-accelerating/</url>
     <content><![CDATA[<h2 id="1-引言"><a class="header-anchor-1" href="#1-引言">#</a>1. 引言</h2>
 <p>近年来，为了训练更大的模型，深度学习训练集群在不断发展。这样的集群通常包括 GPU，CPU 和高速互联网络，例如高速以太网或者 Infiniband。</p>
@@ -9718,7 +9718,7 @@ VirtIO 规范中定义了多种实现方式，最常见的是 VirtIO over PCI，
       </tags>
   </entry>
   <entry>
-    <title>Horovod: fast and easy distributed deep learning in TensorFlow 论文阅读</title>
+    <title>[Arxiv&#39;18] Horovod: fast and easy distributed deep learning in TensorFlow 论文阅读</title>
     <url>/2025/04/04/horovod-fast-and-easy-distributed/</url>
     <content><![CDATA[<p>Horovod 是 Uber 于 2017 年发布的一个易于使用的高性能的分布式<strong>深度训练</strong>框架，支持 TensorFlow，Keras，PyTorch 和 MXNet。</p>
 <p>（博主注: 2017 年 Google 刚刚提出 Transformer，2018 年 BERT 发布，2019 年 GPT-2 发布，2020 年 GPT-3 发布。回头看这篇 2017 年的论文仅供学习。）</p>
@@ -9783,7 +9783,7 @@ VirtIO 规范中定义了多种实现方式，最常见的是 VirtIO over PCI，
       </tags>
   </entry>
   <entry>
-    <title>Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism 论文阅读</title>
+    <title>[Arxiv&#39;19] Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism 论文阅读</title>
     <url>/2025/04/05/megatron-lm-training-multi-billion-parameter/</url>
     <content><![CDATA[<p>NVIDIA 出品的大模型训练方法，2019 年挂在 ArXiV 上，到现在(2025 年)有 2k+ 论文引用。</p>
 <h2 id="1-引言"><a class="header-anchor-1" href="#1-引言">#</a>1. 引言</h2>
@@ -9863,7 +9863,7 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       </tags>
   </entry>
   <entry>
-    <title>Scaling Distributed Machine Learning with the Parameter Server 阅读笔记</title>
+    <title>[OSDI&#39;14] Scaling Distributed Machine Learning with the Parameter Server 阅读笔记</title>
     <url>/2025/03/13/scaling-distributed-machine-learning/</url>
     <content><![CDATA[<p>沐神投稿在 OSDI '14 的论文，提出了第三代 Parameter Server 框架。</p>
 <p>沐神在 B 站有亲自讲解这篇论文的视频，可以参考: <span class="exturl" data-url="aHR0cHM6Ly93d3cuYmlsaWJpbGkuY29tL3ZpZGVvL0JWMVlBNHkxOTdHOA==">参数服务器（Parameter Server）逐段精读【论文精读】<i class="fa fa-external-link-alt"></i></span>。</p>
@@ -9995,7 +9995,7 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
 <h3 id="1-深度学习时代有什么变化？"><a class="header-anchor-1" href="#1-深度学习时代有什么变化？">#</a>1. 深度学习时代有什么变化？</h3>
 <p>深度学习的模型通常是稠密的，参数量小，计算量大。因此瓶颈往往在计算上，而不是通信上。本文的 PS 框架主要是针对稀疏模型的。</p>
 <h3 id="2-ps-框架的缺点"><a class="header-anchor-1" href="#2-ps-框架的缺点">#</a>2. PS 框架的缺点</h3>
-<p>标准分布式 TensorFlow 框架使用 Parameter Server 方法来平均梯度。来自 <a href="/2025/04/04/horovod-fast-and-easy-distributed/" title="Horovod: fast and easy distributed deep learning in TensorFlow 论文阅读">Horovod</a> 的评论:</p>
+<p>标准分布式 TensorFlow 框架使用 Parameter Server 方法来平均梯度。来自 <a href="/2025/04/04/horovod-fast-and-easy-distributed/" title="[Arxiv&#39;18] Horovod: fast and easy distributed deep learning in TensorFlow 论文阅读">Horovod</a> 的评论:</p>
 <ol>
 <li><strong>难以确定计算节点和计算节点的正确比例</strong>: 如果只有一个计算节点，它可能会成为通信或者计算的瓶颈。如果使用多个计算节点，就变成了 All-to-all 通信，可能会导致网络饱和，</li>
 <li><strong>应用程序复杂性</strong>: 每个应用程序都需要启动计算节点和服务节点，传递地址和端口号，等等复杂操作，占用了实际建模的时间。</li>
@@ -10328,18 +10328,6 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       </tags>
   </entry>
   <entry>
-    <title>1032. Sharing</title>
-    <url>/2020/12/18/1032/</url>
-    <content><![CDATA[<p>寻找最长公共后缀</p>
-<p>注意:
-边界情况: 两条链没有交集, 其中一条链是另一条链的子链</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt; <span class="function"><span class="type">void</span> <span class="title">ERR</span><span class="params">(T x, string name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(x) ERR(x, #x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">map&lt;string, pair&lt;<span class="type">char</span>, string&gt;&gt; M;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    string w1, w2;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; w1 &gt;&gt; w2 &gt;&gt; n;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        string a, b;</span><br><span class="line">        <span class="type">char</span> c;</span><br><span class="line">        cin &gt;&gt; a &gt;&gt; c &gt;&gt; b;</span><br><span class="line">        M[a] = <span class="built_in">make_pair</span>(c, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    stack&lt;string&gt; s1, s2;</span><br><span class="line">    <span class="built_in">debug</span>(<span class="string">&quot;s1&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (string addr = w1; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s<span class="number">1.</span><span class="built_in">push</span>(addr);</span><br><span class="line">        <span class="built_in">debug</span>(addr);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">debug</span>(<span class="string">&quot;s2&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (string addr = w2; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s<span class="number">2.</span><span class="built_in">push</span>(addr);</span><br><span class="line">        <span class="built_in">debug</span>(addr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    string top = <span class="string">&quot;-1&quot;</span>;</span><br><span class="line">    <span class="keyword">while</span> (s<span class="number">1.</span><span class="built_in">size</span>() &amp;&amp; s<span class="number">2.</span><span class="built_in">size</span>() &amp;&amp; s<span class="number">1.</span><span class="built_in">top</span>() == s<span class="number">2.</span><span class="built_in">top</span>()) &#123;</span><br><span class="line">        top = s<span class="number">1.</span><span class="built_in">top</span>();</span><br><span class="line">        <span class="built_in">debug</span>(top);</span><br><span class="line">        s<span class="number">1.</span><span class="built_in">pop</span>();</span><br><span class="line">        s<span class="number">2.</span><span class="built_in">pop</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; top &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>PTA</category>
-      </categories>
-  </entry>
-  <entry>
     <title>SPDK 入门</title>
     <url>/2025/04/10/spdk-intro/</url>
     <content><![CDATA[<p>SPDK 是 Intel 提出的一套用户态 NVMe SSD I/O 软件栈，其核心是使用用户态的 SSD 驱动绕过上下文切换的开销。</p>
@@ -10354,10 +10342,32 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       </tags>
   </entry>
   <entry>
+    <title>1032. Sharing</title>
+    <url>/2020/12/18/1032/</url>
+    <content><![CDATA[<p>寻找最长公共后缀</p>
+<p>注意:
+边界情况: 两条链没有交集, 其中一条链是另一条链的子链</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stack&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;set&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;climits&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt; <span class="function"><span class="type">void</span> <span class="title">ERR</span><span class="params">(T x, string name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;[DEBUG]&#123;&quot;</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;&#125; = &quot;</span> &lt;&lt; x &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(x) ERR(x, #x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#    <span class="keyword">define</span> debug(...) 0</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">map&lt;string, pair&lt;<span class="type">char</span>, string&gt;&gt; M;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line">    <span class="comment">// freopen(__FILE__ &quot;.out&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    string w1, w2;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; w1 &gt;&gt; w2 &gt;&gt; n;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        string a, b;</span><br><span class="line">        <span class="type">char</span> c;</span><br><span class="line">        cin &gt;&gt; a &gt;&gt; c &gt;&gt; b;</span><br><span class="line">        M[a] = <span class="built_in">make_pair</span>(c, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    stack&lt;string&gt; s1, s2;</span><br><span class="line">    <span class="built_in">debug</span>(<span class="string">&quot;s1&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (string addr = w1; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s<span class="number">1.</span><span class="built_in">push</span>(addr);</span><br><span class="line">        <span class="built_in">debug</span>(addr);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">debug</span>(<span class="string">&quot;s2&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (string addr = w2; addr != <span class="string">&quot;-1&quot;</span>; addr = M[addr].second) &#123;</span><br><span class="line">        s<span class="number">2.</span><span class="built_in">push</span>(addr);</span><br><span class="line">        <span class="built_in">debug</span>(addr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    string top = <span class="string">&quot;-1&quot;</span>;</span><br><span class="line">    <span class="keyword">while</span> (s<span class="number">1.</span><span class="built_in">size</span>() &amp;&amp; s<span class="number">2.</span><span class="built_in">size</span>() &amp;&amp; s<span class="number">1.</span><span class="built_in">top</span>() == s<span class="number">2.</span><span class="built_in">top</span>()) &#123;</span><br><span class="line">        top = s<span class="number">1.</span><span class="built_in">top</span>();</span><br><span class="line">        <span class="built_in">debug</span>(top);</span><br><span class="line">        s<span class="number">1.</span><span class="built_in">pop</span>();</span><br><span class="line">        s<span class="number">2.</span><span class="built_in">pop</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; top &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
     <title>1035. Password</title>
     <url>/2021/01/13/1035/</url>
     <content><![CDATA[<p>水题</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sstream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="type">int</span> mod = <span class="number">0</span>;</span><br><span class="line">    ostringstream out;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        string name, pass;</span><br><span class="line">        <span class="type">int</span> flag = <span class="number">0</span>;</span><br><span class="line">        cin &gt;&gt; name &gt;&gt; pass;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;ch : pass) &#123;</span><br><span class="line">            <span class="keyword">switch</span> (ch) &#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="string">&#x27;l&#x27;</span>: ch = <span class="string">&#x27;L&#x27;</span>; flag = <span class="number">1</span>; <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="string">&#x27;1&#x27;</span>: ch = <span class="string">&#x27;@&#x27;</span>; flag = <span class="number">1</span>; <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="string">&#x27;0&#x27;</span>: ch = <span class="string">&#x27;%&#x27;</span>; flag = <span class="number">1</span>; <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="string">&#x27;O&#x27;</span>: ch = <span class="string">&#x27;o&#x27;</span>; flag = <span class="number">1</span>; <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">default</span>: <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (flag) &#123;</span><br><span class="line">            mod++;</span><br><span class="line">            out &lt;&lt; name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; pass &lt;&lt; endl;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (mod) &#123;</span><br><span class="line">        cout &lt;&lt; mod &lt;&lt; endl &lt;&lt; out.<span class="built_in">str</span>();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;There &quot;</span> &lt;&lt; (n == <span class="number">1</span> ? <span class="string">&quot;is&quot;</span> : <span class="string">&quot;are&quot;</span>) &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; n &lt;&lt; <span class="string">&quot; account&quot;</span></span><br><span class="line">             &lt;&lt; (n == <span class="number">1</span> ? <span class="string">&quot;&quot;</span> : <span class="string">&quot;s&quot;</span>) &lt;&lt; <span class="string">&quot; and no account is modified&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>algorithm-practice</category>
+        <category>PTA</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>1036. Boys vs Girls</title>
+    <url>/2021/01/11/1036/</url>
+    <content><![CDATA[<p>送分题</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">student</span> &#123;</span><br><span class="line">    string name;</span><br><span class="line">    string major;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    student s, male_min, female_max;</span><br><span class="line">    <span class="type">int</span> score, male_score_min = <span class="number">101</span>, female_score_max = <span class="number">-1</span>;</span><br><span class="line">    string gender;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        cin &gt;&gt; s.name &gt;&gt; gender &gt;&gt; s.major &gt;&gt; score;</span><br><span class="line">        <span class="keyword">if</span> (gender == <span class="string">&quot;M&quot;</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (score &lt; male_score_min) &#123;</span><br><span class="line">                male_min = s;</span><br><span class="line">                male_score_min = score;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (score &gt; female_score_max) &#123;</span><br><span class="line">                female_max = s;</span><br><span class="line">                female_score_max = score;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (female_score_max != <span class="number">-1</span>) &#123;</span><br><span class="line">        cout &lt;&lt; female_max.name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; female_max.major &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Absent&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (male_score_min != <span class="number">101</span>) &#123;</span><br><span class="line">        cout &lt;&lt; male_min.name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; male_min.major &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Absent&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (female_score_max != <span class="number">-1</span> &amp;&amp; male_score_min != <span class="number">101</span>) &#123;</span><br><span class="line">        cout &lt;&lt; female_score_max - male_score_min &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;NA&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>PTA</category>
@@ -10373,16 +10383,6 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
 <h2 id="感想"><a class="header-anchor-1" href="#感想">#</a>感想</h2>
 <p>意外的很简单</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> D[<span class="number">100001</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _DEBUG</span></span><br><span class="line">    <span class="built_in">freopen</span>(__FILE__ <span class="string">&quot;.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="type">int</span> dist;</span><br><span class="line">        cin &gt;&gt; dist;</span><br><span class="line">        D[i + <span class="number">1</span>] = D[i] + dist;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> len = D[n];</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> q;</span><br><span class="line">    cin &gt;&gt; q;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; q; i++) &#123;</span><br><span class="line">        <span class="type">int</span> x, y;</span><br><span class="line">        cin &gt;&gt; x &gt;&gt; y;</span><br><span class="line">        <span class="keyword">if</span> (x &gt; y) &#123;</span><br><span class="line">            <span class="built_in">swap</span>(x, y);</span><br><span class="line">        &#125;</span><br><span class="line">        cout &lt;&lt; <span class="built_in">min</span>(D[y - <span class="number">1</span>] - D[x - <span class="number">1</span>], len - D[y - <span class="number">1</span>] + D[x - <span class="number">1</span>]) &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>algorithm-practice</category>
-        <category>PTA</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>1036. Boys vs Girls</title>
-    <url>/2021/01/11/1036/</url>
-    <content><![CDATA[<p>送分题</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">student</span> &#123;</span><br><span class="line">    string name;</span><br><span class="line">    string major;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    student s, male_min, female_max;</span><br><span class="line">    <span class="type">int</span> score, male_score_min = <span class="number">101</span>, female_score_max = <span class="number">-1</span>;</span><br><span class="line">    string gender;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        cin &gt;&gt; s.name &gt;&gt; gender &gt;&gt; s.major &gt;&gt; score;</span><br><span class="line">        <span class="keyword">if</span> (gender == <span class="string">&quot;M&quot;</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (score &lt; male_score_min) &#123;</span><br><span class="line">                male_min = s;</span><br><span class="line">                male_score_min = score;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (score &gt; female_score_max) &#123;</span><br><span class="line">                female_max = s;</span><br><span class="line">                female_score_max = score;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (female_score_max != <span class="number">-1</span>) &#123;</span><br><span class="line">        cout &lt;&lt; female_max.name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; female_max.major &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Absent&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (male_score_min != <span class="number">101</span>) &#123;</span><br><span class="line">        cout &lt;&lt; male_min.name &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; male_min.major &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Absent&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (female_score_max != <span class="number">-1</span> &amp;&amp; male_score_min != <span class="number">101</span>) &#123;</span><br><span class="line">        cout &lt;&lt; female_score_max - male_score_min &lt;&lt; endl;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;NA&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>PTA</category>
@@ -10772,19 +10772,19 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </tags>
   </entry>
   <entry>
-    <title>205. 同构字符串</title>
-    <url>/2020/12/27/205/</url>
-    <content><![CDATA[<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">isIsomorphic</span><span class="params">(string s, string t)</span> </span>&#123;</span><br><span class="line">        map&lt;<span class="type">char</span>, <span class="type">char</span>&gt;M;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            <span class="type">char</span> ss = s[i], tt = t[i];</span><br><span class="line">            <span class="keyword">if</span>(M.<span class="built_in">find</span>(ss)==M.<span class="built_in">end</span>())&#123;</span><br><span class="line">                <span class="keyword">if</span>(<span class="built_in">find_if</span>(M.<span class="built_in">begin</span>(),M.<span class="built_in">end</span>(),[&amp;](<span class="type">const</span> map&lt;<span class="type">char</span>, <span class="type">char</span>&gt;::iterator&amp;it)&#123;<span class="keyword">return</span> it-&gt;second==tt;&#125;)!=M.<span class="built_in">end</span>())&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    M[ss]=tt;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(M[ss]!=tt)&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>2. 两数相加</title>
+    <url>/2020/12/25/2/</url>
+    <content><![CDATA[<p>指针</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">addTwoNumbers</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;</span><br><span class="line">        ListNode*p1=l1,*p2=l2,*p3,*last=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="type">int</span> up=<span class="number">0</span>;</span><br><span class="line">        ListNode* root=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">        p3=root;</span><br><span class="line">        <span class="keyword">while</span>(p1 || p2 || up)&#123;</span><br><span class="line">            <span class="type">int</span> n1=<span class="number">0</span>,n2=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span>(p1)&#123;n1=p1-&gt;val;p1=p1-&gt;next;&#125;</span><br><span class="line">            <span class="keyword">if</span>(p2)&#123;n2=p2-&gt;val;p2=p2-&gt;next;&#125;</span><br><span class="line">            up+=n1+n2;</span><br><span class="line">            p3-&gt;val=up%<span class="number">10</span>;</span><br><span class="line">            last=p3;</span><br><span class="line">            p3=p3-&gt;next=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">            up/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">delete</span> last-&gt;next;</span><br><span class="line">        last-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
       </categories>
   </entry>
   <entry>
-    <title>2. 两数相加</title>
-    <url>/2020/12/25/2/</url>
-    <content><![CDATA[<p>指针</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">addTwoNumbers</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;</span><br><span class="line">        ListNode*p1=l1,*p2=l2,*p3,*last=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="type">int</span> up=<span class="number">0</span>;</span><br><span class="line">        ListNode* root=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">        p3=root;</span><br><span class="line">        <span class="keyword">while</span>(p1 || p2 || up)&#123;</span><br><span class="line">            <span class="type">int</span> n1=<span class="number">0</span>,n2=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span>(p1)&#123;n1=p1-&gt;val;p1=p1-&gt;next;&#125;</span><br><span class="line">            <span class="keyword">if</span>(p2)&#123;n2=p2-&gt;val;p2=p2-&gt;next;&#125;</span><br><span class="line">            up+=n1+n2;</span><br><span class="line">            p3-&gt;val=up%<span class="number">10</span>;</span><br><span class="line">            last=p3;</span><br><span class="line">            p3=p3-&gt;next=<span class="keyword">new</span> <span class="built_in">ListNode</span>();</span><br><span class="line">            up/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">delete</span> last-&gt;next;</span><br><span class="line">        last-&gt;next=<span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>205. 同构字符串</title>
+    <url>/2020/12/27/205/</url>
+    <content><![CDATA[<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">isIsomorphic</span><span class="params">(string s, string t)</span> </span>&#123;</span><br><span class="line">        map&lt;<span class="type">char</span>, <span class="type">char</span>&gt;M;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;s.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">            <span class="type">char</span> ss = s[i], tt = t[i];</span><br><span class="line">            <span class="keyword">if</span>(M.<span class="built_in">find</span>(ss)==M.<span class="built_in">end</span>())&#123;</span><br><span class="line">                <span class="keyword">if</span>(<span class="built_in">find_if</span>(M.<span class="built_in">begin</span>(),M.<span class="built_in">end</span>(),[&amp;](<span class="type">const</span> map&lt;<span class="type">char</span>, <span class="type">char</span>&gt;::iterator&amp;it)&#123;<span class="keyword">return</span> it-&gt;second==tt;&#125;)!=M.<span class="built_in">end</span>())&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    M[ss]=tt;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(M[ss]!=tt)&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>algorithm-practice</category>
         <category>leetcode</category>
@@ -11199,51 +11199,6 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </tags>
   </entry>
   <entry>
-    <title>分布式系统基础</title>
-    <url>/2024/04/04/distributed-system/</url>
-    <content><![CDATA[<h2 id="为什么需要分布式系统"><a class="header-anchor-1" href="#为什么需要分布式系统">#</a>为什么需要分布式系统</h2>
-<p>单点故障，分布式增加冗余提高系统的可用性</p>
-<h2 id="分布式系统存在的问题"><a class="header-anchor-1" href="#分布式系统存在的问题">#</a>分布式系统存在的问题</h2>
-<h3 id="cap-定理"><a class="header-anchor-1" href="#cap-定理">#</a>CAP 定理</h3>
-<p>对于一个分布式计算系统来说，不可能同时满足以下三点：</p>
-<ul>
-<li>一致性 (Consistency): 所有节点都能够访问到同一份最新的数据副本或者错误。</li>
-<li>可用性 (Availability): 每次请求都能获取到非错误响应，但不保证获取的数据为最新数据。</li>
-<li>分区容错性 (Partition tolerance): 在节点之间的网络通信出现故障的情况下，系统仍能继续运行。</li>
-</ul>
-<p>分析:</p>
-<ul>
-<li>网络故障必定存在，如果一发生网络分区整个系统就不可用，是没有意义的。因此分布式系统必须首先要保证 P 性质，接下来有两个选择: C 或者 A。</li>
-<li>如果选择 C 一致性，则当网络分区无法保证数据是最新的时候，系统就会返回错误或者超时，即不可用。</li>
-<li>如果选择 A 可用性，则系统始终尝试返回信息的最新版本，但是无法保证是最新的。</li>
-</ul>
-<h3 id="base-碱-语义"><a class="header-anchor-1" href="#base-碱-语义">#</a>BASE (碱) 语义</h3>
-<p>分布式系统的一种用于实现高可用性的一致性模型，弱化一致性的承诺，保证可用性，因此属于 AP 的一种拓展。</p>
-<ul>
-<li>基本可用 (Basically Available): 读写操作尽可能是可用的，但是不保证一致性 (在冲突的情况下，写值可能不会成功; 读值可能不是最新的)</li>
-<li>软状态 (Soft-state): 没有强一致性保证。</li>
-<li>最终一致性 (Eventually consistent): 系统运行足够长的时间后，多个节点最终会达到一致。</li>
-</ul>
-<h3 id="c-与-a-如何取舍"><a class="header-anchor-1" href="#c-与-a-如何取舍">#</a>C 与 A 如何取舍</h3>
-<ol>
-<li>选择一致性 (CP): 对一致性要求较高的系统，例如:</li>
-</ol>
-<p>传统 ACID 数据库，服务注册中心 (Etcd, Zookeeper, Nacos)，HBase，金融系统，银行系统，与钱相关的</p>
-<ol start="2">
-<li>选择可用性 (AP):</li>
-</ol>
-<p>Eureka，Redis 集群，Nacos 配置中心</p>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>interview</category>
-      </categories>
-      <tags>
-        <tag>学习</tag>
-        <tag>面试</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>2024 年终总结 -- 记学生时代的终结</title>
     <url>/2025/03/15/2024-summary/</url>
     <content><![CDATA[<p>不知不觉 2025 年已经过去了两个多月，感觉再不写这篇总结就要忘记了。</p>
@@ -11311,6 +11266,51 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
         <category>life</category>
         <category>daily</category>
       </categories>
+  </entry>
+  <entry>
+    <title>分布式系统基础</title>
+    <url>/2024/04/04/distributed-system/</url>
+    <content><![CDATA[<h2 id="为什么需要分布式系统"><a class="header-anchor-1" href="#为什么需要分布式系统">#</a>为什么需要分布式系统</h2>
+<p>单点故障，分布式增加冗余提高系统的可用性</p>
+<h2 id="分布式系统存在的问题"><a class="header-anchor-1" href="#分布式系统存在的问题">#</a>分布式系统存在的问题</h2>
+<h3 id="cap-定理"><a class="header-anchor-1" href="#cap-定理">#</a>CAP 定理</h3>
+<p>对于一个分布式计算系统来说，不可能同时满足以下三点：</p>
+<ul>
+<li>一致性 (Consistency): 所有节点都能够访问到同一份最新的数据副本或者错误。</li>
+<li>可用性 (Availability): 每次请求都能获取到非错误响应，但不保证获取的数据为最新数据。</li>
+<li>分区容错性 (Partition tolerance): 在节点之间的网络通信出现故障的情况下，系统仍能继续运行。</li>
+</ul>
+<p>分析:</p>
+<ul>
+<li>网络故障必定存在，如果一发生网络分区整个系统就不可用，是没有意义的。因此分布式系统必须首先要保证 P 性质，接下来有两个选择: C 或者 A。</li>
+<li>如果选择 C 一致性，则当网络分区无法保证数据是最新的时候，系统就会返回错误或者超时，即不可用。</li>
+<li>如果选择 A 可用性，则系统始终尝试返回信息的最新版本，但是无法保证是最新的。</li>
+</ul>
+<h3 id="base-碱-语义"><a class="header-anchor-1" href="#base-碱-语义">#</a>BASE (碱) 语义</h3>
+<p>分布式系统的一种用于实现高可用性的一致性模型，弱化一致性的承诺，保证可用性，因此属于 AP 的一种拓展。</p>
+<ul>
+<li>基本可用 (Basically Available): 读写操作尽可能是可用的，但是不保证一致性 (在冲突的情况下，写值可能不会成功; 读值可能不是最新的)</li>
+<li>软状态 (Soft-state): 没有强一致性保证。</li>
+<li>最终一致性 (Eventually consistent): 系统运行足够长的时间后，多个节点最终会达到一致。</li>
+</ul>
+<h3 id="c-与-a-如何取舍"><a class="header-anchor-1" href="#c-与-a-如何取舍">#</a>C 与 A 如何取舍</h3>
+<ol>
+<li>选择一致性 (CP): 对一致性要求较高的系统，例如:</li>
+</ol>
+<p>传统 ACID 数据库，服务注册中心 (Etcd, Zookeeper, Nacos)，HBase，金融系统，银行系统，与钱相关的</p>
+<ol start="2">
+<li>选择可用性 (AP):</li>
+</ol>
+<p>Eureka，Redis 集群，Nacos 配置中心</p>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>interview</category>
+      </categories>
+      <tags>
+        <tag>学习</tag>
+        <tag>面试</tag>
+      </tags>
   </entry>
   <entry>
     <title>暑期实习 - 面试八股文大纲</title>
@@ -16603,158 +16603,6 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/02/2020-12-02/</url>
-    <content><![CDATA[<ul>
-<li>
-<p>React</p>
-<ul>
-<li>children属性: 子元素构成的数组</li>
-</ul>
-</li>
-<li>
-<p>React-redux</p>
-<ul>
-<li>
-<p>引入: <code>import &#123;...&#125; from 'react-redux'</code></p>
-</li>
-<li>
-<p><code>Store</code></p>
-<ul>
-<li>
-<p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
-</li>
-<li>
-<p><code>createStore(reducer, initState)</code></p>
-<ul>
-<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
-</li>
-<li>
-<p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component</p>
-</li>
-<li>
-<p><code>connect(mapStateToProps)(Component)</code></p>
-<ul>
-<li>
-<p>map current states to <code>Component</code>’s props</p>
-</li>
-<li>
-<p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
-</li>
-<li>
-<p>一般和<Provider>结合起来用</p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p>React-Router</p>
-<ul>
-<li>
-<p>引入: <code>import &#123;&#125; from 'react-router-dom'</code></p>
-</li>
-<li>
-<p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
-<ul>
-<li>
-<p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
-</li>
-<li>
-<p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
-</li>
-<li>
-<p>参数化匹配</p>
-<ul>
-<li>
-<p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
-</li>
-<li>
-<p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
-<ul>
-<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
-</ul>
-</li>
-<li>
-<p>嵌套使用:</p>
-  <figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = <span class="title function_">useRouteMatch</span>(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">path</span>&#125;/<span class="attr">next</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">)</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li>
-<p>Vue-Router</p>
-<ul>
-<li>
-<p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
-</li>
-<li>
-<p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
-</li>
-<li>
-<p><code>Router</code>: 在这里定义全局路由表</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Ubuntu 安装 rpm 包</p>
-<ul>
-<li>
-<p>sudo apt install alien</p>
-</li>
-<li>
-<p>sudo alien packagename.rpm</p>
-</li>
-<li>
-<p>sudo apt install ./packagename.deb</p>
-</li>
-<li>
-<p>一步到位: sudo alien -i packagename.rpm</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Oracle 的连接方式</p>
-<ul>
-<li>
-<p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
-</li>
-<li>
-<p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
-<ul>
-<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
-</ul>
-</li>
-<li>
-<p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
-  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = LITTLECOMPUTER.ACME.ORG) // 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SID = MYSID)) // 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">// PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SERVICE_NAME = MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>React</tag>
-        <tag>Oracle</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/01/2020-12-01/</url>
     <content><![CDATA[<h1>转换dos格式行尾为unix行尾</h1>
 <ul>
@@ -17033,9 +16881,161 @@ ORM 的优点是简化了数据库操作，降低了学习和开发成本，无�
       </categories>
       <tags>
         <tag>Linux</tag>
-        <tag>React</tag>
         <tag>Javascript</tag>
+        <tag>React</tag>
         <tag>npm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/02/2020-12-02/</url>
+    <content><![CDATA[<ul>
+<li>
+<p>React</p>
+<ul>
+<li>children属性: 子元素构成的数组</li>
+</ul>
+</li>
+<li>
+<p>React-redux</p>
+<ul>
+<li>
+<p>引入: <code>import &#123;...&#125; from 'react-redux'</code></p>
+</li>
+<li>
+<p><code>Store</code></p>
+<ul>
+<li>
+<p>Redux maintains a <code>store</code>, which hold <code>state</code> and <code>reducer</code></p>
+</li>
+<li>
+<p><code>createStore(reducer, initState)</code></p>
+<ul>
+<li><code>reducer</code> and <code>initState</code> should have the same keys</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>Reducer</code>: (state, action) =&gt; (newstate)</p>
+</li>
+<li>
+<p><code>&lt;Provider&gt;</code>: Inject global <code>state</code> to its children component</p>
+</li>
+<li>
+<p><code>connect(mapStateToProps)(Component)</code></p>
+<ul>
+<li>
+<p>map current states to <code>Component</code>’s props</p>
+</li>
+<li>
+<p><code>mapStateToProps</code>: is a function: (state) =&gt; { …someProp }</p>
+</li>
+<li>
+<p>一般和<Provider>结合起来用</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>React-Router</p>
+<ul>
+<li>
+<p>引入: <code>import &#123;&#125; from 'react-router-dom'</code></p>
+</li>
+<li>
+<p><code>&lt;Route path&gt;</code>: 当url与path匹配时, 渲染内容</p>
+<ul>
+<li>
+<p><code>&lt;BrowserRouter&gt;, &lt;HashRouter&gt;</code>: <Route>的容器</p>
+</li>
+<li>
+<p><code>&lt;Switch&gt;</code>: 保证其下的所有Route只会选中一个</p>
+</li>
+<li>
+<p>参数化匹配</p>
+<ul>
+<li>
+<p>参数定义: <code>path=&quot;/hsl/:h/:s/:l&quot;</code></p>
+</li>
+<li>
+<p>参数获取: 在children组件中 <code>let &#123; h, s, l &#125; = useParams();</code></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>&lt;Link to&gt;</code>: 跳转到to的a标签</p>
+<ul>
+<li><code>&lt;Redirect&gt;</code>: 渲染时自动跳转</li>
+</ul>
+</li>
+<li>
+<p>嵌套使用:</p>
+  <figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> &#123; path, url &#125; = <span class="title function_">useRouteMatch</span>(); <span class="comment">// 获取上一级的path和url</span></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">path</span>&#125;/<span class="attr">next</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">)</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p>Vue-Router</p>
+<ul>
+<li>
+<p><code>&lt;router-link :to&gt;</code>: 跳转的a标签</p>
+</li>
+<li>
+<p><code>&lt;router-view&gt;</code>: 匹配的路由内容会渲染到这里</p>
+</li>
+<li>
+<p><code>Router</code>: 在这里定义全局路由表</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Ubuntu 安装 rpm 包</p>
+<ul>
+<li>
+<p>sudo apt install alien</p>
+</li>
+<li>
+<p>sudo alien packagename.rpm</p>
+</li>
+<li>
+<p>sudo apt install ./packagename.deb</p>
+</li>
+<li>
+<p>一步到位: sudo alien -i packagename.rpm</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Oracle 的连接方式</p>
+<ul>
+<li>
+<p>SID/System IDentifier: 数据库实例的全局唯一ID, 每个实例都不一样</p>
+</li>
+<li>
+<p>SERVICE_NAME: 用于对外提供服务的名字, 被客户端使用</p>
+<ul>
+<li>也可以被数据库端用来区分对不同客户端提供的服务</li>
+</ul>
+</li>
+<li>
+<p>TNS/Transparent Network Substrate: 由Oracle创造的, 专门用于Oracle数据库连接的, 基于TCP/IP, SDP和命名管道的, 同构p2p连接技术</p>
+  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// STATE.WORLD是一个TNS Name</span><br><span class="line">STAGE.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = LITTLECOMPUTER.ACME.ORG) // 服务器地址</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SID = MYSID)) // 数据库标识, 可以使用SID或者SERVICE_NAME</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">// PROD.WORLD也是一个TNS Name</span><br><span class="line">PROD.WORLD =</span><br><span class="line">    (DESCRIPTION =</span><br><span class="line">        (ADDRESS =</span><br><span class="line">            (PROTOCOL = TCP) </span><br><span class="line">            (PORT = 1521)</span><br><span class="line">            (HOST = BIGCOMPUTER.ACME.ORG)</span><br><span class="line">        )</span><br><span class="line">        (CONNECT_DATA = (SERVICE_NAME = MYNAME))</span><br><span class="line">    )</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>React</tag>
+        <tag>Oracle</tag>
       </tags>
   </entry>
   <entry>
@@ -17141,112 +17141,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>Database</tag>
         <tag>数学基础</tag>
         <tag>Nginx</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
-    <url>/2020/12/05/2020-12-05/</url>
-    <content><![CDATA[<h1>Java Spring 框架学习</h1>
-<p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
-<p>要管理bean，也即是这堆发挥业务功能的类，就不能直接把它们new出来，这样缺乏统一的调度。所以，Spring使用.xml配置文件作为媒介，以IoC（Inversion of Control 控制反转）作为工具，将这些bean拿给Spring container作统一管理。</p>
-<h1>Git submodule 使用</h1>
-<ul>
-<li>
-<p>添加子模块</p>
-<ul>
-<li><code>git submodule add &lt;url&gt; &lt;path&gt;</code></li>
-</ul>
-</li>
-<li>
-<p>设置子模块的分支</p>
-<ul>
-<li><code>git submodule set-branch --branch &lt;branch&gt; &lt;path&gt;</code></li>
-</ul>
-</li>
-<li>
-<p>克隆下来的项目包含子模块</p>
-  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule init</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update</span></span><br></pre></td></tr></table></figure>
-<p>或者</p>
-  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update --init --recursive</span></span><br></pre></td></tr></table></figure>
-</li>
-<li>
-<p>子模块的更新</p>
-<ol>
-<li>
-<p>在子模块内部, 作为一般的git项目更新(<code>pull</code>)</p>
-</li>
-<li>
-<p>在项目目录下<code>git add</code></p>
-</li>
-</ol>
-</li>
-<li>
-<p>子模块的删除</p>
-<ul>
-<li>
-<p><code>rm -rf 子模块目录</code> 删除子模块目录及源码</p>
-</li>
-<li>
-<p>删除项目目录下.gitmodules文件中子模块相关条目</p>
-</li>
-<li>
-<p>vi .git/config 删除配置项中子模块相关条目</p>
-</li>
-<li>
-<p><code>rm .git/module/*</code> 删除模块下的子模块目录，每个子模块对应一个目录，注意只删除对应的子模块目录即可</p>
-</li>
-</ul>
-</li>
-</ul>
-<h1>Github 开源项目包含不想公开的密码/Token等怎么处理</h1>
-<p>可以将隐私数据包含在项目的Secret设置中, 在Github Action中使用脚本将隐私数据注入到文件中</p>
-<h1>YAML 语言</h1>
-<p>基本类型:</p>
-<blockquote>
-<ul>
-<li>
-<p>String</p>
-</li>
-<li>
-<p>Bool: <code>true</code>, <code>false</code></p>
-</li>
-<li>
-<p>Int</p>
-</li>
-<li>
-<p>Number</p>
-</li>
-<li>
-<p>null: <code>~</code></p>
-</li>
-<li>
-<p>Time: ISO8601 格式, 例<code>2001-12-14t21:59:43.10-05:00</code></p>
-</li>
-<li>
-<p>Date: <code>1976-07-31</code></p>
-</li>
-</ul>
-</blockquote>
-<p>注释: <code>#</code></p>
-<p>使用左端对齐的键值对表示对象:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">key1:</span> <span class="string">abc</span></span><br><span class="line">  <span class="attr">key2:</span> <span class="number">123</span></span><br><span class="line">  <span class="attr">key3:</span> <span class="string">sss</span></span><br></pre></td></tr></table></figure>
-<p>使用以<code>-</code>开头的对齐的值表示数组:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">fruits:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">apple</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">banana</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">orange</span></span><br></pre></td></tr></table></figure>
-<p>数组套对象:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">objs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">object</span> <span class="string">A</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">an</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">B</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">another</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">C</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">still</span> <span class="string">an</span> <span class="string">object</span></span><br></pre></td></tr></table></figure>
-<p>数组套数组:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">matrix:</span> </span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a11</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a12</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a13</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a21</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a22</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a23</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a31</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a32</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a33</span></span><br></pre></td></tr></table></figure>
-<p>对象套数组:</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">frezcirno</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Boy</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Handsome</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Student</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Cool</span></span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>life</category>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Spring</tag>
-        <tag>Git</tag>
       </tags>
   </entry>
   <entry>
@@ -17448,6 +17342,112 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       <tags>
         <tag>Linux</tag>
         <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/05/2020-12-05/</url>
+    <content><![CDATA[<h1>Java Spring 框架学习</h1>
+<p>Spring框架，它最主要的功能就是管理一堆使App（应用）发挥功能的类，这些作为整个App的基石、主干的类，就叫做bean。</p>
+<p>要管理bean，也即是这堆发挥业务功能的类，就不能直接把它们new出来，这样缺乏统一的调度。所以，Spring使用.xml配置文件作为媒介，以IoC（Inversion of Control 控制反转）作为工具，将这些bean拿给Spring container作统一管理。</p>
+<h1>Git submodule 使用</h1>
+<ul>
+<li>
+<p>添加子模块</p>
+<ul>
+<li><code>git submodule add &lt;url&gt; &lt;path&gt;</code></li>
+</ul>
+</li>
+<li>
+<p>设置子模块的分支</p>
+<ul>
+<li><code>git submodule set-branch --branch &lt;branch&gt; &lt;path&gt;</code></li>
+</ul>
+</li>
+<li>
+<p>克隆下来的项目包含子模块</p>
+  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule init</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update</span></span><br></pre></td></tr></table></figure>
+<p>或者</p>
+  <figure class="highlight console"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git submodule update --init --recursive</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>子模块的更新</p>
+<ol>
+<li>
+<p>在子模块内部, 作为一般的git项目更新(<code>pull</code>)</p>
+</li>
+<li>
+<p>在项目目录下<code>git add</code></p>
+</li>
+</ol>
+</li>
+<li>
+<p>子模块的删除</p>
+<ul>
+<li>
+<p><code>rm -rf 子模块目录</code> 删除子模块目录及源码</p>
+</li>
+<li>
+<p>删除项目目录下.gitmodules文件中子模块相关条目</p>
+</li>
+<li>
+<p>vi .git/config 删除配置项中子模块相关条目</p>
+</li>
+<li>
+<p><code>rm .git/module/*</code> 删除模块下的子模块目录，每个子模块对应一个目录，注意只删除对应的子模块目录即可</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Github 开源项目包含不想公开的密码/Token等怎么处理</h1>
+<p>可以将隐私数据包含在项目的Secret设置中, 在Github Action中使用脚本将隐私数据注入到文件中</p>
+<h1>YAML 语言</h1>
+<p>基本类型:</p>
+<blockquote>
+<ul>
+<li>
+<p>String</p>
+</li>
+<li>
+<p>Bool: <code>true</code>, <code>false</code></p>
+</li>
+<li>
+<p>Int</p>
+</li>
+<li>
+<p>Number</p>
+</li>
+<li>
+<p>null: <code>~</code></p>
+</li>
+<li>
+<p>Time: ISO8601 格式, 例<code>2001-12-14t21:59:43.10-05:00</code></p>
+</li>
+<li>
+<p>Date: <code>1976-07-31</code></p>
+</li>
+</ul>
+</blockquote>
+<p>注释: <code>#</code></p>
+<p>使用左端对齐的键值对表示对象:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">key1:</span> <span class="string">abc</span></span><br><span class="line">  <span class="attr">key2:</span> <span class="number">123</span></span><br><span class="line">  <span class="attr">key3:</span> <span class="string">sss</span></span><br></pre></td></tr></table></figure>
+<p>使用以<code>-</code>开头的对齐的值表示数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">fruits:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">apple</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">banana</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">orange</span></span><br></pre></td></tr></table></figure>
+<p>数组套对象:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">objs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">object</span> <span class="string">A</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">an</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">B</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">another</span> <span class="string">object</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Object</span> <span class="string">C</span></span><br><span class="line">    <span class="attr">desp:</span> <span class="string">I&#x27;am</span> <span class="string">still</span> <span class="string">an</span> <span class="string">object</span></span><br></pre></td></tr></table></figure>
+<p>数组套数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">matrix:</span> </span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a11</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a12</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a13</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a21</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a22</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a23</span></span><br><span class="line">  <span class="bullet">-</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">a31</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a32</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">a33</span></span><br></pre></td></tr></table></figure>
+<p>对象套数组:</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">frezcirno</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Boy</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Handsome</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Student</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Cool</span></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>life</category>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Spring</tag>
+        <tag>Git</tag>
       </tags>
   </entry>
   <entry>
