@@ -3065,38 +3065,6 @@ SNMP: 161/162</p>
       </tags>
   </entry>
   <entry>
-    <title>C++ 并发三件套 - future, promise, async</title>
-    <url>/2024/04/20/cpp-concurrency/</url>
-    <content><![CDATA[<p>C++标准库提供了很多用于并发编程的工具，不太熟悉，总结一下。</p>
-<h2 id="异步计算结果-std-future-t"><a class="header-anchor-1" href="#异步计算结果-std-future-t">#</a>异步计算结果 <code>std::future&lt;T&gt;</code></h2>
-<p><code>std::future&lt;T&gt;</code> 表示一个异步计算过程的结果。</p>
-<p><code>std::future::wait()</code> 方法阻塞当前线程直至计算完成。如果计算已经完成，则直接返回。</p>
-<p><code>std::future::get()</code> 方法等待计算完成，并获取 <code>future&lt;T&gt;</code> 表示的值或异常。<code>get()</code> 方法会消耗掉当前 future 保存的值，因此只能调用一次。</p>
-<p><code>std::future::valid()</code> 方法表示当前 future 中是否还有值可以被获取，如果值已经被 get 过，则会返回 false。</p>
-<p><code>std::future::share()</code> 方法返回一个 <code>std::shared_future&lt;T&gt;</code>。</p>
-<p><code>std::future&lt;T&gt;</code> 是 move-only 的结构，且独占 <code>T</code> 的所有权。当多个对等的线程需要访问同一个期望值时，可以使用 copyable 的 <code>std::shared_future&lt;T&gt;</code>。注意，<code>std::shared_future&lt;T&gt;</code> 本身并不是线程安全的，需要每个线程拷贝并持有一个自己的 <code>std::shared_future&lt;T&gt;</code>。</p>
-<h2 id="异步生产者-std-promise-t"><a class="header-anchor-1" href="#异步生产者-std-promise-t">#</a>异步生产者 <code>std::promise&lt;T&gt;</code></h2>
-<p><code>std::promise&lt;T&gt;</code> 用于生产者提供一个 <code>std::future&lt;T&gt;</code> 及其中的值给消费者。<code>std::promise&lt;T&gt;::get_future()</code> 方法返回一个 <code>std::future&lt;T&gt;</code> 给消费者。</p>
-<p>对于生产者，使用 <code>std::promise&lt;T&gt;::set_value()</code> 方法填充 <code>future</code> 中的值；或者使用 <code>std::promise&lt;T&gt;::set_exception()</code> 方法填充 <code>future</code> 中的异常；</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> std::promise&lt;<span class="type">double</span>&gt; some_promise;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_value</span>(<span class="built_in">calculate_value</span>());</span><br><span class="line">&#125; <span class="built_in">catch</span>(...) &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_exception</span>(std::<span class="built_in">current_exception</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="异步执行-std-async"><a class="header-anchor-1" href="#异步执行-std-async">#</a>异步执行 <code>std::async()</code></h2>
-<p><code>std::async</code> 是一个函数，它启动一个异步任务去执行指定的函数，返回一个表示计算结果的 <code>std::future</code></p>
-<p><code>std::async</code> 允许额外指定一个<code>std::launch</code>类型的参数来指定任务启动的方式，有以下几种启动策略：</p>
-<ul>
-<li><code>std::launch::async</code>: 任务必须在独立线程中执行，因此需要库去负责线程创建和销毁；</li>
-<li><code>std::launch::deferred</code>: 任务可以延迟到<code>wait()</code>或者<code>get()</code>的时候，在调用者线程上同步执行 (有点类似 Rust Tokio 的设计)；</li>
-<li><code>std::launch::async | std::launch::deferred</code>: 默认的方式，表示以上两种执行时机都可以，由具体实现去选择。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>cpp</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-        <tag>并发编程</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>C++ `constexpr` 的限制</title>
     <url>/2024/04/21/cpp-constexpr-usage/</url>
     <content><![CDATA[<ol>
@@ -3155,6 +3123,38 @@ SNMP: 161/162</p>
       <tags>
         <tag>C++</tag>
         <tag>数据结构</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++ 并发三件套 - future, promise, async</title>
+    <url>/2024/04/20/cpp-concurrency/</url>
+    <content><![CDATA[<p>C++标准库提供了很多用于并发编程的工具，不太熟悉，总结一下。</p>
+<h2 id="异步计算结果-std-future-t"><a class="header-anchor-1" href="#异步计算结果-std-future-t">#</a>异步计算结果 <code>std::future&lt;T&gt;</code></h2>
+<p><code>std::future&lt;T&gt;</code> 表示一个异步计算过程的结果。</p>
+<p><code>std::future::wait()</code> 方法阻塞当前线程直至计算完成。如果计算已经完成，则直接返回。</p>
+<p><code>std::future::get()</code> 方法等待计算完成，并获取 <code>future&lt;T&gt;</code> 表示的值或异常。<code>get()</code> 方法会消耗掉当前 future 保存的值，因此只能调用一次。</p>
+<p><code>std::future::valid()</code> 方法表示当前 future 中是否还有值可以被获取，如果值已经被 get 过，则会返回 false。</p>
+<p><code>std::future::share()</code> 方法返回一个 <code>std::shared_future&lt;T&gt;</code>。</p>
+<p><code>std::future&lt;T&gt;</code> 是 move-only 的结构，且独占 <code>T</code> 的所有权。当多个对等的线程需要访问同一个期望值时，可以使用 copyable 的 <code>std::shared_future&lt;T&gt;</code>。注意，<code>std::shared_future&lt;T&gt;</code> 本身并不是线程安全的，需要每个线程拷贝并持有一个自己的 <code>std::shared_future&lt;T&gt;</code>。</p>
+<h2 id="异步生产者-std-promise-t"><a class="header-anchor-1" href="#异步生产者-std-promise-t">#</a>异步生产者 <code>std::promise&lt;T&gt;</code></h2>
+<p><code>std::promise&lt;T&gt;</code> 用于生产者提供一个 <code>std::future&lt;T&gt;</code> 及其中的值给消费者。<code>std::promise&lt;T&gt;::get_future()</code> 方法返回一个 <code>std::future&lt;T&gt;</code> 给消费者。</p>
+<p>对于生产者，使用 <code>std::promise&lt;T&gt;::set_value()</code> 方法填充 <code>future</code> 中的值；或者使用 <code>std::promise&lt;T&gt;::set_exception()</code> 方法填充 <code>future</code> 中的异常；</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> std::promise&lt;<span class="type">double</span>&gt; some_promise;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_value</span>(<span class="built_in">calculate_value</span>());</span><br><span class="line">&#125; <span class="built_in">catch</span>(...) &#123;</span><br><span class="line">  some_promise.<span class="built_in">set_exception</span>(std::<span class="built_in">current_exception</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="异步执行-std-async"><a class="header-anchor-1" href="#异步执行-std-async">#</a>异步执行 <code>std::async()</code></h2>
+<p><code>std::async</code> 是一个函数，它启动一个异步任务去执行指定的函数，返回一个表示计算结果的 <code>std::future</code></p>
+<p><code>std::async</code> 允许额外指定一个<code>std::launch</code>类型的参数来指定任务启动的方式，有以下几种启动策略：</p>
+<ul>
+<li><code>std::launch::async</code>: 任务必须在独立线程中执行，因此需要库去负责线程创建和销毁；</li>
+<li><code>std::launch::deferred</code>: 任务可以延迟到<code>wait()</code>或者<code>get()</code>的时候，在调用者线程上同步执行 (有点类似 Rust Tokio 的设计)；</li>
+<li><code>std::launch::async | std::launch::deferred</code>: 默认的方式，表示以上两种执行时机都可以，由具体实现去选择。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>并发编程</tag>
       </tags>
   </entry>
   <entry>
@@ -4839,6 +4839,118 @@ Google Analytics 总结这些信息，然后提供给网站所有者。</p>
       </tags>
   </entry>
   <entry>
+    <title>MIT 6.824/6.5840 分布式系统 Lab 2</title>
+    <url>/2025/02/20/mit-6.824-distributed-system-lab2/</url>
+    <content><![CDATA[<h2 id="lab-2-key-value-server"><a class="header-anchor-1" href="#lab-2-key-value-server">#</a>Lab 2: Key/Value Server</h2>
+<p>新版本 6.824 课程添加了一个 Lab 2，实现一个请求幂等的简单 KV 存储服务，还有对应的 Client 端。</p>
+<p>幂等性：题目依赖的底层 RPC 网络是不可靠的。为此，在请求中携带一个递增的 Sequence Number，在服务端忽略每个 Client 的旧 Request 即可。</p>
+<p>服务端实现：维护一个 <code>map[int]int</code>，记录每一个 Client 发来的最大的 Sequence Number；注意 Append 命令还需要缓存执行的结果。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Last <span class="keyword">struct</span> &#123;</span><br><span class="line">    Seq   <span class="type">int</span></span><br><span class="line">    Value <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> KVServer <span class="keyword">struct</span> &#123;</span><br><span class="line">    last  <span class="keyword">map</span>[<span class="type">int</span>]Last</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Get 命令无需考虑幂等性，直接返回即可：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Get(args *GetArgs, reply *GetReply) &#123;</span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    reply.Value = kv.store[args.Key]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Put 命令需要保证幂等性：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Put(args *PutAppendArgs, reply *PutAppendReply) &#123;</span><br><span class="line">    <span class="comment">// log.Println(&quot;Put&quot;, args)</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">if</span> last, ok := kv.last[args.ClientId]; ok &#123;</span><br><span class="line">        <span class="keyword">if</span> args.Seq &lt; last.Seq &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">&quot;seq &lt; last&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> args.Seq == last.Seq &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    kv.last[args.ClientId] = Last&#123;Seq: args.Seq&#125;</span><br><span class="line">    kv.store[args.Key] = args.Value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Append 命令不仅需要保证幂等性，还需要缓存执行的结果：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Append(args *PutAppendArgs, reply *PutAppendReply) &#123;</span><br><span class="line">    <span class="comment">// log.Println(&quot;Append&quot;, args)</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">if</span> last, ok := kv.last[args.ClientId]; ok &#123;</span><br><span class="line">        <span class="keyword">if</span> args.Seq &lt; last.Seq &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">&quot;seq &lt; last&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> args.Seq == last.Seq &#123;</span><br><span class="line">            reply.Value = last.Value</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Reply with the old value</span></span><br><span class="line">    reply.Value = kv.store[args.Key]</span><br><span class="line">    kv.last[args.ClientId] = Last&#123;Seq: args.Seq, Value: kv.store[args.Key]&#125;</span><br><span class="line">    kv.store[args.Key] += args.Value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>distributed-system</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+        <tag>Raft</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MIT 6.824/6.5840 分布式系统 Lab 3 - Raft 论文阅读</title>
+    <url>/2025/02/20/mit-6.824-distributed-system-lab3-1/</url>
+    <content><![CDATA[<p>Raft 是一种经典的分布式共识算法（Consensus algorithm）。</p>
+<h2 id="复制状态机"><a class="header-anchor-1" href="#复制状态机">#</a>复制状态机</h2>
+<p>复制状态机是一组服务器上，计算相同的状态，而且可以容忍部分机器下线的状态机。复制状态机是解决分布式系统中一系列容错问题的基础，例如选主。通常通过 Replicated Log 实现，共识算法的职责就是维护 Replicated Log 的一致性。</p>
+<p>实际应用中，对于共识算法的要求：</p>
+<ul>
+<li><strong>正确性</strong>：在非拜占庭条件下，永远不会返回错误的结果；</li>
+<li><strong>可用性</strong>：只要多数机器正常工作，就可以正常工作；</li>
+<li>一致性不依赖于操作的时序，最坏情况下，只会导致可用性的问题；</li>
+<li><strong>快速</strong>：一般情况下，一旦大多数机器响应了一轮 RPC，命令即可完成；</li>
+</ul>
+<h2 id="paxos-的问题"><a class="header-anchor-1" href="#paxos-的问题">#</a>Paxos 的问题</h2>
+<ul>
+<li>难以理解</li>
+</ul>
+<h2 id="raft-共识算法"><a class="header-anchor-1" href="#raft-共识算法">#</a>Raft 共识算法</h2>
+<p>Raft 将共识问题分解成三个子问题：（1）选主、（2）日志复制、（3）安全性；</p>
+<h3 id="raft-基本定义"><a class="header-anchor-1" href="#raft-基本定义">#</a>Raft 基本定义</h3>
+<p>Raft 规定的节点状态：</p>
+<ul>
+<li><strong>Follower</strong>：被动响应 C 和 L 的请求；</li>
+<li><strong>Leader</strong>：处理所有客户端的请求；</li>
+<li><strong>Candidate</strong>：选主过程中使用；</li>
+</ul>
+<p>Raft 将时间划分为任意长度的任期（Term），任期用连续整数编号，起到逻辑时钟的功能。每个任期开始时先进行选举，选举出来的 Leader 会在这个任期内进行服务；否则继续下一个任期和选举。</p>
+<h3 id="选主"><a class="header-anchor-1" href="#选主">#</a>选主</h3>
+<p>Raft 利用心跳机制触发选主，Leader 会周期性地给所有 Follower 发送心跳宣布权威性。如果 Follower 一段时间没有收到心跳，则会开始尝试发起选主。</p>
+<p>选主过程中，Follower 会将 Term++，然后请求所有 Peer 投票（自己当然会给自己投票）。结果可能有几种：</p>
+<ol>
+<li><strong>收到的选票数量超过半数</strong>：自己成为 Leader；</li>
+<li><strong>收到了 Term 更大的 Candidate 或者 Leader 的任意 RPC</strong>：自己被强制降级为 Follower，发起的选举失效；</li>
+<li><strong>收到的选票数量不到半数</strong>：没有 Leader，继续下一轮选举；</li>
+</ol>
+<p>节点投票时遵循简单的规则：</p>
+<ul>
+<li>每个 Term 最多投给一个人</li>
+<li>先来后到</li>
+</ul>
+<p>Raft 采用随机选举超时，保证多个节点不会在同一时间启动选举。</p>
+<h3 id="日志复制"><a class="header-anchor-1" href="#日志复制">#</a>日志复制</h3>
+<p>当一个 Leader 被选出来之后，就开始负责这些事情：</p>
+<ul>
+<li><strong>给每个 Follower 发送日志</strong>：同步 Log；</li>
+<li><strong>决定什么时候可以提交 Log</strong>：当 Leader 确信一条日志已经被同步到多数机器上，则认为可以提交它，Raft 机制保证了剩余机器<strong>最终</strong>将会提交相同的日志，即所谓<strong>最终一致性</strong>。</li>
+</ul>
+<p>Raft 的<strong>Log Matching Property</strong>：</p>
+<ul>
+<li>两个不同 Log 中的条目，如果 term 和 index 相同，则存储的 command 相同；</li>
+<li>两个不同 Log 中的条目，如果 term 和 index 相同，则之前的所有 log 相同；</li>
+</ul>
+<p>在 Raft 执行过程中，由于机器崩溃重启，Follower 可能会缺失部分 Log，可能会有多的未提交的 Log，也可能两者兼有；这种情况下，Leader 会<strong>覆盖</strong>Follower 上不一致的 Log：首先两者会找到第一条不一致的 Log，然后 Leader 发送后续的 Log 给 Follower。<code>nextIndex</code>就是 Leader 用于记录每一个 Follower 同步位置的变量，初始值为 Leader 的 nextLogIndex。然后会根据<code>AppendEntries</code>的结果减小<code>nextIndex</code>。</p>
+<p>一个可能的优化点是：Follower 反馈更加精确的冲突日志数量。作者怀疑这种策略在现实情况中的必要性。</p>
+<p>Raft 的<strong>Leader Append-Only Property</strong>：Raft Leader 从来不需要更改或者删除自己的日志；</p>
+<h3 id="安全性"><a class="header-anchor-1" href="#安全性">#</a>安全性</h3>
+<p>上面描述的 Raft 不足以保证命令的顺序性，原因是多个日志冲突的 Follower 可能会交替成为 Leader，导致已经提交的 Log 被覆盖。为此还需要增加一个新的限制：</p>
+<ul>
+<li><strong>Leader Completeness Property</strong>：Candidate 必须拥有前一个 Term 中所有<strong>已经提交的</strong>Log，才能被选为 Leader；</li>
+</ul>
+<h4 id="选主限制"><a class="header-anchor-1" href="#选主限制">#</a>选主限制</h4>
+<p>Raft 利用选主过程保证<strong>Leader Completeness Property</strong>，<code>RequestVote</code> RPC 请求中会包含 Candidate 的 Log 信息，如果 Log 不够新，则在投篇时会被多数节点拒绝。</p>
+<p>Raft 定义的“新（Up-to-date）”：</p>
+<ul>
+<li>如果最后一条 Log 的 Term 不同，Term 大的更新</li>
+<li>否则，Log 长的更新</li>
+</ul>
+<h4 id="提交前一个-term-的-log"><a class="header-anchor-1" href="#提交前一个-term-的-log">#</a>提交前一个 Term 的 Log</h4>
+<p>只是 Log 被同步到多数节点，仍然不足以能够提交这个 Log。</p>
+<p>Raft 要求：只有当前 Term 的 Log 才通过多数原则确认提交，非当前 Term 的不会这样。</p>
+<h4 id="安全证明"><a class="header-anchor-1" href="#安全证明">#</a>安全证明</h4>
+<p>略</p>
+<h4 id="follower-和-candidate-崩溃重启"><a class="header-anchor-1" href="#follower-和-candidate-崩溃重启">#</a>Follower 和 Candidate 崩溃重启</h4>
+<p>略</p>
+<h4 id="时序和可用性"><a class="header-anchor-1" href="#时序和可用性">#</a>时序和可用性</h4>
+<p>略</p>
+<h3 id="集群成员变更-联合共识"><a class="header-anchor-1" href="#集群成员变更-联合共识">#</a>集群成员变更 &amp; 联合共识</h3>
+<p>集群变更配置的场景是很常见的。</p>
+<p>TODO</p>
+<h3 id="日志压缩"><a class="header-anchor-1" href="#日志压缩">#</a>日志压缩</h3>
+]]></content>
+      <categories>
+        <category>distributed-system</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+        <tag>Raft</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>MIT 6.824/6.5840 分布式系统 Lab 1: MapReduce</title>
     <url>/2024/03/25/mit-6.824-distributed-system-lab1/</url>
     <content><![CDATA[<p>本次 Lab 1 讲的是分布式计算的 MapReduce。</p>
@@ -4960,118 +5072,6 @@ Google Analytics 总结这些信息，然后提供给网站所有者。</p>
         <tag>分布式系统</tag>
         <tag>MapReduce</tag>
         <tag>大数据</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MIT 6.824/6.5840 分布式系统 Lab 2</title>
-    <url>/2025/02/20/mit-6.824-distributed-system-lab2/</url>
-    <content><![CDATA[<h2 id="lab-2-key-value-server"><a class="header-anchor-1" href="#lab-2-key-value-server">#</a>Lab 2: Key/Value Server</h2>
-<p>新版本 6.824 课程添加了一个 Lab 2，实现一个请求幂等的简单 KV 存储服务，还有对应的 Client 端。</p>
-<p>幂等性：题目依赖的底层 RPC 网络是不可靠的。为此，在请求中携带一个递增的 Sequence Number，在服务端忽略每个 Client 的旧 Request 即可。</p>
-<p>服务端实现：维护一个 <code>map[int]int</code>，记录每一个 Client 发来的最大的 Sequence Number；注意 Append 命令还需要缓存执行的结果。</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Last <span class="keyword">struct</span> &#123;</span><br><span class="line">    Seq   <span class="type">int</span></span><br><span class="line">    Value <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> KVServer <span class="keyword">struct</span> &#123;</span><br><span class="line">    last  <span class="keyword">map</span>[<span class="type">int</span>]Last</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Get 命令无需考虑幂等性，直接返回即可：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Get(args *GetArgs, reply *GetReply) &#123;</span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    reply.Value = kv.store[args.Key]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Put 命令需要保证幂等性：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Put(args *PutAppendArgs, reply *PutAppendReply) &#123;</span><br><span class="line">    <span class="comment">// log.Println(&quot;Put&quot;, args)</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">if</span> last, ok := kv.last[args.ClientId]; ok &#123;</span><br><span class="line">        <span class="keyword">if</span> args.Seq &lt; last.Seq &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">&quot;seq &lt; last&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> args.Seq == last.Seq &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    kv.last[args.ClientId] = Last&#123;Seq: args.Seq&#125;</span><br><span class="line">    kv.store[args.Key] = args.Value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Append 命令不仅需要保证幂等性，还需要缓存执行的结果：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Append(args *PutAppendArgs, reply *PutAppendReply) &#123;</span><br><span class="line">    <span class="comment">// log.Println(&quot;Append&quot;, args)</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">if</span> last, ok := kv.last[args.ClientId]; ok &#123;</span><br><span class="line">        <span class="keyword">if</span> args.Seq &lt; last.Seq &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">&quot;seq &lt; last&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> args.Seq == last.Seq &#123;</span><br><span class="line">            reply.Value = last.Value</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Reply with the old value</span></span><br><span class="line">    reply.Value = kv.store[args.Key]</span><br><span class="line">    kv.last[args.ClientId] = Last&#123;Seq: args.Seq, Value: kv.store[args.Key]&#125;</span><br><span class="line">    kv.store[args.Key] += args.Value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>distributed-system</category>
-      </categories>
-      <tags>
-        <tag>分布式系统</tag>
-        <tag>Raft</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MIT 6.824/6.5840 分布式系统 Lab 3 - Raft 论文阅读</title>
-    <url>/2025/02/20/mit-6.824-distributed-system-lab3-1/</url>
-    <content><![CDATA[<p>Raft 是一种经典的分布式共识算法（Consensus algorithm）。</p>
-<h2 id="复制状态机"><a class="header-anchor-1" href="#复制状态机">#</a>复制状态机</h2>
-<p>复制状态机是一组服务器上，计算相同的状态，而且可以容忍部分机器下线的状态机。复制状态机是解决分布式系统中一系列容错问题的基础，例如选主。通常通过 Replicated Log 实现，共识算法的职责就是维护 Replicated Log 的一致性。</p>
-<p>实际应用中，对于共识算法的要求：</p>
-<ul>
-<li><strong>正确性</strong>：在非拜占庭条件下，永远不会返回错误的结果；</li>
-<li><strong>可用性</strong>：只要多数机器正常工作，就可以正常工作；</li>
-<li>一致性不依赖于操作的时序，最坏情况下，只会导致可用性的问题；</li>
-<li><strong>快速</strong>：一般情况下，一旦大多数机器响应了一轮 RPC，命令即可完成；</li>
-</ul>
-<h2 id="paxos-的问题"><a class="header-anchor-1" href="#paxos-的问题">#</a>Paxos 的问题</h2>
-<ul>
-<li>难以理解</li>
-</ul>
-<h2 id="raft-共识算法"><a class="header-anchor-1" href="#raft-共识算法">#</a>Raft 共识算法</h2>
-<p>Raft 将共识问题分解成三个子问题：（1）选主、（2）日志复制、（3）安全性；</p>
-<h3 id="raft-基本定义"><a class="header-anchor-1" href="#raft-基本定义">#</a>Raft 基本定义</h3>
-<p>Raft 规定的节点状态：</p>
-<ul>
-<li><strong>Follower</strong>：被动响应 C 和 L 的请求；</li>
-<li><strong>Leader</strong>：处理所有客户端的请求；</li>
-<li><strong>Candidate</strong>：选主过程中使用；</li>
-</ul>
-<p>Raft 将时间划分为任意长度的任期（Term），任期用连续整数编号，起到逻辑时钟的功能。每个任期开始时先进行选举，选举出来的 Leader 会在这个任期内进行服务；否则继续下一个任期和选举。</p>
-<h3 id="选主"><a class="header-anchor-1" href="#选主">#</a>选主</h3>
-<p>Raft 利用心跳机制触发选主，Leader 会周期性地给所有 Follower 发送心跳宣布权威性。如果 Follower 一段时间没有收到心跳，则会开始尝试发起选主。</p>
-<p>选主过程中，Follower 会将 Term++，然后请求所有 Peer 投票（自己当然会给自己投票）。结果可能有几种：</p>
-<ol>
-<li><strong>收到的选票数量超过半数</strong>：自己成为 Leader；</li>
-<li><strong>收到了 Term 更大的 Candidate 或者 Leader 的任意 RPC</strong>：自己被强制降级为 Follower，发起的选举失效；</li>
-<li><strong>收到的选票数量不到半数</strong>：没有 Leader，继续下一轮选举；</li>
-</ol>
-<p>节点投票时遵循简单的规则：</p>
-<ul>
-<li>每个 Term 最多投给一个人</li>
-<li>先来后到</li>
-</ul>
-<p>Raft 采用随机选举超时，保证多个节点不会在同一时间启动选举。</p>
-<h3 id="日志复制"><a class="header-anchor-1" href="#日志复制">#</a>日志复制</h3>
-<p>当一个 Leader 被选出来之后，就开始负责这些事情：</p>
-<ul>
-<li><strong>给每个 Follower 发送日志</strong>：同步 Log；</li>
-<li><strong>决定什么时候可以提交 Log</strong>：当 Leader 确信一条日志已经被同步到多数机器上，则认为可以提交它，Raft 机制保证了剩余机器<strong>最终</strong>将会提交相同的日志，即所谓<strong>最终一致性</strong>。</li>
-</ul>
-<p>Raft 的<strong>Log Matching Property</strong>：</p>
-<ul>
-<li>两个不同 Log 中的条目，如果 term 和 index 相同，则存储的 command 相同；</li>
-<li>两个不同 Log 中的条目，如果 term 和 index 相同，则之前的所有 log 相同；</li>
-</ul>
-<p>在 Raft 执行过程中，由于机器崩溃重启，Follower 可能会缺失部分 Log，可能会有多的未提交的 Log，也可能两者兼有；这种情况下，Leader 会<strong>覆盖</strong>Follower 上不一致的 Log：首先两者会找到第一条不一致的 Log，然后 Leader 发送后续的 Log 给 Follower。<code>nextIndex</code>就是 Leader 用于记录每一个 Follower 同步位置的变量，初始值为 Leader 的 nextLogIndex。然后会根据<code>AppendEntries</code>的结果减小<code>nextIndex</code>。</p>
-<p>一个可能的优化点是：Follower 反馈更加精确的冲突日志数量。作者怀疑这种策略在现实情况中的必要性。</p>
-<p>Raft 的<strong>Leader Append-Only Property</strong>：Raft Leader 从来不需要更改或者删除自己的日志；</p>
-<h3 id="安全性"><a class="header-anchor-1" href="#安全性">#</a>安全性</h3>
-<p>上面描述的 Raft 不足以保证命令的顺序性，原因是多个日志冲突的 Follower 可能会交替成为 Leader，导致已经提交的 Log 被覆盖。为此还需要增加一个新的限制：</p>
-<ul>
-<li><strong>Leader Completeness Property</strong>：Candidate 必须拥有前一个 Term 中所有<strong>已经提交的</strong>Log，才能被选为 Leader；</li>
-</ul>
-<h4 id="选主限制"><a class="header-anchor-1" href="#选主限制">#</a>选主限制</h4>
-<p>Raft 利用选主过程保证<strong>Leader Completeness Property</strong>，<code>RequestVote</code> RPC 请求中会包含 Candidate 的 Log 信息，如果 Log 不够新，则在投篇时会被多数节点拒绝。</p>
-<p>Raft 定义的“新（Up-to-date）”：</p>
-<ul>
-<li>如果最后一条 Log 的 Term 不同，Term 大的更新</li>
-<li>否则，Log 长的更新</li>
-</ul>
-<h4 id="提交前一个-term-的-log"><a class="header-anchor-1" href="#提交前一个-term-的-log">#</a>提交前一个 Term 的 Log</h4>
-<p>只是 Log 被同步到多数节点，仍然不足以能够提交这个 Log。</p>
-<p>Raft 要求：只有当前 Term 的 Log 才通过多数原则确认提交，非当前 Term 的不会这样。</p>
-<h4 id="安全证明"><a class="header-anchor-1" href="#安全证明">#</a>安全证明</h4>
-<p>略</p>
-<h4 id="follower-和-candidate-崩溃重启"><a class="header-anchor-1" href="#follower-和-candidate-崩溃重启">#</a>Follower 和 Candidate 崩溃重启</h4>
-<p>略</p>
-<h4 id="时序和可用性"><a class="header-anchor-1" href="#时序和可用性">#</a>时序和可用性</h4>
-<p>略</p>
-<h3 id="集群成员变更-联合共识"><a class="header-anchor-1" href="#集群成员变更-联合共识">#</a>集群成员变更 &amp; 联合共识</h3>
-<p>集群变更配置的场景是很常见的。</p>
-<p>TODO</p>
-<h3 id="日志压缩"><a class="header-anchor-1" href="#日志压缩">#</a>日志压缩</h3>
-]]></content>
-      <categories>
-        <category>distributed-system</category>
-      </categories>
-      <tags>
-        <tag>分布式系统</tag>
-        <tag>Raft</tag>
       </tags>
   </entry>
   <entry>
@@ -9863,6 +9863,67 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
       </tags>
   </entry>
   <entry>
+    <title>[KDD&#39;15] Petuum: A New Platform for Distributed Machine Learning 论文阅读</title>
+    <url>/2025/08/31/petuum-a-new-platform/</url>
+    <content><![CDATA[<div class="info">
+<p>Petuum 是一家位于美国匹兹堡（Pittsburgh）的人工智能创业公司，由卡内基梅隆大学（CMU）的邢波 Eric Xing 教授创立。 Petuum 团队的技术实力已经获得了业内广泛的认可，并取得了诸多的奖项，其中包括 ACM 云计算研讨会上的最佳论文奖、 CBInsights 的全球 AI 初创公司 100 强以及 GWC 2017 年 G-Summit 峰会上的 AI 初创公司 10 强。 迄今， Petuum 的融资总额已达一亿八百万美元，成为获投资额度最高的早期人工智能初创公司之一。</p>
+</div>
+<h2 id="0-摘要"><a class="header-anchor-1" href="#0-摘要">#</a>0. 摘要</h2>
+<p>当前的现代先进机器学习（ML）程序的并行化策略通常采用细粒度操作，并突破了以 MapReduce 为代表的经典批量同步处理范式，甚至引入了依赖于 ML 程序图形化表示的专用算子。然而，这些多样化的方法往往使系统与算法设计朝不同方向发展，导致难以找到一种通用平台，以满足大规模下多种不同 ML 程序的需求。</p>
+<p>我们提出了一种通用框架，系统性地应对大规模 ML 中数据并行与模型并行所面临的挑战。这一框架充分利用了 ML 程序背后若干关键特性——这些特性使其有别于传统以操作为中心的程序：即错误容忍性、动态结构以及非均匀收敛性。</p>
+<p>该框架能够显著提升多个知名 ML 程序的运行性能：不仅大幅缩短执行时间，还支持更大规模的模型训练，同时在规模适中的计算集群上即可轻松实现。</p>
+<h2 id="1-引言"><a class="header-anchor-1" href="#1-引言">#</a>1. 引言</h2>
+<p>机器学习（ML）正逐渐成为从数据中提取信息的主要机制。企业拥有海量的数据，传统批量或分批方式处理这些数据的效率过于低下，无法实现。</p>
+<ul>
+<li>图像识别系统：Billion 级别参数的深度学习模型；</li>
+<li>广告系统：高达 10^6 个主题的主题模型；</li>
+<li>推荐系统：依赖高维矩阵分解改善精度；</li>
+</ul>
+<p>这些需求无法通过单台机器满足。</p>
+<p>我们认为，从可扩展执行的角度来看，阻碍众多前沿机器学习模型和算法在大规模“大数据学习”场景下得到更广泛应用的主要原因，在于这些模型和算法难以从<strong>学术界的实验环境</strong>迁移至<strong>实际生产环境</strong>——后者往往规模庞大、不确定性更高，例如企业级集群或云端平台。而在这些环境中，要确保原始程序的正确运行，必须对分布式环境及资源的底层细节进行精准把控与深入掌握，而这恰恰需要高度复杂的分布式编程技术，绝非易事。</p>
+<p><img src="recent.png" alt="recent works" /></p>
+<p>许多平台已提供了部分解决方案，以弥合这一从研究到生产的鸿沟：</p>
+<ul>
+<li>Hadoop &amp; MapReduce：简单性使其难以充分发挥机器学习的特性</li>
+<li>Spark：未实现对计算与通信的精细化调度</li>
+<li>GraphLab 和 Pregel：关注基于图的模型，但是处理不了 像主题建模和回归分析这样的机器学习任务</li>
+<li>PS 和 Piccolo：过于底层，没有为用户提供更高层次、通用性强的构建模块——例如调度机制、模型划分策略以及可控的通信方式</li>
+</ul>
+<p>总之，当前支持分布式机器学习的各类系统，各自在效率、正确性、可编程性及通用性之间展现出独特的权衡取舍。</p>
+<p>在本文中，我们从效率、正确性、可编程性和通用性之间的权衡这一全新视角，探讨了构建分布式机器学习框架的问题。我们注意到，大多数（甚至可以说是所有）机器学习程序的一个显著特征是：它们都由一个明确的数据目标函数定义（例如似然、误差损失或图割），而目标正是在模型参数及其他中间变量所限定的空间内，实现该函数的最优值。此外，这些算法还具有共同的计算模式——即均采用迭代收敛的过程（参见公式 1）。机器学习程序的真正目标是<strong>快速、高效地收敛至最优解</strong>，而我们认为，<strong>细粒度的容错机制与强一致性，只是实现这一目标的一种手段，甚至未必是最为高效的途径</strong>。</p>
+<p>我们提出了一种全新的分布式机器学习框架——Petuum，其构建<strong>基于以机器学习为核心的优化理论原则，而非此前探索过的多种操作目标</strong>。</p>
+<p>为了充分利用这些特性，Petuum 提出了三个新颖的系统目标，这些目标基于上述机器学习程序的关键属性，旨在大规模加速其收敛过程：</p>
+<ol>
+<li>Petuum 通过<strong>有限的延迟</strong>保证同步参数状态，这种机制利用了机器学习固有的容错特性，能够确保计算结果的正确性，同时通信开销远低于传统的每轮批量同步方式；</li>
+<li>Petuum 提供动态调度策略，能够实时考虑模型参数之间不断变化的结构依赖关系，从而最大限度地降低并行化误差和同步成本；</li>
+<li>由于机器学习程序中的参数收敛代价并不均衡（即所需更新次数各不相同），Petuum 会优先对尚未收敛的模型参数进行计算，以实现更快的全局收敛速度。</li>
+</ol>
+<h2 id="2-前置依赖：数据和模型并行"><a class="header-anchor-1" href="#2-前置依赖：数据和模型并行">#</a>2. 前置依赖：数据和模型并行</h2>
+<p>我们首先提出一种基于原则的迭代收敛型机器学习程序表述，这种表述揭示了数据与模型之间的二元对立，为 Petuum 的并行系统架构（§3）、算法设计（§4）以及理论分析（§5）提供了灵感。请考虑以下将机器学习视为由目标函数驱动的迭代收敛型程序的编程视角：</p>
+<p>迭代收敛的机器学习算法：给定数据 D 和损失 L（即一种适应度函数，如 RMS 损失、似然性或间隔），典型的机器学习问题可被表述为：反复执行以下更新方程，直至模型状态（即参数和/或隐变量）A 达到某种停止条件：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msup><mi>A</mi><mrow><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></msup><mo>=</mo><mi>F</mi><mrow><mo fence="true">(</mo><msup><mi>A</mi><mrow><mo stretchy="false">(</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></msup><mo separator="true">,</mo><msub><mi mathvariant="normal">Δ</mi><mi>L</mi></msub><mo stretchy="false">(</mo><msup><mi>A</mi><mrow><mo stretchy="false">(</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></msup><mo separator="true">,</mo><mi>D</mi><mo stretchy="false">)</mo><mo fence="true">)</mo></mrow></mrow><annotation encoding="application/x-tex">A^{(t)}=F\left( A^{(t-1)}, \Delta_{L}(A^{(t-1)},D) \right)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.938em;"></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.938em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mclose mtight">)</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.8em;vertical-align:-0.65em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size2">(</span></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.938em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mbin mtight">−</span><span class="mord mtight">1</span><span class="mclose mtight">)</span></span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord">Δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">L</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.938em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight">t</span><span class="mbin mtight">−</span><span class="mord mtight">1</span><span class="mclose mtight">)</span></span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mclose">)</span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size2">)</span></span></span></span></span></span></span></p>
+<p>其中，上标(t)表示迭代。更新函数 ∆L()（用于优化损失 L）对数据 D 和模型状态 A 进行计算，并输出中间结果，供 F()进一步汇总。为简化起见，在本文后续部分，我们省略了下标中的 L，但需明确的是，我们所关注的所有机器学习程序均显式定义了损失函数，这一损失函数可用于监测收敛性和解的质量，而不同于那些不附带此类损失函数的启发式方法或操作流程。</p>
+<p>在大规模机器学习中，数据集 D 和模型 A 都可能非常庞大。数据并行化——即将数据划分到多台机器上处理——是解决大数据问题的常用策略。</p>
+<h2 id="3-petuum-框架"><a class="header-anchor-1" href="#3-petuum-框架">#</a>3. Petuum 框架</h2>
+<p>Petuum 的核心目标是让数据并行和模型并行的机器学习算法实现起来更加简便。为此，Petuum 为关键系统提供了 API，以简化这一任务：</p>
+<ol>
+<li>一个参数服务器系统，它允许程序员通过便捷的分布式共享内存接口，从任意机器访问全局模型状态 A，该接口的设计类似于单机编程；同时，系统采用了一种有界异步一致性模型，既能确保数据并行的收敛性，又免去了用户手动进行网络同步的繁琐操作；</li>
+<li>一个调度器，可对模型并行更新 ∆()的并行顺序进行精细控制——本质上，调度器让用户能够自定义自己的机器学习应用一致性规则。</li>
+</ol>
+<h3 id="3-1-petuum-系统设计"><a class="header-anchor-1" href="#3-1-petuum-系统设计">#</a>3.1 Petuum 系统设计</h3>
+]]></content>
+      <categories>
+        <category>mlsys</category>
+      </categories>
+      <tags>
+        <tag>MLSys</tag>
+        <tag>Petuum</tag>
+        <tag>Distributed Machine Learning</tag>
+        <tag>System</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>[OSDI&#39;14] Scaling Distributed Machine Learning with the Parameter Server 阅读笔记</title>
     <url>/2025/03/13/scaling-distributed-machine-learning/</url>
     <content><![CDATA[<p>沐神投稿在 OSDI '14 的论文，提出了第三代 Parameter Server 框架。</p>
@@ -9897,20 +9958,22 @@ Batch size 设定为 1024，学习率为 1.0e-4，Warmup 10k 次，然后在剩�
 <h3 id="1-2-工程挑战"><a class="header-anchor-1" href="#1-2-工程挑战">#</a>1.2 工程挑战</h3>
 <p>解决分布式数据分析问题时，多个计算节点需要不断地读和写全局参数。PS 框架提供了一个高效的机制来在多个计算节点间汇聚和同步这些参数和一些统计信息。由于模型的总体参数量很大，每个服务节点(Server Node)都只负责其中的一部分。计算节点通常会先朝服务节点索要一部分参数，进行计算，然后再把计算结果发回服务节点。构建高性能的 PS 系统的关键挑战在于:</p>
 <ol>
-<li>通信: 传统的 datastore 采用 key-value 模型，但是这种抽象往往不适用于机器学习场景: 机器学习场景的 value 通常是很小的 floats 或者 integers，而每个更新都进行一次数据通信的开销很大。</li>
-</ol>
+<li>
+<p>通信: 传统的 datastore 采用 key-value 模型，但是这种抽象往往不适用于机器学习场景: 机器学习场景的 value 通常是很小的 floats 或者 integers，而每个更新都进行一次数据通信的开销很大。</p>
 <p>PS 框架的设计是，计算节点每次只发送向量或者矩阵的一部分（vector 的 segment，或者 matrix 的 row）。这样就可以批量地更新参数，并允许高效地实现一致性跟踪。</p>
-<ol start="2">
-<li>容灾: PS 框架采用 live replication 的方式，将参数实时复制到多台机器上，并且支持 hot failover。</li>
+</li>
+<li>
+<p>容灾: PS 框架采用 live replication 的方式，将参数实时复制到多台机器上，并且支持 hot failover。</p>
+<p>机器的加入和离开会被视为维修和故障。服务节点的管理包括节点的添加和删除。</p>
+</li>
 </ol>
-<p>机器的加入和离开会被视为维修和故障。</p>
-<p>服务节点的管理包括节点的添加和删除。</p>
 <h3 id="1-3-相关工作"><a class="header-anchor-1" href="#1-3-相关工作">#</a>1.3 相关工作</h3>
-<p>第一代 PS 是 YahooLDA，利用 memcached 作为同步机制，缺乏弹性和性能；</p>
-<p>第二代 PS 包括 Distbelief、作者的前一篇NIPS Workshop 和 Petuum，引入了 Bounded delay model。</p>
-<p>对比通用分布式系统，Mahout（基于 Hadoop）和 MLI（基于 Spark）采用迭代式的 MapReduce 框架，要求同步和迭代式的通信，不适用于大规模的机器学习任务。</p>
-<p>GraphLab 使用图模型，可扩展性差。</p>
-<p>Piccolo 缺乏消息压缩、复制和灵活一致性模型。</p>
+<ul>
+<li>第一代 PS 是 YahooLDA，利用 memcached 作为同步机制，缺乏弹性和性能；</li>
+<li>第二代 PS 包括 Distbelief、作者的前一篇NIPS Workshop 和 <a href="/2025/08/31/petuum-a-new-platform/" title="[KDD&#39;15] Petuum: A New Platform for Distributed Machine Learning 论文阅读">Petuum</a>，引入了 Bounded delay model。</li>
+<li>对比通用分布式系统，Mahout（基于 Hadoop）和 MLI（基于 Spark）采用迭代式的 MapReduce 框架，要求同步和迭代式的通信，不适用于大规模的机器学习任务。</li>
+<li>GraphLab 使用图模型，可扩展性差；Piccolo 缺乏消息压缩、复制和灵活一致性模型。</li>
+</ul>
 <h2 id="2-机器学习背景知识"><a class="header-anchor-1" href="#2-机器学习背景知识">#</a>2. 机器学习背景知识</h2>
 <p>相关概念介绍: 特征提取，目标函数，学习过程，损失最小化，学习率，特征向量，生成模型，主题建模，LDA，</p>
 <p>以分布式梯度下降任务为例: 包括任务调度器，计算节点，服务节点三个部分。</p>
