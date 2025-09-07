@@ -8271,6 +8271,34 @@ VirtIO 规范中定义了多种实现方式，最常见的是 VirtIO over PCI，
       </tags>
   </entry>
   <entry>
+    <title>C++ 模版函数重载匹配规则</title>
+    <url>/2025/03/03/cpp-template-matching/</url>
+    <content><![CDATA[<h2 id="1-非模板函数优先"><a class="header-anchor-1" href="#1-非模板函数优先">#</a>1. 非模板函数优先</h2>
+<p>如果有非模版函数，优先调用非模版函数。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;&#125;          <span class="comment">// 非模板函数</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T x)</span> </span>&#123;&#125;  <span class="comment">// 模板函数</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">foo</span>(<span class="number">5</span>);  <span class="comment">// 调用非模板函数 void foo(int)</span></span><br></pre></td></tr></table></figure>
+<h2 id="2-更特化的模板优先"><a class="header-anchor-1" href="#2-更特化的模板优先">#</a>2. 更特化的模板优先</h2>
+<p>如果多个模板可行，编译器选择更特化（更具体）的模板版本。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T x)</span> </span>&#123;&#125;      <span class="comment">// 通用模板</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T* x)</span> </span>&#123;&#125;     <span class="comment">// 更特化的指针版本</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">foo</span>(&amp;x);  <span class="comment">// 调用指针版本的 f&lt;int*&gt;(int*)</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-精确匹配优于类型转换"><a class="header-anchor-1" href="#3-精确匹配优于类型转换">#</a>3. 精确匹配优于类型转换</h2>
+<p>若参数匹配需要隐式类型转换，模板生成的精确匹配版本优先于需要转换的非模板函数。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(<span class="type">double</span> x)</span> </span>&#123;&#125;        <span class="comment">// 非模板函数，需要 int→double 转换</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T x)</span> </span>&#123;&#125;  <span class="comment">// 模板生成 f&lt;int&gt;(int)</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">foo</span>(<span class="number">5</span>);  <span class="comment">// 调用模板函数 f&lt;int&gt;(int)（无需转换）</span></span><br></pre></td></tr></table></figure>
+<h2 id="4-引用和值类型的优先级"><a class="header-anchor-1" href="#4-引用和值类型的优先级">#</a>4. 引用和值类型的优先级</h2>
+<p>引用类型（尤其是 T&amp;&amp; 万能引用）可能影响匹配：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T&amp;&amp; x)</span> </span>&#123;&#125;  <span class="comment">// 万能引用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;&#125;          <span class="comment">// 非模板函数</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">foo</span>(<span class="number">5</span>);    <span class="comment">// 调用非模板函数（精确匹配）</span></span><br><span class="line"><span class="built_in">foo</span>(x);    <span class="comment">// x 是 int 变量，调用模板函数 f&lt;int&amp;&gt;(int&amp;)（更匹配左值）</span></span><br></pre></td></tr></table></figure>
+<h2 id="5-若存在多个同样好的匹配，编译器报错："><a class="header-anchor-1" href="#5-若存在多个同样好的匹配，编译器报错：">#</a>5. 若存在多个同样好的匹配，编译器报错：</h2>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T x)</span> </span>&#123;&#125;</span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T* x)</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">f</span>(&amp;x);  <span class="comment">// 歧义：T=int*（通用模板） vs. T=int（指针模板）</span></span><br></pre></td></tr></table></figure>
+<h2 id="6-可变参数模板优先级最低"><a class="header-anchor-1" href="#6-可变参数模板优先级最低">#</a>6. 可变参数模板优先级最低</h2>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span>... Args&gt; <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(Args... args)</span> </span>&#123;&#125;  <span class="comment">// 最低优先级</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T x)</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(<span class="number">5</span>);  <span class="comment">// 调用非可变参数模板 f&lt;int&gt;(int)</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>programming</category>
+        <category>cpp</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C++11（新？）特性之右值引用</title>
     <url>/2021/01/12/cpp-right-value/</url>
     <content><![CDATA[<h2 id="右值"><a class="header-anchor-1" href="#右值">#</a>右值</h2>
@@ -8326,34 +8354,6 @@ VirtIO 规范中定义了多种实现方式，最常见的是 VirtIO over PCI，
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">move_swap</span><span class="params">(Res &amp;a，Res &amp;b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Res t = <span class="built_in">move</span>(a);</span><br><span class="line">    a = <span class="built_in">move</span>(b);</span><br><span class="line">    b = <span class="built_in">move</span>(t);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h1>RVO 和 NRVO</h1>
 <p>返回值优化（Return value optimization，缩写为 RVO）是 C++的一项编译优化技术。即删除保持函数返回值的临时对象。这可能会省略两次复制构造函数，<strong>即使复制构造函数有副作用</strong>。</p>
-]]></content>
-      <categories>
-        <category>programming</category>
-        <category>cpp</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>C++ 模版函数重载匹配规则</title>
-    <url>/2025/03/03/cpp-template-matching/</url>
-    <content><![CDATA[<h2 id="1-非模板函数优先"><a class="header-anchor-1" href="#1-非模板函数优先">#</a>1. 非模板函数优先</h2>
-<p>如果有非模版函数，优先调用非模版函数。</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;&#125;          <span class="comment">// 非模板函数</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T x)</span> </span>&#123;&#125;  <span class="comment">// 模板函数</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">foo</span>(<span class="number">5</span>);  <span class="comment">// 调用非模板函数 void foo(int)</span></span><br></pre></td></tr></table></figure>
-<h2 id="2-更特化的模板优先"><a class="header-anchor-1" href="#2-更特化的模板优先">#</a>2. 更特化的模板优先</h2>
-<p>如果多个模板可行，编译器选择更特化（更具体）的模板版本。</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T x)</span> </span>&#123;&#125;      <span class="comment">// 通用模板</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T* x)</span> </span>&#123;&#125;     <span class="comment">// 更特化的指针版本</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">foo</span>(&amp;x);  <span class="comment">// 调用指针版本的 f&lt;int*&gt;(int*)</span></span><br></pre></td></tr></table></figure>
-<h2 id="3-精确匹配优于类型转换"><a class="header-anchor-1" href="#3-精确匹配优于类型转换">#</a>3. 精确匹配优于类型转换</h2>
-<p>若参数匹配需要隐式类型转换，模板生成的精确匹配版本优先于需要转换的非模板函数。</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(<span class="type">double</span> x)</span> </span>&#123;&#125;        <span class="comment">// 非模板函数，需要 int→double 转换</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T x)</span> </span>&#123;&#125;  <span class="comment">// 模板生成 f&lt;int&gt;(int)</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">foo</span>(<span class="number">5</span>);  <span class="comment">// 调用模板函数 f&lt;int&gt;(int)（无需转换）</span></span><br></pre></td></tr></table></figure>
-<h2 id="4-引用和值类型的优先级"><a class="header-anchor-1" href="#4-引用和值类型的优先级">#</a>4. 引用和值类型的优先级</h2>
-<p>引用类型（尤其是 T&amp;&amp; 万能引用）可能影响匹配：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T&amp;&amp; x)</span> </span>&#123;&#125;  <span class="comment">// 万能引用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;&#125;          <span class="comment">// 非模板函数</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">foo</span>(<span class="number">5</span>);    <span class="comment">// 调用非模板函数（精确匹配）</span></span><br><span class="line"><span class="built_in">foo</span>(x);    <span class="comment">// x 是 int 变量，调用模板函数 f&lt;int&amp;&gt;(int&amp;)（更匹配左值）</span></span><br></pre></td></tr></table></figure>
-<h2 id="5-若存在多个同样好的匹配，编译器报错："><a class="header-anchor-1" href="#5-若存在多个同样好的匹配，编译器报错：">#</a>5. 若存在多个同样好的匹配，编译器报错：</h2>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T x)</span> </span>&#123;&#125;</span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T* x)</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">f</span>(&amp;x);  <span class="comment">// 歧义：T=int*（通用模板） vs. T=int（指针模板）</span></span><br></pre></td></tr></table></figure>
-<h2 id="6-可变参数模板优先级最低"><a class="header-anchor-1" href="#6-可变参数模板优先级最低">#</a>6. 可变参数模板优先级最低</h2>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span>... Args&gt; <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(Args... args)</span> </span>&#123;&#125;  <span class="comment">// 最低优先级</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T x)</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(<span class="number">5</span>);  <span class="comment">// 调用非可变参数模板 f&lt;int&gt;(int)</span></span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>programming</category>
@@ -12444,6 +12444,134 @@ Entry <code>...000</code>和<code>...100</code>被驱逐到新的桶中：</p>
       </tags>
   </entry>
   <entry>
+    <title>[VLDB&#39;10] Dremel: Interactive Analysis of Web-Scale Datasets 论文阅读</title>
+    <url>/2025/09/02/dremel-interactive-analysis-of-web-scale-datasets/</url>
+    <content><![CDATA[<h2 id="0-摘要"><a class="header-anchor-1" href="#0-摘要">#</a>0. 摘要</h2>
+<p>Dremel 是一个<strong>可扩展</strong>、<strong>交互式</strong>的针对<strong>只读嵌套数据</strong>的<strong>分析查询系统</strong>。通过结合<strong>多级执行树</strong>和<strong>列式存储布局</strong>，它能够在秒内对万亿行表进行聚合查询。该系统能够扩展到数千 CPU 和 PB 级别的数据，并且在 Google 内部有数千用户。在这篇论文中，我们描述了 Dremel 的体系结构和实现，并解释了它是如何补充基于 MapReduce 的计算的。我们提出了一个新颖的嵌套记录的列式存储表示，并讨论了在系统的小规模实例上（不到几千个节点）所做的一些实验。</p>
+<h2 id="1-引言"><a class="header-anchor-1" href="#1-引言">#</a>1. 引言</h2>
+<p>大规模分析数据处理在 Web 公司和跨行业变得越来越普遍，尤其是因为低成本存储使得收集大量商业关键数据成为可能。将这些数据放在分析师和工程师的指尖变得越来越重要；交互式响应时间通常会在数据探索、监控、在线客户支持、快速原型制作、数据管道调试和其他任务中产生质的差异。</p>
+<p>在大规模上执行交互式数据分析需要高程度的并行性。例如，使用当今的商用硬盘驱动器想要在一秒钟内读取 1TB 的压缩数据，可能需要数千个磁盘。同样，CPU 密集型查询可能需要在数千个内核上运行数秒才能完成。在 Google，使用共享的集群化机器进行大规模并行计算。一个集群通常托管许多分布式应用程序，这些程序共享资源、具有广泛的工作负载，并且在具有不同硬件参数的机器上运行。分布式应用程序中的单个工作者可能比其他工作者花费更长的时间来执行给定的任务，或者由于群集管理系统的故障或抢占而永远无法完成该任务。因此，处理拖延者和故障对于实现快速执行和容错至关重要。</p>
+<p>用于网络和科学计算的数据通常是非关系型的。因此，在这些领域中，灵活的数据模型至关重要。编程语言中的数据结构、分布式系统中交换的消息、结构化文档等交换的数据，很自然地适合嵌套表示。在 Web 规模上规范并重新组合这样的数据通常是不可行的。Google 及其他一些主要的网络公司据报道，在其大部分结构化数据处理中都使用了基于层次结构的数据模型。</p>
+<p>本文描述了一个名为 Dremel 的系统，该系统支持在共享的商用机器集群上对超大规模数据集进行交互式分析。与传统数据库不同，它能够就地操作嵌套的数据。这里的“就地”是指访问“就地”存储的数据的能力，例如分布式文件系统（如 GFS [14]）或另一个存储层（如 Bigtable [8]）。
+Dremel 可以执行许多查询，这些查询通常需要一系列 MapReduce (MR [12]) 作业来完成，但其执行时间仅为其中的一小部分。
+Dremel 不旨在取代 MR，而是经常与 MR 配合使用，用于分析 MR 管道的输出或快速原型化更大的计算任务。</p>
+<p>Dremel 自 2006 年开始生产，拥有数千名 Google 用户。公司部署了多个 Dremel 实例，从数十个到数千个节点不等。使用该系统的例子包括：</p>
+<ul>
+<li>Analysis of crawled web documents</li>
+<li>Tracking install data for applications on Android Market.</li>
+<li>Crash reporting for Google products</li>
+<li>OCR results from Google Books</li>
+<li>Spam analysis</li>
+<li>Debugging of map tiles on Google Maps</li>
+<li>Tablet migrations in managed Bigtable instances</li>
+<li>Results of tests run on Google’s distributed build system</li>
+<li>Disk I/O statistics for hundreds of thousands of disks.</li>
+<li>Resource monitoring for jobs run in Google’s data centers.</li>
+<li>Symbols and dependencies in Google’s codebase</li>
+</ul>
+<p>Dremel 是在网页搜索和并行数据库管理系统的基础上构建的。</p>
+<ul>
+<li>它的架构借鉴了分布式搜索引擎中使用的 服务树 概念。就像网络搜索请求一样，查询会沿着树向下传递，并在每个步骤中被重写。通过聚合从树下层接收到的回复来组装查询结果。</li>
+<li>Dremel 提供了一种类似于 SQL 的高级语言来表达 ad hoc 查询。与 Pig 和 Hive 等层不同，它<strong>原生地执行查询而无需将其转换为 MapReduce 作业</strong>。</li>
+<li>也是最重要的，Dremel 使用了一种分层存储表示法，这使得它能够从次级存储中读取更少的数据，并且通过更便宜的压缩降低 CPU 成本。列式存储已被用于分析关系数据[1]，但据我们所知，尚未扩展到嵌套数据模型。我们提出的列式存储格式得到了谷歌许多数据处理工具的支持，包括 MR、Sawzall [20] 和 FlumeJava [7] 。</li>
+</ul>
+<p>本文的主要贡献如下：</p>
+<ul>
+<li>我们描述了一种用于嵌套数据的新列式存储格式。我们在第 4 节中介绍了拆分嵌套记录并重新组装它们的算法。</li>
+<li>我们概述了 Dremel 的查询语言和执行。两者都是为了高效地操作列状嵌套数据而设计的，不需要重新组织嵌套记录（第 5 节）。</li>
+<li>我们展示了如何在数据库处理中应用 Web 搜索系统中使用的执行树，并解释了它们对于高效回答聚合查询的好处（第 6 部分）。</li>
+<li>我们在第 7 节中报告了在运行在 1000 到 4000 个节点上的系统实例上进行的万亿记录、多 TB 数据集的实验。</li>
+</ul>
+<h3 id="2-背景"><a class="header-anchor-1" href="#2-背景">#</a>2. 背景</h3>
+<p>我们从一个示例场景开始，该示例展示了交互式查询处理如何融入更广泛的 数据管理 生态系统。假设谷歌工程师爱丽丝想出了一种提取网页中新信号的新方法。她运行了一个 MapReduce 作业，通过输入数据并生成包含新信号的数据集，在分布式文件系统中的数十亿条记录中存储这些新信号。为了分析她的实验结果，她启动了 Dremel 并执行了一些交互式命令：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">DEFINE TABLE t AS /path/to/data/*</span><br><span class="line">SELECT TOP(signal1, 100), COUNT(*) FROM t</span><br></pre></td></tr></table></figure>
+<p>她的命令几秒钟内就能执行。她运行了一些其他的查询，以确保自己的算法有效。她在 信号 1 中发现了一个不规则性，并通过编写一个更复杂的分析计算程序，深入挖掘了她输出的数据集。问题解决后，她搭建了一个管道来处理不断输入的数据。她制定了一些预先定义好的 SQL 查询语句，对管道中的结果进行汇总，并将其添加到交互式仪表板中。最后，她在目录中注册了新的数据集，这样其他工程师就可以快速找到并查询它。</p>
+<p>上述场景需要查询处理器和其他数据管理工具之间的互操作。为此，首先需要一个通用存储层。Google 文件系统（GFS [14]）是公司内广泛使用的一种分布式存储层。
+GFS 使用复制来保存数据，尽管硬件出现故障，也能实现快速响应时间，并在存在迟到者时提供高吞吐量。高性能存储层对于原位数据管理至关重要。它允许在没有费时加载阶段的情况下访问数据，而数据库使用是分析数据处理中的主要瓶颈[13]，通常可以在数据库管理系统能够加载数据并执行单个查询之前运行数十个 MR 分析。此外，文件系统中的数据可以使用标准工具轻松操作，例如将数据传输到另一个群集、更改访问权限或根据文件名识别要分析的数据子集。</p>
+<p><img src="./fig1.png" alt="alt text" /></p>
+<p>构建可互操作的数据管理组件的第二个要素是共享存储格式。 列存储对于扁平关系型数据很成功，但要使其适用于谷歌，则需要将其适应为嵌套的数据模型。 图 1 描述了这个基本思想：所有具有嵌套字段 (A.B.C) 的值都按连续方式存储。 因此，可以检索 A.B.C 而无需读取 A.E、A.B.D 等等。 我们解决的挑战在于如何保留所有结构信息并能够从任意一组字段重建记录。 接下来讨论我们的数据模型，然后介绍算法和查询处理。</p>
+<h3 id="3-数据模型"><a class="header-anchor-1" href="#3-数据模型">#</a>3. 数据模型</h3>
+<p>Dremel 的数据模型起源于分布式系统，广泛应用于谷歌，并以开源实现的形式提供。数据模型基于强类型的嵌套记录。它的抽象语法如下：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>τ</mi><mo>=</mo><mtext>dom</mtext><mi mathvariant="normal">∣</mi><mrow><mo fence="true">&lt;</mo><msub><mi>A</mi><mn>1</mn></msub><mo>:</mo><mi>τ</mi><mo stretchy="false">[</mo><mo>∗</mo><mi mathvariant="normal">∣</mi><mo stretchy="false">?</mo><mo stretchy="false">]</mo><mo separator="true">,</mo><mo>⋯</mo><mtext> </mtext><mo separator="true">,</mo><msub><mi>A</mi><mi>n</mi></msub><mo>:</mo><mi>τ</mi><mo stretchy="false">[</mo><mo>∗</mo><mi mathvariant="normal">∣</mi><mo stretchy="false">?</mo><mo stretchy="false">]</mo><mo fence="true">&gt;</mo></mrow></mrow><annotation encoding="application/x-tex">\tau = \text{dom} | \left&lt; A_1 : \tau[*|?], \cdots, A_n : \tau[*|?] \right&gt;
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">dom</span></span><span class="mord">∣</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">⟨</span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mopen">[</span><span class="mord">∗</span><span class="mord">∣</span><span class="mclose">?]</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">⋯</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mopen">[</span><span class="mord">∗</span><span class="mord">∣</span><span class="mclose">?]</span><span class="mclose delimcenter" style="top:0em;">⟩</span></span></span></span></span></span></p>
+<p>其中 τ 是原子类型或记录类型。原子类型内的索引包括整数、浮点数、字符串等。记录由一个或多个字段组成。记录中的第 i 个字段有一个名称 Ai 和可选的多重性标签。
+<em>Repeated</em> 字段 <code>*</code> 可以在记录中出现多次。它们被解释为值列表，即记录中字段出现的顺序是有意义的。
+<em>Optional</em> 字段 <code>?</code> 可能不存在于记录中。否则，字段是必需的，即必须恰好出现一次。</p>
+<p><img src="./fig2.png" alt="alt text" /></p>
+<p>例如，考虑图 2。它显示了一个定义文档类型的模式，表示一个 Web 文档。该模式定义使用了来自 [21] 的具体语法。文档有一个必需的整数型 DocId 和一个可选的链接 Links，其中包含一组向前和向后条目，每个条目都包含其他网页的 DocId。文档可以有多个名称，这些名称是以不同 URL 引用文档的方式。名称由一对一对的 Code 和（可选）Country 组成。</p>
+<p>图 2 还展示了两个符合该模式的样本记录 r1 和 r2。记录结构使用缩进进行说明。在接下来的几节中，我们将使用这些示例记录来解释算法。模式中定义的字段形成树形层次结构。嵌套字段的完整路径使用常规点标记法表示，如 Name.Language.Code。</p>
+<p>谷歌使用嵌套的数据模型作为其结构化数据序列化的中立且可扩展的基础。 代码生成工具为诸如 C++ 或 Java 之类的编程语言生成绑定。通过在记录之间以按顺序排列的方式布置字段值的标准二进制的 wire 表示来实现跨语言互操作性。这样，用 Java 编写的 MR 程序就可以从通过 C++ 库暴露的数据源中消费记录。因此，如果记录存储在列式格式中，则能够快速地组装它们对于与 MR 和其他数据处理工具进行交互很重要。</p>
+<h3 id="4-嵌套列式存储"><a class="header-anchor-1" href="#4-嵌套列式存储">#</a>4. 嵌套列式存储</h3>
+<p>如图 1 所示，我们的目标是按顺序存储给定字段的所有值以提高检索效率。在本节中，我们将解决以下挑战：</p>
+<ul>
+<li>无损表示记录结构的列格式（第 4.1 节）</li>
+<li>快速编码（第 4.2 节）</li>
+<li>高效的记录组装（第 4.3 节）</li>
+</ul>
+<h3 id="4-1-重复与定义级别"><a class="header-anchor-1" href="#4-1-重复与定义级别">#</a>4.1 重复与定义级别</h3>
+<p>数据值本身不能传达记录结构。给定一个重复字段的两个值，我们不知道该值在哪个“级别”上被重复（例如，这些值是否来自两个不同的记录，还是同一记录中的两个重复值）。同样地，对于缺失的可选字段，我们不知道哪些包含它的记录是明确定义的。因此，我们引入了重复级别和定义级别的概念，如下面所定义的。为了参考，请参阅图 3，它总结了我们样本记录中所有原子字段的重复级别和定义级别。</p>
+<p><img src="./fig3.png" alt="alt text" /></p>
+<p><em>重复级别</em>。考虑图 2 中的字段 <code>Code</code>。它在 r1 中出现了三次。‘en-us’ 和 ‘en’ 出现在第一个 <code>Name</code> 中，而 ‘en-gb’ 则出现在第三个 <code>Name</code> 中。为了消除这些出现的歧义，我们在每个值上附带了一个重复级别。它告诉我们<strong>该值在字段路径中的哪个重复字段中重复了</strong>。
+<code>Name.Language.Code</code> 字段路径包含两个重复字段，即 <code>Name</code> 和 <code>Language</code>。因此，<code>Code</code> 的重复级别范围为 0 到 2；级别 0 表示新记录的开始。假设我们正在从上到下扫描记录 r1。当我们遇到 ‘en-us’ 时，我们还没有看到任何重复字段，即重复级别为 0。当看到 ‘en’ 时，<code>Language</code> 字段已重复，所以重复级别为 2。最后，当我们遇到 ‘en-gb’ 时，<code>Name</code> 最近发生了重复（<code>Language</code> 只在 <code>Name</code> 后面出现了一次），因此重复级别为 1。因此，r1 中 <code>Code</code> 值的重复级别分别为 0、2 和 1。</p>
+<p>注意，r1 中的第二个 <code>Name</code> 中不包含任何 <code>Code</code> 值。为了确定“en-gb”出现在第三个名称而不是第二个名称中，我们在 “en” 和 “en-gb” 之间添加了一个空值（参见图 3）。<code>Code</code> 是 <code>Language</code> 中的一个必填字段，因此缺少它意味着 <code>Language</code> 没有定义。然而，在一般情况下，要确定嵌套记录存在的级别需要额外的信息。</p>
+<p><em>定义级别</em>。路径 p 的每个字段值，特别是每个 NULL 值，都有一个定义级别，用于指定<strong>在 p 中定义成<code>*</code>或者<code>?</code>，但是实际上有值的字段的数量</strong>。例如，观察到 r1 没有向后的链接。然而，字段 <code>Links</code> 定义（在第一级）。为了保留此信息，我们在 <code>Links</code> 向后列中添加了一个具有第一级定义级别的 NULL 值。同样地，r2 中缺少 <code>Name.Language.Country</code> 的发生情况带有第一级定义级别，而它在 r1 中的缺失分别发生在第二级（在 <code>Name.Language</code> 内）和第一级（在 <code>Name</code> 内）。</p>
+<p>上述编码方法 无损地保留了记录结构。为了节省篇幅，我们省略了证明。</p>
+<p><em>编码</em>。每一列都存储为一组块。每个块包含重复级别和定义级别（从现在开始，简单地称为级别）以及压缩字段值。NULL 不会明确存储，因为它们由定义级别决定：如果字段路径中可选字段的数量小于定义级别，则该定义级别表示一个空值。对于始终已定义的值不会存储定义级别。同样，只有在需要时才存储重复级别；例如，定义级别 0 暗示重复级别 0，因此后者可以省略。实际上，在图 3 中，并未为 DocId 存储任何级别。级别以位串的形式进行打包。我们只使用必要的 bit 数；例如，如果最大定义级别为 3，则每个定义级别使用 2 个 bit。</p>
+<h3 id="4-2-把记录分割成列"><a class="header-anchor-1" href="#4-2-把记录分割成列">#</a>4.2 把记录分割成列</h3>
+<p>我们已经在上文中展示了如何以表格形式对记录结构进行编码。下一个我们要解决的问题是如何高效地生成重复度高且定义层次分明的列块。</p>
+<p>计算重复和定义级别的基本算法在附录 A 中给出。 算法递归进入记录结构并为每个字段值计算级别。 如前所述，即使字段值缺失，也可能会计算重复和定义级别。 Google 使用的许多数据集都是稀疏的；比较常见的是具有数千个字段的 Schema，但是在一条记录中只有一百个被用到。因此，我们试图以尽可能低的成本处理缺失字段。为了产生列块，我们创建了一个 field writer 的树，其结构与模式中的字段层次结构匹配。基本思想是只在 field writer 拥有自己的数据时更新它们，并且除非绝对必要，否则不尝试将父状态传播到树的下一级。为了做到这一点，子 Writer 从他们的父母那里继承了层次结构。每当添加一个新值时，子 Writer 就会与父级同步。</p>
+<h3 id="4-3-记录的组装"><a class="header-anchor-1" href="#4-3-记录的组装">#</a>4.3 记录的组装</h3>
+<p>高效地从行列数据中组装记录对面向记录的数据处理工具（例如，MapReduce）至关重要。给定一个字段子集，我们的目标是<strong>重建原始记录，就像它们只包含所选字段一样，所有其他字段都被删除了</strong>。关键思想是这样的：我们创建了一个<strong>有限状态机 (FSM)</strong>，它读取每个字段的值和级别，并按顺序将值附加到输出记录中。
+FSM 的状态对应于每个选定字段的字段读取器。状态转换带有重复级别标签。一旦读者获取了一个值，我们就查看下一个重复级别以确定要使用哪个下一个读者。对于每条记录，FSM 从起始状态遍历到结束状态一次。</p>
+<p><img src="./fig4.png" alt="alt text" /></p>
+<p>图 4 显示了一个在我们的示例中重建完整记录的状态机。状态机的起始状态为文档 ID。一旦读取了文档 ID 值，状态机会转换到 <code>Links.Backward</code>。当所有重复的 <code>Backward</code> 值都已消耗完后，状态机会跳转到 <code>Links.Forward</code> 等等。有关记录组装算法的详细信息，请参见附录 B。</p>
+<p>为了概述 FSM 状态转移是如何构建的，让 l 是当前字段读取器为字段 f 返回的下一个重复级别。从 schema 树中的 f 开始，在其祖先中找到一个在级别 l 处重复，并选择该祖先内的第一个叶子字段 n。这给我们带来了 FSM 转换(f,l)-&gt;n。例如，假设 l = 1 是通过 <code>Name.Language.Country</code> 字段读取的下一个重复级别。它的具有重复级别的 1 级祖先为 Name，其第一个叶子字段为 n = <code>Name.Url</code>。FSM 构造算法的详细信息请参见附录 C。</p>
+<p><img src="./fig5.png" alt="fig5" /></p>
+<p>如果只需要检索子集字段，那么我们构造一个更简单的有限状态机来执行。图 5 展示了一个读取字段 <code>DocId</code> 和 <code>Name.Language.Country</code> 的有限状态机。图中展示了由自动机生成的输出记录 s1 和 s2。注意我们的编码和组装算法</p>
+<h3 id="5-查询语言"><a class="header-anchor-1" href="#5-查询语言">#</a>5. 查询语言</h3>
+<p><img src="./fig6.png" alt="fig6" /></p>
+<p>Dremel 的查询语言基于 SQL，并旨在高效地在 列存储的嵌套表 上实现。本文档的范围不包括对语言的正式定义；相反，我们展示了它的风格。每个 SQL 语句（以及它转换为的代数运算符）都以一个或多个嵌套表及其模式作为输入，并产生一个嵌套表及其输出模式。图 6 显示了一个示例查询，该查询执行投影、选择和记录内的聚合。对该查询进行评估时使用了来自图 2 中的表 t={r1, r2}。字段通过路径表达式进行引用。尽管查询中没有记录构造器，但该查询会产生一个嵌套的结果。</p>
+<p>为了说明查询做了什么，考虑选择操作（WHERE 子句）。把嵌套记录想象成一个带标签的树，每个标签都对应着一个字段名。选择运算符会去掉不满足指定条件的树上的分支。因此，只有那些 Name.Url 被定义且以 http 开头的嵌套记录被保留下来。接下来考虑投影。SELECT 子句中的每个标量表达式都在与该表达式中使用最频繁的输入字段相同的层次上产生值。因此，字符串连接表达式会在输入模式中的 Name.Language.Code 层次上产生 Str 值。COUNT 表达式演示了记录内的聚合。聚合在每个 Name 子记录内进行，并为每个 Name 输出 Name.Language.Code 的出现次数，作为一个无符号 64 位整数（uint64）。</p>
+<p>该语言支持嵌套子查询、跨记录和内记录聚合、top-k、连接、用户定义函数等；实验部分举例说明了其中的一些功能。</p>
+<h3 id="6-查询执行"><a class="header-anchor-1" href="#6-查询执行">#</a>6. 查询执行</h3>
+<p>为了简单起见，我们在只读系统中讨论核心思想。 许多 Dremel 查询是一次性聚合； 因此，我们专注于解释这些，并在下一部分使用它们进行实验。 我们将在未来的工作中推迟连接、索引、更新等的讨论。</p>
+<p><img src="./fig7.png" alt="fig7" /></p>
+<p><em>树形架构</em>。Dremel 使用<strong>多层服务树</strong>来执行查询（参见图 7）。</p>
+<ul>
+<li>根服务器接收传入的查询，从表中读取元数据，并将查询路由到服务树的下一层。</li>
+<li>叶节点服务器负责和存储层进行交互或访问本地磁盘的数据。</li>
+</ul>
+<p>考虑下面一个简单的聚合查询：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">SELECT A, COUNT(B) FROM T GROUP BY A</span><br></pre></td></tr></table></figure>
+<p>当根服务器接收到上述查询时，它会确定由 T 组成的所有 tablet（即表的水平分区），并重写查询如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">SELECT A, SUM(c) FROM(R^1_1 UNION ALL... R^1_n) GROUP BY A</span><br></pre></td></tr></table></figure>
+<p>T^1_i 是服务器 i 在第一级处理的 T 中的不相交分区。每个服务级别执行类似的重写。最后，查询到达叶节点，并行扫描 T 中的表。在向上返回的过程中，中间服务器并行聚合部分结果。上面描述的执行模型非常适合于聚合查询，这些查询返回小型或中型的结果集，它们是一类非常常见的交互式查询。大型聚合和其他类型的查询可能需要依赖于并行 DBMS 和 MR 已知的执行机制。</p>
+<p><em>查询调度程序</em>。Dremel 是一个多用户系统，即通常会同时执行多个查询。查询调度程序根据其优先级对查询进行调度并平衡负载。它的重要作用是在一个服务器比其他服务器慢很多或某个表格外存副本无法访问时提供容错能力。</p>
+<p>每个查询处理的数据量通常都大于可用于执行的处理单元数，即我们所称的 slot。一个 slot 对应于叶服务器上的一个执行线程。例如，一个由 3,000 台叶服务器组成的系统，每台服务器使用 8 个线程，则有 24,000 个 slot。因此，对于一个包含 100,000 个 tablet 的表，每个 slot 需要处理 5 个 tablet。在查询运行期间，查询分发器计算 tablet 处理时间直方图。如果某个 tablet 处理时间过长，就会将其调度到另一个服务器上。有些 tablet 可能需要被重新调度多次。</p>
+<p>叶节点服务器以分块形式读取列式存储的嵌套数据。每个条带中的块异步预取；通常情况下，read-ahead 的缓存命中率为 95%。
+tablet 通常是三个副本。当一个叶节点无法访问一个平板副本时，它会 fallback 到另一个副本。</p>
+<p>查询调度程序遵守一个参数，该参数指定了<strong>在返回结果之前必须扫描的最小百分比</strong>。将此参数设置为较低值（例如 98％而不是 100％）通常可以显著加快执行速度，尤其是复制因子较小时。（译者注：因为 straggler 的存在）</p>
+<p>每个服务器都有一个内部执行树，如图 7 所示的右侧所示。内部树对应于物理查询执行计划，包括标量表达式的评估。为大多数标量函数生成了优化的、类型特定的代码。项目选择聚合查询的执行计划由一组迭代器组成，它们以步调扫描输入列，并发出带有正确重复级别和定义级别的聚合和标量函数的结果，在查询执行过程中完全跳过记录组装。有关详细信息，请参阅附录 D。</p>
+<p>Dremel 的一些查询，如 top-k 和 count-distinct，使用已知的 one-pass 算法（例如[4]）返回近似结果。</p>
+<h2 id="7-实验"><a class="header-anchor-1" href="#7-实验">#</a>7. 实验</h2>
+<p>略</p>
+<h2 id="参考资料"><a class="header-anchor-1" href="#参考资料">#</a>参考资料</h2>
+<ul>
+<li><span class="exturl" data-url="aHR0cHM6Ly9wYXBlci1ub3Rlcy56aGp3cGt1LmNvbS9kYXRhbGF5b3V0L2RyZW1lbC5odG1s">zhjwpku 论文阅读笔记<i class="fa fa-external-link-alt"></i></span></li>
+<li>Apache Parquet 的实现参考了 Dremel 的数据模型，Apache Drill 的实现参考了 Dremel 的查询模型。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>system</category>
+        <category>database-system</category>
+      </categories>
+      <tags>
+        <tag>数据库</tag>
+        <tag>分布式系统</tag>
+        <tag>Dremel</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>[SOSP&#39;07] Dynamo: Amazon’s Highly Available Key-value Store 论文阅读</title>
     <url>/2025/04/13/dynamo-amazons-highly-available-key-value-store/</url>
     <content><![CDATA[<p>今天来读经典。</p>
@@ -13002,6 +13130,155 @@ Dynamo 的早期设计使用去中心化故障检测器来维护全局一致的�
       </categories>
   </entry>
   <entry>
+    <title>MIT 6.824/6.5840 分布式系统 Lab 1: MapReduce</title>
+    <url>/2024/03/25/mit-6.824-distributed-system-lab1/</url>
+    <content><![CDATA[<p>本次 Lab 1 讲的是分布式计算的 MapReduce。</p>
+<h2 id="1-背景"><a class="header-anchor-1" href="#1-背景">#</a>1. 背景</h2>
+<p>MapReduce 源自 Google 在 OSDI '04 发表的论文，论文的作者是 Jeff Dean 和 Sanjay。主要提出了一种简单、可拓展的分布式计算编程模型。</p>
+<p>对于用户来说，只需要实现 <code>Map()</code> 和 <code>Reduce()</code> 两个函数，即可享受到分布式计算的好处，这就是 MapReduce 的设计理念。</p>
+<h3 id="思想"><a class="header-anchor-1" href="#思想">#</a>思想</h3>
+<p>MapReduce 需要用户将计算过程表达成以下两个函数：</p>
+<ul>
+<li><code>Map(key, value) -&gt; list(ikey, ivalue)</code></li>
+<li><code>Reduce(ikey, list(ivalue)) -&gt; list(ivalue)</code></li>
+</ul>
+<p>到这里大家可能已经感受到一点并行的思想，其实 MapReduce 是把一个任务分解成一系列子任务，每个子任务由 <code>Map</code> 函数去执行。这些子任务的输出会被重组，然后分门别类送到 <code>Reduce</code> 函数去执行。</p>
+<p>MapReduce 的 Motivation 是：</p>
+<ul>
+<li>很多大数据计算任务都是大量输入对应到小量的输出；</li>
+<li>分而治之，一个复杂计算任务往往可以分成多个更简单的部分；</li>
+<li>子任务之间往往可以并行执行； -&gt; <code>Map</code></li>
+</ul>
+<p>怎么区分”多个更简单的部分”？使用<code>ikey</code>标示子任务。</p>
+<h2 id="2-mapreduce-程序示例"><a class="header-anchor-1" href="#2-mapreduce-程序示例">#</a>2. MapReduce 程序示例</h2>
+<h3 id="word-count"><a class="header-anchor-1" href="#word-count">#</a>Word Count</h3>
+<p>Word count任务是统计一批文本中每个词出现的数量</p>
+<p>Map任务：统计一个分块中的词频</p>
+<p>Reduce任务：合并所有分块的词频</p>
+<h3 id="grep"><a class="header-anchor-1" href="#grep">#</a>Grep</h3>
+<p>Map任务：对一个分块做grep</p>
+<p>Reduce任务：合并所有的grep结果</p>
+<h3 id="计算图的逆"><a class="header-anchor-1" href="#计算图的逆">#</a>计算图的逆</h3>
+<p>已知所有的<code>&lt;source, target&gt;</code>边，计算每个<code>target</code>被哪些<code>source</code>引用</p>
+<p>Map任务：逆转一组边，得到<code>&lt;target, source&gt;</code></p>
+<p>Reduce任务：按<code>target</code>合并所有的<code>source</code></p>
+<h3 id="分布式排序"><a class="header-anchor-1" href="#分布式排序">#</a>分布式排序</h3>
+<p>Map任务：原样输出</p>
+<p>Reduce任务：原样输出</p>
+<h2 id="3-框架实现"><a class="header-anchor-1" href="#3-框架实现">#</a>3. 框架实现</h2>
+<p>MapReduce 框架负责调度和执行用户编写的 Map 和 Reduce 任务。</p>
+<p>根据环境（机器配置，网络拓扑，故障概率，和存储成本）不同，可以有很多不同的实现方案</p>
+<h3 id="概览"><a class="header-anchor-1" href="#概览">#</a>概览</h3>
+<p>框架首先将输入数据分成<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span></span>块，然后对每一块分别执行<code>map</code>过程，这个过程是在多个机器上并行执行的；</p>
+<p>在<code>map</code>全部完成后，将中间结果按照某些策略分成<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span>块，然后并行执行<code>reduce</code>过程；</p>
+<h3 id="主控节点数据结构"><a class="header-anchor-1" href="#主控节点数据结构">#</a>主控节点数据结构</h3>
+<ul>
+<li>任务状态：任务类型（<code>Map</code> or <code>Reduce</code>），执行状态（进行中 or 已完成），所在的机器</li>
+<li>数据状态：中间结果的存储位置和大小</li>
+</ul>
+<h3 id="分布式容错设计"><a class="header-anchor-1" href="#分布式容错设计">#</a>分布式容错设计</h3>
+<p>Worker节点的保障：Master节点会周期性地ping Worker节点；失联Worker节点已完成的任务会重新调度。</p>
+<p>Master节点的保障：Master节点会周期性做checkpoint方便故障时重新开始。</p>
+<p>出错时的语义保证：需要实现<code>Map/Reduce</code>任务提交是原子性的</p>
+<ul>
+<li><code>Map</code>任务通过提交临时文件名，由master做改名实现。</li>
+<li><code>Reduce</code>任务完成时会把工作临时文件改名为目标文件。</li>
+</ul>
+<h3 id="程序局部性"><a class="header-anchor-1" href="#程序局部性">#</a>程序局部性</h3>
+<p>分析局部性主要是考虑到带宽资源的限制。</p>
+<p>论文中实现的 MapReduce 框架是建立在 GFS (Google File System) 上的，GFS 会对文件进行分块然后保存三份副本。</p>
+<p>作者在实现时考虑到了底层GFS的影响，会尽量调度任务到有副本或者距离副本近的机器上。</p>
+<h3 id="任务划分粒度"><a class="header-anchor-1" href="#任务划分粒度">#</a>任务划分粒度</h3>
+<p>首先，输入数据会被划分成 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span></span> 个分块调用 <code>Map</code>，然后中间结果会被划分成 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> 个分块调用 <code>Reduce</code>。</p>
+<p>理想情况下，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> 应该<strong>远远大于</strong> Worker 机器数量：利于负载均衡、故障恢复、和任务均匀分发；</p>
+<p>取值上界：受限于主控节点的Memory，空间复杂度=<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>M</mi><mo>×</mo><mi>R</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(M\times R)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mclose">)</span></span></span></span></p>
+<p>实践经验：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> 影响中间结果文件的数量</p>
+<p>Google经验：2,000台Worker机器；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><mn>200</mn><mo separator="true">,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">M=200,000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">200</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">000</span></span></span></span>；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>5</mn><mo separator="true">,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">R=5,000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">5</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">000</span></span></span></span></p>
+<h3 id="备用任务"><a class="header-anchor-1" href="#备用任务">#</a>备用任务</h3>
+<p>一般来说，MapReduce框架计算的整体速度受制于少数“掉队者”，掉队的原因有很多，例如机器故障；</p>
+<p>当整个计算过程将要完成时，主控节点会将剩余的任务多安排一次（备用任务）。</p>
+<h2 id="4-一些细节优化"><a class="header-anchor-1" href="#4-一些细节优化">#</a>4. 一些细节优化</h2>
+<h3 id="分区函数"><a class="header-anchor-1" href="#分区函数">#</a>分区函数</h3>
+<p>提供给用户的分区函数，方便开发用；</p>
+<h3 id="数据处理顺序"><a class="header-anchor-1" href="#数据处理顺序">#</a>数据处理顺序</h3>
+<p>MapReduce框架保证同一个分区内，数据是按照key有序处理的，方便用户通过key访问结果文件；</p>
+<h3 id="合并器-combiner"><a class="header-anchor-1" href="#合并器-combiner">#</a>合并器 <code>Combiner</code></h3>
+<p>在一些任务中，中间结果划分不是均匀的，可能会导致大量中间结果分配到同一个<code>Reduce</code>任务去，打满网络带宽。</p>
+<p>例如Word count任务，会有大量的<code>&lt;the, 1&gt;</code>记录；</p>
+<p>为此MapReduce框架设计了一个可选的 <code>Combiner</code> 函数，在 <code>Map</code> 之后先对结果进行一次合并，再通过网络发出去；</p>
+<h3 id="输入输出类型"><a class="header-anchor-1" href="#输入输出类型">#</a>输入输出类型</h3>
+<p>MapReduce框架是支持多种输入文件格式，也支持用户自己实现一个<code>reader</code>接口。</p>
+<h3 id="副作用"><a class="header-anchor-1" href="#副作用">#</a>副作用</h3>
+<p>有时候用户在处理数据时可能想要一些辅助文件，这些是通过统一的一层<code>Application Writer</code>完成，这一层会处理原子更新文件（先写到临时文件然后再改名）之类的细节；</p>
+<p>对于多文件的情况，没有提供原子的两阶段提交，这一点需要用户自己保证；</p>
+<h3 id="跳过坏记录"><a class="header-anchor-1" href="#跳过坏记录">#</a>跳过坏记录</h3>
+<p>有时候用户的<code>Map</code>，<code>Reduce</code>可能会由于bug崩溃，MapReduce框架提供了一种可选的执行模式，可以自动检测确定性的崩溃数据，然后跳过这些记录；</p>
+<p>框架每次调度任务时会附带一个Sequence Number。每个Worker进程都会注册Signal Handler，捕获SegFault和BusError。当程序崩溃时，框架会给主控节点发一个&quot;Last gasp&quot;UDP数据包带上这个Seq Number。当框架检测到某一个记录崩溃超过一次，下次就会跳过。</p>
+<h3 id="本地执行"><a class="header-anchor-1" href="#本地执行">#</a>本地执行</h3>
+<p>为了方便用户Debug，框架提供了一种本地执行模式。</p>
+<h3 id="状态信息"><a class="header-anchor-1" href="#状态信息">#</a>状态信息</h3>
+<p>主控节点跑了一个HTTP服务，暴露内部的一些状态信息。</p>
+<h3 id="计数器"><a class="header-anchor-1" href="#计数器">#</a>计数器</h3>
+<p>框架提供了一个Counter对象，方便用户实现一些计数需求（可能是为了san check）</p>
+<h2 id="5-性能测试"><a class="header-anchor-1" href="#5-性能测试">#</a>5. 性能测试</h2>
+<h2 id="6-实践经验"><a class="header-anchor-1" href="#6-实践经验">#</a>6. 实践经验</h2>
+<h3 id="大规模索引任务"><a class="header-anchor-1" href="#大规模索引任务">#</a>大规模索引任务</h3>
+<p>收益巨大：</p>
+<ul>
+<li><strong>简化业务逻辑</strong>：索引代码更简单、更小、更容易理解，因为处理容错、分布和并行化的代码隐藏在 MapReduce 库中。</li>
+<li><strong>关注点分离</strong>：MapReduce 库的性能足够好，我们可以将概念上不相关的计算分开，而不是将它们混合在一起以避免对数据进行额外的传递。这使得更改索引过程变得容易。</li>
+<li><strong>简化横向拓展</strong>：机器、网络导致的问题被框架处理了，使得横向拓展更简单，只需要加机器即可。</li>
+</ul>
+<h2 id="回到-lab-1"><a class="header-anchor-1" href="#回到-lab-1">#</a>回到 Lab 1</h2>
+<p>Lab 1 是实现 MapReduce 框架的两个组件 Coordinator（Master）和 Worker。</p>
+<ul>
+<li>Master 负责分发任务给 Worker，会启动一个 RPC Server；</li>
+<li>Worker 从 Master 那里获取 <code>Map</code> 或 <code>Reduce</code> 任务并执行。</li>
+</ul>
+<p>整个 MapReduce 框架包括：</p>
+<ul>
+<li><code>main/mrcoordinator.go</code> 是 Master 的入口，会调用 <code>MakeCoordinator()</code> 然后等待；</li>
+<li><code>main/mrworker.go</code> 是 Worker 的入口，会加载用户程序（so库）获得 <code>Mapf</code> 和 <code>Reducef</code>，然后调用 Worker；</li>
+<li><code>mr/coordinator.go</code> 实现 Master 的逻辑；</li>
+<li><code>mr/worker.go</code> 实现 Worker 的逻辑；</li>
+<li>用户程序会被编译成 go plugin，被框架加载然后调用。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>system</category>
+        <category>distributed-system</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+        <tag>MapReduce</tag>
+        <tag>大数据</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MIT 6.824/6.5840 分布式系统 Lab 2</title>
+    <url>/2025/02/20/mit-6.824-distributed-system-lab2/</url>
+    <content><![CDATA[<h2 id="lab-2-key-value-server"><a class="header-anchor-1" href="#lab-2-key-value-server">#</a>Lab 2: Key/Value Server</h2>
+<p>新版本 6.824 课程添加了一个 Lab 2，实现一个请求幂等的简单 KV 存储服务，还有对应的 Client 端。</p>
+<p>幂等性：题目依赖的底层 RPC 网络是不可靠的。为此，在请求中携带一个递增的 Sequence Number，在服务端忽略每个 Client 的旧 Request 即可。</p>
+<p>服务端实现：维护一个 <code>map[int]int</code>，记录每一个 Client 发来的最大的 Sequence Number；注意 Append 命令还需要缓存执行的结果。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Last <span class="keyword">struct</span> &#123;</span><br><span class="line">    Seq   <span class="type">int</span></span><br><span class="line">    Value <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> KVServer <span class="keyword">struct</span> &#123;</span><br><span class="line">    last  <span class="keyword">map</span>[<span class="type">int</span>]Last</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Get 命令无需考虑幂等性，直接返回即可：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Get(args *GetArgs, reply *GetReply) &#123;</span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    reply.Value = kv.store[args.Key]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Put 命令需要保证幂等性：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Put(args *PutAppendArgs, reply *PutAppendReply) &#123;</span><br><span class="line">    <span class="comment">// log.Println(&quot;Put&quot;, args)</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">if</span> last, ok := kv.last[args.ClientId]; ok &#123;</span><br><span class="line">        <span class="keyword">if</span> args.Seq &lt; last.Seq &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">&quot;seq &lt; last&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> args.Seq == last.Seq &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    kv.last[args.ClientId] = Last&#123;Seq: args.Seq&#125;</span><br><span class="line">    kv.store[args.Key] = args.Value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Append 命令不仅需要保证幂等性，还需要缓存执行的结果：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Append(args *PutAppendArgs, reply *PutAppendReply) &#123;</span><br><span class="line">    <span class="comment">// log.Println(&quot;Append&quot;, args)</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">if</span> last, ok := kv.last[args.ClientId]; ok &#123;</span><br><span class="line">        <span class="keyword">if</span> args.Seq &lt; last.Seq &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">&quot;seq &lt; last&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> args.Seq == last.Seq &#123;</span><br><span class="line">            reply.Value = last.Value</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Reply with the old value</span></span><br><span class="line">    reply.Value = kv.store[args.Key]</span><br><span class="line">    kv.last[args.ClientId] = Last&#123;Seq: args.Seq, Value: kv.store[args.Key]&#125;</span><br><span class="line">    kv.store[args.Key] += args.Value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>system</category>
+        <category>distributed-system</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+        <tag>Raft</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>[OSDI&#39;06] Bigtable: A Distributed Storage System for Structured Data 论文阅读</title>
     <url>/2025/02/27/bigtable-a-distributed-storage-system/</url>
     <content><![CDATA[<h2 id="0-摘要"><a class="header-anchor-1" href="#0-摘要">#</a>0. 摘要</h2>
@@ -13232,155 +13509,6 @@ Google Analytics 总结这些信息，然后提供给网站所有者。</p>
       <tags>
         <tag>分布式系统</tag>
         <tag>Bigtable</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MIT 6.824/6.5840 分布式系统 Lab 1: MapReduce</title>
-    <url>/2024/03/25/mit-6.824-distributed-system-lab1/</url>
-    <content><![CDATA[<p>本次 Lab 1 讲的是分布式计算的 MapReduce。</p>
-<h2 id="1-背景"><a class="header-anchor-1" href="#1-背景">#</a>1. 背景</h2>
-<p>MapReduce 源自 Google 在 OSDI '04 发表的论文，论文的作者是 Jeff Dean 和 Sanjay。主要提出了一种简单、可拓展的分布式计算编程模型。</p>
-<p>对于用户来说，只需要实现 <code>Map()</code> 和 <code>Reduce()</code> 两个函数，即可享受到分布式计算的好处，这就是 MapReduce 的设计理念。</p>
-<h3 id="思想"><a class="header-anchor-1" href="#思想">#</a>思想</h3>
-<p>MapReduce 需要用户将计算过程表达成以下两个函数：</p>
-<ul>
-<li><code>Map(key, value) -&gt; list(ikey, ivalue)</code></li>
-<li><code>Reduce(ikey, list(ivalue)) -&gt; list(ivalue)</code></li>
-</ul>
-<p>到这里大家可能已经感受到一点并行的思想，其实 MapReduce 是把一个任务分解成一系列子任务，每个子任务由 <code>Map</code> 函数去执行。这些子任务的输出会被重组，然后分门别类送到 <code>Reduce</code> 函数去执行。</p>
-<p>MapReduce 的 Motivation 是：</p>
-<ul>
-<li>很多大数据计算任务都是大量输入对应到小量的输出；</li>
-<li>分而治之，一个复杂计算任务往往可以分成多个更简单的部分；</li>
-<li>子任务之间往往可以并行执行； -&gt; <code>Map</code></li>
-</ul>
-<p>怎么区分”多个更简单的部分”？使用<code>ikey</code>标示子任务。</p>
-<h2 id="2-mapreduce-程序示例"><a class="header-anchor-1" href="#2-mapreduce-程序示例">#</a>2. MapReduce 程序示例</h2>
-<h3 id="word-count"><a class="header-anchor-1" href="#word-count">#</a>Word Count</h3>
-<p>Word count任务是统计一批文本中每个词出现的数量</p>
-<p>Map任务：统计一个分块中的词频</p>
-<p>Reduce任务：合并所有分块的词频</p>
-<h3 id="grep"><a class="header-anchor-1" href="#grep">#</a>Grep</h3>
-<p>Map任务：对一个分块做grep</p>
-<p>Reduce任务：合并所有的grep结果</p>
-<h3 id="计算图的逆"><a class="header-anchor-1" href="#计算图的逆">#</a>计算图的逆</h3>
-<p>已知所有的<code>&lt;source, target&gt;</code>边，计算每个<code>target</code>被哪些<code>source</code>引用</p>
-<p>Map任务：逆转一组边，得到<code>&lt;target, source&gt;</code></p>
-<p>Reduce任务：按<code>target</code>合并所有的<code>source</code></p>
-<h3 id="分布式排序"><a class="header-anchor-1" href="#分布式排序">#</a>分布式排序</h3>
-<p>Map任务：原样输出</p>
-<p>Reduce任务：原样输出</p>
-<h2 id="3-框架实现"><a class="header-anchor-1" href="#3-框架实现">#</a>3. 框架实现</h2>
-<p>MapReduce 框架负责调度和执行用户编写的 Map 和 Reduce 任务。</p>
-<p>根据环境（机器配置，网络拓扑，故障概率，和存储成本）不同，可以有很多不同的实现方案</p>
-<h3 id="概览"><a class="header-anchor-1" href="#概览">#</a>概览</h3>
-<p>框架首先将输入数据分成<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span></span>块，然后对每一块分别执行<code>map</code>过程，这个过程是在多个机器上并行执行的；</p>
-<p>在<code>map</code>全部完成后，将中间结果按照某些策略分成<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span>块，然后并行执行<code>reduce</code>过程；</p>
-<h3 id="主控节点数据结构"><a class="header-anchor-1" href="#主控节点数据结构">#</a>主控节点数据结构</h3>
-<ul>
-<li>任务状态：任务类型（<code>Map</code> or <code>Reduce</code>），执行状态（进行中 or 已完成），所在的机器</li>
-<li>数据状态：中间结果的存储位置和大小</li>
-</ul>
-<h3 id="分布式容错设计"><a class="header-anchor-1" href="#分布式容错设计">#</a>分布式容错设计</h3>
-<p>Worker节点的保障：Master节点会周期性地ping Worker节点；失联Worker节点已完成的任务会重新调度。</p>
-<p>Master节点的保障：Master节点会周期性做checkpoint方便故障时重新开始。</p>
-<p>出错时的语义保证：需要实现<code>Map/Reduce</code>任务提交是原子性的</p>
-<ul>
-<li><code>Map</code>任务通过提交临时文件名，由master做改名实现。</li>
-<li><code>Reduce</code>任务完成时会把工作临时文件改名为目标文件。</li>
-</ul>
-<h3 id="程序局部性"><a class="header-anchor-1" href="#程序局部性">#</a>程序局部性</h3>
-<p>分析局部性主要是考虑到带宽资源的限制。</p>
-<p>论文中实现的 MapReduce 框架是建立在 GFS (Google File System) 上的，GFS 会对文件进行分块然后保存三份副本。</p>
-<p>作者在实现时考虑到了底层GFS的影响，会尽量调度任务到有副本或者距离副本近的机器上。</p>
-<h3 id="任务划分粒度"><a class="header-anchor-1" href="#任务划分粒度">#</a>任务划分粒度</h3>
-<p>首先，输入数据会被划分成 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span></span> 个分块调用 <code>Map</code>，然后中间结果会被划分成 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> 个分块调用 <code>Reduce</code>。</p>
-<p>理想情况下，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> 应该<strong>远远大于</strong> Worker 机器数量：利于负载均衡、故障恢复、和任务均匀分发；</p>
-<p>取值上界：受限于主控节点的Memory，空间复杂度=<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>M</mi><mo>×</mo><mi>R</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(M\times R)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mclose">)</span></span></span></span></p>
-<p>实践经验：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> 影响中间结果文件的数量</p>
-<p>Google经验：2,000台Worker机器；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><mn>200</mn><mo separator="true">,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">M=200,000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">200</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">000</span></span></span></span>；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>5</mn><mo separator="true">,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">R=5,000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">5</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">000</span></span></span></span></p>
-<h3 id="备用任务"><a class="header-anchor-1" href="#备用任务">#</a>备用任务</h3>
-<p>一般来说，MapReduce框架计算的整体速度受制于少数“掉队者”，掉队的原因有很多，例如机器故障；</p>
-<p>当整个计算过程将要完成时，主控节点会将剩余的任务多安排一次（备用任务）。</p>
-<h2 id="4-一些细节优化"><a class="header-anchor-1" href="#4-一些细节优化">#</a>4. 一些细节优化</h2>
-<h3 id="分区函数"><a class="header-anchor-1" href="#分区函数">#</a>分区函数</h3>
-<p>提供给用户的分区函数，方便开发用；</p>
-<h3 id="数据处理顺序"><a class="header-anchor-1" href="#数据处理顺序">#</a>数据处理顺序</h3>
-<p>MapReduce框架保证同一个分区内，数据是按照key有序处理的，方便用户通过key访问结果文件；</p>
-<h3 id="合并器-combiner"><a class="header-anchor-1" href="#合并器-combiner">#</a>合并器 <code>Combiner</code></h3>
-<p>在一些任务中，中间结果划分不是均匀的，可能会导致大量中间结果分配到同一个<code>Reduce</code>任务去，打满网络带宽。</p>
-<p>例如Word count任务，会有大量的<code>&lt;the, 1&gt;</code>记录；</p>
-<p>为此MapReduce框架设计了一个可选的 <code>Combiner</code> 函数，在 <code>Map</code> 之后先对结果进行一次合并，再通过网络发出去；</p>
-<h3 id="输入输出类型"><a class="header-anchor-1" href="#输入输出类型">#</a>输入输出类型</h3>
-<p>MapReduce框架是支持多种输入文件格式，也支持用户自己实现一个<code>reader</code>接口。</p>
-<h3 id="副作用"><a class="header-anchor-1" href="#副作用">#</a>副作用</h3>
-<p>有时候用户在处理数据时可能想要一些辅助文件，这些是通过统一的一层<code>Application Writer</code>完成，这一层会处理原子更新文件（先写到临时文件然后再改名）之类的细节；</p>
-<p>对于多文件的情况，没有提供原子的两阶段提交，这一点需要用户自己保证；</p>
-<h3 id="跳过坏记录"><a class="header-anchor-1" href="#跳过坏记录">#</a>跳过坏记录</h3>
-<p>有时候用户的<code>Map</code>，<code>Reduce</code>可能会由于bug崩溃，MapReduce框架提供了一种可选的执行模式，可以自动检测确定性的崩溃数据，然后跳过这些记录；</p>
-<p>框架每次调度任务时会附带一个Sequence Number。每个Worker进程都会注册Signal Handler，捕获SegFault和BusError。当程序崩溃时，框架会给主控节点发一个&quot;Last gasp&quot;UDP数据包带上这个Seq Number。当框架检测到某一个记录崩溃超过一次，下次就会跳过。</p>
-<h3 id="本地执行"><a class="header-anchor-1" href="#本地执行">#</a>本地执行</h3>
-<p>为了方便用户Debug，框架提供了一种本地执行模式。</p>
-<h3 id="状态信息"><a class="header-anchor-1" href="#状态信息">#</a>状态信息</h3>
-<p>主控节点跑了一个HTTP服务，暴露内部的一些状态信息。</p>
-<h3 id="计数器"><a class="header-anchor-1" href="#计数器">#</a>计数器</h3>
-<p>框架提供了一个Counter对象，方便用户实现一些计数需求（可能是为了san check）</p>
-<h2 id="5-性能测试"><a class="header-anchor-1" href="#5-性能测试">#</a>5. 性能测试</h2>
-<h2 id="6-实践经验"><a class="header-anchor-1" href="#6-实践经验">#</a>6. 实践经验</h2>
-<h3 id="大规模索引任务"><a class="header-anchor-1" href="#大规模索引任务">#</a>大规模索引任务</h3>
-<p>收益巨大：</p>
-<ul>
-<li><strong>简化业务逻辑</strong>：索引代码更简单、更小、更容易理解，因为处理容错、分布和并行化的代码隐藏在 MapReduce 库中。</li>
-<li><strong>关注点分离</strong>：MapReduce 库的性能足够好，我们可以将概念上不相关的计算分开，而不是将它们混合在一起以避免对数据进行额外的传递。这使得更改索引过程变得容易。</li>
-<li><strong>简化横向拓展</strong>：机器、网络导致的问题被框架处理了，使得横向拓展更简单，只需要加机器即可。</li>
-</ul>
-<h2 id="回到-lab-1"><a class="header-anchor-1" href="#回到-lab-1">#</a>回到 Lab 1</h2>
-<p>Lab 1 是实现 MapReduce 框架的两个组件 Coordinator（Master）和 Worker。</p>
-<ul>
-<li>Master 负责分发任务给 Worker，会启动一个 RPC Server；</li>
-<li>Worker 从 Master 那里获取 <code>Map</code> 或 <code>Reduce</code> 任务并执行。</li>
-</ul>
-<p>整个 MapReduce 框架包括：</p>
-<ul>
-<li><code>main/mrcoordinator.go</code> 是 Master 的入口，会调用 <code>MakeCoordinator()</code> 然后等待；</li>
-<li><code>main/mrworker.go</code> 是 Worker 的入口，会加载用户程序（so库）获得 <code>Mapf</code> 和 <code>Reducef</code>，然后调用 Worker；</li>
-<li><code>mr/coordinator.go</code> 实现 Master 的逻辑；</li>
-<li><code>mr/worker.go</code> 实现 Worker 的逻辑；</li>
-<li>用户程序会被编译成 go plugin，被框架加载然后调用。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>system</category>
-        <category>distributed-system</category>
-      </categories>
-      <tags>
-        <tag>分布式系统</tag>
-        <tag>MapReduce</tag>
-        <tag>大数据</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MIT 6.824/6.5840 分布式系统 Lab 2</title>
-    <url>/2025/02/20/mit-6.824-distributed-system-lab2/</url>
-    <content><![CDATA[<h2 id="lab-2-key-value-server"><a class="header-anchor-1" href="#lab-2-key-value-server">#</a>Lab 2: Key/Value Server</h2>
-<p>新版本 6.824 课程添加了一个 Lab 2，实现一个请求幂等的简单 KV 存储服务，还有对应的 Client 端。</p>
-<p>幂等性：题目依赖的底层 RPC 网络是不可靠的。为此，在请求中携带一个递增的 Sequence Number，在服务端忽略每个 Client 的旧 Request 即可。</p>
-<p>服务端实现：维护一个 <code>map[int]int</code>，记录每一个 Client 发来的最大的 Sequence Number；注意 Append 命令还需要缓存执行的结果。</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Last <span class="keyword">struct</span> &#123;</span><br><span class="line">    Seq   <span class="type">int</span></span><br><span class="line">    Value <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> KVServer <span class="keyword">struct</span> &#123;</span><br><span class="line">    last  <span class="keyword">map</span>[<span class="type">int</span>]Last</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Get 命令无需考虑幂等性，直接返回即可：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Get(args *GetArgs, reply *GetReply) &#123;</span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    reply.Value = kv.store[args.Key]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Put 命令需要保证幂等性：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Put(args *PutAppendArgs, reply *PutAppendReply) &#123;</span><br><span class="line">    <span class="comment">// log.Println(&quot;Put&quot;, args)</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">if</span> last, ok := kv.last[args.ClientId]; ok &#123;</span><br><span class="line">        <span class="keyword">if</span> args.Seq &lt; last.Seq &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">&quot;seq &lt; last&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> args.Seq == last.Seq &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    kv.last[args.ClientId] = Last&#123;Seq: args.Seq&#125;</span><br><span class="line">    kv.store[args.Key] = args.Value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Append 命令不仅需要保证幂等性，还需要缓存执行的结果：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span></span> Append(args *PutAppendArgs, reply *PutAppendReply) &#123;</span><br><span class="line">    <span class="comment">// log.Println(&quot;Append&quot;, args)</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">if</span> last, ok := kv.last[args.ClientId]; ok &#123;</span><br><span class="line">        <span class="keyword">if</span> args.Seq &lt; last.Seq &#123;</span><br><span class="line">            <span class="built_in">panic</span>(<span class="string">&quot;seq &lt; last&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> args.Seq == last.Seq &#123;</span><br><span class="line">            reply.Value = last.Value</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Reply with the old value</span></span><br><span class="line">    reply.Value = kv.store[args.Key]</span><br><span class="line">    kv.last[args.ClientId] = Last&#123;Seq: args.Seq, Value: kv.store[args.Key]&#125;</span><br><span class="line">    kv.store[args.Key] += args.Value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>system</category>
-        <category>distributed-system</category>
-      </categories>
-      <tags>
-        <tag>分布式系统</tag>
-        <tag>Raft</tag>
       </tags>
   </entry>
   <entry>
@@ -16087,29 +16215,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
   </entry>
   <entry>
     <title>每日小结</title>
-    <url>/2020/12/13/2020-12-13/</url>
-    <content><![CDATA[<h2 id="c-stl-中-unique-的用法"><a class="header-anchor-1" href="#c-stl-中-unique-的用法">#</a>C++ STL 中 unique 的用法</h2>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>, <span class="keyword">class</span> <span class="title class_">BinaryPredicate</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last,</span></span></span><br><span class="line"><span class="params"><span class="function">                           BinaryPredicate pred )</span></span>;</span><br></pre></td></tr></table></figure>
-<p>将<code>[first, last)</code>之间, <strong>相邻</strong>的多个相同元素合并为一个, 返回指向不重复部分末尾的迭代器. 多和 sort 函数一起使用</p>
-<p>例: 使用 unique 实现<span class="exturl" data-url="aHR0cHM6Ly9vaS13aWtpLm9yZy9taXNjL2Rpc2NyZXRlLw==">离散化<i class="fa fa-external-link-alt"></i></span>:</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// vector&lt;int&gt; array;</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">auto</span> disc = array;</span><br><span class="line"><span class="built_in">sort</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>());</span><br><span class="line">disc.<span class="built_in">erase</span>(<span class="built_in">unique</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>()), disc.<span class="built_in">end</span>())</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; disc.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">  disc[i] = <span class="built_in">lower_bound</span>(array.<span class="built_in">begin</span>(), array.<span class="built_in">end</span>(), disc[i]) - array.<span class="built_in">begin</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 那么disc就可以作为离散化之后的索引</span></span><br><span class="line"><span class="comment">// disc[i] = array中第i种元素的最小下标</span></span><br></pre></td></tr></table></figure>
-<h2 id="ccfcsp"><a class="header-anchor-1" href="#ccfcsp">#</a>CCFCSP</h2>
-<p>今天考了 CCF CSP.</p>
-<h2 id="区间树-interval-tree-和线段树-segment-tree"><a class="header-anchor-1" href="#区间树-interval-tree-和线段树-segment-tree">#</a>区间树(Interval Tree)和线段树(Segment Tree)</h2>
-]]></content>
-      <categories>
-        <category>misc</category>
-        <category>daily</category>
-        <category>2020</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-        <tag>STL</tag>
-        <tag>CCFCSP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>每日小结</title>
     <url>/2020/12/11/2020-12-11/</url>
     <content><![CDATA[<h2 id="linux-内核提权"><a class="header-anchor-1" href="#linux-内核提权">#</a>Linux 内核提权</h2>
 <ul>
@@ -16140,6 +16245,29 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
         <tag>信息安全</tag>
         <tag>GCC</tag>
         <tag>NCRE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>每日小结</title>
+    <url>/2020/12/13/2020-12-13/</url>
+    <content><![CDATA[<h2 id="c-stl-中-unique-的用法"><a class="header-anchor-1" href="#c-stl-中-unique-的用法">#</a>C++ STL 中 unique 的用法</h2>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">ForwardIterator</span>, <span class="keyword">class</span> <span class="title class_">BinaryPredicate</span>&gt;</span><br><span class="line">  <span class="function">ForwardIterator <span class="title">unique</span> <span class="params">( ForwardIterator first, ForwardIterator last,</span></span></span><br><span class="line"><span class="params"><span class="function">                           BinaryPredicate pred )</span></span>;</span><br></pre></td></tr></table></figure>
+<p>将<code>[first, last)</code>之间, <strong>相邻</strong>的多个相同元素合并为一个, 返回指向不重复部分末尾的迭代器. 多和 sort 函数一起使用</p>
+<p>例: 使用 unique 实现<span class="exturl" data-url="aHR0cHM6Ly9vaS13aWtpLm9yZy9taXNjL2Rpc2NyZXRlLw==">离散化<i class="fa fa-external-link-alt"></i></span>:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// vector&lt;int&gt; array;</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">auto</span> disc = array;</span><br><span class="line"><span class="built_in">sort</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>());</span><br><span class="line">disc.<span class="built_in">erase</span>(<span class="built_in">unique</span>(disc.<span class="built_in">begin</span>(), disc.<span class="built_in">end</span>()), disc.<span class="built_in">end</span>())</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; disc.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">  disc[i] = <span class="built_in">lower_bound</span>(array.<span class="built_in">begin</span>(), array.<span class="built_in">end</span>(), disc[i]) - array.<span class="built_in">begin</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 那么disc就可以作为离散化之后的索引</span></span><br><span class="line"><span class="comment">// disc[i] = array中第i种元素的最小下标</span></span><br></pre></td></tr></table></figure>
+<h2 id="ccfcsp"><a class="header-anchor-1" href="#ccfcsp">#</a>CCFCSP</h2>
+<p>今天考了 CCF CSP.</p>
+<h2 id="区间树-interval-tree-和线段树-segment-tree"><a class="header-anchor-1" href="#区间树-interval-tree-和线段树-segment-tree">#</a>区间树(Interval Tree)和线段树(Segment Tree)</h2>
+]]></content>
+      <categories>
+        <category>misc</category>
+        <category>daily</category>
+        <category>2020</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>STL</tag>
+        <tag>CCFCSP</tag>
       </tags>
   </entry>
   <entry>
@@ -16585,23 +16713,6 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"/></svg></span></span
       </tags>
   </entry>
   <entry>
-    <title>Python 自定义 JSON Encoder</title>
-    <url>/2021/06/15/2021-06-15/</url>
-    <content><![CDATA[<h2 id="python-自定义-json-encoder"><a class="header-anchor-1" href="#python-自定义-json-encoder">#</a>Python 自定义 JSON Encoder</h2>
-<p>继承 json.JSONEncoder 类, 重载 default 方法</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).default(o)</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>misc</category>
-        <category>daily</category>
-        <category>2021</category>
-      </categories>
-      <tags>
-        <tag>Python</tag>
-        <tag>json</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Rabin-Karp 算法</title>
     <url>/2021/07/02/2021-07-02/</url>
     <content><![CDATA[<h1>Rabin-Karp 算法</h1>
@@ -16685,6 +16796,23 @@ h_i &amp;= \sum_{p = 0}^{L - 1}{s_{i + p} b^{L - 1 - p}}\\
       </categories>
       <tags>
         <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Python 自定义 JSON Encoder</title>
+    <url>/2021/06/15/2021-06-15/</url>
+    <content><![CDATA[<h2 id="python-自定义-json-encoder"><a class="header-anchor-1" href="#python-自定义-json-encoder">#</a>Python 自定义 JSON Encoder</h2>
+<p>继承 json.JSONEncoder 类, 重载 default 方法</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">convert_time</span>(<span class="params">dt: DateTime</span>):</span><br><span class="line">    pdt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute,</span><br><span class="line">                   <span class="built_in">int</span>(dt.second), <span class="built_in">int</span>(dt.second * <span class="number">1000000</span> % <span class="number">1000000</span>))</span><br><span class="line">    <span class="keyword">return</span> pdt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomJSONEncoder</span>(<span class="title class_ inherited__">JSONEncoder</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">default</span>(<span class="params">self, o</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(o, DateTime):</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).encode(convert_time(o).isoformat())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>(CustomJSONEncoder, <span class="variable language_">self</span>).default(o)</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>misc</category>
+        <category>daily</category>
+        <category>2021</category>
+      </categories>
+      <tags>
+        <tag>Python</tag>
+        <tag>json</tag>
       </tags>
   </entry>
   <entry>
@@ -17315,11 +17443,10 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>3. 无重复字符的最长子串</title>
-    <url>/2021/03/01/3/</url>
-    <content><![CDATA[<h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
-<p>滑动窗口</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(string s)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        unordered_set&lt;<span class="type">char</span>&gt; cur_group;</span><br><span class="line">        <span class="type">int</span> end = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (end &lt; s.<span class="built_in">size</span>() &amp;&amp; cur_group.<span class="built_in">find</span>(s[end]) == cur_group.<span class="built_in">end</span>()) &#123;</span><br><span class="line">            cur_group.<span class="built_in">insert</span>(s[end++]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> max_length = cur_group.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; s.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            cur_group.<span class="built_in">erase</span>(s[i]);</span><br><span class="line">            <span class="keyword">while</span> (end &lt; s.<span class="built_in">size</span>() &amp;&amp; cur_group.<span class="built_in">find</span>(s[end]) == cur_group.<span class="built_in">end</span>()) &#123;</span><br><span class="line">                cur_group.<span class="built_in">insert</span>(s[end++]);</span><br><span class="line">            &#125;</span><br><span class="line">            max_length = std::<span class="built_in">max</span>(max_length, cur_group.<span class="built_in">size</span>());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max_length;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>318. 最大单词长度乘积</title>
+    <url>/2021/11/17/318/</url>
+    <content><![CDATA[<p>位运算</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">unsigned</span> <span class="title">to_uword</span><span class="params">(<span class="type">const</span> string &amp;word)</span> </span>&#123;</span><br><span class="line">        <span class="type">unsigned</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;c: word) &#123;</span><br><span class="line">            res |= <span class="number">1</span> &lt;&lt; (c - <span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">maxProduct</span><span class="params">(vector&lt;string&gt;&amp; words)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="type">unsigned</span>&gt; uwords;</span><br><span class="line">        uwords.<span class="built_in">reserve</span>(words.<span class="built_in">size</span>());</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;w: words) &#123;</span><br><span class="line">            uwords.<span class="built_in">push_back</span>(<span class="built_in">to_uword</span>(w));</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> m = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> n = words.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = i; j &lt; n; j++) &#123;</span><br><span class="line">                <span class="keyword">auto</span> &amp;s1 = uwords[i];</span><br><span class="line">                <span class="keyword">auto</span> &amp;s2 = uwords[j];</span><br><span class="line">                <span class="keyword">if</span> (s1 &amp; s2) <span class="keyword">continue</span>;</span><br><span class="line">                <span class="keyword">if</span> (<span class="type">int</span> r = words[i].<span class="built_in">size</span>() * words[j].<span class="built_in">size</span>(); r &gt; m) m = r;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>programming</category>
         <category>algorithm-practice</category>
@@ -17327,10 +17454,11 @@ f[i][j - 2], &amp; p[j] = &#x27;*&#x27; ~and~ s[i] \neq p[j-1]
       </categories>
   </entry>
   <entry>
-    <title>318. 最大单词长度乘积</title>
-    <url>/2021/11/17/318/</url>
-    <content><![CDATA[<p>位运算</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">unsigned</span> <span class="title">to_uword</span><span class="params">(<span class="type">const</span> string &amp;word)</span> </span>&#123;</span><br><span class="line">        <span class="type">unsigned</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;c: word) &#123;</span><br><span class="line">            res |= <span class="number">1</span> &lt;&lt; (c - <span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">maxProduct</span><span class="params">(vector&lt;string&gt;&amp; words)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="type">unsigned</span>&gt; uwords;</span><br><span class="line">        uwords.<span class="built_in">reserve</span>(words.<span class="built_in">size</span>());</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;&amp;w: words) &#123;</span><br><span class="line">            uwords.<span class="built_in">push_back</span>(<span class="built_in">to_uword</span>(w));</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> m = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> n = words.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = i; j &lt; n; j++) &#123;</span><br><span class="line">                <span class="keyword">auto</span> &amp;s1 = uwords[i];</span><br><span class="line">                <span class="keyword">auto</span> &amp;s2 = uwords[j];</span><br><span class="line">                <span class="keyword">if</span> (s1 &amp; s2) <span class="keyword">continue</span>;</span><br><span class="line">                <span class="keyword">if</span> (<span class="type">int</span> r = words[i].<span class="built_in">size</span>() * words[j].<span class="built_in">size</span>(); r &gt; m) m = r;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+    <title>3. 无重复字符的最长子串</title>
+    <url>/2021/03/01/3/</url>
+    <content><![CDATA[<h2 id="思路"><a class="header-anchor-1" href="#思路">#</a>思路</h2>
+<p>滑动窗口</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(string s)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        unordered_set&lt;<span class="type">char</span>&gt; cur_group;</span><br><span class="line">        <span class="type">int</span> end = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (end &lt; s.<span class="built_in">size</span>() &amp;&amp; cur_group.<span class="built_in">find</span>(s[end]) == cur_group.<span class="built_in">end</span>()) &#123;</span><br><span class="line">            cur_group.<span class="built_in">insert</span>(s[end++]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> max_length = cur_group.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; s.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            cur_group.<span class="built_in">erase</span>(s[i]);</span><br><span class="line">            <span class="keyword">while</span> (end &lt; s.<span class="built_in">size</span>() &amp;&amp; cur_group.<span class="built_in">find</span>(s[end]) == cur_group.<span class="built_in">end</span>()) &#123;</span><br><span class="line">                cur_group.<span class="built_in">insert</span>(s[end++]);</span><br><span class="line">            &#125;</span><br><span class="line">            max_length = std::<span class="built_in">max</span>(max_length, cur_group.<span class="built_in">size</span>());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max_length;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>programming</category>
         <category>algorithm-practice</category>
