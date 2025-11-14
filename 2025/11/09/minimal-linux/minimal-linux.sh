@@ -73,7 +73,7 @@ UTIL_LINUX_CMDS=( \
   /usr/bin/chfn /usr/bin/chsh /usr/bin/chrt /usr/bin/taskset \
   /usr/bin/lslogins /usr/bin/loginctl /usr/bin/fallocate \
   /usr/bin/blockdev /usr/bin/mkfs /usr/bin/mkfs.bfs \
-  /usr/sbin/ctrlaltdel \
+  /usr/sbin/ctrlaltdel /usr/sbin/su \
 )
 PROCPS_CMDS=( /usr/bin/ps /usr/bin/top /usr/bin/free /usr/bin/uptime )
 NET_TOOLS_CMDS=( /sbin/ifconfig /sbin/ip /usr/sbin/ss /usr/sbin/netstat /usr/sbin/route )
